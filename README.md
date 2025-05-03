@@ -121,3 +121,7 @@ model Grade {
 ### 🏫 About UCSH
 
 This platform was developed for the University of Computer Studies, Hinthada to digitize and streamline the grading process.
+
+## 📄 License
+
+This project is licensed under the [MIT License](./LICENSE).
