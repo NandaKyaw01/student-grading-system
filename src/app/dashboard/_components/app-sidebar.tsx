@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import {
-  ArrowUpCircleIcon,
+  // ArrowUpCircleIcon,
   BarChartIcon,
   CameraIcon,
   ClipboardListIcon,
@@ -19,10 +19,10 @@ import {
   UsersIcon,
 } from "lucide-react"
 
-import { NavDocuments } from "@/components/nav-documents"
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavDocuments } from "@/app/dashboard/_components/nav-documents"
+import { NavMain } from "@/app/dashboard/_components/nav-main"
+import { NavSecondary } from "@/app/dashboard/_components/nav-secondary"
+import { NavUser } from "@/app/dashboard/_components/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -32,6 +32,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import Image from "next/image"
+import Link from "next/link"
 
 const data = {
   user: {
@@ -160,10 +162,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
+              <Link href="/">
+                {/* <ArrowUpCircleIcon className="h-5 w-5" /> */}
+                <Image src="/assets/image/logo.png" className="h-5 w-5" alt="logo" width={200} height={200} />
+                <span className="text-base font-semibold">Grading System</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
