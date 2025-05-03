@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎓 UCSH Student Grading System
 
-## Getting Started
+A modern web application for managing student grades at the **University of Computer Studies, Hinthada (UCSH)**. Built using **Next.js**, **Prisma**, **Tailwind CSS**, and **shadcn/ui** for a fast, scalable, and user-friendly experience.
 
-First, run the development server:
+---
+
+## 🚀 Tech Stack
+
+- **[Next.js 15](https://nextjs.org/)** – Full-stack React framework
+- **[Prisma ORM](https://www.prisma.io/)** – Type-safe database access
+- **[Tailwind CSS](https://tailwindcss.com/)** – Utility-first CSS
+- **[shadcn/ui](https://ui.shadcn.dev/)** – Prebuilt UI components with Radix & Tailwind
+- **TypeScript** – Safer and predictable codebase
+
+---
+
+## 📦 Full Project Setup Guide
+
+Follow these steps to get the project running locally.
+
+---
+
+### ✅ 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/ucsh-grading-system.git
+cd ucsh-grading-system
+```
+
+### ✅ 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### ✅ 3. Create Environment Variables
+
+Create a .env file at the project root and configure the database and secret keys:
+
+```bash
+# .env
+
+# Prisma Database URL (PostgreSQL example)
+DATABASE_URL="postgresql://user:password@localhost:5432/ucsh_grading"
+
+# Optional: other envs
+```
+
+### ✅ 4. Set Up the Database with Prisma
+
+a. Generate the Prisma Client
+
+```bash
+npx prisma generate
+```
+
+b. Create Database & Apply Migrations
+
+```bash
+npx prisma migrate dev --name init
+```
+
+c. (Optional) Seed the Database
+
+```bash
+npx prisma db seed
+```
+
+### ✅ 5. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🗂️ Folder Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+.
+├── .vscode/                 # VSCode settings
+├── public/                  # Static assets
+│   └── assets/
+│       └── image/
+├── src/                     # Source code
+│   ├── app/                 # Next.js App Router pages and routes
+│   ├── components/          # Reusable UI components
+│   ├── lib/                 # Database helpers, utilities, config
+│   │   └── prisma.ts        # Prisma client setup
+│   └── styles/              # Tailwind & global CSS
+│       └── globals.css
+├── prisma/                  # Prisma schema and migrations
+│   ├── schema.prisma
+│   └── seed.ts              # Optional seed script
+├── .env                     # Local environment variables
+├── tailwind.config.ts       # Tailwind CSS configuration
+├── next.config.ts           # Next.js configuration
+├── tsconfig.json            # TypeScript configuration
+├── .prettierrc              # Prettier configuration
+├── eslint.config.mjs        # ESLint configuration
+└── package.json             # Project metadata and scripts
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🧪 Sample Prisma Model (Example)
 
-## Learn More
+```bash
+model Student {
+  id        String   @id @default(cuid())
+  name      String
+  rollNo    String   @unique
+  grades    Grade[]
+}
 
-To learn more about Next.js, take a look at the following resources:
+model Grade {
+  id         String   @id @default(cuid())
+  subject    String
+  score      Int
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id])
+}
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🏫 About UCSH
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This platform was developed for the University of Computer Studies, Hinthada to digitize and streamline the grading process.
