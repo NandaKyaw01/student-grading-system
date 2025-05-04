@@ -1,7 +1,7 @@
 // import { GalleryVerticalEnd } from "lucide-react"
 
 import { LoginForm } from "@/app/auth/_components/login-form";
-import { ModeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
 
 export default function LoginPage() {
@@ -21,7 +21,7 @@ export default function LoginPage() {
             </div>
             University of Computer Studies, Hinthada
           </a>
-          <ModeToggle />
+          <ThemeToggle />
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
