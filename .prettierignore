@@ -46,3 +46,7 @@ node_modules
 build
 dist
 ico
+package-lock.json
+
+# Prisma
+/src/app/generated/
