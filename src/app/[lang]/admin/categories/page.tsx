@@ -1,7 +1,7 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-import PlaceholderContent from "@/components/demo/placeholder-content";
-import { ContentLayout } from "@/components/admin-panel/content-layout";
+import PlaceholderContent from '@/components/demo/placeholder-content';
+import { ContentLayout } from '@/components/admin-panel/content-layout';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,27 +9,27 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator
-} from "@/components/ui/breadcrumb";
+} from '@/components/ui/breadcrumb';
 
-export default function TagsPage() {
+export default function CategoriesPage() {
   return (
-    <ContentLayout title="Tags">
+    <ContentLayout title='Categories'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/">Home</Link>
+              <Link href='/'>Home</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href='/dashboard'>Dashboard</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Tags</BreadcrumbPage>
+            <BreadcrumbPage>Categories</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

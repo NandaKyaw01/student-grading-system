@@ -1,7 +1,7 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-import PlaceholderContent from "@/components/demo/placeholder-content";
-import { ContentLayout } from "@/components/admin-panel/content-layout";
+import PlaceholderContent from '@/components/demo/placeholder-content';
+import { ContentLayout } from '@/components/admin-panel/content-layout';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,27 +9,33 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator
-} from "@/components/ui/breadcrumb";
+} from '@/components/ui/breadcrumb';
 
-export default function AccountPage() {
+export default function NewPostPage() {
   return (
-    <ContentLayout title="Account">
+    <ContentLayout title='New Post'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/">Home</Link>
+              <Link href='/'>Home</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href='/dashboard'>Dashboard</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Account</BreadcrumbPage>
+            <BreadcrumbLink asChild>
+              <Link href='/posts'>Posts</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>New</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
