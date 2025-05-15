@@ -1,6 +1,6 @@
 // import { GalleryVerticalEnd } from "lucide-react"
 
-import { LoginForm } from '@/app/[lang]/auth/_components/login-form';
+import { LoginForm } from '@/components/auth/login-form';
 import { ModeToggle } from '@/components/mode-toggle';
 import Image from 'next/image';
 
