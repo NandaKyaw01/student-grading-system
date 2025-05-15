@@ -6,6 +6,7 @@ import {
   Mulish,
   Noto_Sans_Mono
 } from 'next/font/google';
+import localFont from 'next/font/local';
 
 import { cn } from '@/lib/utils';
 
@@ -39,11 +40,17 @@ const fontInter = Inter({
   variable: '--font-inter'
 });
 
+export const myanmarFont = localFont({
+  src: '../../public/assets/font/MyanmarSagar.ttf',
+  variable: '--font-myanmar'
+});
+
 export const fontVariables = cn(
   fontSans.variable,
-  fontMono.variable,
   fontInstrument.variable,
-  fontNotoMono.variable,
   fontMullish.variable,
-  fontInter.variable
+  fontInter.variable,
+  fontNotoMono.variable,
+  fontMono.variable,
+  myanmarFont.variable
 );

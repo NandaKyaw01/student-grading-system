@@ -5,7 +5,7 @@ export const i18n = {
 
 export const localeName = {
   en: 'English',
-  mm: 'Myanmar'
+  mm: 'မြန်မာ'
 };
 
 export type Locale = (typeof i18n)['locales'][number];

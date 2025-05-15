@@ -5,7 +5,23 @@ import {
   ThemeProvider as NextThemesProvider,
   type ThemeProviderProps
 } from 'next-themes';
+import { ActiveThemeProvider } from '../active-theme';
 
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+type ThemeProps = ThemeProviderProps & {
+  className?: string;
+  activeThemeValue: string;
+};
+
+export function ThemeProvider({
+  activeThemeValue,
+  children,
+  ...props
+}: ThemeProps) {
+  return (
+    <NextThemesProvider {...props}>
+      <ActiveThemeProvider initialTheme={activeThemeValue}>
+        {children}
+      </ActiveThemeProvider>
+    </NextThemesProvider>
+  );
 }

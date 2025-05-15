@@ -5,10 +5,10 @@ import { ArrowRightIcon, GitHubLogoIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 
-import { Locale } from '@/features/internationalization/i18n-config';
-import { getDictionary } from '@/features/internationalization/get-dictionary';
+import { Locale } from '@/i18n/i18n-config';
+import { getDictionary } from '@/i18n/get-dictionary';
 import LanguageToggle from '@/components/language-toggle';
-import NavLink from '@/components/nav-link';
+import { cn } from '@/lib/utils';
 
 export default async function HomePage(props: {
   params: Promise<{ lang: Locale }>;
@@ -51,23 +51,27 @@ export default async function HomePage(props: {
               lg:py-24 lg:pb-6'
           >
             <h1
-              className='text-center text-3xl font-bold leading-tight tracking-tighter md:text-5xl
-                lg:leading-[1.1]'
+              className={cn(
+                'text-center text-3xl font-bold tracking-tighter md:text-5xl ',
+                lang == 'mm'
+                  ? 'leading-normal lg:leading-normal'
+                  : 'leading-tight lg:leading-[1.1]'
+              )}
             >
               {home.title}
             </h1>
             <span className='max-w-[750px] text-center text-lg font-light text-foreground'>
-              {home['sub-title']}
+              {home.subtitle}
             </span>
             <div className='flex w-full items-center justify-center space-x-4 py-4 md:pb-6'>
               <Button variant='default' asChild>
-                <NavLink href='/auth/login'>
-                  Search
+                <Link href='/auth/login'>
+                  {home.search}
                   <ArrowRightIcon className='ml-2' />
-                </NavLink>
+                </Link>
               </Button>
               <Button variant='outline' asChild>
-                <NavLink href='/admin/dashboard'>Dashboard</NavLink>
+                <Link href='/admin/dashboard'>{home.dashboard}</Link>
               </Button>
             </div>
           </section>
@@ -86,16 +90,7 @@ export default async function HomePage(props: {
       <footer className='py-6 md:py-0 border-t border-border/40'>
         <div className='container flex flex-col items-center justify-center gap-4 md:h-24 md:flex-row'>
           <p className='text-balance text-center text-sm leading-loose text-muted-foreground'>
-            Built on top of{' '}
-            <Link
-              href='https://ui.shadcn.com'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='font-medium underline underline-offset-4'
-            >
-              shadcn/ui
-            </Link>
-            . The source code is available on{' '}
+            © 2025 UCSH. All rights reserved. The source code is available on{' '}
             <Link
               href='https://github.com/NandaKyaw01/student-grading-system'
               target='_blank'
