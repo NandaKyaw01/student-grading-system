@@ -1,4 +1,3 @@
-'use client';
 import Link from 'next/link';
 
 import PlaceholderContent from '@/components/demo/placeholder-content';
@@ -12,8 +11,6 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
 import { betaTestData } from '@/constants/beta-test';
-
-import { useMemo } from 'react';
 interface User {
   id: number;
   firstName: string;
@@ -35,7 +32,7 @@ interface Summary {
 }
 
 export default function CategoriesPage() {
-  const summaryData: Summary[] = useMemo(() => {
+  const summaryData: Summary[] = (() => {
     const map = new Map<string, Summary>();
 
     betaTestData.forEach(({ issuesType, userId }) => {
@@ -67,7 +64,8 @@ export default function CategoriesPage() {
     });
 
     return Array.from(map.values());
-  }, [betaTestData]);
+  })();
+
   return (
     <ContentLayout title='Categories'>
       <Breadcrumb>

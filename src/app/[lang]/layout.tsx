@@ -4,11 +4,11 @@ import { ThemeProvider } from '@/components/providers/theme-provider';
 import NextTopLoader from 'nextjs-toploader';
 import { Locale } from '@/i18n/i18n-config';
 import { cookies } from 'next/headers';
-import { fontVariables } from '@/lib/font';
+import { fontVariables, myanmarFont } from '@/lib/font';
 import { cn } from '@/lib/utils';
 
-import '../globals.css';
 import '../theme.css';
+import '../globals.css';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
@@ -64,15 +64,17 @@ export default async function RootLayout(props: {
   const isScaled = activeThemeValue?.endsWith('-scaled');
 
   return (
-    <html lang={params.lang} suppressHydrationWarning>
-      <body
-        className={cn(
-          'font-sans antialiased',
-          activeThemeValue ? `theme-${activeThemeValue}` : '',
-          isScaled ? 'theme-scaled' : '',
-          fontVariables
-        )}
-      >
+    <html
+      lang={params.lang}
+      suppressHydrationWarning
+      className={cn(
+        'font-sans antialiased',
+        activeThemeValue ? `theme-${activeThemeValue}` : '',
+        isScaled ? 'theme-scaled' : '',
+        fontVariables
+      )}
+    >
+      <body>
         <NextTopLoader showSpinner={false} />
         <ThemeProvider
           activeThemeValue={activeThemeValue as string}

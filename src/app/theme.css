@@ -3,8 +3,13 @@ body {
 }
 
 :root {
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-inter), var(--font-myanmar);
   --header-height: calc(var(--spacing) * 12 + 1px);
+}
+
+/* Apply Myanmar font if the lang is mm */
+html[lang='mm'] {
+  --font-sans: var(--font-myanmar);
 }
 
 .theme-scaled {

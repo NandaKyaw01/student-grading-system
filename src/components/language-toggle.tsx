@@ -41,7 +41,7 @@ const LanguageToggle = () => {
               key={locale}
             >
               <DropdownMenuItem className='cursor-pointer'>
-                <span className='mr-1'>{locale.toUpperCase()}</span>
+                <span className='mr-1 text-xs'>{locale.toUpperCase()}</span>
                 {localeName[locale]}
               </DropdownMenuItem>
             </Link>

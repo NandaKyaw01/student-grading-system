@@ -42,8 +42,7 @@ const fontInter = Inter({
 
 export const myanmarFont = localFont({
   src: '../../public/assets/font/MyanmarSagar.ttf',
-  variable: '--font-myfont',
-  display: 'swap'
+  variable: '--font-myanmar'
 });
 
 export const fontVariables = cn(
@@ -52,5 +51,6 @@ export const fontVariables = cn(
   fontMullish.variable,
   fontInter.variable,
   fontNotoMono.variable,
-  fontMono.variable
+  fontMono.variable,
+  myanmarFont.variable
 );
