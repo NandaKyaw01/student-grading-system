@@ -8,9 +8,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Languages } from 'lucide-react';
 import { Button } from './ui/button';
-import { useSwitchLocaleHref } from '@/features/internationalization/use-switch-locale-href';
+import { useSwitchLocaleHref } from '@/i18n/use-switch-locale-href';
 import Link from 'next/link';
-import { i18n, localeName } from '@/features/internationalization/i18n-config';
+import { i18n, localeName } from '@/i18n/i18n-config';
 
 const COOKIE_NAME = 'active_locale';
 function setLocaleCookie(locale: string) {

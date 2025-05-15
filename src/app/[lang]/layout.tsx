@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 
-import '../globals.css';
-
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import NextTopLoader from 'nextjs-toploader';
-import { Locale } from '@/features/internationalization/i18n-config';
+import { Locale } from '@/i18n/i18n-config';
 import { cookies } from 'next/headers';
 import { fontVariables } from '@/lib/font';
 import { cn } from '@/lib/utils';
+
+import '../globals.css';
+import '../theme.css';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
@@ -57,6 +58,7 @@ export default async function RootLayout(props: {
 }) {
   const params = await props.params;
   const { children } = props;
+
   const cookieStore = await cookies();
   const activeThemeValue = cookieStore.get('active_theme')?.value;
   const isScaled = activeThemeValue?.endsWith('-scaled');
@@ -65,7 +67,7 @@ export default async function RootLayout(props: {
     <html lang={params.lang} suppressHydrationWarning>
       <body
         className={cn(
-          'bg-background overflow-hidden overscroll-none font-sans antialiased',
+          'font-sans antialiased',
           activeThemeValue ? `theme-${activeThemeValue}` : '',
           isScaled ? 'theme-scaled' : '',
           fontVariables

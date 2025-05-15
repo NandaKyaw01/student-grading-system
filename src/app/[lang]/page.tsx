@@ -5,8 +5,8 @@ import { ArrowRightIcon, GitHubLogoIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 
-import { Locale } from '@/features/internationalization/i18n-config';
-import { getDictionary } from '@/features/internationalization/get-dictionary';
+import { Locale } from '@/i18n/i18n-config';
+import { getDictionary } from '@/i18n/get-dictionary';
 import LanguageToggle from '@/components/language-toggle';
 
 export default async function HomePage(props: {
