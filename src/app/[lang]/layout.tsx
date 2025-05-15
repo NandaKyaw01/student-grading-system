@@ -1,12 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { GeistSans } from 'geist/font/sans';
 
 import '../globals.css';
 
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import NextTopLoader from 'nextjs-toploader';
 import { Locale } from '@/features/internationalization/i18n-config';
-import Providers from '@/components/providers/providers';
 import { cookies } from 'next/headers';
 import { fontVariables } from '@/lib/font';
 import { cn } from '@/lib/utils';
@@ -74,10 +72,13 @@ export default async function RootLayout(props: {
         )}
       >
         <NextTopLoader showSpinner={false} />
-        <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
-          <Providers activeThemeValue={activeThemeValue as string}>
-            {children}
-          </Providers>
+        <ThemeProvider
+          activeThemeValue={activeThemeValue as string}
+          attribute='class'
+          defaultTheme='system'
+          enableSystem
+        >
+          {children}
         </ThemeProvider>
       </body>
     </html>
