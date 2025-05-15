@@ -8,7 +8,6 @@ import { ModeToggle } from '@/components/mode-toggle';
 import { Locale } from '@/features/internationalization/i18n-config';
 import { getDictionary } from '@/features/internationalization/get-dictionary';
 import LanguageToggle from '@/components/language-toggle';
-import NavLink from '@/components/nav-link';
 
 export default async function HomePage(props: {
   params: Promise<{ lang: Locale }>;
@@ -61,13 +60,13 @@ export default async function HomePage(props: {
             </span>
             <div className='flex w-full items-center justify-center space-x-4 py-4 md:pb-6'>
               <Button variant='default' asChild>
-                <NavLink href='/auth/login'>
+                <Link href='/auth/login'>
                   Search
                   <ArrowRightIcon className='ml-2' />
-                </NavLink>
+                </Link>
               </Button>
               <Button variant='outline' asChild>
-                <NavLink href='/admin/dashboard'>Dashboard</NavLink>
+                <Link href='/admin/dashboard'>Dashboard</Link>
               </Button>
             </div>
           </section>

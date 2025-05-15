@@ -6,7 +6,7 @@ import { useSidebar } from '@/hooks/use-sidebar';
 import { useStore } from '@/hooks/use-store';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import NavLink from '@/components/nav-link';
+import Link from 'next/link';
 
 export function Sidebar() {
   const sidebar = useStore(useSidebar, (x) => x);
@@ -36,7 +36,7 @@ export function Sidebar() {
           variant='link'
           asChild
         >
-          <NavLink href='/' className='flex items-center gap-2 justify-start'>
+          <Link href='/' className='flex items-center gap-2 justify-start'>
             {/* <PanelsTopLeft className='w-6 h-6 mr-1' /> */}
             <Image
               src='/assets/image/logo.png'
@@ -56,7 +56,7 @@ export function Sidebar() {
             >
               SmartGrade UCSH
             </h1>
-          </NavLink>
+          </Link>
         </Button>
         <Menu isOpen={getOpenState()} />
       </div>
