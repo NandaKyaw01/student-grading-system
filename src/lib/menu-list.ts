@@ -79,8 +79,8 @@ export function getMenuList(pathname: string): Group[] {
           icon: Users
         },
         {
-          href: '/admin/account',
-          label: 'Account',
+          href: '/admin/setting',
+          label: 'Setting',
           icon: Settings
         }
       ]

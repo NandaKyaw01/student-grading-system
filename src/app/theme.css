@@ -9,7 +9,9 @@ body {
 
 /* Apply Myanmar font if the lang is mm */
 html[lang='mm'] {
-  --font-sans: var(--font-myanmar);
+  body {
+    --font-sans: var(--font-myanmar);
+  }
 }
 
 .theme-scaled {

@@ -1,7 +1,6 @@
 import { ModeToggle } from '@/components/mode-toggle';
 import { UserNav } from '@/components/admin-panel/user-nav';
 import { SheetMenu } from '@/components/admin-panel/sheet-menu';
-import { ThemeSelector } from '../theme-selector';
 import LanguageToggle from '../language-toggle';
 
 interface NavbarProps {
@@ -23,7 +22,6 @@ export function Navbar({ title }: NavbarProps) {
           <LanguageToggle />
           <ModeToggle />
           <UserNav />
-          <ThemeSelector />
         </div>
       </div>
     </header>
