@@ -21,7 +21,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -48,7 +48,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -75,7 +75,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -102,7 +102,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -129,7 +129,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -156,7 +156,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -183,7 +183,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -210,7 +210,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -237,7 +237,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -264,7 +264,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -291,7 +291,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -318,7 +318,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -345,7 +345,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -372,7 +372,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -399,7 +399,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -426,7 +426,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -453,7 +453,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -480,7 +480,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -507,7 +507,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -534,7 +534,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -561,7 +561,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -588,7 +588,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -615,7 +615,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -642,7 +642,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -669,7 +669,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -696,7 +696,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -723,7 +723,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -750,7 +750,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -777,7 +777,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -804,7 +804,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -835,7 +835,7 @@ export const betaTestData = [
         id: 1,
         name: 'ADMIN'
       },
-      lastLogin: '2025-05-15T10:43:47.480405Z',
+      lastLogin: '2025-05-16T02:27:23.635630Z',
       uniqueId: '5bf9d1ed-1c8a-4f2e-bc9b-2a70744d0cf6'
     },
     createdAt: null
@@ -865,7 +865,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-15T12:06:30.473726Z',
+      lastLogin: '2025-05-15T14:57:26.935442Z',
       uniqueId: '471b713a-ff5e-4d19-ad46-24887db0ddeb'
     },
     createdAt: null
@@ -895,7 +895,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-15T12:06:30.473726Z',
+      lastLogin: '2025-05-15T14:57:26.935442Z',
       uniqueId: '471b713a-ff5e-4d19-ad46-24887db0ddeb'
     },
     createdAt: null
@@ -924,7 +924,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-15T13:23:09.495985Z',
+      lastLogin: '2025-05-16T02:21:03.602935Z',
       uniqueId: '5e8d5fa3-dddb-4933-8966-3124bbceb422'
     },
     createdAt: null
@@ -2004,7 +2004,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-14T12:31:39.696093Z',
+      lastLogin: '2025-05-15T14:36:51.441324Z',
       uniqueId: '93d832ae-83ad-4a4e-bac3-9939cc23352f'
     },
     createdAt: null
@@ -2034,7 +2034,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-14T12:31:39.696093Z',
+      lastLogin: '2025-05-15T14:36:51.441324Z',
       uniqueId: '93d832ae-83ad-4a4e-bac3-9939cc23352f'
     },
     createdAt: null
@@ -2064,7 +2064,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-14T12:31:39.696093Z',
+      lastLogin: '2025-05-15T14:36:51.441324Z',
       uniqueId: '93d832ae-83ad-4a4e-bac3-9939cc23352f'
     },
     createdAt: null
@@ -2094,7 +2094,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-14T12:31:39.696093Z',
+      lastLogin: '2025-05-15T14:36:51.441324Z',
       uniqueId: '93d832ae-83ad-4a4e-bac3-9939cc23352f'
     },
     createdAt: null
@@ -2124,7 +2124,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-14T12:31:39.696093Z',
+      lastLogin: '2025-05-15T14:36:51.441324Z',
       uniqueId: '93d832ae-83ad-4a4e-bac3-9939cc23352f'
     },
     createdAt: null
@@ -2155,7 +2155,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-14T12:31:39.696093Z',
+      lastLogin: '2025-05-15T14:36:51.441324Z',
       uniqueId: '93d832ae-83ad-4a4e-bac3-9939cc23352f'
     },
     createdAt: null
@@ -2276,7 +2276,7 @@ export const betaTestData = [
         id: 2,
         name: 'SELLER'
       },
-      lastLogin: '2025-05-15T09:47:28.532331Z',
+      lastLogin: '2025-05-15T16:19:34.485455Z',
       uniqueId: 'a78989e9-e34b-4763-934c-f8917f717e67'
     },
     createdAt: null
@@ -2771,7 +2771,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-15T12:06:30.473726Z',
+      lastLogin: '2025-05-15T14:57:26.935442Z',
       uniqueId: '471b713a-ff5e-4d19-ad46-24887db0ddeb'
     },
     createdAt: null
@@ -2800,7 +2800,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-15T12:06:30.473726Z',
+      lastLogin: '2025-05-15T14:57:26.935442Z',
       uniqueId: '471b713a-ff5e-4d19-ad46-24887db0ddeb'
     },
     createdAt: null
@@ -2831,7 +2831,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-15T12:06:30.473726Z',
+      lastLogin: '2025-05-15T14:57:26.935442Z',
       uniqueId: '471b713a-ff5e-4d19-ad46-24887db0ddeb'
     },
     createdAt: null
@@ -2861,7 +2861,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-15T12:06:30.473726Z',
+      lastLogin: '2025-05-15T14:57:26.935442Z',
       uniqueId: '471b713a-ff5e-4d19-ad46-24887db0ddeb'
     },
     createdAt: null
@@ -2891,7 +2891,7 @@ export const betaTestData = [
         id: 2,
         name: 'SELLER'
       },
-      lastLogin: '2025-05-15T09:47:28.532331Z',
+      lastLogin: '2025-05-15T16:19:34.485455Z',
       uniqueId: 'a78989e9-e34b-4763-934c-f8917f717e67'
     },
     createdAt: null
@@ -2921,7 +2921,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-15T12:06:30.473726Z',
+      lastLogin: '2025-05-15T14:57:26.935442Z',
       uniqueId: '471b713a-ff5e-4d19-ad46-24887db0ddeb'
     },
     createdAt: null
@@ -3564,7 +3564,7 @@ export const betaTestData = [
         id: 2,
         name: 'SELLER'
       },
-      lastLogin: '2025-05-15T09:47:28.532331Z',
+      lastLogin: '2025-05-15T16:19:34.485455Z',
       uniqueId: 'a78989e9-e34b-4763-934c-f8917f717e67'
     },
     createdAt: null
@@ -3711,7 +3711,7 @@ export const betaTestData = [
         id: 6,
         name: 'CUSTOMER'
       },
-      lastLogin: '2025-05-15T10:02:40.902463Z',
+      lastLogin: '2025-05-16T02:24:12.643141Z',
       uniqueId: 'cd293379-3b8a-433b-a257-efd8e894c6e9'
     },
     createdAt: null
@@ -4217,5 +4217,359 @@ export const betaTestData = [
       uniqueId: '564fc028-b9fa-4820-9e57-821a66ce05a7'
     },
     createdAt: '2025-05-15T13:56:13.246088Z'
+  },
+  {
+    id: 149,
+    issuesType: 'issue',
+    details: 'View my order နှိပ်တဲ့အခါဒါ ပေါ်နေပါတယ်',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=ea897566-b87a-4eb8-b536-fdf5116e58ef_e418d91d-81dc-423c-964f-56ab995bf7c2.jpg'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 172,
+      username: 'c9e9e2d8-2443-4d20-8023-285bdfbb6aa2',
+      firstName: 'Yuri ',
+      lastName: 'Miko',
+      email: 'rdbtubf@gmail.com',
+      phoneNumber: '9751437166',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T13:37:38.205937Z',
+      uniqueId: '85a7faa2-e24b-42df-9695-01d3dcf9de7e'
+    },
+    createdAt: '2025-05-15T14:03:23.165773Z'
+  },
+  {
+    id: 150,
+    issuesType: 'issue',
+    details: 'ပစ္စည်းဝယ်တဲ့အခါ ပိုက်ဆံကိုဘာနဲ့ချေရမှာလဲတွေ ဘာတွေမပါပါဘူး ',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=0e7f71f2-c00a-49ec-b3be-d614a5f1fb9d_e3453f3b-c141-40eb-94b9-b302343cc031.png'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 169,
+      username: '4f00de16-45c2-4c24-ad0c-206518c939e8',
+      firstName: 'Saw Hla',
+      lastName: 'Nandar',
+      email: 'sawhlanandar10@gmail.com',
+      phoneNumber: '09750241345',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T13:13:08.376927Z',
+      uniqueId: '564fc028-b9fa-4820-9e57-821a66ce05a7'
+    },
+    createdAt: '2025-05-15T14:05:14.155513Z'
+  },
+  {
+    id: 151,
+    issuesType: 'issue',
+    details: 'လျော့ဈေးရ ပစ္စည်းများကြည့်တဲ့နေရာ အဆင်မပြေပါ',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=cefe6431-5ca5-4068-b81e-5015b90d3ed8_4eb42eb7-d126-4aca-a3df-ac95671e0244.jpg'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 172,
+      username: 'c9e9e2d8-2443-4d20-8023-285bdfbb6aa2',
+      firstName: 'Yuri ',
+      lastName: 'Miko',
+      email: 'rdbtubf@gmail.com',
+      phoneNumber: '9751437166',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T13:37:38.205937Z',
+      uniqueId: '85a7faa2-e24b-42df-9695-01d3dcf9de7e'
+    },
+    createdAt: '2025-05-15T14:05:43.421833Z'
+  },
+  {
+    id: 152,
+    issuesType: 'suggestion',
+    details:
+      'Coupon တွေ point ပုံစံလိုမျိုးထည့်ပေးပီး coupon တွေ point တွေနဲ့လဲလှယ်ဝယ်လို့ရအောင်လုပ်ပေးရင်ကော ?',
+    imageFile: null,
+    filePaths: [],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 169,
+      username: '4f00de16-45c2-4c24-ad0c-206518c939e8',
+      firstName: 'Saw Hla',
+      lastName: 'Nandar',
+      email: 'sawhlanandar10@gmail.com',
+      phoneNumber: '09750241345',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T13:13:08.376927Z',
+      uniqueId: '564fc028-b9fa-4820-9e57-821a66ce05a7'
+    },
+    createdAt: '2025-05-15T14:19:14.843016Z'
+  },
+  {
+    id: 153,
+    issuesType: 'issue',
+    details: 'Order တွေပြန်ကြည့်တဲ့အခါ view order နှိပ်လို့မရပါဘူး',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=640c480a-6bbf-4621-891f-4067d43fd01f_f6a82761-d459-4aa6-9ad3-f917fc7bfbd9.jpeg'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 174,
+      username: 'd1cbf6fc-7981-4947-b5ba-4f14b7a65ea3',
+      firstName: 'Kevin',
+      lastName: 'Doreen',
+      email: 'kh354436@gmail.com',
+      phoneNumber: '09449244429',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T14:36:51.441324Z',
+      uniqueId: '93d832ae-83ad-4a4e-bac3-9939cc23352f'
+    },
+    createdAt: '2025-05-15T14:43:08.547617Z'
+  },
+  {
+    id: 154,
+    issuesType: 'issue',
+    details:
+      'to pay ကို နှိပ်လိုက်ရင် ဒီလိုကြီးဖြစ်သွားပြီး refresh ပြန်လုပ်မှရပါတယ်\n\nTo ship တို့ to receive ကျန်တဲ့ဟာတွေကလည်း လောလောဆယ်အလုပ် မလုပ်သေးတာလား မသိပါဘူး ',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=4ca43311-6ebf-44c1-9ad3-54afb7b4f351_64d1b588-548e-4564-a2f1-dd897d54faec.png'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 174,
+      username: 'd1cbf6fc-7981-4947-b5ba-4f14b7a65ea3',
+      firstName: 'Kevin',
+      lastName: 'Doreen',
+      email: 'kh354436@gmail.com',
+      phoneNumber: '09449244429',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T14:36:51.441324Z',
+      uniqueId: '93d832ae-83ad-4a4e-bac3-9939cc23352f'
+    },
+    createdAt: '2025-05-15T14:45:19.489228Z'
+  },
+  {
+    id: 155,
+    issuesType: 'issue',
+    details:
+      'Home page category မှာ discount products တွေရှိနေပေမယ့် view all လုပ်လိုက်တဲ့အချိန်အထဲရောက်သွားတဲ့အခါ discount products တွေရှိမနေပါဘူး error လား test မလို့ item တွေ အစမ်းမို့လားဆိုပေမယ့်',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=04121181-1740-4468-aa2c-055be06a29f0_3e83dfc1-513f-4a5f-9c59-c76f0d96dc97.png',
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=21f409d1-8f48-4c44-ad18-7d3fefe4a045_fbcb1da5-3db9-4e4e-a63d-ffe51835539c.png'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 174,
+      username: 'd1cbf6fc-7981-4947-b5ba-4f14b7a65ea3',
+      firstName: 'Kevin',
+      lastName: 'Doreen',
+      email: 'kh354436@gmail.com',
+      phoneNumber: '09449244429',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T14:36:51.441324Z',
+      uniqueId: '93d832ae-83ad-4a4e-bac3-9939cc23352f'
+    },
+    createdAt: '2025-05-15T14:55:41.629001Z'
+  },
+  {
+    id: 156,
+    issuesType: 'issue',
+    details:
+      'Item ကို click မှ price ကို မြင်ရတယ် home မှာဆို 0THB ‌လို့ပေါ်နေပါတယ်',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=099c5138-671d-48d6-91dc-e1fb6b0219e9_7e667b46-0712-47ba-9812-79d8aa44b6c8.jpg'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 168,
+      username: '8cb333b8-35ed-42f1-9c3c-387bbc3159ac',
+      firstName: 'KYAW ',
+      lastName: 'ZIN AUNG ',
+      email: 'zinaungk14@gmail.com',
+      phoneNumber: '09428885644',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T09:45:05.557016Z',
+      uniqueId: 'f6bb6871-cf24-4269-9814-67f23cad80c2'
+    },
+    createdAt: '2025-05-16T01:40:34.272694Z'
+  },
+  {
+    id: 157,
+    issuesType: 'issue',
+    details:
+      'လက်ကျန် 9ခုသာ ကျန်တော့တယ်ဆိုပြီး 10ခုမှာလည်း 10ခုရတယ် မှာထားပြီး နောက်တစ်ခါ ဒီ item ကိုပဲ 9ခုကျန်သေးတယ်ဆိုတာဟာ မဖြစ်သင့်',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=6f93b2e0-5f3f-47eb-a0c6-30f5d60944de_fb145bf9-a87c-4b1f-99bb-70ea00f2de50.jpg',
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=8965f1a1-4d39-461a-a1a0-e6e89c8b72c8_4a99c423-60ef-4b55-9962-da63f34c6a8d.jpg'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 168,
+      username: '8cb333b8-35ed-42f1-9c3c-387bbc3159ac',
+      firstName: 'KYAW ',
+      lastName: 'ZIN AUNG ',
+      email: 'zinaungk14@gmail.com',
+      phoneNumber: '09428885644',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T09:45:05.557016Z',
+      uniqueId: 'f6bb6871-cf24-4269-9814-67f23cad80c2'
+    },
+    createdAt: '2025-05-16T01:46:33.571327Z'
+  },
+  {
+    id: 158,
+    issuesType: 'issue',
+    details: 'View all က အလုပ်မလုပ်ပါဘူး',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=a6739f0a-1144-485e-9b4b-f350fe076f6d_c1220dd2-bc2a-445d-9bde-40ac312ccef8.jpg'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 168,
+      username: '8cb333b8-35ed-42f1-9c3c-387bbc3159ac',
+      firstName: 'KYAW ',
+      lastName: 'ZIN AUNG ',
+      email: 'zinaungk14@gmail.com',
+      phoneNumber: '09428885644',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T09:45:05.557016Z',
+      uniqueId: 'f6bb6871-cf24-4269-9814-67f23cad80c2'
+    },
+    createdAt: '2025-05-16T01:48:05.958306Z'
+  },
+  {
+    id: 159,
+    issuesType: 'suggestion',
+    details:
+      'Shop now နဲ့ Home နဲ့က hierarchical သွားထားပေးမယ့် ပေးတဲ့ service ချင်းက တူနေတယ် ခြားနသင့်',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=831ae8d1-852f-4fb3-a76d-a74d6ea8e0ac_2874adfd-6d21-4429-8ec2-0d76dea8d328.jpg'
+    ],
+    customerSide: true,
+    statusType: 'NEW',
+    userId: {
+      id: 168,
+      username: '8cb333b8-35ed-42f1-9c3c-387bbc3159ac',
+      firstName: 'KYAW ',
+      lastName: 'ZIN AUNG ',
+      email: 'zinaungk14@gmail.com',
+      phoneNumber: '09428885644',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 6,
+        name: 'CUSTOMER'
+      },
+      lastLogin: '2025-05-15T09:45:05.557016Z',
+      uniqueId: 'f6bb6871-cf24-4269-9814-67f23cad80c2'
+    },
+    createdAt: '2025-05-16T01:56:52.532650Z'
+  },
+  {
+    id: 160,
+    issuesType: 'issue',
+    details: 'test by seller side',
+    imageFile: null,
+    filePaths: [
+      'https://api.ecommerce.neon-xpress.com/v1/api/image/file?image=c7c1a144-6dd6-4f5a-aa20-1903f201e31c_671d1998-9d6c-4c8d-9f2c-a94e3e749784.jpg'
+    ],
+    customerSide: false,
+    statusType: 'NEW',
+    userId: {
+      id: 81,
+      username: 'jera',
+      firstName: 'jira',
+      lastName: 'euli',
+      email: 'jiraeuli@gmail.com',
+      phoneNumber: '0615451384',
+      password: null,
+      address: null,
+      isActive: true,
+      role: {
+        id: 2,
+        name: 'SELLER'
+      },
+      lastLogin: '2025-05-15T16:19:34.485455Z',
+      uniqueId: 'a78989e9-e34b-4763-934c-f8917f717e67'
+    },
+    createdAt: '2025-05-16T02:26:53.181763Z'
   }
 ];

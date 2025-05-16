@@ -37,6 +37,7 @@ export default function CategoriesPage() {
 
     betaTestData.forEach(({ issuesType, userId }) => {
       const name = `${userId.firstName} ${userId.lastName}`;
+
       const key = userId.id.toString();
 
       if (!map.has(key)) {
