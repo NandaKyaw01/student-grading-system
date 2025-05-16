@@ -64,17 +64,15 @@ export default async function RootLayout(props: {
   const isScaled = activeThemeValue?.endsWith('-scaled');
 
   return (
-    <html
-      lang={params.lang}
-      suppressHydrationWarning
-      className={cn(
-        'font-sans antialiased',
-        activeThemeValue ? `theme-${activeThemeValue}` : '',
-        isScaled ? 'theme-scaled' : '',
-        fontVariables
-      )}
-    >
-      <body>
+    <html lang={params.lang} suppressHydrationWarning>
+      <body
+        className={cn(
+          'font-sans antialiased',
+          activeThemeValue ? `theme-${activeThemeValue}` : '',
+          isScaled ? 'theme-scaled' : '',
+          fontVariables
+        )}
+      >
         <NextTopLoader showSpinner={false} />
         <ThemeProvider
           activeThemeValue={activeThemeValue as string}
