@@ -11,9 +11,9 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
 
-export default function DashboardPage() {
+export default function StudentsPage() {
   return (
-    <ContentLayout title='Dashboard'>
+    <ContentLayout title='Students'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -23,7 +23,7 @@ export default function DashboardPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+            <BreadcrumbPage>Students</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

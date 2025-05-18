@@ -22,12 +22,12 @@ import { useStore } from '@/hooks/use-store';
 import { Separator } from '@/components/ui/separator';
 import { ThemeSelector } from '@/components/theme-selector';
 
-export default function DashboardPage() {
+export default function SettingPage() {
   const sidebar = useStore(useSidebar, (x) => x);
   if (!sidebar) return null;
   const { settings, setSettings } = sidebar;
   return (
-    <ContentLayout title='Dashboard'>
+    <ContentLayout title='Setting'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

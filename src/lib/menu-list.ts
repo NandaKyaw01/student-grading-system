@@ -1,11 +1,12 @@
 import {
-  Tag,
-  Users,
+  User,
   Settings,
-  Bookmark,
-  SquarePen,
   LayoutGrid,
-  LucideIcon
+  LucideIcon,
+  Users,
+  BookOpenCheck,
+  GraduationCap,
+  FileCog
 } from 'lucide-react';
 
 type Submenu = {
@@ -41,32 +42,51 @@ export function getMenuList(pathname: string): Group[] {
       ]
     },
     {
-      groupLabel: 'Contents',
+      groupLabel: '',
+      menus: [
+        {
+          href: `/admin/grades`,
+          label: 'Grades',
+          icon: BookOpenCheck,
+          submenus: []
+        }
+      ]
+    },
+    {
+      groupLabel: '',
+      menus: [
+        {
+          href: '/admin/students',
+          label: 'Students',
+          icon: Users
+        }
+      ]
+    },
+    {
+      groupLabel: '',
       menus: [
         {
           href: '',
-          label: 'Posts',
-          icon: SquarePen,
+          label: 'Academic',
+          icon: GraduationCap,
           submenus: [
             {
-              href: '/admin/posts',
-              label: 'All Posts'
+              href: '/admin/academic-years',
+              label: 'Academic Years'
             },
             {
-              href: '/admin/posts/new',
-              label: 'New Post'
+              href: '/admin/classes',
+              label: 'Classes'
+            },
+            {
+              href: '/admin/subjects',
+              label: 'Subjects'
+            },
+            {
+              href: '/admin/class-subjects',
+              label: 'Class Subjects'
             }
           ]
-        },
-        {
-          href: '/admin/categories',
-          label: 'Categories',
-          icon: Bookmark
-        },
-        {
-          href: '/admin/tags',
-          label: 'Tags',
-          icon: Tag
         }
       ]
     },
@@ -74,9 +94,14 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: 'Settings',
       menus: [
         {
-          href: '/admin/users',
-          label: 'Users',
-          icon: Users
+          href: '/admin/gpa-setting',
+          label: 'GPA Setting',
+          icon: FileCog
+        },
+        {
+          href: '/admin/account',
+          label: 'Account',
+          icon: User
         },
         {
           href: '/admin/setting',
@@ -87,3 +112,62 @@ export function getMenuList(pathname: string): Group[] {
     }
   ];
 }
+
+// return [
+//   {
+//     groupLabel: '',
+//     menus: [
+//       {
+//         href: `/admin/dashboard`,
+//         label: 'Dashboard',
+//         icon: LayoutGrid,
+//         submenus: []
+//       }
+//     ]
+//   },
+//   {
+//     groupLabel: 'Contents',
+//     menus: [
+//       {
+//         href: '',
+//         label: 'Posts',
+//         icon: SquarePen,
+//         submenus: [
+//           {
+//             href: '/admin/posts',
+//             label: 'All Posts'
+//           },
+//           {
+//             href: '/admin/posts/new',
+//             label: 'New Post'
+//           }
+//         ]
+//       },
+//       {
+//         href: '/admin/categories',
+//         label: 'Categories',
+//         icon: Bookmark
+//       },
+//       {
+//         href: '/admin/tags',
+//         label: 'Tags',
+//         icon: Tag
+//       }
+//     ]
+//   },
+//   {
+//     groupLabel: 'Settings',
+//     menus: [
+//       {
+//         href: '/admin/users',
+//         label: 'Users',
+//         icon: Users
+//       },
+//       {
+//         href: '/admin/setting',
+//         label: 'Setting',
+//         icon: Settings
+//       }
+//     ]
+//   }
+// ];

@@ -49,4 +49,4 @@ ico
 package-lock.json
 
 # Prisma
-/src/app/generated/
+/src/generated/
