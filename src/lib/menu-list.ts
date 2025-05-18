@@ -38,23 +38,13 @@ export function getMenuList(pathname: string): Group[] {
           label: 'Dashboard',
           icon: LayoutGrid,
           submenus: []
-        }
-      ]
-    },
-    {
-      groupLabel: '',
-      menus: [
+        },
         {
           href: `/admin/grades`,
           label: 'Grades',
           icon: BookOpenCheck,
           submenus: []
-        }
-      ]
-    },
-    {
-      groupLabel: '',
-      menus: [
+        },
         {
           href: '/admin/students',
           label: 'Students',
