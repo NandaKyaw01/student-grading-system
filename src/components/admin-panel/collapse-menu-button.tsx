@@ -109,16 +109,21 @@ export function CollapseMenuButton({
           <Button
             key={index}
             variant={
-              (active === undefined && pathname === href) || active
+              (active === undefined && pathname.includes(href)) || active
                 ? 'secondary'
                 : 'ghost'
             }
-            className='w-full justify-start h-10 mb-1'
+            className={cn(
+              'w-full justify-start h-10 mb-1 borderl',
+              (active === undefined && pathname.includes(href)) || active
+                ? 'bg-primary text-primary-foreground hover:bg-primary'
+                : 'ghost'
+            )}
             asChild
           >
             <Link href={href}>
-              <span className='mr-4 ml-2'>
-                <Dot size={18} />
+              <span className='mr-4 ml-2 h-full border-l-2'>
+                {/* <Dot size={18} /> */}
               </span>
               <p
                 className={cn(
