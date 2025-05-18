@@ -31,7 +31,7 @@ interface Summary {
   lastLogin: string;
 }
 
-export default function CategoriesPage() {
+export default function GradesPage() {
   const summaryData: Summary[] = (() => {
     const map = new Map<string, Summary>();
 
@@ -68,7 +68,7 @@ export default function CategoriesPage() {
   })();
 
   return (
-    <ContentLayout title='Categories'>
+    <ContentLayout title='Grades'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -78,13 +78,7 @@ export default function CategoriesPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/dashboard'>Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Categories</BreadcrumbPage>
+            <BreadcrumbPage>Grades</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

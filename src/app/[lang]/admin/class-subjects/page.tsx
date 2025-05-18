@@ -11,9 +11,9 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
 
-export default function NewPostPage() {
+export default function ClassSubjectsPage() {
   return (
-    <ContentLayout title='New Post'>
+    <ContentLayout title='Class-Subjects'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -23,19 +23,7 @@ export default function NewPostPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/dashboard'>Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/posts'>Posts</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>New</BreadcrumbPage>
+            <BreadcrumbPage>Class-Subjects</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

@@ -63,12 +63,19 @@ export function Menu({ isOpen }: MenuProps) {
                             <Button
                               variant={
                                 (active === undefined &&
-                                  pathname.startsWith(href)) ||
+                                  pathname.includes(href)) ||
                                 active
                                   ? 'secondary'
                                   : 'ghost'
                               }
-                              className='w-full justify-start h-10 mb-1'
+                              className={cn(
+                                'w-full justify-start h-10 mb-1',
+                                (active === undefined &&
+                                  pathname.includes(href)) ||
+                                  active
+                                  ? 'bg-primary text-primary-foreground hover:bg-primary'
+                                  : 'ghost'
+                              )}
                               asChild
                             >
                               <Link href={href}>

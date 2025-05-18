@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/app/generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,10 +14,96 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
-  id       String @id @default(cuid())
-  email    String @unique
-  image    String
-  name     String
-  password String
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Student {
+  id             String @id @default(cuid())
+  name           String
+  rollNumber     String
+  classId        String
+  academicYearId String
+
+  class        Class        @relation(fields: [classId], references: [id])
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  grades       Grade[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Class {
+  id             String @id @default(cuid())
+  className      String
+  academicYearId String
+
+  academicYear  AcademicYear   @relation(fields: [academicYearId], references: [id])
+  students      Student[]
+  classSubjects ClassSubject[]
+}
+
+model AcademicYear {
+  id   String @id @default(cuid())
+  year String // e.g., "2024-2025"
+
+  classes       Class[]
+  students      Student[]
+  classSubjects ClassSubject[]
+  gpaSettings   GPASetting[]
+}
+
+model Subject {
+  id   String @id @default(cuid())
+  code String
+  name String
+
+  classSubjects ClassSubject[]
+}
+
+model ClassSubject {
+  id                  String @id @default(cuid())
+  classId             String
+  subjectId           String
+  academicYearId      String
+  gpaPercentageExam   Float // e.g., 60.0
+  gpaPercentageAssign Float // e.g., 40.0
+
+  class        Class        @relation(fields: [classId], references: [id])
+  subject      Subject      @relation(fields: [subjectId], references: [id])
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  grades       Grade[]
+}
+
+model Grade {
+  id              String @id @default(cuid())
+  studentId       String
+  classSubjectId  String
+  examScore       Float
+  assignmentScore Float
+  totalScore      Float
+  gradeLetter     String
+  gpa             Float
+
+  student      Student      @relation(fields: [studentId], references: [id])
+  classSubject ClassSubject @relation(fields: [classSubjectId], references: [id])
+}
+
+model GPASetting {
+  id                 String  @id @default(cuid())
+  academicYearId     String
+  description        String
+  calculationFormula String? // Optional custom logic, e.g., "exam * 0.6 + assignment * 0.4"
+
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
 }

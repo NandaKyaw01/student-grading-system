@@ -11,9 +11,9 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
 
-export default function DashboardPage() {
+export default function GPASettingPage() {
   return (
-    <ContentLayout title='Dashboard'>
+    <ContentLayout title='GPA Setting'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -23,7 +23,7 @@ export default function DashboardPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+            <BreadcrumbPage>GPA Setting</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
