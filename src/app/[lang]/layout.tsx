@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 
 import '../theme.css';
 import '../globals.css';
+import AuthProvider from '@/components/providers/auth-provider';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
@@ -80,7 +81,7 @@ export default async function RootLayout(props: {
           defaultTheme='system'
           enableSystem
         >
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>
