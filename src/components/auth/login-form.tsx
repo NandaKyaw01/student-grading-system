@@ -86,7 +86,7 @@ export function LoginForm({
             <p className='text-sm text-red-500'>{errors.password.message}</p>
           )}
         </div>
-        {error && <p className='text-red-500'>{error}</p>}
+        {error && <p className='text-sm text-red-500'>{error}</p>}
         <Button type='submit' className='w-full' disabled={loading}>
           {loading ? (
             <>

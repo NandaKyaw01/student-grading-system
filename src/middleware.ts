@@ -19,9 +19,9 @@ const authMiddleware = withAuth(
     return localizationMiddleware(req);
   },
   {
-    callbacks: {
-      authorized: ({ token }) => token != null
-    },
+    // callbacks: {
+    //   authorized: ({ token }) => token != null
+    // },
     pages: {
       signIn: '/auth/login'
     }
