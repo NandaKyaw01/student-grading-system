@@ -1,5 +1,3 @@
-// import { GalleryVerticalEnd } from "lucide-react"
-
 import { LoginForm } from '@/components/auth/login-form';
 import { ModeToggle } from '@/components/mode-toggle';
 import Image from 'next/image';
@@ -11,7 +9,6 @@ export default function LoginPage() {
         <div className='flex justify-between'>
           <a href='#' className='flex items-center gap-2 font-medium'>
             <div className='flex h-6 w-6 items-center justify-center rounded-md text-primary-foreground'>
-              {/* <GalleryVerticalEnd className="size-4" /> */}
               <Image
                 src='/assets/image/logo.png'
                 alt='logo'
