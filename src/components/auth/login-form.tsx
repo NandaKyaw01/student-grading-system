@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { getCsrfToken, signIn, useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,29 +19,11 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'form'>) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/admin/dashboard';
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const session = useSession();
-  const [csrfToken, setCsrfToken] = useState('');
-
-  useEffect(() => {
-    async function fetchCsrfToken() {
-      const result = await getCsrfToken();
-      if (!result) {
-        throw new Error('Can not sign in without a CSRF token');
-      }
-      setCsrfToken(result);
-    }
-
-    if (session.status !== 'loading') {
-      fetchCsrfToken();
-    }
-  }, [session.status]);
 
   const {
     register,
@@ -65,7 +47,7 @@ export function LoginForm({
       setLoading(false);
       setError('Invalid email or password');
     } else if (res?.ok && res.url) {
-      router.push(res.url);
+      window.location.href = res.url;
     }
   };
 
