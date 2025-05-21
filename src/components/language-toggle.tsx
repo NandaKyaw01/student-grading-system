@@ -1,5 +1,4 @@
 'use client';
-import React, { useEffect, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,13 +8,11 @@ import {
 import { Languages } from 'lucide-react';
 import { Button } from './ui/button';
 import { useSwitchLocaleHref } from '@/i18n/use-switch-locale-href';
-import Link from 'next/link';
 import { i18n, localeName } from '@/i18n/i18n-config';
 
 const COOKIE_NAME = 'active_locale';
 function setLocaleCookie(locale: string) {
   if (typeof window === 'undefined') return;
-
   document.cookie = `${COOKIE_NAME}=${locale}; path=/; max-age=31536000; SameSite=Lax; ${window.location.protocol === 'https:' ? 'Secure;' : ''}`;
 }
 
@@ -33,18 +30,17 @@ const LanguageToggle = () => {
       <DropdownMenuContent align='end' className='min-w-min'>
         {i18n.locales.map((locale) => {
           return (
-            <Link
-              href={getSwitchLocaleHref(locale)}
+            <DropdownMenuItem
+              className='cursor-pointer'
               onClick={() => {
                 setLocaleCookie(locale);
+                window.location.href = getSwitchLocaleHref(locale);
               }}
               key={locale}
             >
-              <DropdownMenuItem className='cursor-pointer'>
-                <span className='mr-1 text-xs'>{locale.toUpperCase()}</span>
-                {localeName[locale]}
-              </DropdownMenuItem>
-            </Link>
+              <span className='mr-1 text-xs'>{locale.toUpperCase()}</span>
+              {localeName[locale]}
+            </DropdownMenuItem>
           );
         })}
       </DropdownMenuContent>
