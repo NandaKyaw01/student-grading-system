@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { localizationMiddleware } from './i18n/localization-middleware';
 import { withAuth } from 'next-auth/middleware';
 import { i18n } from './i18n/i18n-config';
-import { getToken } from 'next-auth/jwt';
 
 export const config = {
   matcher: [
