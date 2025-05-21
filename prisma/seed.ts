@@ -1,44 +1,58 @@
-// import { PrismaClient, Prisma } from '../generated/prisma';
+import { prisma } from '@/lib/prisma';
 
-// const prisma = new PrismaClient();
+async function main() {
+  // 1. Create Academic Years
+  const academicYear2024 = await prisma.academicYear.create({
+    data: {
+      year: '2024-2025'
+    }
+  });
 
-// const userData: Prisma.UserCreateInput[] = [
-//   {
-//     name: 'Alice',
-//     email: 'alice@prisma.io',
-//     posts: {
-//       create: [
-//         {
-//           title: 'Join the Prisma Discord',
-//           content: 'https://pris.ly/discord',
-//           published: true
-//         },
-//         {
-//           title: 'Prisma on YouTube',
-//           content: 'https://pris.ly/youtube'
-//         }
-//       ]
-//     }
-//   },
-//   {
-//     name: 'Bob',
-//     email: 'bob@prisma.io',
-//     posts: {
-//       create: [
-//         {
-//           title: 'Follow Prisma on Twitter',
-//           content: 'https://www.twitter.com/prisma',
-//           published: true
-//         }
-//       ]
-//     }
-//   }
-// ];
+  const academicYear2025 = await prisma.academicYear.create({
+    data: { year: '2025-2026' }
+  });
 
-// export async function main() {
-//     for (const u of userData) {
-//       await prisma.user.create({ data: u });
-//     }
-// }
+  // 2. Create Classes
+  const class1 = await prisma.class.create({
+    data: {
+      className: 'Grade 1',
+      academicYearId: academicYear2024.id
+    }
+  });
 
-// main();
+  const class2 = await prisma.class.create({
+    data: {
+      className: 'Grade 2',
+      academicYearId: academicYear2025.id
+    }
+  });
+
+  // 3. Create Students
+  await prisma.student.createMany({
+    data: [
+      {
+        name: 'Alice Johnson',
+        rollNumber: 'A101',
+        classId: class1.id,
+        academicYearId: academicYear2024.id
+      },
+      {
+        name: 'Bob Smith',
+        rollNumber: 'B102',
+        classId: class2.id,
+        academicYearId: academicYear2025.id
+      }
+    ]
+  });
+
+  console.log('✅ Seed data inserted successfully.');
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Error seeding data:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
