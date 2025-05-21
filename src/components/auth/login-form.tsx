@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { signIn } from 'next-auth/react';
-import { useState } from 'react';
+import { getCsrfToken, signIn, useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -25,6 +25,23 @@ export function LoginForm({
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const session = useSession();
+  const [csrfToken, setCsrfToken] = useState('');
+
+  useEffect(() => {
+    async function fetchCsrfToken() {
+      const result = await getCsrfToken();
+      if (!result) {
+        throw new Error('Can not sign in without a CSRF token');
+      }
+      setCsrfToken(result);
+    }
+
+    if (session.status !== 'loading') {
+      fetchCsrfToken();
+    }
+  }, [session.status]);
 
   const {
     register,

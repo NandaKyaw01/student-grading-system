@@ -20,18 +20,8 @@ const authMiddleware = withAuth(
     return localizationMiddleware(req);
   },
   {
-    // callbacks: {
-    //   authorized: ({ token }) => token != null
-    // },
     callbacks: {
-      authorized: async ({ req }) => {
-        const session = await getToken({
-          req,
-          secret: process.env.NEXTAUTH_SECRET
-        });
-
-        return !!session;
-      }
+      authorized: ({ token }) => token != null
     },
     pages: {
       signIn: '/auth/login'
