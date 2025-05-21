@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,7 +19,6 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'form'>) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/admin/dashboard';
 
@@ -48,7 +47,7 @@ export function LoginForm({
       setLoading(false);
       setError('Invalid email or password');
     } else if (res?.ok && res.url) {
-      router.push(res.url);
+      window.location.href = res.url;
     }
   };
 
@@ -86,7 +85,7 @@ export function LoginForm({
             <p className='text-sm text-red-500'>{errors.password.message}</p>
           )}
         </div>
-        {error && <p className='text-red-500'>{error}</p>}
+        {error && <p className='text-sm text-red-500'>{error}</p>}
         <Button type='submit' className='w-full' disabled={loading}>
           {loading ? (
             <>
