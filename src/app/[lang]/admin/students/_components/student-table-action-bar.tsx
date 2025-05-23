@@ -68,18 +68,25 @@ export function TasksTableActionBar({ table }: TasksTableActionBarProps) {
         toast.success('Tasks updated');
       });
     },
-    [rows]
+    [
+      // rows
+    ]
   );
 
-  const onTaskExport = React.useCallback(() => {
-    setCurrentAction('export');
-    startTransition(() => {
-      //   exportTableToCSV(table, {
-      //     excludeColumns: ["select", "actions"],
-      //     onlySelected: true,
-      //   });
-    });
-  }, [table]);
+  const onTaskExport = React.useCallback(
+    () => {
+      setCurrentAction('export');
+      startTransition(() => {
+        //   exportTableToCSV(table, {
+        //     excludeColumns: ["select", "actions"],
+        //     onlySelected: true,
+        //   });
+      });
+    },
+    [
+      // table
+    ]
+  );
 
   const onTaskDelete = React.useCallback(() => {
     setCurrentAction('delete');
@@ -94,7 +101,11 @@ export function TasksTableActionBar({ table }: TasksTableActionBarProps) {
       //   }
       table.toggleAllRowsSelected(false);
     });
-  }, [rows, table]);
+  }, [
+    ,
+    // rows
+    table
+  ]);
 
   return (
     <DataTableActionBar table={table} visible={rows.length > 0}>
