@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { studentFormSchema } from '@/lib/schema'; // Update path as needed
+
 import { z } from 'zod';
 import {
   Form,
@@ -22,8 +22,9 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { createStudentSchema } from '@/lib/zod-schemas/student-schema';
 
-type StudentFormValues = z.infer<typeof studentFormSchema>;
+type StudentFormValues = z.infer<typeof createStudentSchema>;
 
 export default function StudentForm({
   initialData,
@@ -37,7 +38,7 @@ export default function StudentForm({
   academicYearOptions: { id: string; name: string }[];
 }) {
   const form = useForm<StudentFormValues>({
-    resolver: zodResolver(studentFormSchema),
+    resolver: zodResolver(createStudentSchema),
     defaultValues: initialData || {
       name: '',
       rollNumber: '',

@@ -1,15 +1,16 @@
 import type { Metadata, Viewport } from 'next';
 
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import AuthProvider from '@/components/providers/auth-provider';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import NextTopLoader from 'nextjs-toploader';
 import { Locale } from '@/i18n/i18n-config';
 import { cookies } from 'next/headers';
-import { fontVariables, myanmarFont } from '@/lib/font';
+import { fontVariables } from '@/lib/font';
 import { cn } from '@/lib/utils';
 
 import '../theme.css';
 import '../globals.css';
-import AuthProvider from '@/components/providers/auth-provider';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
@@ -75,14 +76,16 @@ export default async function RootLayout(props: {
         )}
       >
         <NextTopLoader showSpinner={false} />
-        <ThemeProvider
-          activeThemeValue={activeThemeValue as string}
-          attribute='class'
-          defaultTheme='system'
-          enableSystem
-        >
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
+        <NuqsAdapter>
+          <ThemeProvider
+            activeThemeValue={activeThemeValue as string}
+            attribute='class'
+            defaultTheme='system'
+            enableSystem
+          >
+            <AuthProvider>{children}</AuthProvider>
+          </ThemeProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

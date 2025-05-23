@@ -16,7 +16,6 @@ export default async function StudentViewPage({
 
   if (studentId !== 'new') {
     student = await getStudentById(studentId);
-    // product = [data.product] as Product;
     if (!student) {
       notFound();
     }

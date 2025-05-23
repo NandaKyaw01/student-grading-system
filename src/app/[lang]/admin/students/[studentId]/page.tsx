@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import StudentViewPage from '../_components/student-view-page';
 
 export const metadata = {
-  title: 'Dashboard : Product View'
+  title: 'Students : Student View'
 };
 
 type PageProps = { params: Promise<{ studentId: string }> };

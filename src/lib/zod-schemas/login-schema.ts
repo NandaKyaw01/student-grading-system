@@ -12,9 +12,4 @@ export const loginSchema = z.object({
     .max(32, 'Password must be less than 32 characters')
 });
 
-export const studentFormSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
-  rollNumber: z.string().min(1, { message: 'Roll number is required' }),
-  classId: z.string().min(1, { message: 'Class is required' }),
-  academicYearId: z.string().min(1, { message: 'Academic year is required' })
-});
+export type LoginFormInput = z.infer<typeof loginSchema>;

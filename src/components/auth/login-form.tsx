@@ -7,13 +7,10 @@ import { Input } from '@/components/ui/input';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema } from '@/lib/schema';
+import { LoginFormInput, loginSchema } from '@/lib/zod-schemas/login-schema';
 import { LoadingSpinner } from '../loading-spinner';
-
-type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm({
   className,
@@ -29,11 +26,11 @@ export function LoginForm({
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm<LoginFormValues>({
+  } = useForm<LoginFormInput>({
     resolver: zodResolver(loginSchema)
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormInput) => {
     setError('');
     setLoading(true);
     const res = await signIn('credentials', {
