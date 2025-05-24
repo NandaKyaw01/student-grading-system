@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { localizationMiddleware } from './i18n/localization-middleware';
 import { withAuth } from 'next-auth/middleware';
 import { i18n } from './i18n/i18n-config';
