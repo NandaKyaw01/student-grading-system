@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 import '../theme.css';
 import '../globals.css';
+import { Toaster } from 'sonner';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
@@ -86,6 +87,7 @@ export default async function RootLayout(props: {
             <AuthProvider>{children}</AuthProvider>
           </ThemeProvider>
         </NuqsAdapter>
+        <Toaster />
       </body>
     </html>
   );

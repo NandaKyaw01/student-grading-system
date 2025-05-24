@@ -115,33 +115,3 @@ export async function getStudentById(id: string): Promise<Student | null> {
     }
   )();
 }
-
-export async function updateStudentById(input: UpdateStudentInput) {
-  const { id, ...data } = input;
-
-  try {
-    const updated = await prisma.student.update({
-      where: { id },
-      data
-    });
-
-    return { success: true, student: updated };
-  } catch (error) {
-    console.error(`❌ Error updating student with ID ${id}:`, error);
-    return { success: false, student: null };
-  }
-}
-
-export async function deleteStudentById(
-  id: string
-): Promise<{ success: boolean }> {
-  try {
-    await prisma.student.delete({
-      where: { id }
-    });
-    return { success: true };
-  } catch (error) {
-    console.error(`❌ Error deleting student with ID ${id}:`, error);
-    return { success: false };
-  }
-}

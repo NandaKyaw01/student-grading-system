@@ -2,8 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
-import { z } from 'zod';
 import {
   Form,
   FormControl,
@@ -22,9 +20,16 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { createStudentSchema } from '@/lib/zod-schemas/student-schema';
-
-type StudentFormValues = z.infer<typeof createStudentSchema>;
+import {
+  CreateStudentInput,
+  createStudentSchema,
+  UpdateStudentInput
+} from '@/lib/zod-schemas/student-schema';
+import { useTransition } from 'react';
+import { Loader } from 'lucide-react';
+import { createStudent, updateStudent } from '@/actions/student';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export default function StudentForm({
   initialData,
@@ -32,12 +37,12 @@ export default function StudentForm({
   classOptions,
   academicYearOptions
 }: {
-  initialData: Partial<StudentFormValues> | null;
+  initialData: Partial<UpdateStudentInput> | null;
   pageTitle: string;
   classOptions: { id: string; name: string }[];
   academicYearOptions: { id: string; name: string }[];
 }) {
-  const form = useForm<StudentFormValues>({
+  const form = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema),
     defaultValues: initialData || {
       name: '',
@@ -46,10 +51,33 @@ export default function StudentForm({
       academicYearId: ''
     }
   });
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  function onSubmit(values: StudentFormValues) {
-    // handle submission logic (e.g., send to API)
-    console.log(values);
+  function onSubmit(values: CreateStudentInput) {
+    startTransition(async () => {
+      let error: string | null = null;
+
+      if (initialData?.id) {
+        const res = await updateStudent({ id: initialData.id, ...values });
+        error = res.error;
+      } else {
+        const res = await createStudent(values);
+        error = res.error;
+      }
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      router.push('/admin/students');
+      toast.success(
+        initialData?.id
+          ? 'Student updated successfully'
+          : 'Student created successfully'
+      );
+    });
   }
 
   return (
@@ -139,7 +167,10 @@ export default function StudentForm({
                 </FormItem>
               )}
             />
-            <Button type='submit'>Save Student</Button>
+            <Button type='submit' disabled={isPending}>
+              {isPending && <Loader className='animate-spin' />}
+              Save Student
+            </Button>
           </form>
         </Form>
       </CardContent>

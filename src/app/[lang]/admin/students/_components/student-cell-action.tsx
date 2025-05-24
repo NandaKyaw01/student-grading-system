@@ -1,4 +1,5 @@
 'use client';
+import { deleteStudent } from '@/actions/student';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,18 +12,30 @@ import {
 import { Student } from '@/types/prisma';
 import { EllipsisVertical, SquarePen, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Student;
 }
 
 export const StudentCellAction: React.FC<CellActionProps> = ({ data }) => {
-  const [loading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const [isDeletePending, startDeleteTransition] = React.useTransition();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    startDeleteTransition(async () => {
+      const { error } = await deleteStudent(data.id);
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      toast.success('Student deleted');
+    });
+  };
 
   return (
     <>
@@ -30,7 +43,7 @@ export const StudentCellAction: React.FC<CellActionProps> = ({ data }) => {
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={onConfirm}
-        loading={loading}
+        loading={isDeletePending}
       />
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
