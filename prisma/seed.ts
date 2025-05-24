@@ -1,44 +1,93 @@
-// import { PrismaClient, Prisma } from '../generated/prisma';
+import { prisma } from '@/lib/db';
+import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
 
-// const prisma = new PrismaClient();
+const academicYearsData = [
+  '2021-2022',
+  '2022-2023',
+  '2023-2024',
+  '2024-2025',
+  '2025-2026'
+];
 
-// const userData: Prisma.UserCreateInput[] = [
-//   {
-//     name: 'Alice',
-//     email: 'alice@prisma.io',
-//     posts: {
-//       create: [
-//         {
-//           title: 'Join the Prisma Discord',
-//           content: 'https://pris.ly/discord',
-//           published: true
-//         },
-//         {
-//           title: 'Prisma on YouTube',
-//           content: 'https://pris.ly/youtube'
-//         }
-//       ]
-//     }
-//   },
-//   {
-//     name: 'Bob',
-//     email: 'bob@prisma.io',
-//     posts: {
-//       create: [
-//         {
-//           title: 'Follow Prisma on Twitter',
-//           content: 'https://www.twitter.com/prisma',
-//           published: true
-//         }
-//       ]
-//     }
-//   }
-// ];
+const classNames = [
+  'First Year',
+  'Second Year',
+  'Third Year',
+  'Fourth Year',
+  'Fifth Year'
+];
 
-// export async function main() {
-//     for (const u of userData) {
-//       await prisma.user.create({ data: u });
-//     }
-// }
+async function main() {
+  console.log('🌱 Seeding database...');
 
-// main();
+  // 1. Create Academic Years
+  const academicYears = await Promise.all(
+    academicYearsData.map((year) =>
+      prisma.academicYear.upsert({
+        where: { year },
+        update: {},
+        create: { year }
+      })
+    )
+  );
+
+  // 2. Create Classes and associate with Academic Years
+  const classes = await Promise.all(
+    classNames.map((className, index) =>
+      prisma.class.upsert({
+        where: { className },
+        update: {},
+        create: {
+          className,
+          academicYearId: academicYears[index].id
+        }
+      })
+    )
+  );
+
+  // 3. Create Admin User
+  const adminEmail = 'admin@ucsh.com';
+  const hashedPassword = await bcrypt.hash('admin', 10);
+
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {},
+    create: {
+      email: adminEmail,
+      hashedPassword,
+      name: 'Admin'
+    }
+  });
+
+  // 4. Create 50 Students
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const students: any[] = [];
+  for (let i = 0; i < 50; i++) {
+    const classIndex = i % 5; // Distribute across 5 classes
+    const year = academicYears[classIndex];
+    const classItem = classes[classIndex];
+
+    students.push({
+      name: faker.person.fullName(),
+      rollNumber: `${classIndex + 1}CS-${i + 1}`,
+      academicYearId: year.id,
+      classId: classItem.id
+    });
+  }
+
+  await prisma.student.createMany({
+    data: students
+  });
+
+  console.log('✅ Seeding complete!');
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Seeding error:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

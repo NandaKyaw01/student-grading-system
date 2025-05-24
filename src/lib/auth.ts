@@ -1,9 +1,9 @@
+import { loginSchema } from '@/lib/zod-schemas/login-schema';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { NextAuthOptions } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import bcrypt from 'bcrypt';
-import { loginSchema } from '@/lib/schema';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
