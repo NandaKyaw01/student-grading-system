@@ -5,8 +5,9 @@ import { DataTableColumnHeader } from '@/components/data-table/data-table-column
 import { Checkbox } from '@/components/ui/checkbox';
 import { AcademicYear, Class, Student } from '@/types/prisma';
 import { ColumnDef } from '@tanstack/react-table';
-import { Text } from 'lucide-react';
+import { CalendarIcon, Text } from 'lucide-react';
 import { StudentCellAction } from './student-cell-action';
+import { formatDate } from '@/lib/format';
 
 export function getStudentColumns(
   classes: Class[],
@@ -57,14 +58,14 @@ export function getStudentColumns(
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Name' />
       )
-      // cell: ({ cell }) => <div>{cell.getValue<Student['name']>()}</div>,
     },
     {
       id: 'rollNumber',
       accessorKey: 'rollNumber',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Roll Number' />
-      )
+      ),
+      enableSorting: false
     },
     {
       id: 'classId',
@@ -81,7 +82,8 @@ export function getStudentColumns(
           label: cls.className,
           value: cls.id
         }))
-      }
+      },
+      enableSorting: false
     },
     {
       id: 'academicYearId',
@@ -90,7 +92,6 @@ export function getStudentColumns(
         <DataTableColumnHeader column={column} title='Academic Year' />
       ),
       cell: ({ row }) => row.original.academicYear.year,
-      enableColumnFilter: true,
       meta: {
         label: 'Academic Year',
         variant: 'multiSelect',
@@ -98,7 +99,23 @@ export function getStudentColumns(
           label: yr.year,
           value: yr.id
         }))
-      }
+      },
+      enableColumnFilter: true,
+      enableSorting: false
+    },
+    {
+      id: 'createdAt',
+      accessorKey: 'createdAt',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Created At' />
+      ),
+      cell: ({ cell }) => formatDate(cell.getValue<Date>()),
+      meta: {
+        label: 'Created At',
+        variant: 'dateRange',
+        icon: CalendarIcon
+      },
+      enableColumnFilter: true
     },
     {
       id: 'actions',

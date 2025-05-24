@@ -45,7 +45,7 @@ export const StudentCellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuItem
             onClick={() => router.push(`/admin/students/${data.id}`)}
           >
-            <SquarePen className='mr-2 h-4 w-4' /> Update
+            <SquarePen className='mr-2 h-4 w-4' /> Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash2 className='mr-2 h-4 w-4' /> Delete

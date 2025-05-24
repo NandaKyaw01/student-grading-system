@@ -14,6 +14,7 @@ export const studentSearchParams = {
   search: parseAsString,
   academicYearId: parseAsString,
   classId: parseAsString,
+  createdAt: parseAsString,
   sort: getSortingStateParser<Student>().withDefault([
     { id: 'createdAt', desc: true }
   ])

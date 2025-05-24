@@ -37,6 +37,19 @@ export async function getAllStudents(input: GetStudentSchema) {
           where.classId = { in: classIds };
         }
 
+        if (input.createdAt) {
+          const [from, to] = input.createdAt
+            .split(',')
+            .map((ts) => new Date(Number(ts)));
+
+          if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+            where.createdAt = {
+              gte: from,
+              lte: to
+            };
+          }
+        }
+
         const orderBy =
           input.sort && input.sort.length > 0
             ? input.sort.map((item) => ({

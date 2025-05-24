@@ -25,10 +25,8 @@ interface StudentsTableProps {
 }
 
 export function StudentDataTable({ promises }: StudentsTableProps) {
-  const [{ students, pageCount }, classes, academicYears] = React.use(promises);
-
-  const [rowAction, setRowAction] =
-    React.useState<DataTableRowAction<Student> | null>(null);
+  const [{ students, pageCount }, { classes }, { academicYears }] =
+    React.use(promises);
 
   const columns = React.useMemo(
     () => getStudentColumns(classes, academicYears),
@@ -40,8 +38,8 @@ export function StudentDataTable({ promises }: StudentsTableProps) {
     columns,
     pageCount,
     initialState: {
-      sorting: [{ id: 'createdAt', desc: true }]
-      // columnPinning: { right: ['actions'] }
+      sorting: [{ id: 'createdAt', desc: true }],
+      columnPinning: { right: ['actions'] }
     },
     getRowId: (originalRow) => originalRow.id,
     shallow: false,

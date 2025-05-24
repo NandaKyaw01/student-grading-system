@@ -4,13 +4,13 @@ import { getAllClasses } from '@/services/class';
 import { getAllAcademicYears } from '@/services/academic-year';
 import { getStudentById } from '@/services/student';
 
-type TStudentViewPageProps = {
+type StudentViewPageProps = {
   studentId: string;
 };
 
 export default async function StudentViewPage({
   studentId
-}: TStudentViewPageProps) {
+}: StudentViewPageProps) {
   let student = null;
   let pageTitle = 'Create New Student';
 
@@ -27,12 +27,12 @@ export default async function StudentViewPage({
     getAllAcademicYears()
   ]);
 
-  const classOptions = classes.map((cls) => ({
+  const classOptions = classes.classes.map((cls) => ({
     id: cls.id,
     name: cls.className
   }));
 
-  const academicYearOptions = academicYears.map((year) => ({
+  const academicYearOptions = academicYears.academicYears.map((year) => ({
     id: year.id,
     name: year.year
   }));
