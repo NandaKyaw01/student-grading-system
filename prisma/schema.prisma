@@ -31,7 +31,7 @@ model Student {
 
 model Class {
   id             String @id @default(cuid())
-  className      String
+  className      String @unique
   academicYearId String
 
   academicYear  AcademicYear   @relation(fields: [academicYearId], references: [id])
@@ -44,7 +44,7 @@ model Class {
 
 model AcademicYear {
   id   String @id @default(cuid())
-  year String // e.g., "2024-2025"
+  year String @unique
 
   classes       Class[]
   students      Student[]

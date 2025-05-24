@@ -1,56 +1,91 @@
 import { prisma } from '@/lib/db';
+import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
+
+const academicYearsData = [
+  '2021-2022',
+  '2022-2023',
+  '2023-2024',
+  '2024-2025',
+  '2025-2026'
+];
+
+const classNames = [
+  'First Year',
+  'Second Year',
+  'Third Year',
+  'Fourth Year',
+  'Fifth Year'
+];
 
 async function main() {
+  console.log('🌱 Seeding database...');
+
   // 1. Create Academic Years
-  const academicYear2024 = await prisma.academicYear.create({
-    data: {
-      year: '2024-2025'
+  const academicYears = await Promise.all(
+    academicYearsData.map((year) =>
+      prisma.academicYear.upsert({
+        where: { year },
+        update: {},
+        create: { year }
+      })
+    )
+  );
+
+  // 2. Create Classes and associate with Academic Years
+  const classes = await Promise.all(
+    classNames.map((className, index) =>
+      prisma.class.upsert({
+        where: { className },
+        update: {},
+        create: {
+          className,
+          academicYearId: academicYears[index].id
+        }
+      })
+    )
+  );
+
+  // 3. Create Admin User
+  const adminEmail = 'admin@ucsh.com';
+  const hashedPassword = await bcrypt.hash('admin', 10);
+
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {},
+    create: {
+      email: adminEmail,
+      hashedPassword,
+      name: 'Admin'
     }
   });
 
-  const academicYear2025 = await prisma.academicYear.create({
-    data: { year: '2025-2026' }
-  });
+  // 4. Create 50 Students
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const students: any[] = [];
+  for (let i = 0; i < 50; i++) {
+    const classIndex = i % 5; // Distribute across 5 classes
+    const year = academicYears[classIndex];
+    const classItem = classes[classIndex];
 
-  // 2. Create Classes
-  const class1 = await prisma.class.create({
-    data: {
-      className: 'Grade 1',
-      academicYearId: academicYear2024.id
-    }
-  });
+    students.push({
+      name: faker.person.fullName(),
+      rollNumber: `${classIndex + 1}CS-${i + 1}`,
+      academicYearId: year.id,
+      classId: classItem.id
+    });
+  }
 
-  const class2 = await prisma.class.create({
-    data: {
-      className: 'Grade 2',
-      academicYearId: academicYear2025.id
-    }
-  });
-
-  // 3. Create Students
   await prisma.student.createMany({
-    data: [
-      {
-        name: 'Alice Johnson',
-        rollNumber: 'A101',
-        classId: class1.id,
-        academicYearId: academicYear2024.id
-      },
-      {
-        name: 'Bob Smith',
-        rollNumber: 'B102',
-        classId: class2.id,
-        academicYearId: academicYear2025.id
-      }
-    ]
+    data: students
   });
 
-  console.log('✅ Seed data inserted successfully.');
+  console.log('✅ Seeding complete!');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error seeding data:', e);
+    console.error('❌ Seeding error:', e);
     process.exit(1);
   })
   .finally(async () => {
