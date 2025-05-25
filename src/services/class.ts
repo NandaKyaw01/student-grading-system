@@ -8,7 +8,7 @@ export async function getAllClasses(input?: GetAcademicYearSchema) {
     async () => {
       try {
         const page = input?.page ?? 1;
-        const limit = input?.perPage ?? 100;
+        const limit = input?.perPage ?? 10;
         const offset = (page - 1) * limit;
 
         const where: Prisma.ClassWhereInput = {};
