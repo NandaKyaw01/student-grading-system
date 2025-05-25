@@ -14,19 +14,8 @@ import {
 export default function ClassesPage() {
   return (
     <ContentLayout title='Classes'>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/'>Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Classes</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb path='Home/Classes' />
+
       <PlaceholderContent />
     </ContentLayout>
   );

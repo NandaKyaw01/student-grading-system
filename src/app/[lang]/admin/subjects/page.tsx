@@ -14,19 +14,8 @@ import {
 export default function SubjectsPage() {
   return (
     <ContentLayout title='Subjects'>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/'>Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Subjects</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb path='Home/Subjects' />
+
       <PlaceholderContent />
     </ContentLayout>
   );

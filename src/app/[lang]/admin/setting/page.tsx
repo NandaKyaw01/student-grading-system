@@ -28,19 +28,8 @@ export default function SettingPage() {
   const { settings, setSettings } = sidebar;
   return (
     <ContentLayout title='Setting'>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/'>Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Setting</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb path='Home/Setting' />
+
       <div className='space-y-6 mt-5'>
         <div>
           <h5 className='text-md font-medium'>Theme</h5>

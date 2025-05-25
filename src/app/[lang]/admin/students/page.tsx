@@ -49,21 +49,7 @@ export default async function StudentsPage(props: pageProps) {
   return (
     <ContentLayout
       title='Students'
-      breadcrumb={
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href='/'>Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Students</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      }
+      breadcrumb={<Breadcrumb path='Home/Students' />}
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>

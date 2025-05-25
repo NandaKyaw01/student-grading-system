@@ -14,19 +14,8 @@ import {
 export default function GPASettingPage() {
   return (
     <ContentLayout title='GPA Setting'>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/'>Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>GPA Setting</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb part='Home/GPA-Setting' />
+
       <PlaceholderContent />
     </ContentLayout>
   );

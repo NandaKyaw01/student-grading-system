@@ -14,19 +14,8 @@ import {
 export default function AcademicYearsPage() {
   return (
     <ContentLayout title='Academic Years'>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/'>Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Academic Years</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb path='Home/Academic Years' />
+
       <PlaceholderContent />
     </ContentLayout>
   );
