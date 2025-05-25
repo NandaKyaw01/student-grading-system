@@ -7,46 +7,49 @@ export async function getAllClasses(input?: GetAcademicYearSchema) {
   return await unstable_cache(
     async () => {
       try {
+        const isPaginated = !!input;
         const page = input?.page ?? 1;
         const limit = input?.perPage ?? 10;
         const offset = (page - 1) * limit;
 
         const where: Prisma.ClassWhereInput = {};
 
-        if (input?.search) {
+        // Search
+        if (input?.search?.trim()) {
           where.className = {
-            contains: input.search,
+            contains: input.search.trim(),
             mode: 'insensitive'
           };
         }
 
-        if (input?.academicYearId) {
+        // Academic Year ID
+        if (input?.academicYearId && input.academicYearId !== '') {
           const ids = Array.isArray(input.academicYearId)
             ? input.academicYearId
-            : input.academicYearId.split(',');
-          where.academicYearId = { in: ids };
+            : input.academicYearId.split(',').filter(Boolean);
+          if (ids.length > 0) {
+            where.academicYearId = { in: ids };
+          }
         }
 
-        const orderBy = input?.sort
-          ? input?.sort?.length > 0
-            ? input.sort.map((s) => ({
-                [s.id]: s.desc ? 'desc' : 'asc'
+        const orderBy =
+          input?.sort && input.sort.length > 0
+            ? input.sort.map((item) => ({
+                [item.id]: item.desc ? 'desc' : 'asc'
               }))
-            : [{ createdAt: 'asc' }]
-          : [{ createdAt: 'asc' }];
+            : [{ createdAt: 'asc' }];
 
         const [classes, totalCount] = await Promise.all([
           prisma.class.findMany({
             where,
             include: { academicYear: true },
             orderBy,
-            skip: offset,
-            take: limit
+            ...(isPaginated && { skip: offset, take: limit })
           }),
           prisma.class.count({ where })
         ]);
 
-        const pageCount = Math.ceil(totalCount / limit);
+        const pageCount = isPaginated ? Math.ceil(totalCount / limit) : 1;
 
         return { classes, pageCount };
       } catch (error) {

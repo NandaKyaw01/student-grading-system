@@ -2,43 +2,41 @@ import { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetAcademicYearSchema } from '@/lib/search-params/class';
 import { unstable_cache } from 'next/cache';
-
 export async function getAllAcademicYears(input?: GetAcademicYearSchema) {
   return await unstable_cache(
     async () => {
       try {
+        const isPaginated = !!input;
         const page = input?.page ?? 1;
         const limit = input?.perPage ?? 10;
         const offset = (page - 1) * limit;
 
         const where: Prisma.AcademicYearWhereInput = {};
 
-        if (input?.search) {
+        if (input?.search?.trim()) {
           where.year = {
-            contains: input.search,
+            contains: input.search.trim(),
             mode: 'insensitive'
           };
         }
 
-        const orderBy = input?.sort
-          ? input?.sort?.length > 0
-            ? input.sort.map((s) => ({
-                [s.id]: s.desc ? 'desc' : 'asc'
+        const orderBy =
+          input?.sort && input.sort.length > 0
+            ? input.sort.map((item) => ({
+                [item.id]: item.desc ? 'desc' : 'asc'
               }))
-            : [{ year: 'asc' }]
-          : [{ year: 'asc' }];
+            : [{ year: 'asc' }];
 
         const [academicYears, totalCount] = await Promise.all([
           prisma.academicYear.findMany({
             where,
             orderBy,
-            skip: offset,
-            take: limit
+            ...(isPaginated && { skip: offset, take: limit })
           }),
           prisma.academicYear.count({ where })
         ]);
 
-        const pageCount = Math.ceil(totalCount / limit);
+        const pageCount = isPaginated ? Math.ceil(totalCount / limit) : 1;
 
         return { academicYears, pageCount };
       } catch (error) {
