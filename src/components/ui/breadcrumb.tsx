@@ -1,12 +1,91 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
 
-function Breadcrumb({ ...props }: React.ComponentProps<'nav'>) {
-  return <nav aria-label='breadcrumb' data-slot='breadcrumb' {...props} />;
+interface BreadcrumbProps extends React.ComponentProps<'ol'> {
+  path?: string;
 }
+interface RouteToNavigateProps {
+  item?: string;
+}
+
+//--------------------------------------------------------------------------------
+function Breadcrumb({ path, className, ...props }: BreadcrumbProps) {
+  const routeArray = path?.split('/');
+  console.log(routeArray);
+  const findDashboardIndex = (): number => {
+    if (!routeArray) {
+      return -1;
+    }
+
+    return routeArray.findIndex((item) => item === 'Dashboard');
+  };
+  const findDestinationIndex = (desti: string): number => {
+    if (!routeArray) {
+      return -1;
+    }
+    return routeArray.findIndex((item) => item === desti);
+  };
+  const routeToNavigate = (link: string, routeArray: string[]): string => {
+    let route = '';
+    if (link === 'Dashboard') {
+      route += '/dashboard';
+    } else {
+      const dashboardIndex = findDashboardIndex();
+      const destinationIndex = findDestinationIndex(link);
+      for (let i = dashboardIndex + 1; i < destinationIndex + 1; i++) {
+        route += '/' + routeArray[i].toLowerCase();
+      }
+    }
+
+    return route;
+  };
+  return (
+    <ol
+      data-slot='breadcrumb-list'
+      className={cn(
+        `text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words
+        sm:gap-2.5`,
+        className
+      )}
+      {...props}
+    >
+      {routeArray?.map((item, index) => (
+        <React.Fragment key={index}>
+          <BreadcrumbItem>
+            {index !== routeArray.length - 1 ? ( //making bright color breadcrumb in last page
+              item === 'Home' ? (
+                <BreadcrumbLink asChild>
+                  <Link href='/'>{item}</Link>
+                </BreadcrumbLink>
+              ) : (
+                <BreadcrumbLink asChild>
+                  <Link
+                    // href='/admin/posts'
+                    href={`/admin${routeToNavigate(item, routeArray)}`}
+                    // onClick={() => routeToNavigate(item, routeArray)}
+                  >
+                    {item}
+                  </Link>
+                </BreadcrumbLink>
+              )
+            ) : (
+              <BreadcrumbPage>{item}</BreadcrumbPage>
+            )}
+          </BreadcrumbItem>
+          {index !== routeArray.length - 1 && <BreadcrumbSeparator />}
+        </React.Fragment>
+      ))}
+    </ol>
+  );
+}
+//--------------------------------------------------------------------------------
+// function Breadcrumb({ ...props }: React.ComponentProps<'nav'>) {
+//   return <nav aria-label='breadcrumb' data-slot='breadcrumb' {...props} />;
+// }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<'ol'>) {
   return (
@@ -107,4 +186,5 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis
+  // BreadcrumbTest
 };

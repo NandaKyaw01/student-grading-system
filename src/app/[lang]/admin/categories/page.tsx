@@ -68,7 +68,8 @@ export default function CategoriesPage() {
 
   return (
     <ContentLayout title='Categories'>
-      <Breadcrumb>
+      <Breadcrumb path='Home/Dashboard/Categories' />
+      {/* <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
@@ -86,7 +87,7 @@ export default function CategoriesPage() {
             <BreadcrumbPage>Categories</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
-      </Breadcrumb>
+      </Breadcrumb> */}
       {/* <PlaceholderContent /> */}
 
       <table className='min-w-full border border-gray-300 mt-8'>

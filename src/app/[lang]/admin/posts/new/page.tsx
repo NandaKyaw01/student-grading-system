@@ -1,3 +1,4 @@
+'use client';
 import Link from 'next/link';
 
 import PlaceholderContent from '@/components/demo/placeholder-content';
@@ -9,36 +10,17 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator
+  // BreadcrumbTest
 } from '@/components/ui/breadcrumb';
+import { ChevronRight } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export default function NewPostPage() {
+  const pathname = usePathname();
+  const routeArray = pathname.split('/');
   return (
     <ContentLayout title='New Post'>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/'>Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/dashboard'>Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/posts'>Posts</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>New</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb path='Home/Dashboard/Posts/New' />
       <PlaceholderContent />
     </ContentLayout>
   );
