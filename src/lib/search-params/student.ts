@@ -8,7 +8,6 @@ import {
 
 import { getSortingStateParser } from '@/lib/parsers';
 import { Student } from '@/types/prisma';
-import { z } from 'zod';
 
 export const studentSearchParams = {
   page: parseAsInteger.withDefault(1),
