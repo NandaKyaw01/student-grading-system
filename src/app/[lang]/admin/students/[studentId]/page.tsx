@@ -35,20 +35,7 @@ export default async function Page(props: PageProps) {
     pageTitle = `Edit Student`;
   }
 
-  const [{ classes }, { academicYears }] = await Promise.all([
-    getAllClasses(),
-    getAllAcademicYears()
-  ]);
-
-  const classOptions = classes.map((cls) => ({
-    id: cls.id,
-    name: cls.className
-  }));
-
-  const academicYearOptions = academicYears.map((year) => ({
-    id: year.id,
-    name: year.year
-  }));
+  const promises = Promise.all([getAllClasses(), getAllAcademicYears()]);
 
   return (
     <ContentLayout
@@ -82,8 +69,7 @@ export default async function Page(props: PageProps) {
           <StudentForm
             initialData={student}
             pageTitle={pageTitle}
-            classOptions={classOptions}
-            academicYearOptions={academicYearOptions}
+            promises={promises}
           />
         </Suspense>
       </div>

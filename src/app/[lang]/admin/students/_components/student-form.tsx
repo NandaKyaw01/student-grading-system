@@ -25,23 +25,49 @@ import {
   createStudentSchema,
   UpdateStudentInput
 } from '@/lib/zod-schemas/student-schema';
-import { useTransition } from 'react';
+import { use, useMemo, useTransition } from 'react';
 import { Loader } from 'lucide-react';
 import { createStudent, updateStudent } from '@/actions/student';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { getAllClasses } from '@/services/class';
+import { getAllAcademicYears } from '@/services/academic-year';
 
 export default function StudentForm({
   initialData,
   pageTitle,
-  classOptions,
-  academicYearOptions
+  promises
 }: {
   initialData: Partial<UpdateStudentInput> | null;
   pageTitle: string;
-  classOptions: { id: string; name: string }[];
-  academicYearOptions: { id: string; name: string }[];
+  promises: Promise<
+    [
+      Awaited<ReturnType<typeof getAllClasses>>,
+      Awaited<ReturnType<typeof getAllAcademicYears>>
+    ]
+  >;
 }) {
+  const [{ classes }, { academicYears }] = use(promises);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const classOptions = useMemo(
+    () =>
+      classes.map((cls) => ({
+        id: cls.id,
+        name: cls.className
+      })),
+    [classes]
+  );
+  const academicYearOptions = useMemo(
+    () =>
+      academicYears.map((year) => ({
+        id: year.id,
+        name: year.year
+      })),
+    [academicYears]
+  );
+
   const form = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema),
     defaultValues: initialData || {
@@ -51,10 +77,8 @@ export default function StudentForm({
       academicYearId: ''
     }
   });
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
-  function onSubmit(values: CreateStudentInput) {
+  const onSubmit = (values: CreateStudentInput) => {
     startTransition(async () => {
       let error: string | null = null;
 
@@ -78,7 +102,7 @@ export default function StudentForm({
           : 'Student created successfully'
       );
     });
-  }
+  };
 
   return (
     <Card className='mx-auto w-full'>
