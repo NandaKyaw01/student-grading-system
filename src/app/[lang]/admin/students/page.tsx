@@ -13,8 +13,8 @@ import { Suspense } from 'react';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { SearchParams } from 'nuqs/server';
 import {
-  studentSearchParamsCache,
-  studentSerialize
+  studentSearchParamsCache
+  // studentSerialize
 } from '@/lib/search-params/student';
 import { getAllStudents } from '@/services/student';
 import { getAllClasses } from '@/services/class';
@@ -36,7 +36,7 @@ type pageProps = {
 export default async function StudentsPage(props: pageProps) {
   const searchParams = await props.searchParams;
   const search = studentSearchParamsCache.parse(searchParams);
-  const key = studentSerialize({ ...searchParams });
+  // const key = studentSerialize({ ...searchParams });
 
   const promises = Promise.all([
     getAllStudents({
@@ -83,7 +83,7 @@ export default async function StudentsPage(props: pageProps) {
         <Separator />
 
         <Suspense
-          key={key}
+          // key={key}
           fallback={
             <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
           }
