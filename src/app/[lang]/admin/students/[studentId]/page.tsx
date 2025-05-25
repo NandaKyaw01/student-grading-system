@@ -69,7 +69,9 @@ export default async function Page(props: PageProps) {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{params.studentId ?? 'new'}</BreadcrumbPage>
+              <BreadcrumbPage>
+                {params.studentId ? 'edit' : 'new'}
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

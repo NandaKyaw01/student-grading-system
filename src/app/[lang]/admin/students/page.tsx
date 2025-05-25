@@ -13,8 +13,8 @@ import { Suspense } from 'react';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { SearchParams } from 'nuqs/server';
 import {
-  studentSearchParamsCache,
-  studentSerialize
+  studentSearchParamsCache
+  // studentSerialize
 } from '@/lib/search-params/student';
 import { getAllStudents } from '@/services/student';
 import { getAllClasses } from '@/services/class';
