@@ -14,20 +14,16 @@ import { getAllStudents } from '@/services/student';
 import { Button } from '@/components/ui/button';
 import { Download, Loader } from 'lucide-react';
 import { exportTableToCSV } from '@/lib/export';
+import { AcademicYear, Class, Student } from '@/types/prisma';
 
 interface StudentsTableProps {
-  promises: Promise<
-    [
-      Awaited<ReturnType<typeof getAllStudents>>,
-      Awaited<ReturnType<typeof getAllClasses>>,
-      Awaited<ReturnType<typeof getAllAcademicYears>>
-    ]
-  >;
+  data: { students: Student[]; pageCount: number };
+  promises: [{ classes: Class[] }, { academicYears: AcademicYear[] }];
 }
 
-export function StudentDataTable({ promises }: StudentsTableProps) {
-  const [{ students, pageCount }, { classes }, { academicYears }] =
-    React.use(promises);
+export function StudentDataTable({ data, promises }: StudentsTableProps) {
+  const [{ classes }, { academicYears }] = promises;
+  const { students, pageCount } = data;
   const [isPending, startTransition] = React.useTransition();
 
   const columns = React.useMemo(

@@ -38,13 +38,11 @@ export default async function StudentsPage(props: pageProps) {
   const search = studentSearchParamsCache.parse(searchParams);
   // const key = studentSerialize({ ...searchParams });
 
-  const promises = Promise.all([
-    getAllStudents({
-      ...search
-    }),
-    getAllClasses(),
-    getAllAcademicYears()
-  ]);
+  const students = await getAllStudents({
+    ...search
+  });
+
+  const promises = await Promise.all([getAllClasses(), getAllAcademicYears()]);
 
   return (
     <ContentLayout
@@ -88,7 +86,7 @@ export default async function StudentsPage(props: pageProps) {
             <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
           }
         >
-          <StudentDataTable promises={promises} />
+          <StudentDataTable promises={promises} data={students} />
         </Suspense>
       </div>
     </ContentLayout>
