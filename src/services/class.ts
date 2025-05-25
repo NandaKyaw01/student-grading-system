@@ -39,7 +39,7 @@ export async function getAllClasses(input?: GetAcademicYearSchema) {
               }))
             : [{ createdAt: 'asc' }];
 
-        const [classes, totalCount] = await Promise.all([
+        const [classes, totalCount] = await prisma.$transaction([
           prisma.class.findMany({
             where,
             include: { academicYear: true },

@@ -69,7 +69,7 @@ export async function getAllStudents(input?: GetStudentSchema) {
         const limit = input?.perPage ?? 10;
         const offset = (page - 1) * limit;
 
-        const [students, totalCount] = await Promise.all([
+        const [students, totalCount] = await prisma.$transaction([
           prisma.student.findMany({
             where,
             include: {
