@@ -1,3 +1,4 @@
+import { AcademicYear } from './../types/prisma';
 import { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetAcademicYearSchema } from '@/lib/search-params/class';
@@ -27,7 +28,7 @@ export async function getAllAcademicYears(input?: GetAcademicYearSchema) {
               }))
             : [{ year: 'asc' }];
 
-        const [academicYears, totalCount] = await Promise.all([
+        const [academicYears, totalCount] = await prisma.$transaction([
           prisma.academicYear.findMany({
             where,
             orderBy,
