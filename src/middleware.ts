@@ -1,36 +1,24 @@
 import { NextRequest } from 'next/server';
-import { localizationMiddleware } from './i18n/localization-middleware';
 import { withAuth } from 'next-auth/middleware';
-import { i18n } from './i18n/i18n-config';
-
-export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)'
-  ]
-};
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
 
 const publicPages = ['/', '/auth/login', '/api/register'];
 
-const authMiddleware = withAuth(
-  function onSuccess(req) {
-    return localizationMiddleware(req);
+const intlMiddleware = createMiddleware(routing);
+
+const authMiddleware = withAuth((req) => intlMiddleware(req), {
+  callbacks: {
+    authorized: ({ token }) => token != null
   },
-  {
-    callbacks: {
-      authorized: ({ token }) => token != null
-    },
-    pages: {
-      signIn: '/auth/login'
-    }
+  pages: {
+    signIn: '/auth/login'
   }
-);
+});
 
 export default function middleware(req: NextRequest) {
   const publicPathnameRegex = RegExp(
-    `^(/(${i18n.locales.join('|')}))?(${publicPages
+    `^(/(${routing.locales.join('|')}))?(${publicPages
       .flatMap((p) => (p === '/' ? ['', '/'] : p))
       .join('|')})/?$`,
     'i'
@@ -38,9 +26,13 @@ export default function middleware(req: NextRequest) {
   const isPublicPage = publicPathnameRegex.test(req.nextUrl.pathname);
 
   if (isPublicPage) {
-    return localizationMiddleware(req);
+    return intlMiddleware(req);
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (authMiddleware as any)(req);
   }
 }
+
+export const config = {
+  matcher: ['/((?!api|trpc|_next|_vercel|.*\\..*).*)']
+};

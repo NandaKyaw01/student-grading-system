@@ -1,20 +1,29 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRightIcon, GitHubLogoIcon } from '@radix-ui/react-icons';
+import { ArrowRightIcon } from '@radix-ui/react-icons';
 
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 
-import { Locale } from '@/i18n/i18n-config';
-import { getDictionary } from '@/i18n/get-dictionary';
 import LanguageToggle from '@/components/language-toggle';
 import { cn } from '@/lib/utils';
+import { Locale, useTranslations } from 'next-intl';
+import { setRequestLocale } from 'next-intl/server';
+import { use } from 'react';
 
-export default async function HomePage(props: {
-  params: Promise<{ lang: Locale }>;
-}) {
-  const { lang } = await props.params;
-  const { home } = await getDictionary(lang);
+type Props = {
+  params: Promise<{ locale: Locale }>;
+};
+
+export default function HomePage({ params }: Props) {
+  const { locale } = use(params);
+
+  // Enable static rendering
+  setRequestLocale(locale);
+
+  // Once the request locale is set, you
+  // can call hooks from `next-intl`
+  const t = useTranslations('HomePage');
 
   return (
     <div className='flex flex-col min-h-screen'>
@@ -53,25 +62,25 @@ export default async function HomePage(props: {
             <h1
               className={cn(
                 'text-center text-3xl font-bold tracking-tighter md:text-5xl ',
-                lang == 'mm'
+                locale == 'mm'
                   ? 'leading-normal lg:leading-normal'
                   : 'leading-tight lg:leading-[1.1]'
               )}
             >
-              {home.title}
+              {t('title')}
             </h1>
             <span className='max-w-[750px] text-center text-lg font-light text-foreground'>
-              {home.subtitle}
+              {t('subtitle')}
             </span>
             <div className='flex w-full items-center justify-center space-x-4 py-4 md:pb-6'>
               <Button variant='default' asChild>
                 <Link href='/auth/login'>
-                  {home.search}
+                  {t('search')}
                   <ArrowRightIcon className='ml-2' />
                 </Link>
               </Button>
               <Button variant='outline' asChild>
-                <Link href='/admin/dashboard'>{home.dashboard}</Link>
+                <Link href='/admin/dashboard'>{t('dashboard')}</Link>
               </Button>
             </div>
           </section>
