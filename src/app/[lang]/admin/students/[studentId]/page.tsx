@@ -38,9 +38,8 @@ export default async function Page(props: PageProps) {
   const promises = Promise.all([getAllClasses(), getAllAcademicYears()]);
 
   return (
-    <ContentLayout
-      title='Students'
-      breadcrumb={
+    <ContentLayout title='Students'>
+      <div className='flex-1 space-y-4 max-w-lg'>
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -57,14 +56,11 @@ export default async function Page(props: PageProps) {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage>
-                {params.studentId ? 'edit' : 'new'}
+                {params.studentId !== 'new' ? params.studentId : 'new'}
               </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-      }
-    >
-      <div className='flex-1 space-y-4 max-w-lg'>
         <Suspense fallback={<FormCardSkeleton />}>
           <StudentForm
             initialData={student}

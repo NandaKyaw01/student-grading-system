@@ -16,7 +16,7 @@ datasource db {
 }
 
 model Student {
-  id             String @id @default(cuid())
+  id             String @id @default(nanoid())
   name           String
   rollNumber     String
   classId        String
@@ -31,7 +31,7 @@ model Student {
 }
 
 model Class {
-  id             String @id @default(cuid())
+  id             String @id @default(nanoid())
   className      String @unique
   academicYearId String
 
@@ -44,7 +44,7 @@ model Class {
 }
 
 model AcademicYear {
-  id   String @id @default(cuid())
+  id   String @id @default(nanoid())
   year String @unique
 
   classes       Class[]
@@ -57,7 +57,7 @@ model AcademicYear {
 }
 
 model Subject {
-  id   String @id @default(cuid())
+  id   String @id @default(nanoid())
   code String
   name String
 
@@ -68,7 +68,7 @@ model Subject {
 }
 
 model ClassSubject {
-  id                  String @id @default(cuid())
+  id                  String @id @default(nanoid())
   classId             String
   subjectId           String
   academicYearId      String
@@ -85,7 +85,7 @@ model ClassSubject {
 }
 
 model Grade {
-  id              String @id @default(cuid())
+  id              String @id @default(nanoid())
   studentId       String
   classSubjectId  String
   examScore       Float
@@ -102,7 +102,7 @@ model Grade {
 }
 
 model GPASetting {
-  id                 String  @id @default(cuid())
+  id                 String  @id @default(nanoid())
   academicYearId     String
   description        String
   calculationFormula String? // Optional custom logic, e.g., "exam * 0.6 + assignment * 0.4"
@@ -114,7 +114,7 @@ model GPASetting {
 }
 
 model User {
-  id             String    @id @default(cuid())
+  id             String    @id @default(nanoid())
   name           String?
   email          String    @unique
   emailVerified  DateTime?
