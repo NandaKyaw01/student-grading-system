@@ -49,7 +49,11 @@ export async function generateMetadata(props: Omit<Props, 'children'>) {
     title: t('title'),
     description: t('description'),
     alternates: {
-      canonical: '/'
+      canonical: '/',
+      languages: {
+        en: '/en',
+        mm: '/mm'
+      }
     },
     openGraph: {
       url: '/',
