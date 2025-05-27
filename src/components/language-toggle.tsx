@@ -3,7 +3,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Languages } from 'lucide-react';
@@ -33,6 +32,7 @@ const LanguageToggle = () => {
         { pathname, params },
         { locale: nextLocale }
       );
+      router.refresh();
     });
   }
 
