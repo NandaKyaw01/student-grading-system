@@ -13,5 +13,20 @@
     "search": "ရှာဖွေမည်",
     "dashboard": "ဒတ်ရှ်ဘုဒ်",
     "footer": "© 2025 UCSH. All rights reserved. The source code is available on"
+  },
+  "SideBar": {
+    "dashboard": "ဒတ်ရှ်ဘုဒ်",
+    "grades": "အဆင့်",
+    "students": "ကျောင်းသား",
+    "academic": "ပညာရေး",
+    "SubAcademic": {
+      "academic_year": "စာသင်နှစ်",
+      "classes": "အတန်း",
+      "subjects": "ဘာသာရပ်",
+      "class_subjects": "အတန်းအလိုက်ဘာသာရပ်"
+    },
+    "GPAsetting": "ဂျီပီအေ စက်တင်",
+    "account": "အကောင့်",
+    "setting": "စက်တင်"
   }
 }

@@ -13,5 +13,20 @@
     "search": "Search",
     "dashboard": "Dashboard",
     "footer": "© 2025 UCSH. All rights reserved. The source code is available on"
+  },
+  "SideBar": {
+    "dashboard": "Dashboard",
+    "grades": "Grades",
+    "students": "Students",
+    "academic": "Academic",
+    "SubAcademic": {
+      "academic_year": "Academic Years",
+      "classes": "Classes",
+      "subjects": "Subjects",
+      "class_subjects": "Class Subjects"
+    },
+    "GPAsetting": "GPA Setting",
+    "account": "Account",
+    "setting": "Setting"
   }
 }

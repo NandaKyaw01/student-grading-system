@@ -8,12 +8,14 @@ import {
   GraduationCap,
   FileCog
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type Submenu = {
   href: string;
   label: string;
   active?: boolean;
 };
+type SideBarKeys = ReturnType<typeof useTranslations<'SideBar'>>;
 
 type Menu = {
   href: string;
@@ -28,26 +30,26 @@ type Group = {
   menus: Menu[];
 };
 
-export function getMenuList(pathname: string): Group[] {
+export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
   return [
     {
       groupLabel: '',
       menus: [
         {
           href: `/admin/dashboard`,
-          label: 'Dashboard',
+          label: t('dashboard'),
           icon: LayoutGrid,
           submenus: []
         },
         {
           href: `/admin/grades`,
-          label: 'Grades',
+          label: t('grades'),
           icon: BookOpenCheck,
           submenus: []
         },
         {
           href: '/admin/students',
-          label: 'Students',
+          label: t('students'),
           icon: Users
         }
       ]
@@ -57,24 +59,24 @@ export function getMenuList(pathname: string): Group[] {
       menus: [
         {
           href: '',
-          label: 'Academic',
+          label: t('academic'),
           icon: GraduationCap,
           submenus: [
             {
               href: '/admin/academic-years',
-              label: 'Academic Years'
+              label: t('SubAcademic.academic_year')
             },
             {
               href: '/admin/classes',
-              label: 'Classes'
+              label: t('SubAcademic.classes')
             },
             {
               href: '/admin/subjects',
-              label: 'Subjects'
+              label: t('SubAcademic.subjects')
             },
             {
               href: '/admin/class-subjects',
-              label: 'Class Subjects'
+              label: t('SubAcademic.class_subjects')
             }
           ]
         }
@@ -85,17 +87,17 @@ export function getMenuList(pathname: string): Group[] {
       menus: [
         {
           href: '/admin/gpa-setting',
-          label: 'GPA Setting',
+          label: t('GPAsetting'),
           icon: FileCog
         },
         {
           href: '/admin/account',
-          label: 'Account',
+          label: t('account'),
           icon: User
         },
         {
           href: '/admin/setting',
-          label: 'Setting',
+          label: t('setting'),
           icon: Settings
         }
       ]
