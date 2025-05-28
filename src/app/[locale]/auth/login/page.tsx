@@ -1,8 +1,25 @@
 import { LoginForm } from '@/components/auth/login-form';
 import { ModeToggle } from '@/components/mode-toggle';
+import { authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
 import Image from 'next/image';
+import { redirect } from 'next/navigation';
 
-export default function LoginPage() {
+interface LoginPageProps {
+  searchParams: Promise<{ callbackUrl?: string | undefined }>;
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const session = await getServerSession(authOptions);
+
+  const { callbackUrl } = await searchParams;
+
+  const url = callbackUrl ?? '/';
+
+  if (session) {
+    redirect(url);
+  }
+
   return (
     <div className='grid min-h-svh lg:grid-cols-2'>
       <div className='flex flex-col gap-4 p-6 md:p-10'>

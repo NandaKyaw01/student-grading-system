@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { signIn } from 'next-auth/react';
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useTransition } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginFormInput, loginSchema } from '@/lib/zod-schemas/login-schema';
@@ -17,10 +17,11 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<'form'>) {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/admin/dashboard';
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const router = useRouter();
 
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const {
     register,
@@ -32,20 +33,21 @@ export function LoginForm({
 
   const onSubmit = async (data: LoginFormInput) => {
     setError('');
-    setLoading(true);
-    const res = await signIn('credentials', {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-      callbackUrl
-    });
+    startTransition(async () => {
+      const res = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+        callbackUrl
+      });
 
-    if (res?.error) {
-      setLoading(false);
-      setError('Invalid email or password');
-    } else if (res?.ok && res.url) {
-      window.location.href = res.url;
-    }
+      if (res?.error) {
+        setError('Invalid email or password');
+      } else if (res?.ok && res.url) {
+        router.push(res.url);
+        router.refresh();
+      }
+    });
   };
 
   return (
@@ -83,8 +85,8 @@ export function LoginForm({
           )}
         </div>
         {error && <p className='text-sm text-red-500'>{error}</p>}
-        <Button type='submit' className='w-full' disabled={loading}>
-          {loading ? (
+        <Button type='submit' className='w-full' disabled={isPending}>
+          {isPending ? (
             <>
               <LoadingSpinner /> {'Logging in...'}
             </>
