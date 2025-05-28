@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { signIn } from 'next-auth/react';
 import { useState, useTransition } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginFormInput, loginSchema } from '@/lib/zod-schemas/login-schema';
@@ -18,6 +18,7 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<'form'>) {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const router = useRouter();
 
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -43,7 +44,7 @@ export function LoginForm({
       if (res?.error) {
         setError('Invalid email or password');
       } else if (res?.ok && res.url) {
-        window.location.href = res.url;
+        router.push(res.url);
       }
     });
   };
