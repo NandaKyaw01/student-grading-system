@@ -5,14 +5,19 @@ import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 
-export default async function LoginPage() {
+interface LoginPageProps {
+  searchParams: Promise<{ callbackUrl?: string | undefined }>;
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
   const session = await getServerSession(authOptions);
 
-  const searchParams = new URLSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/admin/dashboard';
+  const { callbackUrl } = await searchParams;
+
+  const url = callbackUrl ?? '/';
 
   if (session) {
-    redirect(callbackUrl);
+    redirect(url);
   }
 
   return (
