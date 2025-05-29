@@ -7,9 +7,11 @@ import { useStore } from '@/hooks/use-store';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Locale, useTranslations } from 'next-intl';
 
 export function Sidebar() {
   const sidebar = useStore(useSidebar, (x) => x);
+  const t = useTranslations('LocaleLayout');
   if (!sidebar) return null;
   const { isOpen, toggleOpen, getOpenState, setIsHover, settings } = sidebar;
   return (
@@ -54,7 +56,7 @@ export function Sidebar() {
                   : 'translate-x-0 opacity-100'
               )}
             >
-              SmartGrade UCSH
+              {t('title')}
             </h1>
           </Link>
         </Button>

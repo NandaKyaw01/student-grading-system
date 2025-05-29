@@ -16,6 +16,7 @@ import {
   TooltipProvider
 } from '@/components/ui/tooltip';
 import { signOut } from 'next-auth/react';
+import { Locale, useTranslations } from 'next-intl';
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -23,7 +24,8 @@ interface MenuProps {
 
 export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
-  const menuList = getMenuList(pathname);
+  const t = useTranslations('SideBar');
+  const menuList = getMenuList(pathname, t);
 
   return (
     <ScrollArea className='[&>div>div[style]]:!block'>
