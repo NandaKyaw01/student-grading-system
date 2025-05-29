@@ -4,12 +4,14 @@ import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 
 interface LoginPageProps {
   searchParams: Promise<{ callbackUrl?: string | undefined }>;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const t = await getTranslations('LoginForm');
   const session = await getServerSession(authOptions);
 
   const { callbackUrl } = await searchParams;
@@ -33,7 +35,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 height={200}
               />
             </div>
-            University of Computer Studies, Hinthada
+            {t('title')}
           </a>
           <ModeToggle />
         </div>
