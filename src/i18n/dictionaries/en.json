@@ -27,6 +27,24 @@
     },
     "GPAsetting": "GPA Setting",
     "account": "Account",
+    "setting": "Setting",
+    "sign_out": "Sign Out"
+  },
+  "AdminNavBarTitle": {
+    "dashboard": "Dashboard",
+    "grades": "Grades",
+    "students": "Students",
+    "academic_year": "Academic Years",
+    "classes": "Classes",
+    "subjects": "Subjects",
+    "class_subjects": "Class Subjects",
+    "GPAsetting": "GPA Setting",
+    "account": "Account",
     "setting": "Setting"
+  },
+  "UserNav": {
+    "dashboard": "Dashboard",
+    "account": "Account",
+    "sign_out": "Sign Out"
   }
 }

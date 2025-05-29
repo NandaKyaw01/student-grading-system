@@ -17,6 +17,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata = {
   title: 'Admin: Students'
@@ -41,6 +42,7 @@ const bredcrumb: BreadcrumbProps[] = [
   }
 ];
 export default async function StudentsPage(props: pageProps) {
+  const t = await getTranslations('AdminNavBarTitle');
   const searchParams = await props.searchParams;
   const search = studentSearchParamsCache.parse(searchParams);
   // const key = studentSerialize({ ...searchParams });
@@ -55,7 +57,7 @@ export default async function StudentsPage(props: pageProps) {
 
   return (
     <ContentLayout
-      title='Students'
+      title={t('students')}
       breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>

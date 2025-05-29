@@ -14,6 +14,7 @@ import { useSidebar } from '@/hooks/use-sidebar';
 import { useStore } from '@/hooks/use-store';
 import { Separator } from '@/components/ui/separator';
 import { ThemeSelector } from '@/components/theme-selector';
+import { useTranslations } from 'next-intl';
 
 type BreadcrumbProps = {
   name: string;
@@ -30,11 +31,12 @@ const bredcrumb: BreadcrumbProps[] = [
   }
 ];
 export default function SettingPage() {
+  const t = useTranslations('AdminNavBarTitle');
   const sidebar = useStore(useSidebar, (x) => x);
   if (!sidebar) return null;
   const { settings, setSettings } = sidebar;
   return (
-    <ContentLayout title='Setting'>
+    <ContentLayout title={t('setting')}>
       <ActiveBreadcrumb path={bredcrumb} />
 
       <div className='space-y-6 mt-5'>

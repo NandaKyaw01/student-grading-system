@@ -4,6 +4,7 @@ import Link from 'next/link';
 import PlaceholderContent from '@/components/demo/placeholder-content';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
+import { useTranslations } from 'next-intl';
 
 type BreadcrumbProps = {
   name: string;
@@ -20,8 +21,9 @@ const bredcrumb: BreadcrumbProps[] = [
   }
 ];
 export default function GradesPage() {
+  const t = useTranslations('AdminNavBarTitle');
   return (
-    <ContentLayout title='Grades'>
+    <ContentLayout title={t('grades')}>
       <ActiveBreadcrumb path={bredcrumb} />
       <PlaceholderContent />
     </ContentLayout>
