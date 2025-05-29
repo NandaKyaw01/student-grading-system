@@ -4,21 +4,21 @@ import PlaceholderContent from '@/components/demo/placeholder-content';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 
-export default function ClassesPage() {
-  interface BreadcrumbProps {
-    name: string;
-    link: string;
+type BreadcrumbProps = {
+  name: string;
+  link: string;
+};
+const bredcrumb: BreadcrumbProps[] = [
+  {
+    name: 'Home',
+    link: '/'
+  },
+  {
+    name: 'Classes',
+    link: ''
   }
-  const bredcrumb: BreadcrumbProps[] = [
-    {
-      name: 'Home',
-      link: '/'
-    },
-    {
-      name: 'Classes',
-      link: ''
-    }
-  ];
+];
+export default function ClassesPage() {
   return (
     <ContentLayout title='Classes'>
       <ActiveBreadcrumb path={bredcrumb} />

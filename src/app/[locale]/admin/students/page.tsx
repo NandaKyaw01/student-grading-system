@@ -26,21 +26,21 @@ type pageProps = {
   searchParams: Promise<SearchParams>;
 };
 
-export default async function StudentsPage(props: pageProps) {
-  interface BreadcrumbProps {
-    name: string;
-    link: string;
+type BreadcrumbProps = {
+  name: string;
+  link: string;
+};
+const bredcrumb: BreadcrumbProps[] = [
+  {
+    name: 'Home',
+    link: '/'
+  },
+  {
+    name: 'Students',
+    link: ''
   }
-  const bredcrumb: BreadcrumbProps[] = [
-    {
-      name: 'Home',
-      link: '/'
-    },
-    {
-      name: 'Students',
-      link: ''
-    }
-  ];
+];
+export default async function StudentsPage(props: pageProps) {
   const searchParams = await props.searchParams;
   const search = studentSearchParamsCache.parse(searchParams);
   // const key = studentSerialize({ ...searchParams });

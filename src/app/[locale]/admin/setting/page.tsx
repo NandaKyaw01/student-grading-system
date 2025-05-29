@@ -15,21 +15,21 @@ import { useStore } from '@/hooks/use-store';
 import { Separator } from '@/components/ui/separator';
 import { ThemeSelector } from '@/components/theme-selector';
 
-export default function SettingPage() {
-  interface BreadcrumbProps {
-    name: string;
-    link: string;
+type BreadcrumbProps = {
+  name: string;
+  link: string;
+};
+const bredcrumb: BreadcrumbProps[] = [
+  {
+    name: 'Home',
+    link: '/'
+  },
+  {
+    name: 'Setting',
+    link: ''
   }
-  const bredcrumb: BreadcrumbProps[] = [
-    {
-      name: 'Home',
-      link: '/'
-    },
-    {
-      name: 'Setting',
-      link: ''
-    }
-  ];
+];
+export default function SettingPage() {
   const sidebar = useStore(useSidebar, (x) => x);
   if (!sidebar) return null;
   const { settings, setSettings } = sidebar;

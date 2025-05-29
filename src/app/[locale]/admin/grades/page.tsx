@@ -5,21 +5,21 @@ import PlaceholderContent from '@/components/demo/placeholder-content';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 
-export default function GradesPage() {
-  interface BreadcrumbProps {
-    name: string;
-    link: string;
+type BreadcrumbProps = {
+  name: string;
+  link: string;
+};
+const bredcrumb: BreadcrumbProps[] = [
+  {
+    name: 'Home',
+    link: '/'
+  },
+  {
+    name: 'Grades',
+    link: ''
   }
-  const bredcrumb: BreadcrumbProps[] = [
-    {
-      name: 'Home',
-      link: '/'
-    },
-    {
-      name: 'Grades',
-      link: ''
-    }
-  ];
+];
+export default function GradesPage() {
   return (
     <ContentLayout title='Grades'>
       <ActiveBreadcrumb path={bredcrumb} />
