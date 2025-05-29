@@ -1,14 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
+import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -23,12 +16,26 @@ import { Separator } from '@/components/ui/separator';
 import { ThemeSelector } from '@/components/theme-selector';
 
 export default function SettingPage() {
+  interface BreadcrumbProps {
+    name: string;
+    link: string;
+  }
+  const bredcrumb: BreadcrumbProps[] = [
+    {
+      name: 'Home',
+      link: '/'
+    },
+    {
+      name: 'Setting',
+      link: ''
+    }
+  ];
   const sidebar = useStore(useSidebar, (x) => x);
   if (!sidebar) return null;
   const { settings, setSettings } = sidebar;
   return (
     <ContentLayout title='Setting'>
-      <Breadcrumb path='Home/Setting' />
+      <ActiveBreadcrumb path={bredcrumb} />
 
       <div className='space-y-6 mt-5'>
         <div>

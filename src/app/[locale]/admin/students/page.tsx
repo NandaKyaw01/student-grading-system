@@ -1,14 +1,7 @@
 import Link from 'next/link';
 
 import { ContentLayout } from '@/components/admin-panel/content-layout';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
+import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { SearchParams } from 'nuqs/server';
@@ -34,6 +27,20 @@ type pageProps = {
 };
 
 export default async function StudentsPage(props: pageProps) {
+  interface BreadcrumbProps {
+    name: string;
+    link: string;
+  }
+  const bredcrumb: BreadcrumbProps[] = [
+    {
+      name: 'Home',
+      link: '/'
+    },
+    {
+      name: 'Students',
+      link: ''
+    }
+  ];
   const searchParams = await props.searchParams;
   const search = studentSearchParamsCache.parse(searchParams);
   // const key = studentSerialize({ ...searchParams });
@@ -49,7 +56,7 @@ export default async function StudentsPage(props: pageProps) {
   return (
     <ContentLayout
       title='Students'
-      breadcrumb={<Breadcrumb path='Home/Students' />}
+      breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>

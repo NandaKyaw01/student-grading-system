@@ -2,19 +2,26 @@ import Link from 'next/link';
 
 import PlaceholderContent from '@/components/demo/placeholder-content';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
+import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 
 export default function SubjectsPage() {
+  interface BreadcrumbProps {
+    name: string;
+    link: string;
+  }
+  const bredcrumb: BreadcrumbProps[] = [
+    {
+      name: 'Home',
+      link: '/'
+    },
+    {
+      name: 'Subjects',
+      link: ''
+    }
+  ];
   return (
     <ContentLayout title='Subjects'>
-      <Breadcrumb path='Home/Subjects' />
+      <ActiveBreadcrumb path={bredcrumb} />
 
       <PlaceholderContent />
     </ContentLayout>

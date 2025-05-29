@@ -2,19 +2,26 @@ import Link from 'next/link';
 
 import PlaceholderContent from '@/components/demo/placeholder-content';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
+import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 
 export default function ClassesPage() {
+  interface BreadcrumbProps {
+    name: string;
+    link: string;
+  }
+  const bredcrumb: BreadcrumbProps[] = [
+    {
+      name: 'Home',
+      link: '/'
+    },
+    {
+      name: 'Classes',
+      link: ''
+    }
+  ];
   return (
     <ContentLayout title='Classes'>
-      <Breadcrumb path='Home/Classes' />
+      <ActiveBreadcrumb path={bredcrumb} />
 
       <PlaceholderContent />
     </ContentLayout>
