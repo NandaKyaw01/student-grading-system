@@ -21,8 +21,10 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { signOut } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 export function UserNav() {
+  const t = useTranslations('UserNav');
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -58,13 +60,13 @@ export function UserNav() {
           <DropdownMenuItem className='hover:cursor-pointer' asChild>
             <Link href='/dashboard' className='flex items-center'>
               <LayoutGrid className='w-4 h-4 mr-3 text-muted-foreground' />
-              Dashboard
+              {t('dashboard')}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className='hover:cursor-pointer' asChild>
             <Link href='/account' className='flex items-center'>
               <User className='w-4 h-4 mr-3 text-muted-foreground' />
-              Account
+              {t('account')}
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -74,7 +76,7 @@ export function UserNav() {
           onClick={() => signOut({ callbackUrl: '/' })}
         >
           <LogOut className='w-4 h-4 mr-3 text-muted-foreground' />
-          Sign out
+          {t('sign_out')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -17,7 +17,7 @@
   "SideBar": {
     "dashboard": "ဒတ်ရှ်ဘုဒ်",
     "grades": "အဆင့်",
-    "students": "ကျောင်းသား",
+    "students": "ကျောင်းသားစာရင်း",
     "academic": "ပညာရေး",
     "SubAcademic": {
       "academic_year": "စာသင်နှစ်",
@@ -27,6 +27,32 @@
     },
     "GPAsetting": "ဂျီပီအေ စက်တင်",
     "account": "အကောင့်",
+    "setting": "စက်တင်",
+    "sign_out": "ထွက်မည်"
+  },
+  "AdminNavBarTitle": {
+    "dashboard": "ဒတ်ရှ်ဘုဒ်",
+    "grades": "အဆင့်",
+    "students": "ကျောင်းသားစာရင်း",
+    "academic_year": "စာသင်နှစ်",
+    "classes": "အတန်း",
+    "subjects": "ဘာသာရပ်",
+    "class_subjects": "အတန်းအလိုက်ဘာသာရပ်",
+    "GPAsetting": "ဂျီပီအေ စက်တင်",
+    "account": "အကောင့်",
     "setting": "စက်တင်"
+  },
+  "UserNav": {
+    "dashboard": "ဒတ်ရှ်ဘုဒ်",
+    "account": "အကောင့်",
+    "sign_out": "ထွက်မည်"
+  },
+  "LoginForm": {
+    "title": "ကွန်ပျူတာတက္ကသိုလ်(ဟင်္သာတ)",
+    "subtitle": "အကောင့်ဝင်ပါ",
+    "description": "အကောင့်ဝင်ရန်အချက်အလက်များ ဖြည့်သွင်းပါ",
+    "email": "အီးမေးလ်",
+    "password": "စကားဝှက်",
+    "login": "ဝင်မည်"
   }
 }
