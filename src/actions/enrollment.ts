@@ -1,0 +1,252 @@
+'use server';
+import { Enrollment, Prisma } from '@/generated/prisma';
+import { prisma } from '@/lib/db';
+import { GetEnrollmentSchema } from '@/lib/search-params/enrollment';
+import { revalidateTag, unstable_cache } from 'next/cache';
+
+const enrollmentWithDetails = Prisma.validator<Prisma.EnrollmentInclude>()({
+  student: true,
+  class: true,
+  semester: true
+});
+
+export type EnrollmentWithDetails = Prisma.EnrollmentGetPayload<{
+  include: typeof enrollmentWithDetails;
+}>;
+
+export async function getAllEnrollments(
+  input?: GetEnrollmentSchema,
+  options?: { includeDetails: true }
+): Promise<{
+  enrollments: EnrollmentWithDetails[];
+  pageCount: number;
+}>;
+
+export async function getAllEnrollments(
+  input?: GetEnrollmentSchema,
+  options?: { includeDetails?: false }
+): Promise<{
+  enrollments: Enrollment[];
+  pageCount: number;
+}>;
+
+export async function getAllEnrollments(
+  input?: GetEnrollmentSchema,
+  options?: {
+    includeDetails?: boolean;
+  }
+): Promise<{
+  enrollments: Enrollment[] | EnrollmentWithDetails[];
+  pageCount: number;
+}> {
+  return await unstable_cache(
+    async () => {
+      try {
+        const where: Prisma.EnrollmentWhereInput = {};
+        let paginate = true;
+
+        if (!input || Object.keys(input).length === 0) {
+          paginate = false;
+        } else {
+          // Search
+          if (input.search?.trim()) {
+            where.OR = [
+              { rollNumber: { contains: input.search, mode: 'insensitive' } },
+              {
+                student: {
+                  studentName: { contains: input.search, mode: 'insensitive' }
+                }
+              },
+              {
+                class: {
+                  className: { contains: input.search, mode: 'insensitive' }
+                }
+              }
+            ];
+          }
+
+          // // Status filter
+          // if (input.status) {
+          //   where.isActive = input.status === 'active';
+          // }
+
+          // Semester filter
+          if (input.semesterId) {
+            where.semesterId = input.semesterId;
+          }
+
+          // Class filter
+          if (input.classId) {
+            where.classId = input.classId;
+          }
+
+          // Date range
+          const range = Array.isArray(input.createdAt)
+            ? input.createdAt
+            : typeof input.createdAt === 'string' &&
+                input.createdAt.includes(',')
+              ? input.createdAt.split(',')
+              : null;
+
+          if (range?.length === 2) {
+            const [from, to] = range.map((ts) => new Date(Number(ts)));
+            if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+              where.createdAt = { gte: from, lte: to };
+            }
+          }
+        }
+
+        const orderBy =
+          input?.sort && input.sort.length > 0
+            ? input.sort.map((item) => ({
+                [item.id]: item.desc ? 'desc' : 'asc'
+              }))
+            : [{ createdAt: 'desc' }];
+
+        const page = input?.page ?? 1;
+        const limit = input?.perPage ?? 10;
+        const offset = (page - 1) * limit;
+
+        const [enrollments, totalCount] = await prisma.$transaction([
+          prisma.enrollment.findMany({
+            where,
+            include: options?.includeDetails
+              ? enrollmentWithDetails
+              : undefined,
+            orderBy,
+            ...(paginate ? { skip: offset, take: limit } : {})
+          }),
+          prisma.enrollment.count({ where })
+        ]);
+
+        const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+
+        return {
+          enrollments,
+          pageCount
+        };
+      } catch (error) {
+        console.error('❌ Error fetching enrollments:', error);
+        return {
+          enrollments: [],
+          pageCount: 0
+        };
+      }
+    },
+    [JSON.stringify(input ?? {})],
+    {
+      revalidate: 3600,
+      tags: ['enrollments']
+    }
+  )();
+}
+
+export async function getEnrollmentById(id: number) {
+  return await prisma.enrollment.findUnique({
+    where: { id },
+    include: enrollmentWithDetails
+  });
+}
+
+export async function createEnrollment(
+  data: Omit<Enrollment, 'id' | 'createdAt' | 'updatedAt'>
+) {
+  try {
+    const enrollment = await prisma.enrollment.create({
+      data
+    });
+    revalidateTag('enrollments');
+    return { success: true, enrollment };
+  } catch (error) {
+    console.error('Error creating enrollment:', error);
+    return { success: false, error: 'Failed to create enrollment' };
+  }
+}
+
+export async function updateEnrollment(
+  id: number,
+  data: Partial<Omit<Enrollment, 'id' | 'createdAt' | 'updatedAt'>>
+) {
+  try {
+    const enrollment = await prisma.enrollment.update({
+      where: { id },
+      data
+    });
+    revalidateTag('enrollments');
+    return { success: true, enrollment };
+  } catch (error) {
+    console.error('Error updating enrollment:', error);
+    return { success: false, error: 'Failed to update enrollment' };
+  }
+}
+
+export async function updateEnrollmentStatus(ids: number[], isActive: boolean) {
+  try {
+    await prisma.enrollment.updateMany({
+      where: { id: { in: ids } },
+      data: { isActive }
+    });
+    revalidateTag('enrollments');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating enrollment status:', error);
+    return { success: false, error: 'Failed to update enrollment status' };
+  }
+}
+
+export async function deleteEnrollment(id: number) {
+  try {
+    await prisma.enrollment.delete({
+      where: { id }
+    });
+    revalidateTag('enrollments');
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting enrollment:', error);
+    return { success: false, error: 'Failed to delete enrollment' };
+  }
+}
+
+export async function getClassesForSelect() {
+  return await prisma.class.findMany({
+    select: {
+      id: true,
+      className: true,
+      semesterId: true
+    },
+    orderBy: {
+      className: 'asc'
+    }
+  });
+}
+
+export async function getStudentsForSelect() {
+  return await prisma.student.findMany({
+    select: {
+      id: true,
+      studentName: true
+    },
+    orderBy: {
+      studentName: 'asc'
+    }
+  });
+}
+
+export async function getSemestersForSelect() {
+  return await prisma.semester.findMany({
+    select: {
+      id: true,
+      semesterName: true,
+      academicYear: {
+        select: {
+          yearRange: true
+        }
+      }
+    },
+    orderBy: {
+      academicYear: {
+        yearRange: 'desc'
+      }
+    }
+  });
+}

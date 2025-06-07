@@ -6,7 +6,8 @@ import {
   Users,
   BookOpenCheck,
   GraduationCap,
-  FileCog
+  FileCog,
+  Library
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -51,6 +52,11 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
           href: '/admin/students',
           label: t('students'),
           icon: Users
+        },
+        {
+          href: '/admin/enrollments',
+          label: 'Enrollments',
+          icon: Library
         }
       ]
     },
