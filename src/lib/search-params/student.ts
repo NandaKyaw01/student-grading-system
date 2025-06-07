@@ -7,14 +7,14 @@ import {
 } from 'nuqs/server';
 
 import { getSortingStateParser } from '@/lib/parsers';
-import { Student } from '@/types/prisma';
+import { Student } from '@/generated/prisma';
 
 export const studentSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   search: parseAsString.withDefault(''),
-  academicYearId: parseAsString.withDefault(''),
-  classId: parseAsString.withDefault(''),
+  rollNumber: parseAsString.withDefault(''),
+  name: parseAsString.withDefault(''),
   createdAt: parseAsString.withDefault(''),
   sort: getSortingStateParser<Student>().withDefault([
     { id: 'createdAt', desc: true }

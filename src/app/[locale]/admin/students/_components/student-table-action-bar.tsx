@@ -1,25 +1,18 @@
 'use client';
-import { SelectTrigger } from '@radix-ui/react-select';
 import type { Table } from '@tanstack/react-table';
-import { ArrowUp, CheckCircle2, Download, Trash2 } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
+import { deleteStudents } from '@/actions/student';
 import {
   DataTableActionBar,
   DataTableActionBarAction,
   DataTableActionBarSelection
 } from '@/components/data-table/data-table-action-bar';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem
-} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Student } from '@/types/prisma';
+import { Student } from '@/generated/prisma';
 import { exportTableToCSV } from '@/lib/export';
-import { deleteStudents } from '@/actions/student';
 // import { exportTableToCSV } from "@/lib/export";
 // import { deleteTasks, updateTasks } from "../_lib/actions";
 

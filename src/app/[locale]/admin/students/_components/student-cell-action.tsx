@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Student } from '@/types/prisma';
+import { Student } from '@/generated/prisma';
 import { EllipsisVertical, SquarePen, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';

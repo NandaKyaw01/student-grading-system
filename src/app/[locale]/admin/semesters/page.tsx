@@ -1,13 +1,14 @@
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { Button } from '@/components/ui/button';
-import { getSubjects } from '@/services/subject';
+import { getSemesters } from '@/services/semester';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
-import { SubjectDialog } from './_components/subject-modal';
-import SubjectsTable from './_components/subject-table';
+import { SemesterDialog } from './_components/semester-modal';
+import SemestersTable from './_components/semester-table';
+import { getAcademicYears } from '@/services/academic-year';
 
 type BreadcrumbProps = {
   name: string;
@@ -19,37 +20,38 @@ const breadcrumb: BreadcrumbProps[] = [
     link: '/'
   },
   {
-    name: 'Subjects',
+    name: 'Semesters',
     link: ''
   }
 ];
 
-export default function SubjectsPage() {
-  const subjects = getSubjects();
-  const t = useTranslations('AdminNavBarTitle');
+export default function SemestersPage() {
+  const semesters = getSemesters({ includeDetails: true });
+  const academicYears = getAcademicYears();
+  //   const t = useTranslations("AdminNavBarTitle");
 
   return (
     <ContentLayout
-      title={t('subjects')}
+      title={'semesters'}
       breadcrumb={<ActiveBreadcrumb path={breadcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-3xl font-bold tracking-tight'>Subjects</h5>
+            <h5 className='text-3xl font-bold tracking-tight'>Semesters</h5>
             <p className='text-muted-foreground text-sm'>
-              Manage subjects (Server side table functionalities.)
+              Manage semesters (Server side table functionalities.)
             </p>
           </div>
-          <SubjectDialog>
+          <SemesterDialog academicYear={academicYears}>
             <Button className='text-xs md:text-sm'>
-              <Plus className='mr-2 h-4 w-4' /> Add New Subject
+              <Plus className='mr-2 h-4 w-4' /> Add New Semester
             </Button>
-          </SubjectDialog>
+          </SemesterDialog>
         </div>
         <Separator />
         <Suspense fallback='loading...'>
-          <SubjectsTable subjects={subjects} />
+          <SemestersTable semesters={semesters} academicYear={academicYears} />
         </Suspense>
       </div>
     </ContentLayout>

@@ -1,17 +1,25 @@
 import { Prisma } from '@/generated/prisma';
 
-export type Student = Prisma.StudentGetPayload<{
-  include: {
-    class: true;
-    academicYear: true;
-  };
-}>;
+// types/prisma.ts
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export type AcademicYear = Prisma.AcademicYearGetPayload<{}>;
-
-export type Class = Prisma.ClassGetPayload<{
+export type StudentWithRelations = Prisma.StudentGetPayload<{
   include: {
-    academicYear: true;
+    enrollments: {
+      include: {
+        class: true;
+        semester: true;
+      };
+    };
+    grades: {
+      include: {
+        subject: true;
+        semester: true;
+      };
+    };
+    results: {
+      include: {
+        semester: true;
+      };
+    };
   };
 }>;

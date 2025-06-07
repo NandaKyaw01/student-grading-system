@@ -1,23 +1,21 @@
 import Link from 'next/link';
 
-import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
-import { Suspense } from 'react';
+import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
-import { SearchParams } from 'nuqs/server';
+import { buttonVariants } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   studentSearchParamsCache
   // studentSerialize
 } from '@/lib/search-params/student';
-import { getAllStudents } from '@/services/student';
-import { getAllClasses } from '@/services/class';
-import { getAllAcademicYears } from '@/services/academic-year';
-import { StudentDataTable } from './_components/student-data-table';
-import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { getAllStudents } from '@/services/student';
 import { Plus } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import { getTranslations } from 'next-intl/server';
+import { SearchParams } from 'nuqs/server';
+import { Suspense } from 'react';
+import { StudentDataTable } from './_components/student-data-table';
 
 export const metadata = {
   title: 'Admin: Students'
@@ -47,13 +45,9 @@ export default async function StudentsPage(props: pageProps) {
   const search = studentSearchParamsCache.parse(searchParams);
   // const key = studentSerialize({ ...searchParams });
 
-  const promises = Promise.all([
-    getAllStudents({
-      ...search
-    }),
-    getAllClasses(),
-    getAllAcademicYears()
-  ]);
+  const promises = getAllStudents({
+    ...search
+  });
 
   return (
     <ContentLayout

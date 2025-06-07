@@ -12,10 +12,7 @@ export async function createStudent(input: CreateStudentInput) {
   try {
     const student = await prisma.student.create({
       data: {
-        name: input.name,
-        rollNumber: input.rollNumber,
-        classId: input.classId,
-        academicYearId: input.academicYearId
+        studentName: input.name
       }
     });
 
@@ -38,10 +35,7 @@ export async function updateStudent(input: UpdateStudentInput) {
     const student = await prisma.student.update({
       where: { id: input.id },
       data: {
-        name: input.name,
-        rollNumber: input.rollNumber,
-        classId: input.classId,
-        academicYearId: input.academicYearId
+        studentName: input.name
       }
     });
 
@@ -60,7 +54,7 @@ export async function updateStudent(input: UpdateStudentInput) {
   }
 }
 
-export async function deleteStudent(id: string) {
+export async function deleteStudent(id: number) {
   try {
     await prisma.student.delete({
       where: { id }
@@ -80,7 +74,7 @@ export async function deleteStudent(id: string) {
   }
 }
 
-export async function deleteStudents(ids: string[]) {
+export async function deleteStudents(ids: number[]) {
   try {
     await prisma.student.deleteMany({
       where: {

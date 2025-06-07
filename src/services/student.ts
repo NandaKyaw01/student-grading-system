@@ -1,7 +1,6 @@
-import { Prisma } from '@/generated/prisma';
+import { Prisma, Student } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetStudentSchema } from '@/lib/search-params/student';
-import { Student } from '@/types/prisma';
 import { unstable_cache } from 'next/cache';
 
 export async function getAllStudents(input?: GetStudentSchema) {
@@ -17,30 +16,23 @@ export async function getAllStudents(input?: GetStudentSchema) {
           // Search
           if (input.search?.trim()) {
             where.OR = [
-              { id: { contains: input.search, mode: 'insensitive' } },
-              { name: { contains: input.search, mode: 'insensitive' } },
-              { rollNumber: { contains: input.search, mode: 'insensitive' } }
+              { id: { equals: parseInt(input.search) || undefined } },
+              { studentName: { contains: input.search, mode: 'insensitive' } }
+              // { rollNumber: { contains: input.search, mode: 'insensitive' } }
             ];
           }
 
-          // Academic Year
-          if (input.academicYearId) {
-            const academicYearIds = Array.isArray(input.academicYearId)
-              ? input.academicYearId
-              : input.academicYearId.split(',').filter(Boolean);
-            if (academicYearIds.length > 0) {
-              where.academicYearId = { in: academicYearIds };
-            }
-          }
+          // Filter by rollNumber if needed
+          // if (input.rollNumber) {
+          //   where.rollNumber = {
+          //     contains: input.rollNumber,
+          //     mode: 'insensitive'
+          //   };
+          // }
 
-          // Class ID
-          if (input.classId) {
-            const classIds = Array.isArray(input.classId)
-              ? input.classId
-              : input.classId.split(',').filter(Boolean);
-            if (classIds.length > 0) {
-              where.classId = { in: classIds };
-            }
+          // Filter by name if needed
+          if (input.name) {
+            where.studentName = { contains: input.name, mode: 'insensitive' };
           }
 
           const range = Array.isArray(input.createdAt)
@@ -73,8 +65,14 @@ export async function getAllStudents(input?: GetStudentSchema) {
           prisma.student.findMany({
             where,
             include: {
-              class: true,
-              academicYear: true
+              enrollments: {
+                include: {
+                  class: true,
+                  semester: true
+                }
+              },
+              grades: true,
+              results: true
             },
             orderBy,
             ...(paginate ? { skip: offset, take: limit } : {})
@@ -109,18 +107,14 @@ export async function getStudentById(id: string): Promise<Student | null> {
     async () => {
       try {
         return await prisma.student.findUnique({
-          where: { id },
-          include: {
-            class: true,
-            academicYear: true
-          }
+          where: { id: parseInt(id) }
         });
       } catch (error) {
         console.error(`❌ Error fetching student with ID ${id}:`, error);
         return null;
       }
     },
-    [`student-${id}`], // cache key
+    [`student-${id}`],
     {
       revalidate: 1,
       tags: ['student', `student-${id}`]

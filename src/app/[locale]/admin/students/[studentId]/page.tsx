@@ -12,8 +12,6 @@ import Link from 'next/link';
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import { getStudentById } from '@/services/student';
 import { notFound } from 'next/navigation';
-import { getAllClasses } from '@/services/class';
-import { getAllAcademicYears } from '@/services/academic-year';
 import StudentForm from '../_components/student-form';
 
 export const metadata = {
@@ -34,8 +32,6 @@ export default async function Page(props: PageProps) {
     }
     pageTitle = `Edit Student`;
   }
-
-  const promises = Promise.all([getAllClasses(), getAllAcademicYears()]);
 
   return (
     <ContentLayout title='Students'>
@@ -62,11 +58,7 @@ export default async function Page(props: PageProps) {
           </BreadcrumbList>
         </Breadcrumb>
         <Suspense fallback={<FormCardSkeleton />}>
-          <StudentForm
-            initialData={student}
-            pageTitle={pageTitle}
-            promises={promises}
-          />
+          <StudentForm initialData={student} pageTitle={pageTitle} />
         </Suspense>
       </div>
     </ContentLayout>

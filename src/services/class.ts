@@ -1,66 +1,63 @@
 import { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
-import { GetAcademicYearSchema } from '@/lib/search-params/class';
-import { unstable_cache } from 'next/cache';
+import { revalidateTag, unstable_cache } from 'next/cache';
 
-export async function getAllClasses(input?: GetAcademicYearSchema) {
-  return await unstable_cache(
+const classWithDetails = Prisma.validator<Prisma.ClassInclude>()({
+  semester: {
+    include: {
+      academicYear: true
+    }
+  },
+  subjects: true,
+  enrollments: {
+    include: {
+      student: true
+    }
+  }
+});
+
+export type ClassWithDetails = Prisma.ClassGetPayload<{
+  include: typeof classWithDetails;
+}>;
+
+export const getClasses = unstable_cache(
+  async (options?: { semesterId?: number; includeDetails?: boolean }) => {
+    try {
+      return await prisma.class.findMany({
+        where: {
+          semesterId: options?.semesterId
+        },
+        include: options?.includeDetails ? classWithDetails : undefined,
+        orderBy: { className: 'asc' }
+      });
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      return [];
+    }
+  },
+  ['classes'],
+  {
+    tags: ['classes'],
+    revalidate: 3600
+  }
+);
+
+export const getClassById = (id: number) => {
+  return unstable_cache(
     async () => {
       try {
-        const isPaginated = !!input;
-        const page = input?.page ?? 1;
-        const limit = input?.perPage ?? 10;
-        const offset = (page - 1) * limit;
-
-        const where: Prisma.ClassWhereInput = {};
-
-        // Search
-        if (input?.search?.trim()) {
-          where.className = {
-            contains: input.search.trim(),
-            mode: 'insensitive'
-          };
-        }
-
-        // Academic Year ID
-        if (input?.academicYearId && input.academicYearId !== '') {
-          const ids = Array.isArray(input.academicYearId)
-            ? input.academicYearId
-            : input.academicYearId.split(',').filter(Boolean);
-          if (ids.length > 0) {
-            where.academicYearId = { in: ids };
-          }
-        }
-
-        const orderBy =
-          input?.sort && input.sort.length > 0
-            ? input.sort.map((item) => ({
-                [item.id]: item.desc ? 'desc' : 'asc'
-              }))
-            : [{ createdAt: 'asc' }];
-
-        const [classes, totalCount] = await prisma.$transaction([
-          prisma.class.findMany({
-            where,
-            include: { academicYear: true },
-            orderBy,
-            ...(isPaginated && { skip: offset, take: limit })
-          }),
-          prisma.class.count({ where })
-        ]);
-
-        const pageCount = isPaginated ? Math.ceil(totalCount / limit) : 1;
-
-        return { classes, pageCount };
+        return await prisma.class.findUnique({
+          where: { id },
+          include: classWithDetails
+        });
       } catch (error) {
-        console.error('❌ Error fetching classes:', error);
-        return { classes: [], pageCount: 0 };
+        console.error(`Error fetching class ${id}:`, error);
+        return null;
       }
     },
-    [JSON.stringify(input ?? {})],
+    ['class'],
     {
-      revalidate: 1,
-      tags: ['classes']
+      tags: [`class-${id}`]
     }
-  )();
-}
+  );
+};

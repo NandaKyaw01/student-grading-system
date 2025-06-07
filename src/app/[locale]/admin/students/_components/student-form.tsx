@@ -1,7 +1,8 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { createStudent, updateStudent } from '@/actions/student';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -12,69 +13,32 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import {
   CreateStudentInput,
   createStudentSchema,
   UpdateStudentInput
 } from '@/lib/zod-schemas/student-schema';
-import { use, useMemo, useTransition } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
-import { createStudent, updateStudent } from '@/actions/student';
-import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { getAllClasses } from '@/services/class';
-import { getAllAcademicYears } from '@/services/academic-year';
+import { useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export default function StudentForm({
   initialData,
-  pageTitle,
-  promises
+  pageTitle
 }: {
   initialData: Partial<UpdateStudentInput> | null;
   pageTitle: string;
-  promises: Promise<
-    [
-      Awaited<ReturnType<typeof getAllClasses>>,
-      Awaited<ReturnType<typeof getAllAcademicYears>>
-    ]
-  >;
 }) {
-  const [{ classes }, { academicYears }] = use(promises);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-
-  const classOptions = useMemo(
-    () =>
-      classes.map((cls) => ({
-        id: cls.id,
-        name: cls.className
-      })),
-    [classes]
-  );
-  const academicYearOptions = useMemo(
-    () =>
-      academicYears.map((year) => ({
-        id: year.id,
-        name: year.year
-      })),
-    [academicYears]
-  );
 
   const form = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema),
     defaultValues: initialData || {
       name: '',
-      rollNumber: '',
-      classId: '',
-      academicYearId: ''
+      rollNumber: ''
     }
   });
 
@@ -143,7 +107,7 @@ export default function StudentForm({
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name='classId'
               render={({ field }) => (
@@ -190,7 +154,7 @@ export default function StudentForm({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <Button type='submit' disabled={isPending}>
               {isPending && <Loader className='animate-spin' />}
               Save Student

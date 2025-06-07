@@ -67,6 +67,10 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
               label: t('SubAcademic.academic_year')
             },
             {
+              href: '/admin/semesters',
+              label: 'Semesters'
+            },
+            {
               href: '/admin/classes',
               label: t('SubAcademic.classes')
             },
