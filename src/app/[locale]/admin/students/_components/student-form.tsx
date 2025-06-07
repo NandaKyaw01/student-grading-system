@@ -12,17 +12,29 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  CreateStudentInput,
-  createStudentSchema,
-  UpdateStudentInput
-} from '@/lib/zod-schemas/student-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { z } from 'zod';
+
+export const createStudentSchema = z.object({
+  studentName: z
+    .string()
+    .min(2, { message: 'Name must be at least 2 characters' })
+});
+
+export const updateStudentSchema = z.object({
+  id: z.number().min(1, { message: 'ID is required' }),
+  studentName: z
+    .string()
+    .min(2, { message: 'Name must be at least 2 characters' })
+});
+
+export type CreateStudentInput = z.infer<typeof createStudentSchema>;
+export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;
 
 export default function StudentForm({
   initialData,
@@ -37,8 +49,7 @@ export default function StudentForm({
   const form = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema),
     defaultValues: initialData || {
-      name: '',
-      rollNumber: ''
+      studentName: ''
     }
   });
 
@@ -83,7 +94,7 @@ export default function StudentForm({
           >
             <FormField
               control={form.control}
-              name='name'
+              name='studentName'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
@@ -94,7 +105,7 @@ export default function StudentForm({
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name='rollNumber'
               render={({ field }) => (
@@ -106,7 +117,7 @@ export default function StudentForm({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             {/* <FormField
               control={form.control}
               name='classId'

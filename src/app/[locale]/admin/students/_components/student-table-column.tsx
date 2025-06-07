@@ -37,9 +37,11 @@ export function getStudentColumns(): ColumnDef<Student>[] {
       size: 40
     },
     {
-      id: 'search',
+      id: 'id',
       accessorKey: 'id',
-      header: 'ID',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='ID' />
+      ),
       cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
       meta: {
         label: 'Search',
@@ -47,23 +49,16 @@ export function getStudentColumns(): ColumnDef<Student>[] {
         variant: 'text',
         icon: Text
       },
+      enableSorting: true,
       enableColumnFilter: true
     },
     {
-      id: 'name',
+      id: 'studentName',
       accessorKey: 'studentName',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Name' />
       )
     },
-    // {
-    //   id: 'rollNumber',
-    //   accessorKey: 'rollNumber',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title='Roll Number' />
-    //   ),
-    //   enableSorting: false
-    // },
     {
       id: 'createdAt',
       accessorKey: 'createdAt',

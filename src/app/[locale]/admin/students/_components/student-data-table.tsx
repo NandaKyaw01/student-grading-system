@@ -8,7 +8,7 @@ import { useDataTable } from '@/hooks/use-data-table';
 import { getStudentColumns } from './student-table-column';
 import React from 'react';
 import { TasksTableActionBar } from './student-table-action-bar';
-import { getAllStudents } from '@/services/student';
+import { getAllStudents } from '@/actions/student';
 import { Button } from '@/components/ui/button';
 import { Download, Loader } from 'lucide-react';
 import { exportTableToCSV } from '@/lib/export';

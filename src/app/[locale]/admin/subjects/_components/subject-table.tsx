@@ -7,8 +7,8 @@ import {
   TableCell,
   Table
 } from '@/components/ui/table';
-import { SubjectWithDetails } from '@/services/subject';
-import { getSubjects } from '@/services/subject';
+import { SubjectWithDetails } from '@/actions/subject';
+import { getSubjects } from '@/actions/subject';
 import { Edit, Trash } from 'lucide-react';
 import React, { use } from 'react';
 import { SubjectDialog } from './subject-modal';

@@ -1,7 +1,7 @@
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { Button } from '@/components/ui/button';
-import { getAcademicYears } from '@/services/academic-year';
+import { getAcademicYears } from '@/actions/academic-year';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';

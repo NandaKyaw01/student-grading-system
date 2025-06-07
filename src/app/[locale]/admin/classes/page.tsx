@@ -1,14 +1,14 @@
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { Button } from '@/components/ui/button';
-import { getClasses } from '@/services/class';
+import { getClasses } from '@/actions/class';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import { ClassDialog } from './_components/class-modal';
 import ClassesTable from './_components/class-table';
-import { getSemesters } from '@/services/semester';
+import { getSemesters } from '@/actions/semester';
 
 type BreadcrumbProps = {
   name: string;

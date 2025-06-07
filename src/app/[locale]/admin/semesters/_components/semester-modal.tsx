@@ -31,7 +31,7 @@ import {
 import { createSemester, updateSemester } from '@/actions/semester';
 import { toast } from 'sonner';
 import { useState } from 'react';
-import { getAcademicYears } from '@/services/academic-year';
+import { getAcademicYears } from '@/actions/academic-year';
 import { use } from 'react';
 
 const semesterFormSchema = z.object({

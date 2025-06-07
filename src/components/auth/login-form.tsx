@@ -9,9 +9,23 @@ import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LoginFormInput, loginSchema } from '@/lib/zod-schemas/login-schema';
 import { LoadingSpinner } from '../loading-spinner';
 import { useTranslations } from 'next-intl';
+import { z } from 'zod';
+
+export const loginSchema = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
+    .min(1, 'Email is required')
+    .email('Invalid email'),
+  password: z
+    .string({ required_error: 'Password is required' })
+    .min(1, 'Password is required')
+    .min(5, 'Password must be more than 5 characters')
+    .max(32, 'Password must be less than 32 characters')
+});
+
+export type LoginFormInput = z.infer<typeof loginSchema>;
 
 export function LoginForm({
   className,

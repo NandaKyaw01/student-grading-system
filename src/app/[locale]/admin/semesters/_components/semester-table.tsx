@@ -8,13 +8,13 @@ import {
   TableCell,
   Table
 } from '@/components/ui/table';
-import { SemesterWithDetails } from '@/services/semester';
-import { getSemesters } from '@/services/semester';
+import { SemesterWithDetails } from '@/actions/semester';
+import { getSemesters } from '@/actions/semester';
 import { Edit, Trash } from 'lucide-react';
 import React, { use } from 'react';
 import { SemesterDialog } from './semester-modal';
 import { DeleteSemesterDialog } from './delete-semester-modal';
-import { getAcademicYears } from '@/services/academic-year';
+import { getAcademicYears } from '@/actions/academic-year';
 
 const SemestersTable = ({
   semesters,

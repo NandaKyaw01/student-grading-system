@@ -1,7 +1,7 @@
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { Button } from '@/components/ui/button';
-import { getSubjects } from '@/services/subject';
+import { getSubjects } from '@/actions/subject';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';

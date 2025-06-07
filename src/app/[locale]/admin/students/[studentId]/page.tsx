@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import Link from 'next/link';
 import FormCardSkeleton from '@/components/form-card-skeleton';
-import { getStudentById } from '@/services/student';
+import { getStudentById } from '@/actions/student';
 import { notFound } from 'next/navigation';
 import StudentForm from '../_components/student-form';
 

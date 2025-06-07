@@ -12,9 +12,7 @@ import { Student } from '@/generated/prisma';
 export const studentSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
-  search: parseAsString.withDefault(''),
-  rollNumber: parseAsString.withDefault(''),
-  name: parseAsString.withDefault(''),
+  id: parseAsString.withDefault(''),
   createdAt: parseAsString.withDefault(''),
   sort: getSortingStateParser<Student>().withDefault([
     { id: 'createdAt', desc: true }

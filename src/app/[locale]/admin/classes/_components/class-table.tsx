@@ -7,13 +7,13 @@ import {
   TableCell,
   Table
 } from '@/components/ui/table';
-import { ClassWithDetails } from '@/services/class';
-import { getClasses } from '@/services/class';
+import { ClassWithDetails } from '@/actions/class';
+import { getClasses } from '@/actions/class';
 import { Edit, Trash } from 'lucide-react';
 import React, { use } from 'react';
 import { ClassDialog } from './class-modal';
 import { DeleteClassDialog } from './delete-class-modal';
-import { getSemesters } from '@/services/semester';
+import { getSemesters } from '@/actions/semester';
 
 const ClassesTable = ({
   classes,

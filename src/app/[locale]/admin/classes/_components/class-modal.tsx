@@ -30,9 +30,9 @@ import {
 import { createClass, updateClass } from '@/actions/class';
 import { toast } from 'sonner';
 import { useState } from 'react';
-import { getSemesters, SemesterWithDetails } from '@/services/semester';
+import { getSemesters, SemesterWithDetails } from '@/actions/semester';
 import { use } from 'react';
-import { ClassWithDetails } from '@/services/class';
+import { ClassWithDetails } from '@/actions/class';
 
 // Define the enum values for TypeScript
 enum DepartmentCode {

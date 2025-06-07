@@ -9,7 +9,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { AcademicYear } from '@/generated/prisma';
-import { getAcademicYears } from '@/services/academic-year';
+import { getAcademicYears } from '@/actions/academic-year';
 import { Edit, Trash } from 'lucide-react';
 import { use } from 'react';
 import { AcademicYearDialog } from './academic-year-modal';

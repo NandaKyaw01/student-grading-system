@@ -1,7 +1,6 @@
 // app/(admin)/class-subjects/_components/class-subject-table.tsx
-import { ClassWithDetails } from '@/services/class';
-import { getClasses } from '@/services/class';
-import { ClassSubjectManagerWrapper } from './class-subject-manager-wrapper';
+import { ClassWithDetails } from '@/actions/class';
+import { getClasses } from '@/actions/class';
 import {
   Table,
   TableBody,
@@ -11,6 +10,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { use } from 'react';
+import { ClassSubjectManager } from './class-subject-manager';
 
 const ClassSubjectsTable = ({
   classes
@@ -40,10 +40,7 @@ const ClassSubjectsTable = ({
             <TableCell>{cls.semester?.academicYear?.yearRange}</TableCell>
             <TableCell>{cls.subjects?.length || 0} subjects</TableCell>
             <TableCell className='text-right'>
-              <ClassSubjectManagerWrapper
-                classId={cls.id}
-                className={cls.className}
-              />
+              <ClassSubjectManager classId={cls.id} className={cls.className} />
             </TableCell>
           </TableRow>
         ))}

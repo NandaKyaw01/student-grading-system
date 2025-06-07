@@ -23,7 +23,7 @@ import { Input } from '@/components/ui/input';
 import { createSubject, updateSubject } from '@/actions/subject';
 import { toast } from 'sonner';
 import { useState } from 'react';
-import { SubjectWithDetails } from '@/services/subject';
+import { SubjectWithDetails } from '@/actions/subject';
 
 const subjectFormSchema = z.object({
   id: z.string().min(1, {

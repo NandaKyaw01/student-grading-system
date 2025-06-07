@@ -1,14 +1,11 @@
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
-import { Button } from '@/components/ui/button';
-import { getClasses } from '@/services/class';
+import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
+import { getClasses } from '@/actions/class';
 import { Separator } from '@radix-ui/react-dropdown-menu';
-import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 import ClassSubjectsTable from './_components/class-subject-table';
-import { revalidateTag } from 'next/cache';
-import { revalidateClassSubjects } from '@/actions/class-subject';
 
 type BreadcrumbProps = {
   name: string;
@@ -47,7 +44,11 @@ export default function ClassSubjectsPage() {
           </div>
         </div>
         <Separator />
-        <Suspense fallback='loading...'>
+        <Suspense
+          fallback={
+            <DataTableSkeleton columnCount={6} rowCount={8} filterCount={2} />
+          }
+        >
           <ClassSubjectsTable classes={classes} />
         </Suspense>
       </div>

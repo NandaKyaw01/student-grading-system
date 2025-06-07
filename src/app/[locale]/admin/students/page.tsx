@@ -10,7 +10,7 @@ import {
   // studentSerialize
 } from '@/lib/search-params/student';
 import { cn } from '@/lib/utils';
-import { getAllStudents } from '@/services/student';
+import { getAllStudents } from '@/actions/student';
 import { Plus } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { SearchParams } from 'nuqs/server';
