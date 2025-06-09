@@ -1,22 +1,26 @@
 'use client';
+import type { Table } from '@tanstack/react-table';
+import { Download, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import * as React from 'react';
+import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
-import { Table } from '@tanstack/react-table';
-import { Enrollment } from '@/generated/prisma';
-import {
+  deleteEnrollments,
   EnrollmentWithDetails,
   updateEnrollmentStatus
 } from '@/actions/enrollment';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { EnrollmentModal } from './enrollment-modal';
+import {
+  DataTableActionBar,
+  DataTableActionBarAction,
+  DataTableActionBarSelection
+} from '@/components/data-table/data-table-action-bar';
+import { Separator } from '@/components/ui/separator';
+import { Enrollment } from '@/generated/prisma';
+import { exportTableToCSV } from '@/lib/export';
+
+const actions = ['update-status', 'export', 'delete'] as const;
+
+type Action = (typeof actions)[number];
 
 interface EnrollmentsTableActionBarProps {
   table: Table<EnrollmentWithDetails>;
@@ -25,59 +29,97 @@ interface EnrollmentsTableActionBarProps {
 export function EnrollmentsTableActionBar({
   table
 }: EnrollmentsTableActionBarProps) {
-  const router = useRouter();
-  const selectedRows = table.getSelectedRowModel().rows;
+  const rows = table.getFilteredSelectedRowModel().rows;
+  const [isPending, startTransition] = React.useTransition();
+  const [currentAction, setCurrentAction] = React.useState<Action | null>(null);
 
-  const handleBulkStatusChange = async (status: boolean) => {
-    try {
-      const ids = selectedRows.map((row) => row.original.id);
-      const result = await updateEnrollmentStatus(ids, status);
+  const getIsActionPending = React.useCallback(
+    (action: Action) => isPending && currentAction === action,
+    [isPending, currentAction]
+  );
 
-      if (!result.success) {
-        throw new Error(result.error);
+  const onEnrollmentExport = React.useCallback(() => {
+    setCurrentAction('export');
+    startTransition(() => {
+      exportTableToCSV(table, {
+        excludeColumns: ['select', 'actions'],
+        onlySelected: true
+      });
+    });
+  }, [table]);
+
+  const onEnrollmentDelete = React.useCallback(() => {
+    setCurrentAction('delete');
+    startTransition(async () => {
+      const ids = rows.map((row) => row.original.id);
+      const { error } = await deleteEnrollments(ids);
+
+      if (error) {
+        toast.error(error);
+        return;
       }
+      table.toggleAllRowsSelected(false);
+    });
+  }, [rows, table]);
 
-      toast.success('Success', {
-        description: status
-          ? 'Selected enrollments activated'
-          : 'Selected enrollments deactivated'
-      });
+  const onStatusToggle = React.useCallback(
+    (status: boolean) => {
+      setCurrentAction('update-status');
+      startTransition(async () => {
+        const ids = rows.map((row) => row.original.id);
+        const { error } = await updateEnrollmentStatus(ids, status);
 
-      router.refresh();
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error ? error.message : 'Failed to update status'
+        if (error) {
+          toast.error(error);
+          return;
+        }
+        table.toggleAllRowsSelected(false);
       });
-    }
-  };
+    },
+    [rows, table]
+  );
 
   return (
-    <div className='flex items-center gap-2'>
-      <EnrollmentModal>
-        <Button size='sm' className='h-8'>
-          New Enrollment
-        </Button>
-      </EnrollmentModal>
-
-      {selectedRows.length > 0 && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='outline' size='sm' className='h-8'>
-              <MoreHorizontal className='mr-2 h-4 w-4' />
-              Bulk Actions
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem onClick={() => handleBulkStatusChange(true)}>
-              Activate Selected
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleBulkStatusChange(false)}>
-              Deactivate Selected
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-    </div>
+    <DataTableActionBar table={table} visible={rows.length > 0}>
+      <DataTableActionBarSelection table={table} />
+      <Separator
+        orientation='vertical'
+        className='hidden data-[orientation=vertical]:h-5 sm:block'
+      />
+      <div className='flex items-center gap-1.5'>
+        <DataTableActionBarAction
+          size='icon'
+          tooltip='Activate enrollments'
+          isPending={getIsActionPending('update-status')}
+          onClick={() => onStatusToggle(true)}
+        >
+          <ToggleRight />
+        </DataTableActionBarAction>
+        <DataTableActionBarAction
+          size='icon'
+          tooltip='Deactivate enrollments'
+          isPending={getIsActionPending('update-status')}
+          onClick={() => onStatusToggle(false)}
+        >
+          <ToggleLeft />
+        </DataTableActionBarAction>
+        <DataTableActionBarAction
+          size='icon'
+          tooltip='Export enrollments'
+          isPending={getIsActionPending('export')}
+          onClick={onEnrollmentExport}
+        >
+          <Download />
+        </DataTableActionBarAction>
+        <DataTableActionBarAction
+          size='icon'
+          tooltip='Delete enrollments'
+          isPending={getIsActionPending('delete')}
+          onClick={onEnrollmentDelete}
+        >
+          <Trash2 />
+        </DataTableActionBarAction>
+      </div>
+    </DataTableActionBar>
   );
 }

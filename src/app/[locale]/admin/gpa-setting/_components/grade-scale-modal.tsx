@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -7,20 +8,20 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { Enrollment } from '@/generated/prisma';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { EnrollmentForm } from './enrollment-form';
+import { GradeScale } from '@/generated/prisma';
+import { GradeScaleForm } from './grade-scale-form';
 
-interface EnrollmentModalProps {
-  enrollment?: Enrollment;
+interface GradeScaleModalProps {
+  gradeScale?: GradeScale;
   children: React.ReactNode;
 }
 
-export function EnrollmentModal({
-  enrollment,
+export function GradeScaleModal({
+  gradeScale,
   children
-}: EnrollmentModalProps) {
+}: GradeScaleModalProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -35,10 +36,10 @@ export function EnrollmentModal({
       <DialogContent className='sm:max-w-[625px]'>
         <DialogHeader>
           <DialogTitle>
-            {enrollment ? `Edit Enrollment` : 'Create New Enrollment'}
+            {gradeScale ? `Edit Grade Scale` : 'Create New Grade Scale'}
           </DialogTitle>
         </DialogHeader>
-        <EnrollmentForm enrollment={enrollment} onSuccess={handleSuccess} />
+        <GradeScaleForm gradeScale={gradeScale} onSuccess={handleSuccess} />
       </DialogContent>
     </Dialog>
   );

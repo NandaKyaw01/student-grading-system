@@ -1,31 +1,44 @@
-import Link from 'next/link';
-
-import PlaceholderContent from '@/components/demo/placeholder-content';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
-import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
-import { useTranslations } from 'next-intl';
+import { Suspense } from 'react';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from '@/components/ui/breadcrumb';
+import Link from 'next/link';
+import { GradeScaleDataTable } from './_components/grade-scale-data-table';
+import { getAllGradeScales } from '@/actions/grade-scale';
 
-type BreadcrumbProps = {
-  name: string;
-  link: string;
+export const metadata = {
+  title: 'Grade Scales : Grading System'
 };
-const bredcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'GPA Setting',
-    link: ''
-  }
-];
-export default function GPASettingPage() {
-  const t = useTranslations('AdminNavBarTitle');
-  return (
-    <ContentLayout title={t('GPAsetting')}>
-      <ActiveBreadcrumb path={bredcrumb} />
 
-      <PlaceholderContent />
+export default async function GPASettingPage() {
+  const gradeScalesPromise = getAllGradeScales();
+
+  return (
+    <ContentLayout title='Grade Scales'>
+      <div className='flex-1 space-y-4'>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href='/'>Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Grade Scales</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Suspense fallback={<div>Loading grade scales...</div>}>
+          <GradeScaleDataTable promises={gradeScalesPromise} />
+        </Suspense>
+      </div>
     </ContentLayout>
   );
 }

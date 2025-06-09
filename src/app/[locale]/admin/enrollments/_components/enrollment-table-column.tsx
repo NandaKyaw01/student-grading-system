@@ -56,35 +56,30 @@ export function getEnrollmentColumns(): ColumnDef<EnrollmentWithDetails>[] {
       )
     },
     {
-      id: 'studentName',
-      accessorFn: (row) => row.student.studentName,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Student' />
-      ),
+      id: 'search',
+      accessorFn: (row) => row.student?.studentName,
+      header: 'Student',
       meta: {
         label: 'Search',
-        placeholder: 'Search Student...',
+        placeholder: 'Search ...',
         variant: 'text',
         icon: Text
-      }
+      },
+      enableColumnFilter: true
     },
     {
       id: 'className',
       accessorFn: (row) => row.class.className,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Class' />
-      )
+      header: 'Class'
     },
     {
       id: 'semester',
-      accessorFn: (row) => `${row.semester.semesterName}`,
-      // (${row.class.semester.academicYear.yearRange})`,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Semester' />
-      )
+      accessorFn: (row) =>
+        `${row.semester?.semesterName} (${row.semester?.academicYear?.yearRange})`,
+      header: 'Semester'
     },
     {
-      id: 'status',
+      id: 'isActive',
       accessorKey: 'isActive',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Status' />

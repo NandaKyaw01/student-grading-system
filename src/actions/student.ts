@@ -8,9 +8,7 @@ import { GetStudentSchema } from '@/lib/search-params/student';
 import { Prisma, Student } from '@/generated/prisma';
 
 const studentWithDetails = Prisma.validator<Prisma.StudentInclude>()({
-  enrollments: true,
-  grades: true,
-  results: true
+  enrollments: true
 });
 
 export type StudentwithDetails = Prisma.StudentGetPayload<{
@@ -210,4 +208,16 @@ export async function getStudentById(id: string) {
       tags: ['student', `student-${id}`]
     }
   )();
+}
+
+export async function getStudentsForSelect() {
+  return await prisma.student.findMany({
+    select: {
+      id: true,
+      studentName: true
+    },
+    orderBy: {
+      studentName: 'asc'
+    }
+  });
 }

@@ -43,7 +43,7 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
           submenus: []
         },
         {
-          href: `/admin/grades`,
+          href: `/admin/results`,
           label: t('grades'),
           icon: BookOpenCheck,
           submenus: []

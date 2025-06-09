@@ -5,8 +5,7 @@ import { prisma } from '@/lib/db';
 import { revalidateTag, unstable_cache } from 'next/cache';
 
 const subjectWithDetails = Prisma.validator<Prisma.SubjectInclude>()({
-  classes: true,
-  grades: true
+  classes: true
 });
 
 export type SubjectWithDetails = Prisma.SubjectGetPayload<{
@@ -59,12 +58,11 @@ export async function deleteSubject(id: string) {
     const hasDependencies = await prisma.subject.findFirst({
       where: { id },
       include: {
-        classes: true,
-        grades: true
+        classes: true
       }
     });
 
-    if (hasDependencies?.classes.length || hasDependencies?.grades.length) {
+    if (hasDependencies?.classes.length) {
       throw new Error('Cannot delete subject with existing classes or grades');
     }
 
@@ -120,3 +118,16 @@ export const getSubjectById = async (id: string) => {
     }
   )();
 };
+
+export async function getSubjectsForSelect() {
+  return await prisma.subject.findMany({
+    select: {
+      id: true,
+      subjectName: true,
+      creditHours: true
+    },
+    orderBy: {
+      subjectName: 'asc'
+    }
+  });
+}

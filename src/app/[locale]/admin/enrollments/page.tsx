@@ -47,10 +47,9 @@ export default async function Page(props: pageProps) {
   const search = enrollmentSearchParamsCache.parse(searchParams);
   // const key = studentSerialize({ ...searchParams });
 
-  const enrollmentsPromise = getAllEnrollments(
-    { ...search },
-    { includeDetails: true }
-  );
+  const enrollmentsPromise = getAllEnrollments(search, {
+    includeDetails: true
+  });
 
   return (
     <ContentLayout
@@ -67,7 +66,7 @@ export default async function Page(props: pageProps) {
           </div>
           <EnrollmentModal>
             <Button className='text-xs md:text-sm'>
-              <Plus className='mr-2 h-4 w-4' /> Add New Semester
+              <Plus className='mr-2 h-4 w-4' /> Add New Enrollment
             </Button>
           </EnrollmentModal>
         </div>

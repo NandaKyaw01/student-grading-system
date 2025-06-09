@@ -13,9 +13,7 @@ export const enrollmentSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   search: parseAsString.withDefault(''),
-  //   status: parseAsBoolean.withDefault(false),
-  semesterId: parseAsInteger,
-  classId: parseAsInteger,
+  isActive: parseAsBoolean,
   createdAt: parseAsString.withDefault(''),
   sort: getSortingStateParser<Enrollment>().withDefault([
     { id: 'createdAt', desc: true }

@@ -6,17 +6,8 @@ import { revalidateTag, unstable_cache } from 'next/cache';
 
 const semesterWithDetails = Prisma.validator<Prisma.SemesterInclude>()({
   academicYear: true,
-  classes: {
-    include: {
-      subjects: true
-    }
-  },
-  enrollments: {
-    include: {
-      student: true,
-      class: true
-    }
-  }
+  classes: true,
+  enrollments: true
 });
 
 export type SemesterWithDetails = Prisma.SemesterGetPayload<{
@@ -88,17 +79,13 @@ export async function deleteSemester(id: number) {
       where: { id },
       include: {
         classes: true,
-        enrollments: true,
-        grades: true,
-        results: true
+        enrollments: true
       }
     });
 
     if (
       hasDependencies?.classes.length ||
-      hasDependencies?.enrollments.length ||
-      hasDependencies?.grades.length ||
-      hasDependencies?.results.length
+      hasDependencies?.enrollments.length
     ) {
       throw new Error('Cannot delete semester with existing related records');
     }
@@ -186,3 +173,22 @@ export const getSemesterById = async (id: number) => {
     }
   )();
 };
+
+export async function getSemestersForSelect() {
+  return await prisma.semester.findMany({
+    select: {
+      id: true,
+      semesterName: true,
+      academicYear: {
+        select: {
+          yearRange: true
+        }
+      }
+    },
+    orderBy: {
+      academicYear: {
+        yearRange: 'desc'
+      }
+    }
+  });
+}

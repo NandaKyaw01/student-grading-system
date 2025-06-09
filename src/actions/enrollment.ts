@@ -7,7 +7,11 @@ import { revalidateTag, unstable_cache } from 'next/cache';
 const enrollmentWithDetails = Prisma.validator<Prisma.EnrollmentInclude>()({
   student: true,
   class: true,
-  semester: true
+  semester: {
+    include: {
+      academicYear: true
+    }
+  }
 });
 
 export type EnrollmentWithDetails = Prisma.EnrollmentGetPayload<{
@@ -51,33 +55,19 @@ export async function getAllEnrollments(
           // Search
           if (input.search?.trim()) {
             where.OR = [
+              { id: { equals: parseInt(input.search) || undefined } },
               { rollNumber: { contains: input.search, mode: 'insensitive' } },
               {
                 student: {
                   studentName: { contains: input.search, mode: 'insensitive' }
                 }
-              },
-              {
-                class: {
-                  className: { contains: input.search, mode: 'insensitive' }
-                }
               }
             ];
           }
 
-          // // Status filter
-          // if (input.status) {
-          //   where.isActive = input.status === 'active';
-          // }
-
-          // Semester filter
-          if (input.semesterId) {
-            where.semesterId = input.semesterId;
-          }
-
-          // Class filter
-          if (input.classId) {
-            where.classId = input.classId;
+          // Status filter
+          if (input.isActive) {
+            where.isActive = input.isActive;
           }
 
           // Date range
@@ -204,6 +194,19 @@ export async function deleteEnrollment(id: number) {
   } catch (error) {
     console.error('Error deleting enrollment:', error);
     return { success: false, error: 'Failed to delete enrollment' };
+  }
+}
+
+export async function deleteEnrollments(ids: number[]) {
+  try {
+    await prisma.enrollment.deleteMany({
+      where: { id: { in: ids } }
+    });
+    revalidateTag('enrollments');
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting enrollments:', error);
+    return { success: false, error: 'Failed to delete enrollments' };
   }
 }
 
