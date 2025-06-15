@@ -42,75 +42,147 @@ async function main() {
     gradeScales.map((scale) => prisma.gradeScale.create({ data: scale }))
   );
 
-  // Create Academic Years
-  const academicYears = [];
-  for (let i = 0; i < 3; i++) {
-    const startYear = 2023 + i;
-    const yearRange = `${startYear}-${startYear + 1}`;
-    academicYears.push(
-      await prisma.academicYear.create({
-        data: {
-          yearRange,
-          isCurrent: i === 1 // Set middle year as current
-        }
-      })
-    );
-  }
+  // Create Academic Year (2024-2025)
+  const academicYear = await prisma.academicYear.create({
+    data: {
+      yearRange: '2024-2025',
+      isCurrent: true
+    }
+  });
 
   // Create Semesters
-  const semesters = [];
-  for (const year of academicYears) {
-    for (let i = 1; i <= 2; i++) {
-      semesters.push(
-        await prisma.semester.create({
-          data: {
-            semesterName: `${i}${i === 1 ? 'st' : 'nd'} Semester`,
-            academicYearId: year.id,
-            isCurrent: year.isCurrent && i === 1 // Set first semester of current year as current
-          }
-        })
-      );
-    }
-  }
-
-  // Create Classes
-  const classes = [];
-  for (const semester of semesters) {
-    for (const dept of ['CS', 'CT', 'CST']) {
-      const className = `${faker.word.adjective()} Year ${dept}`;
-      classes.push(
-        await prisma.class.create({
-          data: {
-            className,
-            departmentCode: dept as 'CS' | 'CT' | 'CST',
-            semesterId: semester.id
-          }
-        })
-      );
-    }
-  }
-
-  // Create Subjects
-  const subjectsData = [
-    { id: 'M-101', subjectName: 'Mathematics', creditHours: 4.0 },
-    { id: 'P-102', subjectName: 'Physics', creditHours: 3.0 },
-    { id: 'C-103', subjectName: 'Chemistry', creditHours: 3.0 },
-    { id: 'CS-201', subjectName: 'Programming Fundamentals', creditHours: 3.0 },
-    { id: 'CS-202', subjectName: 'Data Structures', creditHours: 3.0 },
-    { id: 'CS-203', subjectName: 'Algorithms', creditHours: 3.0 },
-    { id: 'CT-301', subjectName: 'Networking', creditHours: 3.0 },
-    { id: 'CT-302', subjectName: 'Database Systems', creditHours: 3.0 },
-    { id: 'CST-401', subjectName: 'Web Development', creditHours: 3.0 },
-    { id: 'CST-402', subjectName: 'Mobile Development', creditHours: 3.0 }
+  const semesters = [
+    await prisma.semester.create({
+      data: {
+        semesterName: '1st Semester',
+        academicYearId: academicYear.id,
+        isCurrent: true
+      }
+    }),
+    await prisma.semester.create({
+      data: {
+        semesterName: '2nd Semester',
+        academicYearId: academicYear.id,
+        isCurrent: false
+      }
+    })
   ];
 
-  const subjects = [];
-  for (const subjectData of subjectsData) {
-    subjects.push(
-      await prisma.subject.create({
-        data: subjectData
-      })
-    );
+  // Create Subjects with proper exam/assign weights
+  const subjects = [
+    {
+      id: 'M-101',
+      subjectName: 'Mathematics',
+      creditHours: 4.0,
+      examWeight: 0.7,
+      assignWeight: 0.3
+    },
+    {
+      id: 'P-102',
+      subjectName: 'Physics',
+      creditHours: 3.0,
+      examWeight: 0.6,
+      assignWeight: 0.4
+    },
+    {
+      id: 'C-103',
+      subjectName: 'Chemistry',
+      creditHours: 3.0,
+      examWeight: 0.6,
+      assignWeight: 0.4
+    },
+    {
+      id: 'CS-201',
+      subjectName: 'Programming Fundamentals',
+      creditHours: 3.0,
+      examWeight: 0.5,
+      assignWeight: 0.5
+    },
+    {
+      id: 'CS-202',
+      subjectName: 'Data Structures',
+      creditHours: 3.0,
+      examWeight: 0.6,
+      assignWeight: 0.4
+    },
+    {
+      id: 'CS-203',
+      subjectName: 'Algorithms',
+      creditHours: 3.0,
+      examWeight: 0.7,
+      assignWeight: 0.3
+    },
+    {
+      id: 'CT-301',
+      subjectName: 'Networking',
+      creditHours: 3.0,
+      examWeight: 0.6,
+      assignWeight: 0.4
+    },
+    {
+      id: 'CT-302',
+      subjectName: 'Database Systems',
+      creditHours: 3.0,
+      examWeight: 0.5,
+      assignWeight: 0.5
+    },
+    {
+      id: 'CST-401',
+      subjectName: 'Web Development',
+      creditHours: 3.0,
+      examWeight: 0.4,
+      assignWeight: 0.6
+    },
+    {
+      id: 'CST-402',
+      subjectName: 'Mobile Development',
+      creditHours: 3.0,
+      examWeight: 0.4,
+      assignWeight: 0.6
+    }
+  ];
+
+  await Promise.all(
+    subjects.map((subject) => prisma.subject.create({ data: subject }))
+  );
+
+  // Create Classes for each year level
+  const yearLevels = ['First Year', 'Second Year', 'Third Year', 'Fourth Year'];
+  const classes = [];
+
+  for (const semester of semesters) {
+    for (const [index, yearLevel] of yearLevels.entries()) {
+      // First Year only has CST
+      if (index === 0) {
+        classes.push(
+          await prisma.class.create({
+            data: {
+              className: `${yearLevel} CST`,
+              departmentCode: 'CST',
+              semesterId: semester.id
+            }
+          })
+        );
+      } else {
+        // Other years have CS and CT
+        classes.push(
+          await prisma.class.create({
+            data: {
+              className: `${yearLevel} CS`,
+              departmentCode: 'CS',
+              semesterId: semester.id
+            }
+          }),
+          await prisma.class.create({
+            data: {
+              className: `${yearLevel} CT`,
+              departmentCode: 'CT',
+              semesterId: semester.id
+            }
+          })
+        );
+      }
+    }
   }
 
   // Create Class-Subject relationships
@@ -134,7 +206,7 @@ async function main() {
     }
   }
 
-  // Create Students
+  // Create Students (50 students)
   const students = [];
   for (let i = 0; i < 50; i++) {
     students.push(
@@ -146,23 +218,17 @@ async function main() {
     );
   }
 
-  // Create Enrollments
-  const enrollments = [];
+  // Create Enrollments in current semester
   const currentSemester = semesters.find((s) => s.isCurrent);
-
   if (!currentSemester) throw new Error('Current semester not found');
 
   const currentClasses = classes.filter(
     (c) => c.semesterId === currentSemester.id
   );
 
+  const enrollments = [];
   for (const student of students) {
-    const classIndex = faker.number.int({
-      min: 0,
-      max: currentClasses.length - 1
-    });
-    const cls = currentClasses[classIndex];
-
+    const cls = faker.helpers.arrayElement(currentClasses);
     enrollments.push(
       await prisma.enrollment.create({
         data: {
@@ -176,40 +242,25 @@ async function main() {
     );
   }
 
-  // Create Grades
+  // Create Grades for each enrollment
   for (const enrollment of enrollments) {
     const classSubjectsForClass = classSubjects.filter(
       (cs) => cs.classId === enrollment.classId
     );
 
     for (const classSubject of classSubjectsForClass) {
-      const examMark = parseFloat(
-        faker.number
-          .float({
-            min: 0,
-            max: 100,
-            fractionDigits: 1
-          })
-          .toFixed(1)
-      );
-
-      const assignMark = parseFloat(
-        faker.number
-          .float({
-            min: 0,
-            max: 100,
-            fractionDigits: 1
-          })
-          .toFixed(1)
-      );
-      // Get subject to calculate final mark
       const subject = subjects.find((s) => s.id === classSubject.subjectId);
       if (!subject) continue;
 
+      const examMark = parseFloat(
+        faker.number.float({ min: 0, max: 100, fractionDigits: 1 }).toFixed(1)
+      );
+      const assignMark = parseFloat(
+        faker.number.float({ min: 0, max: 100, fractionDigits: 1 }).toFixed(1)
+      );
       const finalMark =
         examMark * subject.examWeight + assignMark * subject.assignWeight;
 
-      // Find matching grade scale
       const gradeScale = gradeScales.find(
         (gs) => finalMark >= gs.minMark && finalMark <= gs.maxMark
       );
@@ -231,7 +282,7 @@ async function main() {
     }
   }
 
-  // Create Results
+  // Create Results with GPA calculation
   for (const enrollment of enrollments) {
     const grades = await prisma.grade.findMany({
       where: { enrollmentId: enrollment.id },
@@ -257,14 +308,13 @@ async function main() {
     });
   }
 
-  // Create Users
+  // Create Users (Admin and Student)
   const adminPassword = await bcrypt.hash('admin123', SALT_ROUNDS);
   const studentPassword = await bcrypt.hash('student123', SALT_ROUNDS);
 
-  // Admin user
   await prisma.user.create({
     data: {
-      email: 'admin@ucsh.edu',
+      email: 'admin@school.edu',
       hashedPassword: adminPassword,
       accounts: {
         create: {
@@ -276,7 +326,6 @@ async function main() {
     }
   });
 
-  // Student user
   await prisma.user.create({
     data: {
       email: 'student@school.edu',
