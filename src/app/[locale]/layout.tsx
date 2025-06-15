@@ -1,20 +1,20 @@
-import type { Metadata, Viewport } from 'next';
+import type { Viewport } from 'next';
 
-import { ThemeProvider } from '@/components/providers/theme-provider';
 import AuthProvider from '@/components/providers/auth-provider';
-import { NuqsAdapter } from 'nuqs/adapters/next/app';
-import NextTopLoader from 'nextjs-toploader';
-import { cookies } from 'next/headers';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 import { fontVariables } from '@/lib/font';
 import { cn } from '@/lib/utils';
+import { cookies } from 'next/headers';
+import NextTopLoader from 'nextjs-toploader';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
-import '../theme.css';
-import '../globals.css';
-import { Toaster } from 'sonner';
-import { hasLocale, Locale, NextIntlClientProvider } from 'next-intl';
-import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
+import { hasLocale, Locale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { Toaster } from 'sonner';
+import '../globals.css';
+import '../theme.css';
 
 const META_THEME_COLORS = {
   light: '#ffffff',

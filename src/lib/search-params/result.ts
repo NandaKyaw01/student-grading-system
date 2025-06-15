@@ -1,7 +1,7 @@
 import {
   createSearchParamsCache,
   createSerializer,
-  parseAsBoolean,
+  parseAsArrayOf,
   parseAsInteger,
   parseAsString
 } from 'nuqs/server';
@@ -12,10 +12,11 @@ import { Result } from '@/generated/prisma';
 export const resultSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
-  search: parseAsString.withDefault(''),
-  semesterId: parseAsInteger,
-  studentId: parseAsInteger,
-  sort: getSortingStateParser<Result>().withDefault([{ id: 'gpa', desc: true }])
+  enrollmentId: parseAsString.withDefault(''),
+  createdAt: parseAsString.withDefault(''),
+  sort: getSortingStateParser<Result>().withDefault([
+    { id: 'createdAt', desc: true }
+  ])
 };
 
 export const resultSearchParamsCache =
