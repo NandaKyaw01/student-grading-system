@@ -50,10 +50,18 @@ export function LoginForm({
   const onSubmit = async (data: LoginFormInput) => {
     setError('');
     startTransition(async () => {
+      const parsed = loginSchema.safeParse(data);
+
+      if (!parsed.success) {
+        return setError('Invalid email or password');
+      }
+
+      const { email, password } = parsed.data;
+
       const res = await signIn('credentials', {
         redirect: false,
-        email: data.email,
-        password: data.password,
+        email,
+        password,
         callbackUrl
       });
 

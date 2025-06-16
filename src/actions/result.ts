@@ -18,7 +18,12 @@ const resultWithDetails = Prisma.validator<Prisma.ResultInclude>()({
   enrollment: {
     include: {
       student: true,
-      class: true
+      class: true,
+      semester: {
+        include: {
+          academicYear: true
+        }
+      }
     }
   }
 });
@@ -746,7 +751,7 @@ export async function updateResult(input: UpdateResultFormData) {
     });
 
     // Update rank (optional - can be done in a separate process)
-    await updateResultRanks(semesterId);
+    // await updateResultRanks(semesterId);
 
     // Revalidate relevant paths
     revalidateTag('results');

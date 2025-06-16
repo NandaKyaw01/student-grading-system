@@ -48,7 +48,7 @@ export interface ResultFormProps {
 // Loading skeleton components
 const ComboboxSkeleton = () => (
   <div className='space-y-2'>
-    <Skeleton className='h-4 w-20' />
+    {/* <Skeleton className='h-4 w-20' /> */}
     <Skeleton className='h-10 w-full' />
   </div>
 );
@@ -285,7 +285,7 @@ export default function ResultForm({
     } else {
       form.clearErrors('enrollmentId');
     }
-  }, [hasExistingResult, isEditMode, form]);
+  }, [hasExistingResult, isEditMode, form, replace]);
 
   // Create/Update result mutation
   const resultMutation = useMutation({
@@ -304,6 +304,8 @@ export default function ResultForm({
 
         if (!isEditMode) {
           form.reset();
+          setAutoSelectCurrentYear(false);
+          setAutoSelectCurrentSemester(false);
         }
 
         onSuccess?.();
@@ -340,9 +342,11 @@ export default function ResultForm({
       } else if (fieldName === 'academicYearId') {
         form.setValue('semesterId', 0);
         form.setValue('enrollmentId', 0);
+        setAutoSelectCurrentYear(false);
         replace([]);
       } else if (fieldName === 'semesterId') {
         form.setValue('enrollmentId', 0);
+        setAutoSelectCurrentSemester(false);
         replace([]);
       } else if (fieldName === 'enrollmentId') {
         replace([]);
@@ -352,6 +356,7 @@ export default function ResultForm({
 
   const handleEditExisting = () => {
     if (existingResultData?.data) {
+      setShowExistingResultDialog(false);
       router.push(`/admin/results/${existingResultData.data.enrollmentId}`);
     }
   };
@@ -554,10 +559,12 @@ export default function ResultForm({
         </div>
 
         {/* Subject Grades */}
-        {(!hasExistingResult || isEditMode) && (
+        {!hasExistingResult || isEditMode ? (
           <>
             {subjectsLoading && enrollmentId ? (
-              <SubjectGradesCardSkeleton />
+              isEditMode ? (
+                <SubjectGradesCardSkeleton />
+              ) : null
             ) : subjects.length > 0 ? (
               <Card>
                 <CardHeader>
@@ -658,7 +665,7 @@ export default function ResultForm({
               </Card>
             ) : null}
           </>
-        )}
+        ) : null}
 
         {/* Submit Button */}
         <Button type='submit' className='w-full' disabled={isSubmitDisabled}>
@@ -675,6 +682,10 @@ export default function ResultForm({
           onOpenChange={setShowExistingResultDialog}
           onEditClick={handleEditExisting}
           onCancel={handleCancelExisting}
+          onClose={() => {
+            form.setValue('enrollmentId', 0);
+            form.clearErrors('enrollmentId');
+          }}
         />
       </form>
     </Form>

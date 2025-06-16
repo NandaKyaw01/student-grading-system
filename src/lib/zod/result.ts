@@ -1,17 +1,15 @@
 import { z } from 'zod';
-const markSchema = z.union([
-  z
-    .string()
-    .min(1, 'This field is required')
-    .transform((val) => {
-      const num = parseFloat(val);
-      if (isNaN(num)) throw new Error('Must be a valid number');
-      if (num < 0) throw new Error('Must be 0 or greater');
-      if (num > 100) throw new Error('Must be 100 or less');
-      return num;
-    }),
-  z.number().min(0, 'Must be 0 or greater').max(100, 'Must be 100 or less')
-]);
+const markSchema = z
+  .union([
+    z
+      .string()
+      .min(1, 'This field is required')
+      .transform((val) => parseFloat(val)),
+    z.number()
+  ])
+  .refine((val) => !isNaN(val), { message: 'Must be a valid number' })
+  .refine((val) => val >= 0, { message: 'Must be 0 or greater' })
+  .refine((val) => val <= 100, { message: 'Must be 100 or less' });
 
 const gradeSchema = z.object({
   classSubjectId: z.number(),
