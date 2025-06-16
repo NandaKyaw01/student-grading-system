@@ -1,14 +1,15 @@
 'use client';
 
+import { ResultWithDetails } from '@/actions/result';
 import CopyableIdCell from '@/components/copyable-id-cell';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import { buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Result } from '@/generated/prisma';
 import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
-import { CalendarIcon, Text } from 'lucide-react';
+import { CalendarIcon, FileSearch2, Text } from 'lucide-react';
+import Link from 'next/link';
 import { ResultCellAction } from './result-cell-action';
-import { ResultWithDetails } from '@/actions/result';
 
 export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
   return [
@@ -125,7 +126,17 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
     },
     {
       id: 'actions',
-      cell: ({ row }) => <ResultCellAction data={row.original} />,
+      cell: ({ row }) => (
+        <div className='flex justify-center gap-2 items-center'>
+          <Link
+            href={`/admin/results/${row.original.enrollmentId}/view`}
+            className={buttonVariants()}
+          >
+            <FileSearch2 className='h-4 w-4' />
+          </Link>
+          <ResultCellAction data={row.original} />
+        </div>
+      ),
       size: 40
     }
   ];
