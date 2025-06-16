@@ -17,6 +17,7 @@ interface ExistingResultDialogProps {
   onOpenChange: (open: boolean) => void;
   onEditClick: () => void;
   onCancel: () => void;
+  onClose: () => void;
 }
 
 const ExistingResultDialog = ({
@@ -24,7 +25,8 @@ const ExistingResultDialog = ({
   open,
   onOpenChange,
   onEditClick,
-  onCancel
+  onCancel,
+  onClose
 }: ExistingResultDialogProps) => {
   const { data: existingResultData, isLoading } = useQuery({
     queryKey: ['existing-result', enrollmentId],
@@ -42,12 +44,19 @@ const ExistingResultDialog = ({
     onOpenChange(false);
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    onOpenChange(newOpen);
+    if (!newOpen) {
+      onClose?.();
+    }
+  };
+
   if (!existingResultData?.success || !existingResultData.data) {
     return null;
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2 text-amber-700'>

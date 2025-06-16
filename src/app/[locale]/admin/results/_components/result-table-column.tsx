@@ -54,6 +54,16 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       enableColumnFilter: true
     },
     {
+      id: 'studentId',
+      accessorFn: (row) => row.enrollment?.studentId,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Student ID' />
+      ),
+      cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
+      enableSorting: true,
+      enableColumnFilter: true
+    },
+    {
       id: 'student',
       accessorFn: (row) => row.enrollment?.student?.studentName,
       header: ({ column }) => (
@@ -65,6 +75,14 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       accessorFn: (row) => row.enrollment?.class?.className,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Class' />
+      )
+    },
+    {
+      id: 'year',
+      accessorFn: (row) =>
+        `${row.enrollment?.semester?.academicYear?.yearRange}`,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Year' />
       )
     },
     {
@@ -83,13 +101,7 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       ),
       cell: ({ cell }) => cell.getValue<number>().toFixed(1)
     },
-    {
-      id: 'rank',
-      accessorKey: 'rank',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Rank' />
-      )
-    },
+
     {
       id: 'createdAt',
       accessorKey: 'createdAt',
@@ -103,6 +115,13 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
         icon: CalendarIcon
       },
       enableColumnFilter: true
+    },
+    {
+      id: 'rank',
+      accessorKey: 'rank',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Rank' />
+      )
     },
     {
       id: 'actions',
