@@ -27,6 +27,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
   CreateResultFormData,
   createResultSchema,
+  createResultSchemaWithSubjects,
   UpdateResultFormData,
   updateResultSchema
 } from '@/lib/zod/result';
@@ -103,8 +104,12 @@ export default function ResultForm({
   const [showExistingResultDialog, setShowExistingResultDialog] =
     useState(false);
 
+  const [dynamicSchema, setDynamicSchema] = useState(
+    isEditMode ? updateResultSchema : createResultSchema
+  );
+
   const form = useForm<CreateResultFormData>({
-    resolver: zodResolver(isEditMode ? updateResultSchema : createResultSchema),
+    resolver: zodResolver(dynamicSchema),
     defaultValues: {
       studentId: 0,
       academicYearId: 0,
@@ -113,6 +118,17 @@ export default function ResultForm({
       grades: []
     }
   });
+
+  // const form = useForm<CreateResultFormData>({
+  //   resolver: zodResolver(isEditMode ? updateResultSchema : createResultSchema),
+  //   defaultValues: {
+  //     studentId: 0,
+  //     academicYearId: 0,
+  //     semesterId: 0,
+  //     enrollmentId: 0,
+  //     grades: []
+  //   }
+  // });
 
   const { fields, replace } = useFieldArray({
     control: form.control,
@@ -200,6 +216,19 @@ export default function ResultForm({
 
   const hasExistingResult =
     existingResultData?.success && existingResultData.data;
+
+  useEffect(() => {
+    if (subjects.length > 0) {
+      const newSchema = createResultSchemaWithSubjects(subjects);
+      setDynamicSchema(newSchema);
+
+      // Get current form values
+      const currentValues = form.getValues();
+
+      // Recreate form with new schema
+      form.reset(currentValues);
+    }
+  }, [subjects, form]);
 
   // Auto-selection effects
   useEffect(() => {
@@ -386,8 +415,7 @@ export default function ResultForm({
         ? parseFloat(assignMarkValue) || 0
         : assignMarkValue || 0;
 
-    const finalMark =
-      examMark * subject.examWeight + assignMark * subject.assignWeight;
+    const finalMark = examMark * subject.examWeight + assignMark;
     return finalMark.toFixed(2);
   };
 
@@ -631,9 +659,9 @@ export default function ResultForm({
                                 <Input
                                   type='number'
                                   min='0'
-                                  max='100'
+                                  max={subject.assignWeight * 100}
                                   step='0.01'
-                                  placeholder='0-100'
+                                  placeholder={`0-${subject.assignWeight * 100}`}
                                   {...field}
                                   onChange={(e) =>
                                     field.onChange(e.target.value)
