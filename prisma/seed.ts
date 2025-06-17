@@ -315,28 +315,28 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'admin@ucsh.edu.mm',
-      hashedPassword: adminPassword
-      // accounts: {
-      //   create: {
-      //     type: 'credentials',
-      //     provider: 'credentials',
-      //     providerAccountId: 'admin'
-      //   }
-      // }
+      hashedPassword: adminPassword,
+      accounts: {
+        create: {
+          type: 'credentials',
+          provider: 'credentials',
+          providerAccountId: 'admin'
+        }
+      }
     }
   });
 
   await prisma.user.create({
     data: {
       email: 'student@school.edu',
-      hashedPassword: studentPassword
-      // accounts: {
-      //   create: {
-      //     type: 'credentials',
-      //     provider: 'credentials',
-      //     providerAccountId: 'student'
-      //   }
-      // }
+      hashedPassword: studentPassword,
+      accounts: {
+        create: {
+          type: 'credentials',
+          provider: 'credentials',
+          providerAccountId: 'student'
+        }
+      }
     }
   });
 

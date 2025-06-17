@@ -32,7 +32,7 @@ export function Menu({ isOpen }: MenuProps) {
       <nav className='mt-8 h-full w-full'>
         <ul
           className='flex flex-col min-h-[calc(100vh-48px-36px-16px-32px)]
-            lg:min-h-[calc(100vh-32px-40px-32px)] items-start space-y-1 px-2'
+            lg:min-h-[calc(100vh-32px-40px-32px)] items-start px-2'
         >
           {menuList.map(({ groupLabel, menus }, index) => (
             <li className={cn('w-full', groupLabel ? 'pt-5' : '')} key={index}>
@@ -53,9 +53,8 @@ export function Menu({ isOpen }: MenuProps) {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              ) : (
-                <p className='pb-2'></p>
-              )}
+              ) : // <p className='pb-2'></p>
+              null}
               {menus.map(
                 ({ href, label, icon: Icon, active, submenus }, index) =>
                   !submenus || submenus.length === 0 ? (
@@ -72,7 +71,7 @@ export function Menu({ isOpen }: MenuProps) {
                                   : 'ghost'
                               }
                               className={cn(
-                                'w-full justify-start h-10 mb-1',
+                                'w-full justify-start h-10',
                                 (active === undefined &&
                                   pathname.includes(href)) ||
                                   active

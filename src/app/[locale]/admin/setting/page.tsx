@@ -36,10 +36,11 @@ export default function SettingPage() {
   if (!sidebar) return null;
   const { settings, setSettings } = sidebar;
   return (
-    <ContentLayout title={t('setting')}>
-      <ActiveBreadcrumb path={bredcrumb} />
-
-      <div className='space-y-6 mt-5'>
+    <ContentLayout
+      title={t('setting')}
+      breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
+    >
+      <div className='space-y-6'>
         <div>
           <h5 className='text-md font-medium'>Theme</h5>
           <p className='text-sm text-muted-foreground'>
@@ -47,6 +48,7 @@ export default function SettingPage() {
           </p>
         </div>
         <ThemeSelector />
+
         <Separator />
         <div>
           <h5 className='text-md font-medium'>Sidebar</h5>

@@ -76,7 +76,7 @@ export function CollapseMenuButton({
               </span>
               <p
                 className={cn(
-                  'max-w-[150px] truncate',
+                  'max-w-[150px] truncate ml-2',
                   isOpen
                     ? 'translate-x-0 opacity-100'
                     : '-translate-x-96 opacity-0'
@@ -114,7 +114,7 @@ export function CollapseMenuButton({
                 : 'ghost'
             }
             className={cn(
-              'w-full justify-start h-10 mb-1 borderl',
+              'w-full justify-start h-10 borderl',
               (active === undefined && pathname.includes(href)) || active
                 ? 'bg-primary text-primary-foreground hover:bg-primary'
                 : 'ghost'
@@ -158,7 +158,7 @@ export function CollapseMenuButton({
                     <p
                       className={cn(
                         'max-w-[200px] truncate',
-                        isOpen === false ? 'opacity-0' : 'opacity-100'
+                        isOpen === false ? 'opacity-0' : 'opacity-100 '
                       )}
                     >
                       {label}

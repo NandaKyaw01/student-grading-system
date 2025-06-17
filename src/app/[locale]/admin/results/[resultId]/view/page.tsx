@@ -105,7 +105,7 @@ export default async function ViewResultPage({ params }: PageProps) {
       <div className='max-w-6xl mx-auto space-y-6'>
         {/* Header */}
         <div className='text-center space-y-2'>
-          <h1 className='text-3xl font-bold text-foreground'>Student Result</h1>
+          <h1 className='text-3xl font-bold text-foreground'>Exam Result</h1>
           <p className='text-muted-foreground'>
             View academic performance and semester results
           </p>
@@ -136,7 +136,9 @@ export default async function ViewResultPage({ params }: PageProps) {
                   <div>
                     <p className='text-sm text-muted-foreground'>Class</p>
                     <p className='font-medium text-foreground'>
-                      {resultData.enrollment.class}
+                      {`${resultData.enrollment.class} (${
+                        resultData.enrollment.departmentCode
+                      })`}
                     </p>
                   </div>
                 </div>
