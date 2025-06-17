@@ -1,17 +1,58 @@
 {
-    "LocaleLayout": {
-        "title": "SmartGrade UCSH",
-        "description": "Simplifying Student Grading & Evaluation System at University of Computer Studies, Hinthada"
+  "LocaleLayout": {
+    "title": "SmartGrade UCSH",
+    "description": "Simplifying Student Grading & Evaluation System at University of Computer Studies, Hinthada"
+  },
+  "LocaleSwitcher": {
+    "label": "Change language",
+    "locale": "{locale, select, mm {🇲🇲 Myanmar} en {🇺🇸 English} other {Unknown}}"
+  },
+  "HomePage": {
+    "title": "Simplifying Student Grading & Evaluation System at University of Computer Studies, Hinthada",
+    "subtitle": "SmartGrade UCSH is an intuitive and secure grading system designed for the University of Computer Studies, Hinthada. It streamlines grade entry, management, and reporting for faculty while offering students real-time access to their academic performance. Built for accuracy, efficiency, and transparency, SmartGrade UCSH empowers both educators and learners with a smarter way to handle results.",
+    "search": "Search",
+    "dashboard": "Dashboard",
+    "footer": "© 2025 UCSH. All rights reserved. The source code is available on"
+  },
+  "SideBar": {
+    "dashboard": "Dashboard",
+    "grades": "Grades",
+    "students": "Students",
+    "academic": "Academic",
+    "SubAcademic": {
+      "academic_year": "Academic Years",
+      "classes": "Classes",
+      "subjects": "Subjects",
+      "class_subjects": "Class Subjects"
     },
-    "LocaleSwitcher": {
-        "label": "Change language",
-        "locale": "{locale, select, mm {🇲🇲 Myanmar} en {🇺🇸 English} other {Unknown}}"
-    },
-    "HomePage": {
-        "title": "Simplifying Student Grading & Evaluation System at University of Computer Studies, Hinthada",
-        "subtitle": "SmartGrade UCSH is an intuitive and secure grading system designed for the University of Computer Studies, Hinthada. It streamlines grade entry, management, and reporting for faculty while offering students real-time access to their academic performance. Built for accuracy, efficiency, and transparency, SmartGrade UCSH empowers both educators and learners with a smarter way to handle results.",
-        "search": "Search",
-        "dashboard": "Dashboard",
-        "footer": "© 2025 UCSH. All rights reserved. The source code is available on"
-    }
+    "GPAsetting": "GPA Setting",
+    "account": "Account",
+    "setting": "Setting",
+    "sign_out": "Sign Out"
+  },
+  "AdminNavBarTitle": {
+    "dashboard": "Dashboard",
+    "grades": "Grades",
+    "students": "Students",
+    "academic_year": "Academic Years",
+    "classes": "Classes",
+    "subjects": "Subjects",
+    "class_subjects": "Class Subjects",
+    "GPAsetting": "GPA Setting",
+    "account": "Account",
+    "setting": "Setting"
+  },
+  "UserNav": {
+    "dashboard": "Dashboard",
+    "account": "Account",
+    "sign_out": "Sign Out"
+  },
+  "LoginForm": {
+    "title": "University of Computer Studies, Hinthada",
+    "subtitle": "Login to your account",
+    "description": "Enter your credentials below to login to your account",
+    "email": "Email",
+    "password": "Password",
+    "login": "Login"
+  }
 }

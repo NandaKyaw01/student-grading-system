@@ -1,14 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
+import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -21,27 +14,33 @@ import { useSidebar } from '@/hooks/use-sidebar';
 import { useStore } from '@/hooks/use-store';
 import { Separator } from '@/components/ui/separator';
 import { ThemeSelector } from '@/components/theme-selector';
+import { useTranslations } from 'next-intl';
 
+type BreadcrumbProps = {
+  name: string;
+  link: string;
+};
+const bredcrumb: BreadcrumbProps[] = [
+  {
+    name: 'Home',
+    link: '/'
+  },
+  {
+    name: 'Setting',
+    link: ''
+  }
+];
 export default function SettingPage() {
+  const t = useTranslations('AdminNavBarTitle');
   const sidebar = useStore(useSidebar, (x) => x);
   if (!sidebar) return null;
   const { settings, setSettings } = sidebar;
   return (
-    <ContentLayout title='Setting'>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href='/'>Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Setting</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className='space-y-6 mt-5'>
+    <ContentLayout
+      title={t('setting')}
+      breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
+    >
+      <div className='space-y-6'>
         <div>
           <h5 className='text-md font-medium'>Theme</h5>
           <p className='text-sm text-muted-foreground'>
@@ -49,6 +48,7 @@ export default function SettingPage() {
           </p>
         </div>
         <ThemeSelector />
+
         <Separator />
         <div>
           <h5 className='text-md font-medium'>Sidebar</h5>

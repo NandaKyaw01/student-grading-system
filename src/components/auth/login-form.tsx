@@ -9,13 +9,29 @@ import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LoginFormInput, loginSchema } from '@/lib/zod-schemas/login-schema';
 import { LoadingSpinner } from '../loading-spinner';
+import { useTranslations } from 'next-intl';
+import { z } from 'zod';
+
+export const loginSchema = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
+    .min(1, 'Email is required')
+    .email('Invalid email'),
+  password: z
+    .string({ required_error: 'Password is required' })
+    .min(1, 'Password is required')
+    .min(5, 'Password must be more than 5 characters')
+    .max(32, 'Password must be less than 32 characters')
+});
+
+export type LoginFormInput = z.infer<typeof loginSchema>;
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'form'>) {
+  const t = useTranslations('LoginForm');
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const router = useRouter();
@@ -34,10 +50,18 @@ export function LoginForm({
   const onSubmit = async (data: LoginFormInput) => {
     setError('');
     startTransition(async () => {
+      const parsed = loginSchema.safeParse(data);
+
+      if (!parsed.success) {
+        return setError('Invalid email or password');
+      }
+
+      const { email, password } = parsed.data;
+
       const res = await signIn('credentials', {
         redirect: false,
-        email: data.email,
-        password: data.password,
+        email,
+        password,
         callbackUrl
       });
 
@@ -57,14 +81,14 @@ export function LoginForm({
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className='flex flex-col items-center gap-2 text-center'>
-        <h1 className='text-2xl font-bold'>Login to your account</h1>
+        <h1 className='text-2xl font-bold'>{t('subtitle')}</h1>
         <p className='text-balance text-sm text-muted-foreground'>
-          Enter your credentials below to login to your account
+          {t('description')}
         </p>
       </div>
       <div className='grid gap-6'>
         <div className='grid gap-2'>
-          <Label htmlFor='email'>Email</Label>
+          <Label htmlFor='email'>{t('email')}</Label>
           <Input
             id='email'
             type='email'
@@ -77,7 +101,7 @@ export function LoginForm({
         </div>
         <div className='grid gap-2'>
           <div className='flex items-center'>
-            <Label htmlFor='password'>Password</Label>
+            <Label htmlFor='password'>{t('password')}</Label>
           </div>
           <Input id='password' type='password' {...register('password')} />
           {errors.password && (
@@ -91,7 +115,7 @@ export function LoginForm({
               <LoadingSpinner /> {'Logging in...'}
             </>
           ) : (
-            'Login'
+            t('login')
           )}
         </Button>
       </div>

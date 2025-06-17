@@ -1,9 +1,9 @@
-import { loginSchema } from '@/lib/zod-schemas/login-schema';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { NextAuthOptions } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcrypt';
+import { loginSchema } from '@/components/auth/login-form';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -23,12 +23,7 @@ export const authOptions: NextAuthOptions = {
         }
       },
       async authorize(credentials) {
-        const parsed = loginSchema.safeParse(credentials);
-        if (!parsed.success) {
-          return null;
-        }
-
-        const { email, password } = parsed.data;
+        const { email, password } = credentials!;
 
         const user = await prisma.user.findUnique({
           where: { email }

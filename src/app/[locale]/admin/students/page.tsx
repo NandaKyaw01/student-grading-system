@@ -1,29 +1,21 @@
 import Link from 'next/link';
 
+import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
-import { Suspense } from 'react';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
-import { SearchParams } from 'nuqs/server';
+import { buttonVariants } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   studentSearchParamsCache
   // studentSerialize
 } from '@/lib/search-params/student';
-import { getAllStudents } from '@/services/student';
-import { getAllClasses } from '@/services/class';
-import { getAllAcademicYears } from '@/services/academic-year';
-import { StudentDataTable } from './_components/student-data-table';
-import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { getAllStudents } from '@/actions/student';
 import { Plus } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { getTranslations } from 'next-intl/server';
+import { SearchParams } from 'nuqs/server';
+import { Suspense } from 'react';
+import { StudentDataTable } from './_components/student-data-table';
 
 export const metadata = {
   title: 'Admin: Students'
@@ -33,37 +25,34 @@ type pageProps = {
   searchParams: Promise<SearchParams>;
 };
 
+type BreadcrumbProps = {
+  name: string;
+  link: string;
+};
+const bredcrumb: BreadcrumbProps[] = [
+  {
+    name: 'Home',
+    link: '/'
+  },
+  {
+    name: 'Students',
+    link: ''
+  }
+];
 export default async function StudentsPage(props: pageProps) {
+  const t = await getTranslations('AdminNavBarTitle');
   const searchParams = await props.searchParams;
   const search = studentSearchParamsCache.parse(searchParams);
   // const key = studentSerialize({ ...searchParams });
 
-  const promises = Promise.all([
-    getAllStudents({
-      ...search
-    }),
-    getAllClasses(),
-    getAllAcademicYears()
-  ]);
+  const promises = getAllStudents({
+    ...search
+  });
 
   return (
     <ContentLayout
-      title='Students'
-      breadcrumb={
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href='/'>Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Students</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      }
+      title={t('students')}
+      breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>

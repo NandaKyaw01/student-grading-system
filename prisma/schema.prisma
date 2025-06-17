@@ -15,102 +15,156 @@ datasource db {
   directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
-model Student {
-  id             String @id @default(nanoid())
-  name           String
-  rollNumber     String
-  classId        String
-  academicYearId String
+model AcademicYear {
+  id        Int        @id @default(autoincrement())
+  yearRange String     @unique
+  isCurrent Boolean    @default(false)
+  semesters Semester[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
-  class        Class        @relation(fields: [classId], references: [id])
-  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
-  grades       Grade[]
+  @@index([isCurrent])
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Semester {
+  id             Int          @id @default(autoincrement())
+  semesterName   String
+  academicYearId Int
+  isCurrent      Boolean      @default(false)
+  classes        Class[]
+  enrollments    Enrollment[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  @@index([academicYearId])
+  @@index([isCurrent])
+}
+
+enum Code {
+  CS
+  CT
+  CST
 }
 
 model Class {
-  id             String @id @default(nanoid())
-  className      String @unique
-  academicYearId String
+  id             Int            @id @default(autoincrement())
+  className      String
+  departmentCode Code
+  semesterId     Int
+  enrollments    Enrollment[]
+  subjects       ClassSubject[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  semester       Semester       @relation(fields: [semesterId], references: [id])
 
-  academicYear  AcademicYear   @relation(fields: [academicYearId], references: [id])
-  students      Student[]
-  classSubjects ClassSubject[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model AcademicYear {
-  id   String @id @default(nanoid())
-  year String @unique
-
-  classes       Class[]
-  students      Student[]
-  classSubjects ClassSubject[]
-  gpaSettings   GPASetting[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@index([semesterId])
+  @@index([departmentCode])
 }
 
 model Subject {
-  id   String @id @default(nanoid())
-  code String
-  name String
+  id           String         @id
+  subjectName  String
+  creditHours  Float          @default(3.0)
+  examWeight   Float          @default(0.6)
+  assignWeight Float          @default(0.4)
+  classes      ClassSubject[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
-  classSubjects ClassSubject[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@index([subjectName])
 }
 
 model ClassSubject {
-  id                  String @id @default(nanoid())
-  classId             String
-  subjectId           String
-  academicYearId      String
-  gpaPercentageExam   Float // e.g., 60.0
-  gpaPercentageAssign Float // e.g., 40.0
-
-  class        Class        @relation(fields: [classId], references: [id])
-  subject      Subject      @relation(fields: [subjectId], references: [id])
-  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
-  grades       Grade[]
-
+  id        Int      @id @default(autoincrement())
+  classId   Int
+  subjectId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  grades    Grade[]
+  class     Class    @relation(fields: [classId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+
+  @@unique([classId, subjectId])
+}
+
+model Student {
+  id          Int          @id @default(autoincrement())
+  studentName String
+  enrollments Enrollment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([studentName])
+}
+
+model Enrollment {
+  id         Int      @id @default(autoincrement())
+  rollNumber String
+  studentId  Int
+  classId    Int
+  semesterId Int
+  isActive   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  result     Result?
+  grades     Grade[]
+  student    Student  @relation(fields: [studentId], references: [id])
+  class      Class    @relation(fields: [classId], references: [id])
+  semester   Semester @relation(fields: [semesterId], references: [id])
+
+  @@unique([classId, semesterId, rollNumber])
+  @@index([studentId])
+  @@index([classId])
+  @@index([semesterId])
+  @@index([isActive])
 }
 
 model Grade {
-  id              String @id @default(nanoid())
-  studentId       String
-  classSubjectId  String
-  examScore       Float
-  assignmentScore Float
-  totalScore      Float
-  gradeLetter     String
-  gpa             Float
+  id             Int          @id @default(autoincrement())
+  enrollmentId   Int
+  classSubjectId Int
+  examMark       Float
+  assignMark     Float
+  finalMark      Float
+  grade          String
+  score          Float
+  gp             Float
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  enrollment     Enrollment   @relation(fields: [enrollmentId], references: [id])
+  classSubject   ClassSubject @relation(fields: [classSubjectId], references: [id])
 
-  student      Student      @relation(fields: [studentId], references: [id])
-  classSubject ClassSubject @relation(fields: [classSubjectId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@unique([enrollmentId, classSubjectId])
+  @@index([grade])
 }
 
-model GPASetting {
-  id                 String  @id @default(nanoid())
-  academicYearId     String
-  description        String
-  calculationFormula String? // Optional custom logic, e.g., "exam * 0.6 + assignment * 0.4"
-
-  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
-
+model GradeScale {
+  id        Int      @id @default(autoincrement())
+  minMark   Int
+  maxMark   Int
+  grade     String
+  score     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([minMark, grade])
+  @@unique([grade, score])
+  @@index([grade])
+}
+
+model Result {
+  enrollmentId Int        @id // Using enrollmentId as primary key
+  gpa          Float
+  totalCredits Float
+  totalGp      Float
+  rank         Int?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([gpa])
+  @@index([rank])
 }
 
 model User {
@@ -120,11 +174,14 @@ model User {
   emailVerified  DateTime?
   hashedPassword String?
   image          String?
-  accounts       Account[]
-  sessions       Session[]
+
+  accounts Account[]
+  sessions Session[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([email])
 }
 
 model Account {

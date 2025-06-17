@@ -6,14 +6,14 @@ import {
 } from 'nuqs/server';
 
 import { getSortingStateParser } from '@/lib/parsers';
-import { AcademicYear } from '@/types/prisma';
+import { AcademicYear } from '@/generated/prisma';
 
 export const classSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   search: parseAsString,
   sort: getSortingStateParser<AcademicYear>().withDefault([
-    { id: 'year', desc: false }
+    { id: 'yearRange', desc: false }
   ])
 };
 

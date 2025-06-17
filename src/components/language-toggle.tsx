@@ -12,6 +12,12 @@ import { useParams } from 'next/navigation';
 import { useTransition } from 'react';
 import { routing } from '@/i18n/routing';
 import { usePathname, useRouter } from '@/i18n/navigation';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 const LanguageToggle = () => {
   const router = useRouter();
@@ -37,29 +43,42 @@ const LanguageToggle = () => {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant='ghost'>
-          <Languages className='w-5 h-5' />
-          <span className='sr-only'>Toggle language</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align='end' className='min-w-min'>
-        {routing.locales.map((cur) => {
-          return (
-            <DropdownMenuCheckboxItem
-              checked={locale === cur}
-              onClick={() => onSelectChange(cur)}
-              disabled={isPending}
-              className='cursor-pointer'
-              key={cur}
-            >
-              {t('locale', { locale: cur })}
-            </DropdownMenuCheckboxItem>
-          );
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className='inline-block'>
+            <div className='flex items-center gap-2'>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant='ghost'>
+                    <Languages className='w-5 h-5' />
+                    <span className='sr-only'>Toggle language</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end' className='min-w-min'>
+                  {routing.locales.map((cur) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        checked={locale === cur}
+                        onClick={() => onSelectChange(cur)}
+                        disabled={isPending}
+                        className='cursor-pointer'
+                        key={cur}
+                      >
+                        {t('locale', { locale: cur })}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Switch Language.</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

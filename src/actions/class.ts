@@ -1,0 +1,144 @@
+'use server';
+
+import { Class, Prisma } from '@/generated/prisma';
+import { prisma } from '@/lib/db';
+import { revalidateTag, unstable_cache } from 'next/cache';
+
+const classWithDetails = Prisma.validator<Prisma.ClassInclude>()({
+  semester: {
+    include: {
+      academicYear: true
+    }
+  },
+  subjects: true,
+  enrollments: {
+    include: {
+      student: true
+    }
+  }
+});
+
+export type ClassWithDetails = Prisma.ClassGetPayload<{
+  include: typeof classWithDetails;
+}>;
+
+export async function createClass(
+  data: Omit<Class, 'id' | 'createdAt' | 'updatedAt'>
+) {
+  try {
+    const newClass = await prisma.class.create({
+      data: {
+        className: data.className,
+        departmentCode: data.departmentCode,
+        semesterId: data.semesterId
+      }
+    });
+
+    revalidateTag('classes');
+    revalidateTag(`class-${newClass.id}`);
+    return { success: true, data: newClass };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create class'
+    };
+  }
+}
+
+export async function updateClass(
+  id: number,
+  data: Partial<Omit<Class, 'id' | 'createdAt' | 'updatedAt'>>
+) {
+  try {
+    const updatedClass = await prisma.class.update({
+      where: { id },
+      data
+    });
+
+    revalidateTag('classes');
+    revalidateTag(`class-${id}`);
+    return { success: true, data: updatedClass };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update class'
+    };
+  }
+}
+
+export async function deleteClass(id: number) {
+  try {
+    // Check for dependent records
+    const hasDependencies = await prisma.class.findFirst({
+      where: { id },
+      include: {
+        subjects: true,
+        enrollments: true
+      }
+    });
+
+    if (
+      hasDependencies?.subjects.length ||
+      hasDependencies?.enrollments.length
+    ) {
+      throw new Error(
+        'Cannot delete class with existing subjects or enrollments'
+      );
+    }
+
+    await prisma.class.delete({
+      where: { id }
+    });
+
+    revalidateTag('classes');
+    revalidateTag(`class-${id}`);
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete class'
+    };
+  }
+}
+
+export const getClasses = unstable_cache(
+  async (options?: { semesterId?: number; includeDetails?: boolean }) => {
+    try {
+      return await prisma.class.findMany({
+        where: {
+          semesterId: options?.semesterId
+        },
+        include: options?.includeDetails ? classWithDetails : undefined,
+        orderBy: { className: 'asc' }
+      });
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      return [];
+    }
+  },
+  ['classes'],
+  {
+    tags: ['classes'],
+    revalidate: 3600
+  }
+);
+
+export const getClassById = async (id: number) => {
+  return await unstable_cache(
+    async () => {
+      try {
+        return await prisma.class.findUnique({
+          where: { id },
+          include: classWithDetails
+        });
+      } catch (error) {
+        console.error(`Error fetching class ${id}:`, error);
+        return null;
+      }
+    },
+    ['class'],
+    {
+      tags: [`class-${id}`]
+    }
+  )();
+};
