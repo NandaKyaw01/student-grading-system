@@ -120,7 +120,6 @@ export async function getAllStudents(
       try {
         const where: Prisma.StudentWhereInput = {};
         let paginate = true;
-
         if (!input || Object.keys(input).length === 0) {
           paginate = false;
         } else {
@@ -131,14 +130,12 @@ export async function getAllStudents(
               { studentName: { contains: input.id, mode: 'insensitive' } }
             ];
           }
-
           const range = Array.isArray(input.createdAt)
             ? input.createdAt
             : typeof input.createdAt === 'string' &&
                 input.createdAt.includes(',')
               ? input.createdAt.split(',')
               : null;
-
           if (range?.length === 2) {
             const [from, to] = range.map((ts) => new Date(Number(ts)));
             if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {

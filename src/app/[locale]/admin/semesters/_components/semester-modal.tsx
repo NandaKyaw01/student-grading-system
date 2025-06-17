@@ -155,7 +155,7 @@ export function SemesterDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {academicYears.map((year) => (
+                      {academicYears.years.map((year) => (
                         <SelectItem key={year.id} value={year.id.toString()}>
                           {year.yearRange}
                         </SelectItem>

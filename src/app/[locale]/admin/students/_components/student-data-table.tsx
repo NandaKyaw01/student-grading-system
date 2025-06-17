@@ -44,7 +44,6 @@ export function StudentDataTable({ promises }: StudentsTableProps) {
       });
     });
   }, [table]);
-
   return (
     <DataTable table={table} actionBar={<TasksTableActionBar table={table} />}>
       <DataTableToolbar table={table}>

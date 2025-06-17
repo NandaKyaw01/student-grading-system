@@ -4,10 +4,17 @@ import { Button } from '@/components/ui/button';
 import { getAcademicYears } from '@/actions/academic-year';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import { Plus } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { AcademicYearDialog } from './_components/academic-year-modal';
-import AcademicYearsTable from './_components/academic-year-table';
+import AcademicYearsDataTable from './_components/academic-year-data-table';
+import { SearchParams } from 'nuqs';
+import { GetClassSchema } from '@/lib/search-params/academic-year';
+import { classSearchParamsCache } from '@/lib/search-params/academic-year';
+
+type pageProps = {
+  searchParams: Promise<SearchParams>;
+};
 
 type BreadcrumbProps = {
   name: string;
@@ -24,9 +31,11 @@ const bredcrumb: BreadcrumbProps[] = [
   }
 ];
 
-export default function AcademicYearsPage() {
-  const academicYears = getAcademicYears();
-  const t = useTranslations('AdminNavBarTitle');
+export default async function AcademicYearsPage(props: pageProps) {
+  const searchParams = await props.searchParams;
+  const search = classSearchParamsCache.parse(searchParams);
+  const academicYears = getAcademicYears({ ...search });
+  const t = await getTranslations('AdminNavBarTitle');
   return (
     <ContentLayout
       title={t('academic_year')}
@@ -50,7 +59,7 @@ export default function AcademicYearsPage() {
         </div>
         <Separator />
         <Suspense fallback='loading...'>
-          <AcademicYearsTable academicYears={academicYears} />
+          <AcademicYearsDataTable academicYears={academicYears} />
         </Suspense>
       </div>
     </ContentLayout>

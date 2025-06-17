@@ -48,7 +48,8 @@ export default async function StudentsPage(props: pageProps) {
   const promises = getAllStudents({
     ...search
   });
-
+  // console.log('search', search);
+  // promises.then((value) => console.log('parimise: ', value));
   return (
     <ContentLayout
       title={t('students')}
