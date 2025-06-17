@@ -9,6 +9,7 @@ export type ResultData = {
   };
   enrollment: {
     class: string;
+    departmentCode: string;
     semester: string;
     academicYear: string;
   };
@@ -92,6 +93,7 @@ export async function getResultById(
       },
       enrollment: {
         class: result.enrollment.class.className,
+        departmentCode: result.enrollment.class.departmentCode,
         semester: result.enrollment.class.semester.semesterName,
         academicYear: result.enrollment.class.semester.academicYear.yearRange
       },
