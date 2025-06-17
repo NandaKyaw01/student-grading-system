@@ -157,6 +157,7 @@ model Result {
   enrollmentId Int        @id // Using enrollmentId as primary key
   gpa          Float
   totalCredits Float
+  totalGp      Float
   rank         Int?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt

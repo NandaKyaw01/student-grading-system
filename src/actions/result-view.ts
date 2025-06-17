@@ -16,6 +16,7 @@ export type ResultData = {
   result: {
     gpa: number;
     totalCredits: number;
+    totalGp: number;
     rank: number | null;
   };
   grades: Array<{
@@ -100,6 +101,7 @@ export async function getResultById(
       result: {
         gpa: result.gpa,
         totalCredits: result.totalCredits,
+        totalGp: result.totalGp,
         rank: result.rank
       },
       grades: result.enrollment.grades.map((grade) => ({

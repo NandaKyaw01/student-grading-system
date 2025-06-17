@@ -16,7 +16,14 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Trophy, BookOpen, Calendar, User, GraduationCap } from 'lucide-react';
+import {
+  Trophy,
+  BookOpen,
+  Calendar,
+  User,
+  GraduationCap,
+  Award
+} from 'lucide-react';
 import { getResultById, type ResultData } from '@/actions/result-view';
 import { DownloadButton } from '../../_components/download-button';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
@@ -167,7 +174,7 @@ export default async function ViewResultPage({ params }: PageProps) {
           </Card>
 
           {/* Summary Cards */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
             <Card
               className='shadow-lg border-0 bg-gradient-to-br from-green-50 to-emerald-50
                 dark:from-green-950/50 dark:to-emerald-950/50'
@@ -205,6 +212,25 @@ export default async function ViewResultPage({ params }: PageProps) {
                   </div>
                   <div className='p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full'>
                     <BookOpen className='h-6 w-6 text-blue-600 dark:text-blue-400' />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card
+              className='shadow-lg border-0 bg-gradient-to-br from-orange-50 to-amber-50
+                dark:from-orange-950/50 dark:to-amber-950/50'
+            >
+              <CardContent className='pt-6'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-sm text-muted-foreground'>Total GP</p>
+                    <p className='text-3xl font-bold text-orange-600 dark:text-orange-400'>
+                      {resultData.result.totalGp}
+                    </p>
+                  </div>
+                  <div className='p-3 bg-orange-100 dark:bg-orange-900/50 rounded-full'>
+                    <Award className='h-6 w-6 text-orange-600 dark:text-orange-400' />
                   </div>
                 </div>
               </CardContent>
@@ -286,13 +312,13 @@ export default async function ViewResultPage({ params }: PageProps) {
                           {grade.subject.creditHours}
                         </TableCell>
                         <TableCell className='text-center text-foreground'>
-                          {grade.examMark}
+                          {Number(grade.examMark).toFixed(1)}
                         </TableCell>
                         <TableCell className='text-center text-foreground'>
-                          {grade.assignMark}
+                          {Number(grade.assignMark).toFixed(1)}
                         </TableCell>
                         <TableCell className='text-center font-medium text-foreground'>
-                          {grade.finalMark}
+                          {Number(grade.finalMark).toFixed(2)}
                         </TableCell>
                         <TableCell className='text-center'>
                           <Badge className={getGradeColor(grade.grade)}>
@@ -315,6 +341,12 @@ export default async function ViewResultPage({ params }: PageProps) {
                     Overall Summary:
                   </div>
                   <div className='flex gap-8 text-sm'>
+                    <span className='text-muted-foreground'>
+                      Total GP:{' '}
+                      <span className='font-bold text-foreground'>
+                        {resultData.result.totalGp}
+                      </span>
+                    </span>
                     <span className='text-muted-foreground'>
                       Total Credits:{' '}
                       <span className='font-bold text-foreground'>

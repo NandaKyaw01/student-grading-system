@@ -303,7 +303,8 @@ async function main() {
       data: {
         enrollmentId: enrollment.id,
         gpa,
-        totalCredits
+        totalCredits,
+        totalGp: totalGP
       }
     });
   }
