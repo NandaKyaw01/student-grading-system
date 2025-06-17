@@ -38,11 +38,26 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       enableHiding: false,
       size: 40
     },
+    // {
+    //   id: 'no',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title='No.' />
+    //   ),
+    //   cell: ({ row, table }) => {
+    //     const pageIndex = table.getState().pagination.pageIndex;
+    //     const pageSize = table.getState().pagination.pageSize;
+    //     const rowIndex = row.index;
+    //     return pageIndex * pageSize + rowIndex + 1;
+    //   },
+    //   enableSorting: false,
+    //   enableColumnFilter: false,
+    //   size: 60
+    // },
     {
       id: 'enrollmentId',
       accessorKey: 'enrollmentId',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Enrollment ID' />
+        <DataTableColumnHeader column={column} title='ID' />
       ),
       cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
       meta: {
@@ -54,16 +69,16 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       enableSorting: true,
       enableColumnFilter: true
     },
-    {
-      id: 'studentId',
-      accessorFn: (row) => row.enrollment?.studentId,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Student ID' />
-      ),
-      cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
-      enableSorting: true,
-      enableColumnFilter: true
-    },
+    // {
+    //   id: 'studentId',
+    //   accessorFn: (row) => row.enrollment?.studentId,
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title='Student ID' />
+    //   ),
+    //   cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
+    //   enableSorting: true,
+    //   enableColumnFilter: true
+    // },
     {
       id: 'student',
       accessorFn: (row) => row.enrollment?.student?.studentName,
@@ -73,7 +88,8 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
     },
     {
       id: 'class',
-      accessorFn: (row) => row.enrollment?.class?.className,
+      accessorFn: (row) =>
+        `${row.enrollment?.class?.className} (${row.enrollment?.class?.departmentCode})`,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Class' />
       )
@@ -94,15 +110,14 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       ),
       cell: ({ cell }) => cell.getValue<number>().toFixed(2)
     },
-    {
-      id: 'totalCredits',
-      accessorKey: 'totalCredits',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Total Credits' />
-      ),
-      cell: ({ cell }) => cell.getValue<number>().toFixed(1)
-    },
-
+    // {
+    //   id: 'totalCredits',
+    //   accessorKey: 'totalCredits',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title='Total Credits' />
+    //   ),
+    //   cell: ({ cell }) => cell.getValue<number>().toFixed(1)
+    // },
     {
       id: 'createdAt',
       accessorKey: 'createdAt',

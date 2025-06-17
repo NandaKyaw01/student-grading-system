@@ -547,7 +547,8 @@ export async function createResult(data: CreateResultFormData) {
         data: {
           enrollmentId: validatedData.enrollmentId,
           gpa: Math.round(gpa * 100) / 100,
-          totalCredits
+          totalCredits,
+          totalGp: totalGradePoints
         }
       });
 
@@ -737,11 +738,13 @@ export async function updateResult(input: UpdateResultFormData) {
         update: {
           gpa: Math.round(gpa * 100) / 100,
           totalCredits: totalCreditHours,
+          totalGp: totalGradePoints,
           updatedAt: new Date()
         },
         create: {
           enrollmentId,
           gpa: Math.round(gpa * 100) / 100,
+          totalGp: totalGradePoints,
           totalCredits: totalCreditHours
         }
       });
