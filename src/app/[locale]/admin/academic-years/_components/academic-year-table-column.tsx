@@ -4,15 +4,17 @@ import { AcademicYear } from '@/generated/prisma';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { AcademicYearCellAction } from './academic-year-cell-action';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export function getAcademicYearColumns(): ColumnDef<AcademicYear>[] {
   return [
     {
-      id: 'No.',
+      id: 'id',
       accessorKey: 'id',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='No.' />
-      )
+      ),
+      enableSorting: true
     },
     {
       id: 'yearRange',
