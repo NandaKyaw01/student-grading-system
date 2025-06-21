@@ -28,11 +28,16 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { createSemester, updateSemester } from '@/actions/semester';
+import {
+  createSemester,
+  SemesterWithDetails,
+  updateSemester
+} from '@/actions/semester';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { getAcademicYears } from '@/actions/academic-year';
 import { use } from 'react';
+import { AcademicYear } from '@/generated/prisma';
 
 const semesterFormSchema = z.object({
   semesterName: z.string().min(1, {
@@ -48,13 +53,7 @@ type SemesterFormValues = z.infer<typeof semesterFormSchema>;
 
 interface SemesterDialogProps {
   mode?: 'new' | 'edit';
-  semester?: {
-    id: number;
-    semesterName: string;
-    academicYearId: number;
-    isCurrent: boolean;
-  };
-  academicYear: Promise<Awaited<ReturnType<typeof getAcademicYears>>>;
+  semester?: SemesterWithDetails;
   onSuccess?: () => void;
   children?: React.ReactNode;
 }
@@ -62,12 +61,19 @@ interface SemesterDialogProps {
 export function SemesterDialog({
   mode = 'new',
   semester,
-  academicYear,
   onSuccess,
   children
 }: SemesterDialogProps) {
   const [open, setOpen] = useState(false);
-  const academicYears = use(academicYear);
+  const [isPending, startTransition] = useTransition();
+  const [academicYears, setAcademicYears] = useState<AcademicYear[] | []>([]);
+
+  useEffect(() => {
+    startTransition(async () => {
+      const { years } = await getAcademicYears();
+      setAcademicYears(years);
+    });
+  }, []);
 
   const defaultValues: Partial<SemesterFormValues> = {
     semesterName: semester?.semesterName || '',
@@ -155,7 +161,7 @@ export function SemesterDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {academicYears.years.map((year) => (
+                      {academicYears.map((year) => (
                         <SelectItem key={year.id} value={year.id.toString()}>
                           {year.yearRange}
                         </SelectItem>

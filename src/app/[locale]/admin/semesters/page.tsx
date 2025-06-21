@@ -4,12 +4,17 @@ import { Button } from '@/components/ui/button';
 import { getSemesters } from '@/actions/semester';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import { Plus } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { Suspense } from 'react';
+import { getTranslations } from 'next-intl/server';
+import { Suspense, use } from 'react';
 import { SemesterDialog } from './_components/semester-modal';
 import SemestersTable from './_components/semester-table';
 import { getAcademicYears } from '@/actions/academic-year';
+import { SearchParams } from 'nuqs';
+import { semesterSearchParamsCache } from '@/lib/search-params/semester';
 
+type pageProps = {
+  searchParams: Promise<SearchParams>;
+};
 type BreadcrumbProps = {
   name: string;
   link: string;
@@ -25,10 +30,12 @@ const breadcrumb: BreadcrumbProps[] = [
   }
 ];
 
-export default function SemestersPage() {
-  const semesters = getSemesters({ includeDetails: true });
+export default async function SemestersPage(props: pageProps) {
+  const searchParams = await props.searchParams;
+  const search = semesterSearchParamsCache.parse(searchParams);
+  const semesters = getSemesters({ ...search }, { includeDetails: true });
   const academicYears = getAcademicYears();
-  //   const t = useTranslations("AdminNavBarTitle");
+  const t = await getTranslations('AdminNavBarTitle');
 
   return (
     <ContentLayout
@@ -43,11 +50,11 @@ export default function SemestersPage() {
               Manage semesters (Server side table functionalities.)
             </p>
           </div>
-          <SemesterDialog academicYear={academicYears}>
+          {/* <SemesterDialog semester={semester}>
             <Button className='text-xs md:text-sm'>
               <Plus className='mr-2 h-4 w-4' /> Add New Semester
             </Button>
-          </SemesterDialog>
+          </SemesterDialog> */}
         </div>
         <Separator />
         <Suspense fallback='loading...'>

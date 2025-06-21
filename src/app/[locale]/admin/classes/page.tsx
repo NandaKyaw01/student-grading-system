@@ -27,7 +27,7 @@ const breadcrumb: BreadcrumbProps[] = [
 
 export default function ClassesPage() {
   const classes = getClasses({ includeDetails: true });
-  const semesters = getSemesters({ includeDetails: true });
+  const semesters = getSemesters(undefined, { includeDetails: true });
   const t = useTranslations('AdminNavBarTitle');
 
   return (
@@ -43,7 +43,7 @@ export default function ClassesPage() {
               Manage classes (Server side table functionalities.)
             </p>
           </div>
-          <ClassDialog semester={semesters}>
+          <ClassDialog semesters={semesters}>
             <Button className='text-xs md:text-sm'>
               <Plus className='mr-2 h-4 w-4' /> Add New Class
             </Button>

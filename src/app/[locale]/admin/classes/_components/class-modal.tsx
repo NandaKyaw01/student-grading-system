@@ -58,7 +58,7 @@ type ClassFormValues = z.infer<typeof classFormSchema>;
 interface ClassDialogProps {
   mode?: 'new' | 'edit';
   classData?: ClassWithDetails;
-  semester: Promise<Awaited<ReturnType<typeof getSemesters>>>;
+  semesters: Promise<Awaited<ReturnType<typeof getSemesters>>>;
   onSuccess?: () => void;
   children?: React.ReactNode;
 }
@@ -66,12 +66,13 @@ interface ClassDialogProps {
 export function ClassDialog({
   mode = 'new',
   classData,
-  semester,
+  semesters,
   onSuccess,
   children
 }: ClassDialogProps) {
   const [open, setOpen] = useState(false);
-  const semesters = use(semester) as SemesterWithDetails[];
+  const { semester, pageCount } = use(semesters);
+  // const { semester, pageCount } = use(semesters);
 
   const defaultValues: Partial<ClassFormValues> = {
     className: classData?.className || '',
@@ -187,7 +188,7 @@ export function ClassDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {semesters.map((semester) => (
+                      {semester.map((semester) => (
                         <SelectItem
                           key={semester.id}
                           value={semester.id.toString()}

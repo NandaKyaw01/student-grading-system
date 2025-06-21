@@ -2,7 +2,9 @@
 
 import { Prisma, Semester } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
+import { GetSemesterSchema } from '@/lib/search-params/semester';
 import { revalidateTag, unstable_cache } from 'next/cache';
+import { unknown } from 'zod';
 
 const semesterWithDetails = Prisma.validator<Prisma.SemesterInclude>()({
   academicYear: true,
@@ -127,32 +129,72 @@ export async function setCurrentSemester(id: number) {
   }
 }
 
-export const getSemesters = unstable_cache(
-  async (options?: {
+export async function getSemesters(
+  input?: GetSemesterSchema,
+  options?: {
     academicYearId?: number;
     currentOnly?: boolean;
     includeDetails?: boolean;
-  }) => {
-    try {
-      return await prisma.semester.findMany({
-        where: {
-          academicYearId: options?.academicYearId,
-          isCurrent: options?.currentOnly ? true : undefined
-        },
-        include: options?.includeDetails ? semesterWithDetails : undefined,
-        orderBy: { semesterName: 'asc' }
-      });
-    } catch (error) {
-      console.error('Error fetching semesters:', error);
-      return [];
-    }
-  },
-  ['semesters'],
-  {
-    tags: ['semesters'],
-    revalidate: 3600 // 1 hour cache
   }
-);
+) {
+  return await unstable_cache(
+    async () => {
+      try {
+        const where: Prisma.SemesterWhereInput = {};
+        let paginate = true;
+        if (!input || Object.keys(input).length === 0) {
+          paginate = false;
+        } else {
+          if (input.search?.trim()) {
+            where.OR = [
+              { id: { equals: parseInt(input.search) || undefined } }
+            ];
+          }
+        }
+        const orderBy =
+          input?.sort && input.sort.length > 0
+            ? input.sort.map((item) => ({
+                [item.id]: item.desc ? 'desc' : 'asc'
+              }))
+            : [{ createdAt: 'desc' }];
+        const page = input?.page ?? 1;
+        const limit = input?.perPage ?? 10;
+        const offset = (page - 1) * limit;
+        const [semester, totalCount] = await prisma.$transaction([
+          prisma.semester.findMany({
+            where: {
+              academicYearId: options?.academicYearId,
+              isCurrent: options?.currentOnly ? true : undefined
+            },
+            include: options?.includeDetails ? semesterWithDetails : undefined,
+
+            orderBy,
+            ...(paginate ? { skip: offset, take: limit } : {})
+          }),
+          prisma.semester.count({ where })
+        ]);
+
+        const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+        const typedSemester = semester as SemesterWithDetails[];
+        return {
+          semester: typedSemester,
+          pageCount
+        };
+      } catch (error) {
+        console.error('Error fetching semesters:', error);
+        return {
+          semester: [],
+          pageCount: 0
+        };
+      }
+    },
+    [JSON.stringify(input ?? {})],
+    {
+      tags: ['semesters'],
+      revalidate: 3600 // 1 hour cache
+    }
+  )();
+}
 
 export const getSemesterById = async (id: number) => {
   return await unstable_cache(
