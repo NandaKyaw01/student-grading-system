@@ -14,9 +14,7 @@ export const resultSearchParams = {
   perPage: parseAsInteger.withDefault(10),
   enrollmentId: parseAsString.withDefault(''),
   createdAt: parseAsString.withDefault(''),
-  sort: getSortingStateParser<Result>().withDefault([
-    { id: 'createdAt', desc: true }
-  ])
+  sort: getSortingStateParser<Result>()
 };
 
 export const resultSearchParamsCache =

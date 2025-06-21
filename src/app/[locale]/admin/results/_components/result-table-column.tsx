@@ -133,13 +133,6 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       enableColumnFilter: true
     },
     {
-      id: 'rank',
-      accessorKey: 'rank',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Rank' />
-      )
-    },
-    {
       id: 'actions',
       cell: ({ row }) => (
         <div className='flex justify-center gap-2 items-center'>

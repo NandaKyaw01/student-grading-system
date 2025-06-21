@@ -163,10 +163,12 @@ export async function getAllResults<T extends boolean = false>(
 
         const orderBy =
           input?.sort && input.sort.length > 0
-            ? input.sort.map((item) => ({
-                [item.id]: item.desc ? 'desc' : 'asc'
-              }))
-            : [{ createdAt: 'desc' }];
+            ? [
+                ...input.sort.map((item) => ({
+                  [item.id]: item.desc ? 'desc' : 'asc'
+                }))
+              ]
+            : [{ createdAt: 'desc' }, { enrollmentId: 'desc' }];
 
         const page = input?.page ?? 1;
         const limit = input?.perPage ?? 10;
@@ -752,9 +754,6 @@ export async function updateResult(input: UpdateResultFormData) {
       return result;
     });
 
-    // Update rank (optional - can be done in a separate process)
-    // await updateResultRanks(semesterId);
-
     // Revalidate relevant paths
     revalidateTag('results');
     revalidateTag('result');
@@ -779,36 +778,6 @@ export async function updateResult(input: UpdateResultFormData) {
       success: false,
       error: 'Failed to update result'
     };
-  }
-}
-
-// Helper function to update ranks after result changes
-async function updateResultRanks(semesterId: number) {
-  try {
-    // Get all results for the semester, ordered by GPA
-    const results = await prisma.result.findMany({
-      where: {
-        enrollment: {
-          semesterId
-        }
-      },
-      orderBy: {
-        gpa: 'desc'
-      }
-    });
-
-    // Update ranks
-    const updatePromises = results.map((result, index) =>
-      prisma.result.update({
-        where: { enrollmentId: result.enrollmentId },
-        data: { rank: index + 1 }
-      })
-    );
-
-    await Promise.all(updatePromises);
-  } catch (error) {
-    console.error('Error updating ranks:', error);
-    // Don't throw error here as it's not critical for the main operation
   }
 }
 

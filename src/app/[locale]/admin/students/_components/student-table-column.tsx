@@ -60,6 +60,13 @@ export function getStudentColumns(): ColumnDef<Student>[] {
       )
     },
     {
+      id: 'admissionId',
+      accessorKey: 'admissionId',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Admission ID' />
+      )
+    },
+    {
       id: 'createdAt',
       accessorKey: 'createdAt',
       header: ({ column }) => (

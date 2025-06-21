@@ -247,7 +247,7 @@ export default async function ViewResultPage({ params }: PageProps) {
               </CardContent>
             </Card>
 
-            <Card
+            {/* <Card
               className='shadow-lg border-0 bg-gradient-to-br from-purple-50 to-pink-50
                 dark:from-purple-950/50 dark:to-pink-950/50'
             >
@@ -271,7 +271,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
 
           {/* Grades Table */}
@@ -447,14 +447,14 @@ export default async function ViewResultPage({ params }: PageProps) {
                         {resultData.result.gpa.toFixed(2)}
                       </span>
                     </span>
-                    <span className='text-muted-foreground'>
+                    {/* <span className='text-muted-foreground'>
                       Rank:{' '}
                       <span className='font-bold text-foreground'>
                         {resultData.result.rank
                           ? `#${resultData.result.rank}`
                           : 'N/A'}
                       </span>
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </div>

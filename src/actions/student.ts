@@ -21,7 +21,8 @@ export async function createStudent(
   try {
     const student = await prisma.student.create({
       data: {
-        studentName: input.studentName
+        studentName: input.studentName,
+        admissionId: input.admissionId
       }
     });
 
@@ -46,7 +47,8 @@ export async function updateStudent(
     const student = await prisma.student.update({
       where: { id: input.id },
       data: {
-        studentName: input.studentName
+        studentName: input.studentName,
+        admissionId: input.admissionId
       }
     });
 
