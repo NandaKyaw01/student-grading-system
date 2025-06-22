@@ -12,9 +12,9 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -26,7 +26,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { useState } from 'react';
+import { Loader } from 'lucide-react';
+import { useTransition } from 'react';
 import { toast } from 'sonner';
 
 // Schema for form validation
@@ -46,17 +47,17 @@ interface AcademicYearDialogProps {
     yearRange: string;
     isCurrent: boolean;
   };
-  onSuccess?: () => void;
-  children?: React.ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function AcademicYearDialog({
   mode = 'new',
   academicYear,
-  onSuccess,
-  children
+  isOpen,
+  onClose
 }: AcademicYearDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const defaultValues: Partial<AcademicYearFormValues> = {
     yearRange: academicYear?.yearRange || '',
@@ -68,46 +69,41 @@ export function AcademicYearDialog({
     defaultValues
   });
 
-  async function onSubmit(data: AcademicYearFormValues) {
-    try {
-      if (mode === 'new') {
-        await createAcademicYear({
-          yearRange: data.yearRange,
-          isCurrent: data.isCurrent
+  const onSubmit = (data: AcademicYearFormValues) => {
+    startTransition(async () => {
+      try {
+        if (mode === 'new') {
+          await createAcademicYear({
+            yearRange: data.yearRange,
+            isCurrent: data.isCurrent
+          });
+        } else if (academicYear?.id) {
+          await updateAcademicYear(academicYear.id, {
+            yearRange: data.yearRange,
+            isCurrent: data.isCurrent
+          });
+        }
+
+        toast.success('Success', {
+          description: `Academic year ${mode === 'new' ? 'created' : 'updated'} successfully.`
         });
-      } else if (academicYear?.id) {
-        await updateAcademicYear(academicYear.id, {
-          yearRange: data.yearRange,
-          isCurrent: data.isCurrent
+
+        form.reset();
+        setTimeout(onClose, 300);
+      } catch (error) {
+        toast.error('Error', {
+          description:
+            error instanceof Error ? error.message : 'An error occurred'
         });
       }
+    });
+  };
 
-      toast.success('Success', {
-        description: `Academic year ${mode === 'new' ? 'created' : 'updated'} successfully.`
-      });
-
-      setOpen(false);
-
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error ? error.message : 'An error occurred'
-      });
-    }
-  }
+  // Don't render anything if not open
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button variant={mode === 'new' ? 'default' : 'outline'}>
-            {mode === 'new' ? 'Add Academic Year' : 'Edit'}
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>
@@ -150,10 +146,25 @@ export function AcademicYearDialog({
                 </FormItem>
               )}
             />
-
-            <Button type='submit'>
-              {mode === 'new' ? 'Create Academic Year' : 'Save Changes'}
-            </Button>
+            <DialogFooter>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onClose}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' disabled={isPending}>
+                {isPending && (
+                  <Loader
+                    className='mr-2 size-4 animate-spin'
+                    aria-hidden='true'
+                  />
+                )}
+                {mode === 'new' ? 'Create Academic Year' : 'Save Changes'}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

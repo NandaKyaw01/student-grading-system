@@ -4,48 +4,76 @@ import { AcademicYear, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetAcademicYearSchema } from '@/lib/search-params/class';
 import { revalidateTag, unstable_cache } from 'next/cache';
-import { off } from 'process';
 
 export async function createAcademicYear(
   data: Omit<AcademicYear, 'id' | 'createdAt' | 'updatedAt'>
 ) {
-  // If setting as current, first unset any existing current academic year
-  if (data.isCurrent) {
-    await prisma.academicYear.updateMany({
-      where: { isCurrent: true },
-      data: { isCurrent: false }
+  try {
+    // First check if there are any dependent records
+    const hasYear = await prisma.academicYear.findUnique({
+      where: { yearRange: data.yearRange }
     });
+
+    if (hasYear) {
+      throw new Error('Duplicate academic year');
+    }
+    // If setting as current, first unset any existing current academic year
+    if (data.isCurrent) {
+      await prisma.academicYear.updateMany({
+        where: { isCurrent: true },
+        data: { isCurrent: false }
+      });
+    }
+
+    const academicYear = await prisma.academicYear.create({
+      data
+    });
+
+    revalidateTag('academic-years');
+
+    return { success: true, data: academicYear };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to create academic year'
+    };
   }
-
-  const academicYear = await prisma.academicYear.create({
-    data
-  });
-
-  revalidateTag('academic-years');
-  revalidateTag(`academic-years-${academicYear.id}`);
-  return academicYear;
 }
 
 export async function updateAcademicYear(
   id: number,
   data: Partial<Omit<AcademicYear, 'id'>>
 ) {
-  // If setting as current, first unset any existing current academic year
-  if (data.isCurrent) {
-    await prisma.academicYear.updateMany({
-      where: { isCurrent: true },
-      data: { isCurrent: false }
+  try {
+    // If setting as current, first unset any existing current academic year
+    if (data.isCurrent) {
+      await prisma.academicYear.updateMany({
+        where: { isCurrent: true },
+        data: { isCurrent: false }
+      });
+    }
+
+    const academicYear = await prisma.academicYear.update({
+      where: { id },
+      data
     });
+
+    revalidateTag('academic-years');
+    revalidateTag(`academic-years-${id}`);
+
+    return { success: true, data: academicYear };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to update academic year'
+    };
   }
-
-  const academicYear = await prisma.academicYear.update({
-    where: { id },
-    data
-  });
-
-  revalidateTag('academic-years');
-  revalidateTag(`academic-years-${academicYear.id}`);
-  return academicYear;
 }
 
 export async function deleteAcademicYear(id: number) {
@@ -69,7 +97,6 @@ export async function deleteAcademicYear(id: number) {
     });
 
     revalidateTag('academic-years');
-    revalidateTag(`academic-years-${id}`);
     return { success: true };
   } catch (error) {
     return {
@@ -127,7 +154,7 @@ export async function getAcademicYears(
                 [item.id]: item.desc ? 'desc' : 'asc'
               }))
             : [{ createdAt: 'desc' }];
-        console.log(input);
+
         const page = input?.page ?? 1;
         const limit = input?.perPage ?? 10;
         const offset = (page - 1) * limit;
@@ -159,7 +186,7 @@ export async function getAcademicYears(
     [JSON.stringify(input ?? {})],
     {
       tags: ['academic-years'],
-      revalidate: 1 // 1 hour cache
+      revalidate: 3600 // 1 hour cache
     }
   )();
 }

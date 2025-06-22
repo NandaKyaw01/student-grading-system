@@ -1,16 +1,13 @@
+import { getAcademicYears } from '@/actions/academic-year';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
-import { Button } from '@/components/ui/button';
-import { getAcademicYears } from '@/actions/academic-year';
-import { Separator } from '@radix-ui/react-dropdown-menu';
-import { Plus } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
-import { Suspense } from 'react';
-import { AcademicYearDialog } from './_components/academic-year-modal';
-import AcademicYearsDataTable from './_components/academic-year-data-table';
-import { SearchParams } from 'nuqs';
-import { GetClassSchema } from '@/lib/search-params/academic-year';
 import { classSearchParamsCache } from '@/lib/search-params/academic-year';
+import { getTranslations } from 'next-intl/server';
+import { SearchParams } from 'nuqs';
+import { Suspense } from 'react';
+import { AcademicYearCreateButton } from './_components/academic-year-create-button';
+import AcademicYearsDataTable from './_components/academic-year-data-table';
+import { Separator } from '@/components/ui/separator';
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
@@ -51,11 +48,7 @@ export default async function AcademicYearsPage(props: pageProps) {
               Manage years (Server side table functionalities.)
             </p>
           </div>
-          <AcademicYearDialog>
-            <Button className='text-xs md:text-sm'>
-              <Plus className='mr-2 h-4 w-4' /> Add New
-            </Button>
-          </AcademicYearDialog>
+          <AcademicYearCreateButton />
         </div>
         <Separator />
         <Suspense fallback='loading...'>

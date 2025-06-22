@@ -4,8 +4,13 @@ import { DataTableColumnHeader } from '@/components/data-table/data-table-column
 import { ColumnDef } from '@tanstack/react-table';
 import { SemesterCellAction } from './semester-cell-action';
 import { Badge } from '@/components/ui/badge';
+import { getAcademicYears } from '@/actions/academic-year';
 
-export function getSemesterColumns(): ColumnDef<SemesterWithDetails>[] {
+export function getSemesterColumns({
+  academicYear
+}: {
+  academicYear: Promise<Awaited<ReturnType<typeof getAcademicYears>>>;
+}): ColumnDef<SemesterWithDetails>[] {
   return [
     {
       id: 'id',
@@ -44,7 +49,9 @@ export function getSemesterColumns(): ColumnDef<SemesterWithDetails>[] {
     },
     {
       id: 'actions',
-      cell: ({ row }) => <SemesterCellAction data={row.original} />,
+      cell: ({ row }) => (
+        <SemesterCellAction data={row.original} academicYear={academicYear} />
+      ),
       size: 40
     }
   ];

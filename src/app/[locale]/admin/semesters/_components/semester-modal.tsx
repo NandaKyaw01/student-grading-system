@@ -34,9 +34,15 @@ import {
   updateSemester
 } from '@/actions/semester';
 import { toast } from 'sonner';
-import { useEffect, useState, useTransition } from 'react';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback,
+  useMemo,
+  use
+} from 'react';
 import { getAcademicYears } from '@/actions/academic-year';
-import { use } from 'react';
 import { AcademicYear } from '@/generated/prisma';
 
 const semesterFormSchema = z.object({
@@ -54,6 +60,7 @@ type SemesterFormValues = z.infer<typeof semesterFormSchema>;
 interface SemesterDialogProps {
   mode?: 'new' | 'edit';
   semester?: SemesterWithDetails;
+  academicYear: Promise<Awaited<ReturnType<typeof getAcademicYears>>>;
   onSuccess?: () => void;
   children?: React.ReactNode;
 }
@@ -61,58 +68,66 @@ interface SemesterDialogProps {
 export function SemesterDialog({
   mode = 'new',
   semester,
+  academicYear,
   onSuccess,
   children
 }: SemesterDialogProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [academicYears, setAcademicYears] = useState<AcademicYear[] | []>([]);
+  const { years: academicYears, pageCount } = use(academicYear);
 
-  useEffect(() => {
-    startTransition(async () => {
-      const { years } = await getAcademicYears();
-      setAcademicYears(years);
-    });
-  }, []);
-
-  const defaultValues: Partial<SemesterFormValues> = {
-    semesterName: semester?.semesterName || '',
-    academicYearId: semester?.academicYearId.toString() || '',
-    isCurrent: semester?.isCurrent || false
-  };
+  const defaultValues: Partial<SemesterFormValues> = useMemo(() => {
+    return {
+      semesterName: semester?.semesterName || '',
+      academicYearId: semester?.academicYearId.toString() || '',
+      isCurrent: semester?.isCurrent || false
+    };
+  }, [semester?.semesterName, semester?.academicYearId, semester?.isCurrent]);
 
   const form = useForm<SemesterFormValues>({
     resolver: zodResolver(semesterFormSchema),
     defaultValues
   });
 
-  async function onSubmit(data: SemesterFormValues) {
-    try {
-      const payload = {
-        semesterName: data.semesterName,
-        academicYearId: parseInt(data.academicYearId),
-        isCurrent: data.isCurrent
-      };
-
-      if (mode === 'new') {
-        await createSemester(payload);
-      } else if (semester?.id) {
-        await updateSemester(semester.id, payload);
-      }
-
-      toast.success('Success', {
-        description: `Semester ${mode === 'new' ? 'created' : 'updated'} successfully.`
-      });
-
-      setOpen(false);
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error ? error.message : 'An error occurred'
-      });
+  // Reset form when semester prop changes or dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      form.reset(defaultValues);
     }
-  }
+  }, [open, semester, form, defaultValues]);
+
+  const onSubmit = useCallback(
+    async (data: SemesterFormValues) => {
+      startTransition(async () => {
+        try {
+          const payload = {
+            semesterName: data.semesterName,
+            academicYearId: parseInt(data.academicYearId),
+            isCurrent: data.isCurrent
+          };
+
+          if (mode === 'new') {
+            await createSemester(payload);
+          } else if (semester?.id) {
+            await updateSemester(semester.id, payload);
+          }
+
+          toast.success('Success', {
+            description: `Semester ${mode === 'new' ? 'created' : 'updated'} successfully.`
+          });
+
+          setOpen(false);
+          if (onSuccess) onSuccess();
+        } catch (error) {
+          toast.error('Error', {
+            description:
+              error instanceof Error ? error.message : 'An error occurred'
+          });
+        }
+      });
+    },
+    [mode, semester?.id, onSuccess]
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -154,10 +169,15 @@ export function SemesterDialog({
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
+                    disabled={isPending}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select academic year' />
+                        <SelectValue
+                          placeholder={
+                            isPending ? 'Loading...' : 'Select academic year'
+                          }
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -196,8 +216,12 @@ export function SemesterDialog({
               )}
             />
 
-            <Button type='submit'>
-              {mode === 'new' ? 'Create Semester' : 'Save Changes'}
+            <Button type='submit' disabled={isPending}>
+              {isPending
+                ? 'Saving...'
+                : mode === 'new'
+                  ? 'Create Semester'
+                  : 'Save Changes'}
             </Button>
           </form>
         </Form>

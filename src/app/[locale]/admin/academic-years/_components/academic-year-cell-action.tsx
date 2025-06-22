@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import { useState } from 'react';
 import { AcademicYear } from '@/generated/prisma';
 import { AcademicYearDialog } from './academic-year-modal';
 import { Button } from '@/components/ui/button';
@@ -11,21 +11,37 @@ interface CellActionProps {
   data: AcademicYear;
 }
 export const AcademicYearCellAction = ({ data }: CellActionProps) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [academicDialogOpen, setAcademicDialogOpen] = useState(false);
+
   return (
     <>
+      <DeleteAcademicYearDialog
+        academicYear={data}
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      />
+      <AcademicYearDialog
+        mode='edit'
+        academicYear={data}
+        isOpen={academicDialogOpen}
+        onClose={() => setAcademicDialogOpen(false)}
+      />
       <div className='flex justify-end gap-2'>
-        <AcademicYearDialog mode='edit' academicYear={data}>
-          <Button variant='ghost' size='sm'>
-            <Edit className='h-4 w-4' />
-          </Button>
-        </AcademicYearDialog>
-        <DeleteAcademicYearDialog
-          academicYear={{ id: data.id, yearRange: data.yearRange }}
+        <Button
+          variant='ghost'
+          size='sm'
+          onClick={() => setAcademicDialogOpen(true)}
         >
-          <Button variant='destructive' size='sm'>
-            <Trash className='h-4 w-4' />
-          </Button>
-        </DeleteAcademicYearDialog>
+          <Edit className='h-4 w-4' />
+        </Button>
+        <Button
+          variant='destructive'
+          size='sm'
+          onClick={() => setDeleteDialogOpen(true)}
+        >
+          <Trash className='h-4 w-4' />
+        </Button>
       </div>
     </>
   );
