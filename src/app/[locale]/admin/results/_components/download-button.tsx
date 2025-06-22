@@ -37,7 +37,6 @@ export function DownloadButton({ resultData }: DownloadButtonProps) {
           gpa: resultData.result.gpa.toFixed(2),
           totalCrd: resultData.result.totalCredits,
           totalGp: resultData.result.totalGp.toFixed(2),
-          rank: resultData.result.rank || 'N/A',
 
           // Grades array for table iteration
           grades: resultData.grades.map((grade, index) => ({

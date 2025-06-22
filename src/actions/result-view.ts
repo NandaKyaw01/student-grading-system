@@ -17,7 +17,6 @@ export type ResultData = {
     gpa: number;
     totalCredits: number;
     totalGp: number;
-    rank: number | null;
   };
   grades: Array<{
     subject: {
@@ -166,8 +165,7 @@ export async function getResultById(
       result: {
         gpa: result.gpa,
         totalCredits: result.totalCredits,
-        totalGp: result.totalGp,
-        rank: result.rank
+        totalGp: result.totalGp
       },
       grades: result.enrollment.grades.map((grade) => ({
         subject: {
@@ -216,9 +214,6 @@ export async function getResultsByClass(classId: number, semesterId: number) {
             student: true
           }
         }
-      },
-      orderBy: {
-        rank: 'asc'
       }
     });
 
@@ -227,8 +222,7 @@ export async function getResultsByClass(classId: number, semesterId: number) {
       studentName: result.enrollment.student.studentName,
       rollNumber: result.enrollment.rollNumber,
       gpa: result.gpa,
-      totalCredits: result.totalCredits,
-      rank: result.rank
+      totalCredits: result.totalCredits
     }));
   } catch (error) {
     console.error('Error fetching class results:', error);

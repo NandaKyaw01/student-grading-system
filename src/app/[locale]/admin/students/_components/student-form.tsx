@@ -23,14 +23,20 @@ import { z } from 'zod';
 export const createStudentSchema = z.object({
   studentName: z
     .string()
-    .min(2, { message: 'Name must be at least 2 characters' })
+    .min(2, { message: 'Name must be at least 2 characters' }),
+  admissionId: z.string().min(6, {
+    message: 'Admission ID must be at least 2 characters'
+  })
 });
 
 export const updateStudentSchema = z.object({
   id: z.number().min(1, { message: 'ID is required' }),
   studentName: z
     .string()
-    .min(2, { message: 'Name must be at least 2 characters' })
+    .min(2, { message: 'Name must be at least 2 characters' }),
+  admissionId: z.string().min(6, {
+    message: 'Admission ID must be at least 2 characters'
+  })
 });
 
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
@@ -49,7 +55,8 @@ export default function StudentForm({
   const form = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema),
     defaultValues: initialData || {
-      studentName: ''
+      studentName: '',
+      admissionId: ''
     }
   });
 
@@ -105,67 +112,19 @@ export default function StudentForm({
                 </FormItem>
               )}
             />
-            {/* <FormField
+            <FormField
               control={form.control}
-              name='rollNumber'
+              name='admissionId'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Roll Number</FormLabel>
+                  <FormLabel>Admission ID</FormLabel>
                   <FormControl>
-                    <Input placeholder='Roll Number' {...field} />
+                    <Input placeholder='Admission ID' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-            /> */}
-            {/* <FormField
-              control={form.control}
-              name='classId'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Class</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select a class' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {classOptions.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
             />
-            <FormField
-              control={form.control}
-              name='academicYearId'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Academic Year</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select academic year' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {academicYearOptions.map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          {a.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
             <Button type='submit' disabled={isPending}>
               {isPending && <Loader className='animate-spin' />}
               Save Student
