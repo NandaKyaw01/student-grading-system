@@ -8,7 +8,7 @@ import {
 import { getSortingStateParser } from '@/lib/parsers';
 import { AcademicYear } from '@/generated/prisma';
 
-export const academicYearSearchParams = {
+export const classSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   search: parseAsString,
@@ -17,11 +17,10 @@ export const academicYearSearchParams = {
   ])
 };
 
-export const academicYearSearchParamsCache = createSearchParamsCache(
-  academicYearSearchParams
-);
-export const academicYearSerialize = createSerializer(academicYearSearchParams);
+export const classSearchParamsCache =
+  createSearchParamsCache(classSearchParams);
+export const classSerialize = createSerializer(classSearchParams);
 
-export type GetAcademicYearSchema = Awaited<
-  ReturnType<typeof academicYearSearchParamsCache.parse>
+export type GetClassSchema = Awaited<
+  ReturnType<typeof classSearchParamsCache.parse>
 >;

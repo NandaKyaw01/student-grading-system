@@ -2,7 +2,7 @@
 
 import { AcademicYear, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
-import { GetAcademicYearSchema } from '@/lib/search-params/class';
+import { GetAcademicYearSchema } from '@/lib/search-params/academic-year';
 import { revalidateTag, unstable_cache } from 'next/cache';
 
 export async function createAcademicYear(
@@ -142,10 +142,14 @@ export async function getAcademicYears(
         if (!input || Object.keys(input).length === 0) {
           paginate = false;
         } else {
-          if (input.search?.trim()) {
+          if (input.yearRange?.trim()) {
             where.OR = [
-              { id: { equals: parseInt(input.search) || undefined } }
+              { yearRange: { contains: input.yearRange, mode: 'insensitive' } }
             ];
+          }
+
+          if (input.isCurrent) {
+            where.isCurrent = input.isCurrent == 'true' ? true : false;
           }
         }
         const orderBy =
@@ -161,16 +165,19 @@ export async function getAcademicYears(
 
         const [years, totalCount] = await prisma.$transaction([
           prisma.academicYear.findMany({
-            where: options?.currentOnly ? { isCurrent: true } : undefined,
+            where: options?.currentOnly
+              ? {
+                  ...where,
+                  isCurrent: true
+                }
+              : where,
             orderBy,
             ...(paginate ? { skip: offset, take: limit } : {})
           }),
           prisma.academicYear.count({ where })
         ]);
         const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
-        // return await prisma.academicYear.findMany({
-        //   where: options?.currentOnly ? { isCurrent: true } : undefined
-        // });
+
         return {
           years,
           pageCount
@@ -205,7 +212,8 @@ export const getAcademicYearById = async (id: number) => {
     },
     ['academic-year'],
     {
-      tags: [`academic-year-${id}`]
+      tags: [`academic-year-${id}`],
+      revalidate: 3600
     }
   )();
 };

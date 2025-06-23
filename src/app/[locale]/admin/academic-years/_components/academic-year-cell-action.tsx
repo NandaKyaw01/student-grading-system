@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { AcademicYear } from '@/generated/prisma';
 import { AcademicYearDialog } from './academic-year-modal';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash } from 'lucide-react';
+import { Edit, Trash, Trash2 } from 'lucide-react';
 import { DeleteAcademicYearDialog } from './delete-academic-year-modal';
 
 interface CellActionProps {
@@ -27,7 +27,7 @@ export const AcademicYearCellAction = ({ data }: CellActionProps) => {
         isOpen={academicDialogOpen}
         onClose={() => setAcademicDialogOpen(false)}
       />
-      <div className='flex justify-end gap-2'>
+      <div className='flex justify-end gap-1'>
         <Button
           variant='ghost'
           size='sm'
@@ -36,11 +36,11 @@ export const AcademicYearCellAction = ({ data }: CellActionProps) => {
           <Edit className='h-4 w-4' />
         </Button>
         <Button
-          variant='destructive'
+          variant='ghost'
           size='sm'
           onClick={() => setDeleteDialogOpen(true)}
         >
-          <Trash className='h-4 w-4' />
+          <Trash2 className='h-6 w-6 text-red-600' />
         </Button>
       </div>
     </>

@@ -1,27 +1,13 @@
 'use client';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { AcademicYear } from '@/generated/prisma';
 import { getAcademicYears } from '@/actions/academic-year';
-import { Edit, Trash } from 'lucide-react';
-import { use } from 'react';
-import { AcademicYearDialog } from './academic-year-modal';
-import { DeleteAcademicYearDialog } from './delete-academic-year-modal';
-import React from 'react';
-import { getAcademicYearColumns } from './academic-year-table-column';
-import { useDataTable } from '@/hooks/use-data-table';
 import { DataTable } from '@/components/data-table/data-table';
-import { getCommonPinningStyles } from '@/lib/data-table';
-import { flexRender } from '@tanstack/react-table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
+import { Button } from '@/components/ui/button';
+import { useDataTable } from '@/hooks/use-data-table';
+import { Plus } from 'lucide-react';
+import React, { use, useState } from 'react';
+import { AcademicYearDialog } from './academic-year-modal';
+import { getAcademicYearColumns } from './academic-year-table-column';
 
 interface AcademicYearTableProps {
   academicYears: Promise<Awaited<ReturnType<typeof getAcademicYears>>>;
@@ -29,6 +15,7 @@ interface AcademicYearTableProps {
 
 const AcademicYearsDataTable = ({ academicYears }: AcademicYearTableProps) => {
   const { years, pageCount } = use(academicYears);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const columns = React.useMemo(() => getAcademicYearColumns(), []);
   const { table } = useDataTable({
     data: years,
@@ -44,7 +31,23 @@ const AcademicYearsDataTable = ({ academicYears }: AcademicYearTableProps) => {
   });
   return (
     <DataTable table={table}>
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table}>
+        <AcademicYearDialog
+          mode='new'
+          isOpen={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+        />
+
+        <Button
+          // className='text-xs md:text-sm'
+          // variant='outline'
+          size='sm'
+          className='h-8'
+          onClick={() => setDialogOpen(true)}
+        >
+          <Plus className='mr-2 h-4 w-4' /> Add New
+        </Button>
+      </DataTableToolbar>
     </DataTable>
   );
 };
