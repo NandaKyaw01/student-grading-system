@@ -130,10 +130,22 @@ export async function setCurrentAcademicYear(id: number) {
   }
 }
 
-export async function getAcademicYears(
+const academicYearWithDetails = Prisma.validator<Prisma.AcademicYearInclude>()({
+  semesters: true,
+  academicYearResults: true
+});
+
+export type AcademicYearWithDetails = Prisma.AcademicYearGetPayload<{
+  include: typeof academicYearWithDetails;
+}>;
+
+export async function getAcademicYears<T extends boolean = false>(
   input?: GetAcademicYearSchema,
-  options?: { currentOnly?: boolean }
-) {
+  options?: { currentOnly?: boolean; includeDetails?: T }
+): Promise<{
+  years: T extends true ? AcademicYearWithDetails[] : AcademicYear[];
+  pageCount: number;
+}> {
   return await unstable_cache(
     async () => {
       try {
@@ -157,7 +169,7 @@ export async function getAcademicYears(
             ? input.sort.map((item) => ({
                 [item.id]: item.desc ? 'desc' : 'asc'
               }))
-            : [{ createdAt: 'desc' }];
+            : [{ yearRange: 'asc' }];
 
         const page = input?.page ?? 1;
         const limit = input?.perPage ?? 10;
@@ -171,6 +183,9 @@ export async function getAcademicYears(
                   isCurrent: true
                 }
               : where,
+            include: options?.includeDetails
+              ? academicYearWithDetails
+              : undefined,
             orderBy,
             ...(paginate ? { skip: offset, take: limit } : {})
           }),
@@ -179,13 +194,17 @@ export async function getAcademicYears(
         const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
 
         return {
-          years,
+          years: years as T extends true
+            ? AcademicYearWithDetails[]
+            : AcademicYear[],
           pageCount
         };
       } catch (error) {
         console.error('Error fetching academic years:', error);
         return {
-          years: [],
+          years: [] as unknown as T extends true
+            ? AcademicYearWithDetails[]
+            : AcademicYear[],
           pageCount: 0
         };
       }

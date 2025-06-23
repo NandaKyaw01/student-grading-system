@@ -72,16 +72,21 @@ export function AcademicYearDialog({
   const onSubmit = (data: AcademicYearFormValues) => {
     startTransition(async () => {
       try {
+        let result;
         if (mode === 'new') {
-          await createAcademicYear({
+          result = await createAcademicYear({
             yearRange: data.yearRange,
             isCurrent: data.isCurrent
           });
         } else if (academicYear?.id) {
-          await updateAcademicYear(academicYear.id, {
+          result = await updateAcademicYear(academicYear.id, {
             yearRange: data.yearRange,
             isCurrent: data.isCurrent
           });
+        }
+
+        if (!result?.success) {
+          throw new Error(result?.error);
         }
 
         toast.success('Success', {

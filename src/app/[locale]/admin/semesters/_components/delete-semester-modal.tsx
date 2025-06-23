@@ -1,18 +1,17 @@
 'use client';
 
+import { deleteSemester } from '@/actions/semester';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  DialogDescription,
   DialogFooter,
-  DialogDescription
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog';
-import { deleteSemester } from '@/actions/semester';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { Loader } from 'lucide-react';
+import { useTransition } from 'react';
 import { toast } from 'sonner';
 
 interface DeleteSemesterDialogProps {
@@ -23,51 +22,40 @@ interface DeleteSemesterDialogProps {
       yearRange: string;
     };
   };
-  children?: React.ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function DeleteSemesterDialog({
   semester,
-  children
+  isOpen,
+  onClose
 }: DeleteSemesterDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const router = useRouter();
+  const [isDeleting, startTransition] = useTransition();
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      const result = await deleteSemester(semester.id);
+  const handleDelete = () => {
+    startTransition(async () => {
+      try {
+        const result = await deleteSemester(semester.id);
 
-      if (!result.success) {
-        throw new Error(result.error);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        toast.success('Success', {
+          description: `Semester "${semester.semesterName}" deleted successfully.`
+        });
+      } catch (error) {
+        toast.error('Error', {
+          description:
+            error instanceof Error ? error.message : 'Failed to delete semester'
+        });
       }
-
-      toast.success('Success', {
-        description: `Semester "${semester.semesterName}" deleted successfully.`
-      });
-
-      setOpen(false);
-      router.refresh();
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error ? error.message : 'Failed to delete semester'
-      });
-    } finally {
-      setIsDeleting(false);
-    }
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button variant='destructive' size='sm'>
-            Delete
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Delete Semester</DialogTitle>
@@ -78,7 +66,7 @@ export function DeleteSemesterDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant='outline' onClick={() => setOpen(false)}>
+          <Button variant='outline' onClick={onClose}>
             Cancel
           </Button>
           <Button
@@ -86,6 +74,9 @@ export function DeleteSemesterDialog({
             onClick={handleDelete}
             disabled={isDeleting}
           >
+            {isDeleting && (
+              <Loader className='mr-2 size-4 animate-spin' aria-hidden='true' />
+            )}
             {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>

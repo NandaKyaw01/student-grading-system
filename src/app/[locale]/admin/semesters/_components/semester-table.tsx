@@ -18,16 +18,18 @@ const SemestersTable = ({
   academicYear
 }: AcademicYearTableProps) => {
   const { semester, pageCount } = use(semesters);
+  const { years } = use(academicYear);
+
   const columns = React.useMemo(
-    () => getSemesterColumns({ academicYear }),
-    [academicYear]
+    () => getSemesterColumns({ academicYear: years }),
+    [years]
   );
   const { table } = useDataTable({
     data: semester,
     columns,
     pageCount,
     initialState: {
-      sorting: [{ id: 'id', desc: true }],
+      // sorting: [{ id: 'id', desc: true }],
       columnPinning: { right: ['actions'] }
     },
     getRowId: (originalRow) => originalRow.id.toString(),

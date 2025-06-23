@@ -4,7 +4,6 @@ import { Prisma, Semester } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetSemesterSchema } from '@/lib/search-params/semester';
 import { revalidateTag, unstable_cache } from 'next/cache';
-import { unknown } from 'zod';
 
 const semesterWithDetails = Prisma.validator<Prisma.SemesterInclude>()({
   academicYear: true,
@@ -20,6 +19,18 @@ export async function createSemester(
   data: Omit<Semester, 'id' | 'createdAt' | 'updatedAt'>
 ) {
   try {
+    // First check if there are any dependent records
+    const hasSemester = await prisma.semester.findFirst({
+      where: {
+        academicYearId: data.academicYearId,
+        semesterName: data.semesterName
+      }
+    });
+
+    if (hasSemester) {
+      throw new Error('Duplicate semester');
+    }
+
     // If setting as current, first unset any existing current semester
     if (data.isCurrent) {
       await prisma.semester.updateMany({
@@ -147,16 +158,41 @@ export async function getSemesters(
         } else {
           if (input.search?.trim()) {
             where.OR = [
-              { id: { equals: parseInt(input.search) || undefined } }
+              {
+                academicYear: {
+                  yearRange: { contains: input.search, mode: 'insensitive' }
+                }
+              },
+              {
+                semesterName: { contains: input.search, mode: 'insensitive' }
+              }
             ];
           }
+
+          if (input.isCurrent) {
+            where.isCurrent = input.isCurrent == 'true' ? true : false;
+          }
+
+          if (input?.academicYearId && input?.academicYearId?.length > 0) {
+            where.academicYearId = { in: input.academicYearId };
+          }
         }
-        const orderBy =
+
+        const orderBy: Prisma.SemesterOrderByWithRelationInput[] =
           input?.sort && input.sort.length > 0
             ? input.sort.map((item) => ({
-                [item.id]: item.desc ? 'desc' : 'asc'
+                academicYear: {
+                  yearRange: item.desc ? 'desc' : 'asc'
+                }
               }))
-            : [{ createdAt: 'desc' }];
+            : [
+                {
+                  academicYear: {
+                    yearRange: 'asc'
+                  }
+                }
+              ];
+
         const page = input?.page ?? 1;
         const limit = input?.perPage ?? 10;
         const offset = (page - 1) * limit;
@@ -164,10 +200,10 @@ export async function getSemesters(
           prisma.semester.findMany({
             where: {
               academicYearId: options?.academicYearId,
-              isCurrent: options?.currentOnly ? true : undefined
+              isCurrent: options?.currentOnly ? true : undefined,
+              ...where
             },
             include: options?.includeDetails ? semesterWithDetails : undefined,
-
             orderBy,
             ...(paginate ? { skip: offset, take: limit } : {})
           }),

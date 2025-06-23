@@ -7,6 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { SearchParams } from 'nuqs';
 import { Suspense } from 'react';
 import AcademicYearsDataTable from './_components/academic-year-data-table';
+import CreateAcademicYearButton from './_components/create-academic-year-button';
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
@@ -30,8 +31,11 @@ const bredcrumb: BreadcrumbProps[] = [
 export default async function AcademicYearsPage(props: pageProps) {
   const searchParams = await props.searchParams;
   const search = academicYearSearchParamsCache.parse(searchParams);
-  const academicYears = getAcademicYears(search);
+  const academicYears = getAcademicYears(search, {
+    includeDetails: true
+  });
   const t = await getTranslations('AdminNavBarTitle');
+
   return (
     <ContentLayout
       title={t('academic_year')}
@@ -47,6 +51,7 @@ export default async function AcademicYearsPage(props: pageProps) {
               Manage years (Server side table functionalities.)
             </p>
           </div>
+          <CreateAcademicYearButton />
         </div>
         <Separator />
         <Suspense fallback='loading...'>
