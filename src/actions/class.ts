@@ -1,5 +1,6 @@
 'use server';
 
+import { Input } from '@/components/ui/input';
 import { Class, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetClassSchema } from '@/lib/search-params/class';
