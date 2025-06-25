@@ -13,6 +13,9 @@ import { getTranslations } from 'next-intl/server';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 import { ResultDataTable } from './_components/result-data-table';
+import { getAcademicYears } from '@/actions/academic-year';
+import { getSemesters } from '@/actions/semester';
+import { getClasses } from '@/actions/class';
 
 export const metadata = {
   title: 'Admin: Results'
@@ -41,9 +44,14 @@ export default async function ResultsPage(props: pageProps) {
   const searchParams = await props.searchParams;
   const search = resultSearchParamsCache.parse(searchParams);
 
-  const promises = getAllResults<true>(search, {
-    includeDetails: true
-  });
+  const promises = Promise.all([
+    getAllResults(search, {
+      includeDetails: true
+    }),
+    getAcademicYears(),
+    getSemesters(),
+    getClasses()
+  ]);
 
   return (
     <ContentLayout

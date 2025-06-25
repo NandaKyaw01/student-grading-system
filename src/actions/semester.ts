@@ -140,14 +140,17 @@ export async function setCurrentSemester(id: number) {
   }
 }
 
-export async function getSemesters(
+export async function getSemesters<T extends boolean = false>(
   input?: GetSemesterSchema,
   options?: {
     academicYearId?: number;
     currentOnly?: boolean;
-    includeDetails?: boolean;
+    includeDetails?: T;
   }
-) {
+): Promise<{
+  semesters: T extends true ? SemesterWithDetails[] : Semester[];
+  pageCount: number;
+}> {
   return await unstable_cache(
     async () => {
       try {
@@ -211,15 +214,18 @@ export async function getSemesters(
         ]);
 
         const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
-        const typedSemester = semester as SemesterWithDetails[];
         return {
-          semester: typedSemester,
+          semesters: semester as T extends true
+            ? SemesterWithDetails[]
+            : Semester[],
           pageCount
         };
       } catch (error) {
         console.error('Error fetching semesters:', error);
         return {
-          semester: [],
+          semesters: [] as unknown as T extends true
+            ? SemesterWithDetails[]
+            : Semester[],
           pageCount: 0
         };
       }

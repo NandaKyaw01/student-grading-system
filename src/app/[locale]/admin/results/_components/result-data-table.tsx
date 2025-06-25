@@ -12,16 +12,35 @@ import { getAllResults } from '@/actions/result';
 import { Button } from '@/components/ui/button';
 import { Download, Loader } from 'lucide-react';
 import { exportTableToCSV } from '@/lib/export';
+import { getAcademicYears } from '@/actions/academic-year';
+import { getSemesters } from '@/actions/semester';
+import { getClasses } from '@/actions/class';
 
 interface ResultsTableProps {
-  promises: Promise<Awaited<ReturnType<typeof getAllResults<true>>>>;
+  promises: Promise<
+    [
+      Awaited<ReturnType<typeof getAllResults<true>>>,
+      Awaited<ReturnType<typeof getAcademicYears>>,
+      Awaited<ReturnType<typeof getSemesters>>,
+      Awaited<ReturnType<typeof getClasses>>
+    ]
+  >;
 }
 
 export function ResultDataTable({ promises }: ResultsTableProps) {
-  const { results, pageCount } = React.use(promises);
+  const [{ results, pageCount }, { years }, { semesters }, { classes }] =
+    React.use(promises);
   const [isPending, startTransition] = React.useTransition();
 
-  const columns = React.useMemo(() => getResultColumns(), []);
+  const columns = React.useMemo(
+    () =>
+      getResultColumns({
+        academicYears: years,
+        semesters,
+        classes
+      }),
+    [years, semesters, classes]
+  );
 
   const { table } = useDataTable({
     data: results,

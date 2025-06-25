@@ -7,12 +7,20 @@ import { buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
-import { CalendarIcon, FileSearch2, Text } from 'lucide-react';
+import { CalendarCheck, CalendarIcon, FileSearch2, Text } from 'lucide-react';
 import Link from 'next/link';
 import { ResultCellAction } from './result-cell-action';
-import { Status } from '@/generated/prisma';
+import { AcademicYear, Class, Semester, Status } from '@/generated/prisma';
 
-export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
+export function getResultColumns({
+  academicYears,
+  semesters,
+  classes
+}: {
+  academicYears: AcademicYear[];
+  semesters: Semester[];
+  classes: Class[];
+}): ColumnDef<ResultWithDetails>[] {
   return [
     {
       id: 'select',
@@ -61,7 +69,7 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       size: 60
     },
     {
-      id: 'student',
+      id: 'search',
       accessorFn: (row) => row.enrollment?.student?.studentName,
       header: 'Student',
       meta: {
@@ -77,22 +85,63 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       accessorFn: (row) => `${row.enrollment?.rollNumber}`,
       header: 'Roll No.'
     },
+
+    {
+      id: 'academicYearId',
+      accessorFn: (row) =>
+        `${row.enrollment?.semester?.academicYear?.yearRange}`,
+      header: 'Year',
+      meta: {
+        label: 'Academic Year',
+        variant: 'multiSelect',
+        options: academicYears.map((year) => ({
+          label: `${year.yearRange} ${year.isCurrent ? '(Current)' : ''}`,
+          value: year.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
+    },
+    {
+      id: 'semesterId',
+      accessorFn: (row) => `${row.enrollment?.semester?.semesterName}`,
+      header: 'Semester',
+      meta: {
+        label: 'Semester',
+        variant: 'multiSelect',
+        options: semesters.map((seme) => ({
+          label: `${seme.semesterName} ${seme.isCurrent ? '(Current)' : ''}`,
+          value: seme.id.toString()
+        })),
+        //   options: (table) => {
+        //   const selectedCountry = table.getColumn('country')?.getFilterValue();
+        //   if (!selectedCountry) return [];
+
+        //   // Return cities only for the selected country
+        //   return data
+        //     .filter(row => row.country === selectedCountry)
+        //     .map(row => row.city)
+        //     .filter((value, index, self) => self.indexOf(value) === index); // Unique values
+        // }
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
+    },
     {
       id: 'class',
       accessorFn: (row) =>
         `${row.enrollment?.class?.className} (${row.enrollment?.class?.departmentCode})`,
-      header: 'Class'
-    },
-    {
-      id: 'semester',
-      accessorFn: (row) => `${row.enrollment?.semester?.semesterName}`,
-      header: 'Semester'
-    },
-    {
-      id: 'year',
-      accessorFn: (row) =>
-        `${row.enrollment?.semester?.academicYear?.yearRange}`,
-      header: 'Year'
+      header: 'Class',
+      meta: {
+        label: 'Class',
+        variant: 'multiSelect',
+        options: classes.map((cls) => ({
+          label: `${cls.className} (${cls.departmentCode})`,
+          value: cls.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
     },
     {
       id: 'gpa',

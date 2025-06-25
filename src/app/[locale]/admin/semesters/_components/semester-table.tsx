@@ -9,15 +9,12 @@ import React, { use } from 'react';
 import { getSemesterColumns } from './semester-table-column';
 
 interface AcademicYearTableProps {
-  semesters: Promise<Awaited<ReturnType<typeof getSemesters>>>;
+  semester: Promise<Awaited<ReturnType<typeof getSemesters<true>>>>;
   academicYear: Promise<Awaited<ReturnType<typeof getAcademicYears>>>;
 }
 
-const SemestersTable = ({
-  semesters,
-  academicYear
-}: AcademicYearTableProps) => {
-  const { semester, pageCount } = use(semesters);
+const SemestersTable = ({ semester, academicYear }: AcademicYearTableProps) => {
+  const { semesters, pageCount } = use(semester);
   const { years } = use(academicYear);
 
   const columns = React.useMemo(
@@ -25,7 +22,7 @@ const SemestersTable = ({
     [years]
   );
   const { table } = useDataTable({
-    data: semester,
+    data: semesters,
     columns,
     pageCount,
     initialState: {

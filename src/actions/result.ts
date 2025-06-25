@@ -122,13 +122,13 @@ export async function getAllResults<T extends boolean = false>(
           paginate = false;
         } else {
           // Search
-          if (input.student?.trim()) {
+          if (input.search?.trim()) {
             where.OR = [
               {
                 enrollment: {
                   student: {
                     studentName: {
-                      contains: input.student,
+                      contains: input.search,
                       mode: 'insensitive'
                     }
                   }
@@ -137,12 +137,38 @@ export async function getAllResults<T extends boolean = false>(
               {
                 enrollment: {
                   rollNumber: {
-                    contains: input.student,
+                    contains: input.search,
                     mode: 'insensitive'
                   }
                 }
               }
             ];
+          }
+
+          if (input?.academicYearId && input?.academicYearId?.length > 0) {
+            where.enrollment = {
+              semester: {
+                academicYearId: {
+                  in: input.academicYearId
+                }
+              }
+            };
+          }
+
+          if (input?.semesterId && input?.semesterId?.length > 0) {
+            where.enrollment = {
+              semesterId: {
+                in: input.semesterId
+              }
+            };
+          }
+
+          if (input?.classId && input?.classId?.length > 0) {
+            where.enrollment = {
+              classId: {
+                in: input.classId
+              }
+            };
           }
 
           const range = Array.isArray(input.createdAt)
