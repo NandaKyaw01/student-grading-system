@@ -28,7 +28,7 @@ export function ResultDataTable({ promises }: ResultsTableProps) {
     columns,
     pageCount,
     initialState: {
-      sorting: [{ id: 'createdAt', desc: true }],
+      // sorting: [{ id: 'createdAt', desc: true }],
       columnPinning: { right: ['actions'] }
     },
     getRowId: (originalRow) => originalRow.enrollmentId.toString(),

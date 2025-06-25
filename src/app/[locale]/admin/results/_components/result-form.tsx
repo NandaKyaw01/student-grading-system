@@ -335,6 +335,7 @@ export default function ResultForm({
           form.reset();
           setAutoSelectCurrentYear(false);
           setAutoSelectCurrentSemester(false);
+          router.push('/admin/results');
         }
 
         onSuccess?.();
@@ -385,7 +386,7 @@ export default function ResultForm({
 
   const handleEditExisting = () => {
     if (existingResultData?.data) {
-      setShowExistingResultDialog(false);
+      // setShowExistingResultDialog(false);
       router.push(`/admin/results/${existingResultData.data.enrollmentId}`);
     }
   };

@@ -36,7 +36,7 @@ const ExistingResultDialog = ({
 
   const handleEditClick = () => {
     onEditClick();
-    onOpenChange(false);
+    // onOpenChange(false);
   };
 
   const handleCancel = () => {

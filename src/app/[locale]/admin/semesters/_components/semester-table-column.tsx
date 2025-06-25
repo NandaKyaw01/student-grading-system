@@ -46,7 +46,7 @@ export function getSemesterColumns({
         label: 'Academic Year',
         variant: 'multiSelect',
         options: academicYear.map((year) => ({
-          label: year.yearRange,
+          label: `${year.yearRange} ${year.isCurrent ? '(Current)' : ''}`,
           value: year.id.toString()
         })),
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />

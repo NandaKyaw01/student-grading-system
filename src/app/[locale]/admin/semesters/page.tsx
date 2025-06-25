@@ -9,6 +9,7 @@ import { SearchParams } from 'nuqs';
 import { Suspense } from 'react';
 import CreateSemesterButton from './_components/create-semester-button';
 import SemestersTable from './_components/semester-table';
+import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
@@ -51,7 +52,11 @@ export default async function SemestersPage(props: pageProps) {
           <CreateSemesterButton academicYear={academicYears} />
         </div>
         <Separator />
-        <Suspense fallback='loading...'>
+        <Suspense
+          fallback={
+            <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
+          }
+        >
           <SemestersTable semesters={semesters} academicYear={academicYears} />
         </Suspense>
       </div>

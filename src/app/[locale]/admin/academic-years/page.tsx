@@ -8,6 +8,7 @@ import { SearchParams } from 'nuqs';
 import { Suspense } from 'react';
 import AcademicYearsDataTable from './_components/academic-year-data-table';
 import CreateAcademicYearButton from './_components/create-academic-year-button';
+import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
@@ -54,7 +55,11 @@ export default async function AcademicYearsPage(props: pageProps) {
           <CreateAcademicYearButton />
         </div>
         <Separator />
-        <Suspense fallback='loading...'>
+        <Suspense
+          fallback={
+            <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
+          }
+        >
           <AcademicYearsDataTable academicYears={academicYears} />
         </Suspense>
       </div>

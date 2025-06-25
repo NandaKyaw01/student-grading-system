@@ -172,10 +172,11 @@ model GradeScale {
 }
 
 model Result {
-  enrollmentId Int   @id // Using enrollmentId as primary key
+  enrollmentId Int    @id // Using enrollmentId as primary key
   gpa          Float
   totalCredits Float
   totalGp      Float
+  status       Status @default(FAIL)
 
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
@@ -202,8 +203,8 @@ model AcademicYearResult {
   totalGp      Float @default(0.0)
 
   // Semester tracking
-  // semesterCount Int     @default(0)
-  // isComplete    Boolean @default(false) // true when has both semesters
+  semesterCount Int     @default(0)
+  isComplete    Boolean @default(false) // true when has both semesters
 
   // Status and ranking
   status   Status @default(INCOMPLETE) // INCOMPLETE, PASS, FAIL
