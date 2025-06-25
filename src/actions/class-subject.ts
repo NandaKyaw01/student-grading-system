@@ -72,51 +72,51 @@ export async function removeSubjectFromClass(data: {
 }
 
 export async function getClassSubjects(classId: number) {
-  return await unstable_cache(
-    async () => {
-      try {
-        return await prisma.classSubject.findMany({
-          where: { classId },
-          include: classSubjectWithDetails
-        });
-      } catch (error) {
-        console.error('Error fetching class subjects:', error);
-        return [];
-      }
-    },
-    [`class-subjects-${classId}`],
-    {
-      tags: [`class-subjects-${classId}`]
-    }
-  )();
+  // return await unstable_cache(
+  //   async () => {
+  try {
+    return await prisma.classSubject.findMany({
+      where: { classId },
+      include: classSubjectWithDetails
+    });
+  } catch (error) {
+    console.error('Error fetching class subjects:', error);
+    return [];
+  }
+  //   },
+  //   [`class-subjects-${classId}`],
+  //   {
+  //     tags: [`class-subjects-${classId}`]
+  //   }
+  // )();
 }
 
 export const getAvailableSubjectsForClass = async (classId: number) => {
-  return await unstable_cache(
-    async () => {
-      try {
-        const assignedSubjects = await prisma.classSubject.findMany({
-          where: { classId },
-          select: { subjectId: true }
-        });
+  // return await unstable_cache(
+  //   async () => {
+  try {
+    const assignedSubjects = await prisma.classSubject.findMany({
+      where: { classId },
+      select: { subjectId: true }
+    });
 
-        const assignedSubjectIds = assignedSubjects.map((s) => s.subjectId);
+    const assignedSubjectIds = assignedSubjects.map((s) => s.subjectId);
 
-        return await prisma.subject.findMany({
-          where: {
-            id: {
-              notIn: assignedSubjectIds
-            }
-          }
-        });
-      } catch (error) {
-        console.error('Error fetching available subjects:', error);
-        return [];
+    return await prisma.subject.findMany({
+      where: {
+        id: {
+          notIn: assignedSubjectIds
+        }
       }
-    },
-    [`available-subjects-${classId}`],
-    {
-      tags: [`available-subjects-${classId}`]
-    }
-  )();
+    });
+  } catch (error) {
+    console.error('Error fetching available subjects:', error);
+    return [];
+  }
+  //   },
+  //   [`available-subjects-${classId}`],
+  //   {
+  //     tags: [`available-subjects-${classId}`]
+  //   }
+  // )();
 };

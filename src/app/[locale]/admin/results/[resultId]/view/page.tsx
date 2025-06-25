@@ -178,7 +178,7 @@ export default async function ViewResultPage({ params }: PageProps) {
           </Card>
 
           {/* Summary Cards */}
-          <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6'>
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6'>
             <Card
               className='shadow-lg border-0 bg-gradient-to-br from-green-50 to-emerald-50
                 dark:from-green-950/50 dark:to-emerald-950/50'
@@ -190,13 +190,13 @@ export default async function ViewResultPage({ params }: PageProps) {
                       Current GPA
                     </p>
                     <p
-                      className={`text-xl sm:text-3xl font-bold ${getGpaColor(resultData.result.gpa)}`}
+                      className={`text-3xl sm:text-3xl font-bold ${getGpaColor(resultData.result.gpa)}`}
                     >
-                      {resultData.result.gpa.toFixed(2)}
+                      {resultData.result.gpa}
                     </p>
                   </div>
                   <div className='p-2 sm:p-3 bg-green-100 dark:bg-green-900/50 rounded-full self-end sm:self-auto'>
-                    <GraduationCap className='h-4 w-4 sm:h-6 sm:w-6 text-green-600 dark:text-green-400' />
+                    <GraduationCap className='h-10 w-10 sm:h-6 sm:w-6 text-green-600 dark:text-green-400' />
                   </div>
                 </div>
               </CardContent>
@@ -212,12 +212,12 @@ export default async function ViewResultPage({ params }: PageProps) {
                     <p className='text-xs sm:text-sm text-muted-foreground'>
                       Total Credits
                     </p>
-                    <p className='text-xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400'>
+                    <p className='text-3xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400'>
                       {resultData.result.totalCredits}
                     </p>
                   </div>
                   <div className='p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full self-end sm:self-auto'>
-                    <BookOpen className='h-4 w-4 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400' />
+                    <BookOpen className='h-10 w-10 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400' />
                   </div>
                 </div>
               </CardContent>
@@ -233,7 +233,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                     <p className='text-xs sm:text-sm text-muted-foreground'>
                       Total GP
                     </p>
-                    <p className='text-xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400'>
+                    <p className='text-3xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400'>
                       {resultData.result.totalGp}
                     </p>
                   </div>
@@ -241,7 +241,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                     className='p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/50 rounded-full self-end
                       sm:self-auto'
                   >
-                    <Award className='h-4 w-4 sm:h-6 sm:w-6 text-orange-600 dark:text-orange-400' />
+                    <Award className='h-10 w-10 sm:h-6 sm:w-6 text-orange-600 dark:text-orange-400' />
                   </div>
                 </div>
               </CardContent>
@@ -319,7 +319,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                           <div>
                             <span className='text-muted-foreground'>GP: </span>
                             <span className='font-medium text-foreground'>
-                              {grade.gp.toFixed(1)}
+                              {grade.gp}
                             </span>
                           </div>
                           <div>
@@ -327,7 +327,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                               Exam:{' '}
                             </span>
                             <span className='font-medium text-foreground'>
-                              {Number(grade.examMark).toFixed(1)}
+                              {Number(grade.examMark)}
                             </span>
                           </div>
                           <div>
@@ -335,7 +335,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                               Assignment:{' '}
                             </span>
                             <span className='font-medium text-foreground'>
-                              {Number(grade.assignMark).toFixed(1)}
+                              {Number(grade.assignMark)}
                             </span>
                           </div>
                         </div>
@@ -345,7 +345,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                             Final Mark:{' '}
                           </span>
                           <span className='font-bold text-foreground'>
-                            {Number(grade.finalMark).toFixed(2)}
+                            {Number(grade.finalMark)}
                           </span>
                         </div>
                       </div>
@@ -398,13 +398,13 @@ export default async function ViewResultPage({ params }: PageProps) {
                           {grade.subject.creditHours}
                         </TableCell>
                         <TableCell className='text-center text-foreground'>
-                          {Number(grade.examMark).toFixed(1)}
+                          {Number(grade.examMark)}
                         </TableCell>
                         <TableCell className='text-center text-foreground'>
-                          {Number(grade.assignMark).toFixed(1)}
+                          {Number(grade.assignMark)}
                         </TableCell>
                         <TableCell className='text-center font-medium text-foreground'>
-                          {Number(grade.finalMark).toFixed(2)}
+                          {Number(grade.finalMark)}
                         </TableCell>
                         <TableCell className='text-center'>
                           <Badge className={getGradeColor(grade.grade)}>
@@ -412,7 +412,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                           </Badge>
                         </TableCell>
                         <TableCell className='text-center font-medium text-foreground'>
-                          {grade.gp.toFixed(1)}
+                          {grade.gp}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -444,7 +444,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                       <span
                         className={`font-bold ${getGpaColor(resultData.result.gpa)}`}
                       >
-                        {resultData.result.gpa.toFixed(2)}
+                        {resultData.result.gpa}
                       </span>
                     </span>
                     {/* <span className='text-muted-foreground'>

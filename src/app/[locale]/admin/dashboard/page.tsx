@@ -430,8 +430,8 @@ async function SubjectPerformanceCard() {
       </CardHeader>
       <CardContent>
         <div className='space-y-4'>
-          {subjects.map((subject) => (
-            <div key={subject.subjectName} className='space-y-2'>
+          {subjects.map((subject, index) => (
+            <div key={index} className='space-y-2'>
               <div className='flex justify-between text-sm'>
                 <span className='font-medium'>{subject.subjectName}</span>
                 <span>GPA: {subject.averageGpa}</span>

@@ -1,9 +1,8 @@
 'use server';
 
-import { Input } from '@/components/ui/input';
 import { Class, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
-import { GetAcademicYearSchema } from '@/lib/search-params/class';
+import { GetClassSchema } from '@/lib/search-params/class';
 import { revalidateTag, unstable_cache } from 'next/cache';
 
 const classWithDetails = Prisma.validator<Prisma.ClassInclude>()({
@@ -104,7 +103,7 @@ export async function deleteClass(id: number) {
 }
 
 export async function getClasses(
-  input?: GetAcademicYearSchema,
+  input?: GetClassSchema,
   options?: { semesterId?: number; includeDetails?: boolean }
 ) {
   return await unstable_cache(

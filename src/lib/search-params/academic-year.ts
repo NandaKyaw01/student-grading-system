@@ -1,6 +1,7 @@
 import {
   createSearchParamsCache,
   createSerializer,
+  parseAsBoolean,
   parseAsInteger,
   parseAsString
 } from 'nuqs/server';
@@ -8,19 +9,21 @@ import {
 import { getSortingStateParser } from '@/lib/parsers';
 import { AcademicYear } from '@/generated/prisma';
 
-export const classSearchParams = {
+export const academicYearSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
-  search: parseAsString,
+  yearRange: parseAsString,
+  isCurrent: parseAsString,
   sort: getSortingStateParser<AcademicYear>().withDefault([
     { id: 'yearRange', desc: false }
   ])
 };
 
-export const classSearchParamsCache =
-  createSearchParamsCache(classSearchParams);
-export const classSerialize = createSerializer(classSearchParams);
+export const academicYearSearchParamsCache = createSearchParamsCache(
+  academicYearSearchParams
+);
+export const academicYearSerialize = createSerializer(academicYearSearchParams);
 
-export type GetClassSchema = Awaited<
-  ReturnType<typeof classSearchParamsCache.parse>
+export type GetAcademicYearSchema = Awaited<
+  ReturnType<typeof academicYearSearchParamsCache.parse>
 >;

@@ -9,7 +9,7 @@ import { Suspense } from 'react';
 import { ClassDialog } from './_components/class-modal';
 import ClassesTable from './_components/class-table';
 import { getSemesters } from '@/actions/semester';
-import { academicYearSearchParamsCache } from '@/lib/search-params/class';
+import { classSearchParamsCache } from '@/lib/search-params/class';
 import { SearchParams } from 'nuqs';
 
 type pageProps = {
@@ -32,7 +32,7 @@ const breadcrumb: BreadcrumbProps[] = [
 
 export default async function ClassesPage(props: pageProps) {
   const searchParams = await props.searchParams;
-  const search = academicYearSearchParamsCache.parse(searchParams);
+  const search = classSearchParamsCache.parse(searchParams);
 
   const classes = getClasses(undefined, { includeDetails: true });
   const t = await getTranslations('AdminNavBarTitle');

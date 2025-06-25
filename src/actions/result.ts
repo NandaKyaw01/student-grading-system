@@ -4,7 +4,13 @@ import { prisma } from '@/lib/db';
 import { getErrorMessage } from '@/lib/handle-error';
 import { revalidateTag, unstable_cache } from 'next/cache';
 
-import { Prisma, Result } from '@/generated/prisma';
+import {
+  GradeScale,
+  Prisma,
+  PrismaClient,
+  Result,
+  Status
+} from '@/generated/prisma';
 import { GetResultSchema } from '@/lib/search-params/result';
 import { z } from 'zod';
 import {
@@ -116,18 +122,13 @@ export async function getAllResults<T extends boolean = false>(
           paginate = false;
         } else {
           // Search
-          if (input.enrollmentId?.trim()) {
+          if (input.student?.trim()) {
             where.OR = [
-              {
-                enrollmentId: {
-                  equals: parseInt(input.enrollmentId) || undefined
-                }
-              },
               {
                 enrollment: {
                   student: {
                     studentName: {
-                      contains: input.enrollmentId,
+                      contains: input.student,
                       mode: 'insensitive'
                     }
                   }
@@ -135,11 +136,9 @@ export async function getAllResults<T extends boolean = false>(
               },
               {
                 enrollment: {
-                  class: {
-                    className: {
-                      contains: input.enrollmentId,
-                      mode: 'insensitive'
-                    }
+                  rollNumber: {
+                    contains: input.student,
+                    mode: 'insensitive'
                   }
                 }
               }
@@ -277,8 +276,6 @@ export async function getResultById(enrollmentId: string) {
 
 ////////////////////////////////////////////////
 
-// actions/student-actions.ts
-
 export async function getStudents() {
   try {
     const students = await prisma.student.findMany({
@@ -296,8 +293,6 @@ export async function getStudents() {
     return { success: false, error: 'Failed to fetch students' };
   }
 }
-
-// actions/academic-year-actions.ts
 
 export async function getAcademicYears() {
   try {
@@ -317,8 +312,6 @@ export async function getAcademicYears() {
     return { success: false, error: 'Failed to fetch academic years' };
   }
 }
-
-// actions/semester-actions.ts
 
 export async function getSemestersByAcademicYear(academicYearId: number) {
   try {
@@ -342,8 +335,6 @@ export async function getSemestersByAcademicYear(academicYearId: number) {
   }
 }
 
-// actions/enrollment-actions.ts
-
 export async function getEnrollmentsByStudentAndSemester(
   studentId: number,
   semesterId: number
@@ -352,8 +343,7 @@ export async function getEnrollmentsByStudentAndSemester(
     const enrollments = await prisma.enrollment.findMany({
       where: {
         studentId,
-        semesterId,
-        isActive: true
+        semesterId
       },
       select: {
         id: true,
@@ -376,8 +366,6 @@ export async function getEnrollmentsByStudentAndSemester(
     return { success: false, error: 'Failed to fetch enrollments' };
   }
 }
-
-// actions/subject-actions.ts
 
 export async function getSubjectsByEnrollment(enrollmentId: number) {
   try {
@@ -436,29 +424,171 @@ export async function getGradeScale() {
         minMark: 'desc'
       }
     });
-    return { success: true, data: gradeScale };
+    return { success: true, data: gradeScale as GradeScale[] };
   } catch (error) {
     console.error('Error fetching grade scale:', error);
     return { success: false, error: 'Failed to fetch grade scale' };
   }
 }
 
-// actions/result-actions.ts
+// Helper function to calculate grade and GPA based on marks
+function calculateGradeDetails(finalMark: number, gradeScales: GradeScale[]) {
+  // Sort grade scales by minMark descending to find the correct grade
+  const sortedScales = gradeScales.sort((a, b) => b.minMark - a.minMark);
+
+  for (const scale of sortedScales) {
+    if (finalMark >= scale.minMark && finalMark <= scale.maxMark) {
+      return {
+        grade: scale.grade,
+        score: scale.score
+      };
+    }
+  }
+
+  // Default to lowest grade if no match found
+  const lowestGrade = sortedScales[sortedScales.length - 1];
+  return {
+    grade: lowestGrade?.grade || 'F',
+    score: lowestGrade?.score || 0
+  };
+}
+
+function calculateGP(score: number, creditHour: number) {
+  return score * creditHour;
+}
+
+function calculateResultStatus(grades: Array<{ finalMark: number }>): Status {
+  // Check if all subjects have finalMark >= 50
+  const allPassed = grades.every((grade) => grade.finalMark >= 50);
+  return allPassed ? 'PASS' : 'FAIL';
+}
+
+// Type for transaction client
+type TransactionClient = Omit<
+  PrismaClient,
+  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+>;
+
+// Helper function to update or create AcademicYearResult
+async function updateAcademicYearResult(
+  enrollmentId: number,
+  tx: TransactionClient
+) {
+  // Get enrollment details
+  const enrollment = await tx.enrollment.findUnique({
+    where: { id: enrollmentId },
+    include: {
+      semester: {
+        include: {
+          academicYear: {
+            include: {
+              semesters: true
+            }
+          }
+        }
+      },
+      student: true,
+      class: true
+    }
+  });
+
+  if (!enrollment) return;
+
+  const { studentId, classId } = enrollment;
+  const { academicYear } = enrollment.semester;
+  const totalSemestersInYear = academicYear.semesters.length;
+
+  // Get all results for this student in this academic year and class
+  const allResults = await tx.result.findMany({
+    where: {
+      enrollment: {
+        studentId,
+        classId,
+        semester: {
+          academicYearId: academicYear.id
+        }
+      }
+    },
+    include: {
+      enrollment: {
+        include: {
+          semester: true
+        }
+      }
+    }
+  });
+
+  const semesterCount = allResults.length;
+  const isComplete = semesterCount === totalSemestersInYear;
+
+  // Calculate aggregated values only if we have results
+  let overallGpa = 0.0;
+  let totalCredits = 0.0;
+  let totalGp = 0.0;
+  let status: Status = 'INCOMPLETE';
+
+  if (semesterCount > 0) {
+    totalCredits = allResults.reduce(
+      (sum, result) => sum + result.totalCredits,
+      0
+    );
+    totalGp = allResults.reduce((sum, result) => sum + result.totalGp, 0);
+    // Calculate overallGpa as average of all semester GPAs
+    const totalSemesterGpa = allResults.reduce(
+      (sum, result) => sum + result.gpa,
+      0
+    );
+    overallGpa = totalSemesterGpa / semesterCount;
+
+    // Determine status
+    if (isComplete) {
+      // If all semesters are complete, check if all passed
+      const allSemestersPassed = allResults.every(
+        (result) => result.status === 'PASS'
+      );
+      status = allSemestersPassed ? 'PASS' : 'FAIL';
+    } else {
+      // If not all semesters are complete, check current results
+      const hasAnyFailure = allResults.some(
+        (result) => result.status === 'FAIL'
+      );
+      status = hasAnyFailure ? 'FAIL' : 'INCOMPLETE';
+    }
+  }
+
+  // Update or create AcademicYearResult
+  await tx.academicYearResult.upsert({
+    where: {
+      studentId_academicYearId_classId: {
+        studentId,
+        academicYearId: academicYear.id,
+        classId
+      }
+    },
+    update: {
+      overallGpa: parseFloat(overallGpa.toFixed(2)),
+      totalCredits: parseFloat(totalCredits.toFixed(2)),
+      totalGp: parseFloat(totalGp.toFixed(2)),
+      semesterCount,
+      isComplete,
+      status,
+      updatedAt: new Date()
+    },
+    create: {
+      studentId,
+      academicYearId: academicYear.id,
+      classId,
+      overallGpa: parseFloat(overallGpa.toFixed(2)),
+      totalCredits: parseFloat(totalCredits.toFixed(2)),
+      totalGp: parseFloat(totalGp.toFixed(2)),
+      semesterCount,
+      isComplete,
+      status
+    }
+  });
+}
 
 export async function createResult(data: CreateResultFormData) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function calculateGrade(finalMark: number, gradeScale: any[]) {
-    const scale = gradeScale.find(
-      (g) => finalMark >= g.minMark && finalMark <= g.maxMark
-    );
-    return scale || { grade: 'F', score: 0 };
-  }
-
-  function calculateGP(score: number, creditHour: number) {
-    // Assuming 4.0 scale
-    return (score / 100) * creditHour;
-  }
-
   try {
     // Validate input
     const validatedData = createResultSchema.parse(data);
@@ -500,7 +630,7 @@ export async function createResult(data: CreateResultFormData) {
       const finalMark =
         gradeInput.examMark * subject.examWeight + gradeInput.assignMark;
 
-      const gradeInfo = calculateGrade(finalMark, gradeScale);
+      const gradeInfo = calculateGradeDetails(finalMark, gradeScale);
       const gp = calculateGP(gradeInfo.score, subject.creditHours);
 
       return {
@@ -508,7 +638,7 @@ export async function createResult(data: CreateResultFormData) {
         classSubjectId: gradeInput.classSubjectId,
         examMark: gradeInput.examMark,
         assignMark: gradeInput.assignMark,
-        finalMark: Math.round(finalMark * 100) / 100,
+        finalMark: finalMark,
         grade: gradeInfo.grade,
         score: gradeInfo.score,
         gp,
@@ -516,13 +646,11 @@ export async function createResult(data: CreateResultFormData) {
       };
     });
 
-    // Calculate GPA
+    // Calculate GPA and status
     const totalCredits = gradesData.reduce((sum, g) => sum + g.creditHours, 0);
-    const totalGradePoints = gradesData.reduce(
-      (sum, g) => sum + g.gp * g.creditHours,
-      0
-    );
-    const gpa = totalGradePoints / totalCredits;
+    const totalGradePoints = gradesData.reduce((sum, g) => sum + g.gp, 0);
+    const gpa = totalCredits > 0 ? totalGradePoints / totalCredits : 0;
+    const status = calculateResultStatus(gradesData);
 
     // Create grades and result in transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -533,12 +661,12 @@ export async function createResult(data: CreateResultFormData) {
             data: {
               enrollmentId: gradeData.enrollmentId,
               classSubjectId: gradeData.classSubjectId,
-              examMark: gradeData.examMark,
-              assignMark: gradeData.assignMark,
-              finalMark: gradeData.finalMark,
+              examMark: parseFloat(gradeData.examMark.toFixed(2)),
+              assignMark: parseFloat(gradeData.assignMark.toFixed(2)),
+              finalMark: parseFloat(gradeData.finalMark.toFixed(2)),
               grade: gradeData.grade,
-              score: gradeData.score,
-              gp: gradeData.gp
+              score: parseFloat(gradeData.score.toFixed(2)),
+              gp: parseFloat(gradeData.gp.toFixed(2))
             }
           })
         )
@@ -548,16 +676,21 @@ export async function createResult(data: CreateResultFormData) {
       const createdResult = await tx.result.create({
         data: {
           enrollmentId: validatedData.enrollmentId,
-          gpa: Math.round(gpa * 100) / 100,
-          totalCredits,
-          totalGp: totalGradePoints
+          gpa: parseFloat(gpa.toFixed(2)),
+          totalCredits: parseFloat(totalCredits.toFixed(2)),
+          totalGp: parseFloat(totalGradePoints.toFixed(2)),
+          status
         }
       });
+
+      // Update AcademicYearResult
+      await updateAcademicYearResult(validatedData.enrollmentId, tx);
 
       return { grades: createdGrades, result: createdResult };
     });
 
     revalidateTag('results');
+    revalidateTag('academic-year-results');
     return { success: true, data: result };
   } catch (error) {
     console.error('Error creating result:', error);
@@ -566,31 +699,6 @@ export async function createResult(data: CreateResultFormData) {
       error: error instanceof Error ? error.message : 'Failed to create result'
     };
   }
-}
-
-// Helper function to calculate grade and GPA based on marks
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function calculateGradeDetails(finalMark: number, gradeScales: any[]) {
-  // Sort grade scales by minMark descending to find the correct grade
-  const sortedScales = gradeScales.sort((a, b) => b.minMark - a.minMark);
-
-  for (const scale of sortedScales) {
-    if (finalMark >= scale.minMark && finalMark <= scale.maxMark) {
-      return {
-        grade: scale.grade,
-        score: scale.score,
-        gp: scale.score // Assuming GP is same as score, adjust if different
-      };
-    }
-  }
-
-  // Default to lowest grade if no match found
-  const lowestGrade = sortedScales[sortedScales.length - 1];
-  return {
-    grade: lowestGrade?.grade || 'F',
-    score: lowestGrade?.score || 0,
-    gp: lowestGrade?.score || 0
-  };
 }
 
 export async function updateResult(input: UpdateResultFormData) {
@@ -689,29 +797,34 @@ export async function updateResult(input: UpdateResultFormData) {
 
       // Get grade details based on final mark
       const gradeDetails = calculateGradeDetails(finalMark, gradeScales);
+      const gp = calculateGP(
+        gradeDetails.score,
+        classSubject.subject.creditHours
+      );
 
       return {
         classSubjectId: gradeInput.classSubjectId,
         examMark: gradeInput.examMark,
         assignMark: gradeInput.assignMark,
-        finalMark: Math.round(finalMark * 100) / 100,
+        finalMark: finalMark,
         grade: gradeDetails.grade,
         score: gradeDetails.score,
-        gp: gradeDetails.gp,
+        gp,
         creditHours: classSubject.subject.creditHours
       };
     });
 
-    // Calculate GPA and total credits
+    // Calculate GPA, total credits, and status
     const totalCreditHours = processedGrades.reduce(
       (sum, grade) => sum + grade.creditHours,
       0
     );
     const totalGradePoints = processedGrades.reduce(
-      (sum, grade) => sum + grade.gp * grade.creditHours,
+      (sum, grade) => sum + grade.gp,
       0
     );
     const gpa = totalCreditHours > 0 ? totalGradePoints / totalCreditHours : 0;
+    const status = calculateResultStatus(processedGrades);
 
     // Update grades and result in a transaction
     const updatedResult = await prisma.$transaction(async (tx) => {
@@ -725,12 +838,12 @@ export async function updateResult(input: UpdateResultFormData) {
         data: processedGrades.map((grade) => ({
           enrollmentId,
           classSubjectId: grade.classSubjectId,
-          examMark: grade.examMark,
-          assignMark: grade.assignMark,
-          finalMark: grade.finalMark,
+          examMark: parseFloat(grade.examMark.toFixed(2)),
+          assignMark: parseFloat(grade.assignMark.toFixed(2)),
+          finalMark: parseFloat(grade.finalMark.toFixed(2)),
           grade: grade.grade,
-          score: grade.score,
-          gp: grade.gp
+          score: parseFloat(grade.score.toFixed(2)),
+          gp: parseFloat(grade.gp.toFixed(2))
         }))
       });
 
@@ -738,18 +851,23 @@ export async function updateResult(input: UpdateResultFormData) {
       const result = await tx.result.upsert({
         where: { enrollmentId },
         update: {
-          gpa: Math.round(gpa * 100) / 100,
-          totalCredits: totalCreditHours,
-          totalGp: totalGradePoints,
+          gpa: parseFloat(gpa.toFixed(2)),
+          totalCredits: parseFloat(totalCreditHours.toFixed(2)),
+          totalGp: parseFloat(totalGradePoints.toFixed(2)),
+          status,
           updatedAt: new Date()
         },
         create: {
           enrollmentId,
-          gpa: Math.round(gpa * 100) / 100,
-          totalGp: totalGradePoints,
-          totalCredits: totalCreditHours
+          gpa: parseFloat(gpa.toFixed(2)),
+          totalGp: parseFloat(totalGradePoints.toFixed(2)),
+          totalCredits: parseFloat(totalCreditHours.toFixed(2)),
+          status
         }
       });
+
+      // Update AcademicYearResult
+      await updateAcademicYearResult(enrollmentId, tx);
 
       return result;
     });
@@ -758,6 +876,7 @@ export async function updateResult(input: UpdateResultFormData) {
     revalidateTag('results');
     revalidateTag('result');
     revalidateTag(`results-${enrollmentId}`);
+    revalidateTag('academic-year-results');
 
     return {
       success: true,
@@ -777,84 +896,6 @@ export async function updateResult(input: UpdateResultFormData) {
     return {
       success: false,
       error: 'Failed to update result'
-    };
-  }
-}
-
-// Function to get result data for editing
-export async function getResultForEdit(enrollmentId: number) {
-  try {
-    const enrollment = await prisma.enrollment.findUnique({
-      where: { id: enrollmentId },
-      include: {
-        student: {
-          select: {
-            id: true,
-            studentName: true
-          }
-        },
-        semester: {
-          select: {
-            id: true,
-            semesterName: true,
-            isCurrent: true,
-            academicYear: {
-              select: {
-                id: true,
-                yearRange: true,
-                isCurrent: true
-              }
-            }
-          }
-        },
-        class: {
-          select: {
-            id: true,
-            className: true,
-            departmentCode: true
-          }
-        },
-        grades: {
-          include: {
-            classSubject: {
-              include: {
-                subject: true
-              }
-            }
-          }
-        }
-      }
-    });
-
-    if (!enrollment) {
-      return {
-        success: false,
-        error: 'Enrollment not found'
-      };
-    }
-
-    // Transform the data to match the form structure
-    const formData = {
-      enrollmentId: enrollment.id,
-      studentId: enrollment.studentId,
-      academicYearId: enrollment.semester.academicYear.id,
-      semesterId: enrollment.semesterId,
-      grades: enrollment.grades.map((grade) => ({
-        classSubjectId: grade.classSubjectId,
-        examMark: grade.examMark,
-        assignMark: grade.assignMark
-      }))
-    };
-
-    return {
-      success: true,
-      data: formData
-    };
-  } catch (error) {
-    console.error('Error fetching result for edit:', error);
-    return {
-      success: false,
-      error: 'Failed to fetch result'
     };
   }
 }

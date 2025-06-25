@@ -1,20 +1,11 @@
-import { ContentLayout } from '@/components/admin-panel/content-layout';
-import { Suspense } from 'react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
-import Link from 'next/link';
-import FormCardSkeleton from '@/components/form-card-skeleton';
 import { getResultById } from '@/actions/result';
-import { notFound } from 'next/navigation';
-import ResultForm from '../_components/result-form';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
+import { ContentLayout } from '@/components/admin-panel/content-layout';
+import FormCardSkeleton from '@/components/form-card-skeleton';
 import { Separator } from '@/components/ui/separator';
+import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import ResultForm from '../_components/result-form';
 
 export const metadata = {
   title: 'Results : Result View'

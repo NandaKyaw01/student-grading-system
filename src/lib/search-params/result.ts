@@ -12,7 +12,7 @@ import { Result } from '@/generated/prisma';
 export const resultSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
-  enrollmentId: parseAsString.withDefault(''),
+  student: parseAsString,
   createdAt: parseAsString.withDefault(''),
   sort: getSortingStateParser<Result>()
 };
