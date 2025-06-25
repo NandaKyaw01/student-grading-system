@@ -50,11 +50,11 @@ export default async function SemestersPage(props: pageProps) {
               Manage semesters (Server side table functionalities.)
             </p>
           </div>
-          {/* <SemesterDialog semester={semester}>
+          <SemesterDialog mode='new'>
             <Button className='text-xs md:text-sm'>
               <Plus className='mr-2 h-4 w-4' /> Add New Semester
             </Button>
-          </SemesterDialog> */}
+          </SemesterDialog>
         </div>
         <Separator />
         <Suspense fallback='loading...'>

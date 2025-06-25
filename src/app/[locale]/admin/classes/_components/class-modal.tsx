@@ -1,8 +1,7 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { ClassWithDetails, createClass, updateClass } from '@/actions/class';
+import { getSemesters, SemesterWithDetails } from '@/actions/semester';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -27,12 +26,11 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { createClass, updateClass } from '@/actions/class';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { useState } from 'react';
-import { getSemesters, SemesterWithDetails } from '@/actions/semester';
-import { use } from 'react';
-import { ClassWithDetails } from '@/actions/class';
+import * as z from 'zod';
 
 // Define the enum values for TypeScript
 enum DepartmentCode {
@@ -58,7 +56,6 @@ type ClassFormValues = z.infer<typeof classFormSchema>;
 interface ClassDialogProps {
   mode?: 'new' | 'edit';
   classData?: ClassWithDetails;
-  semesters: Promise<Awaited<ReturnType<typeof getSemesters>>>;
   onSuccess?: () => void;
   children?: React.ReactNode;
 }
@@ -66,13 +63,21 @@ interface ClassDialogProps {
 export function ClassDialog({
   mode = 'new',
   classData,
-  semesters,
   onSuccess,
   children
 }: ClassDialogProps) {
   const [open, setOpen] = useState(false);
-  const { semester, pageCount } = use(semesters);
+  const [isPending, startTransition] = useTransition();
   // const { semester, pageCount } = use(semesters);
+  const [semester, setSemester] = useState<SemesterWithDetails[] | []>([]);
+  // const { semester, pageCount } = use(semesters);
+
+  useEffect(() => {
+    startTransition(async () => {
+      const { semester } = await getSemesters();
+      setSemester(semester);
+    });
+  }, []);
 
   const defaultValues: Partial<ClassFormValues> = {
     className: classData?.className || '',

@@ -1,7 +1,9 @@
 'use server';
 
+import { Input } from '@/components/ui/input';
 import { Class, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
+import { GetAcademicYearSchema } from '@/lib/search-params/class';
 import { revalidateTag, unstable_cache } from 'next/cache';
 
 const classWithDetails = Prisma.validator<Prisma.ClassInclude>()({
@@ -101,27 +103,65 @@ export async function deleteClass(id: number) {
   }
 }
 
-export const getClasses = unstable_cache(
-  async (options?: { semesterId?: number; includeDetails?: boolean }) => {
-    try {
-      return await prisma.class.findMany({
-        where: {
-          semesterId: options?.semesterId
-        },
-        include: options?.includeDetails ? classWithDetails : undefined,
-        orderBy: { className: 'asc' }
-      });
-    } catch (error) {
-      console.error('Error fetching classes:', error);
-      return [];
+export async function getClasses(
+  input?: GetAcademicYearSchema,
+  options?: { semesterId?: number; includeDetails?: boolean }
+) {
+  return await unstable_cache(
+    async () => {
+      try {
+        const where: Prisma.ClassWhereInput = {};
+        let paginate = true;
+        if (!input || Object.keys(input).length === 0) {
+          paginate = false;
+        } else {
+          if (input.search?.trim()) {
+            where.OR = [
+              { id: { equals: parseInt(input.search) || undefined } }
+            ];
+          }
+        }
+        const orderBy =
+          input?.sort && input.sort.length > 0
+            ? input.sort.map((item) => ({
+                [item.id]: item.desc ? 'desc' : 'asc'
+              }))
+            : [{ createdAt: 'desc' }];
+        const page = input?.page ?? 1;
+        const limit = input?.perPage ?? 10;
+        const offset = (page - 1) * limit;
+        const [classlist, totalCount] = await prisma.$transaction([
+          prisma.class.findMany({
+            where: {
+              semesterId: options?.semesterId
+            },
+            include: options?.includeDetails ? classWithDetails : undefined,
+            orderBy,
+            ...(paginate ? { skip: offset, take: limit } : {})
+          }),
+          prisma.class.count({ where })
+        ]);
+        const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+        const typedClass = classlist as ClassWithDetails[];
+        return {
+          classes: typedClass,
+          pageCount
+        };
+      } catch (error) {
+        console.error('Error fetching classes:', error);
+        return {
+          classes: [],
+          pageCount: 0
+        };
+      }
+    },
+    [JSON.stringify(input ?? {})],
+    {
+      tags: ['classes'],
+      revalidate: 3600
     }
-  },
-  ['classes'],
-  {
-    tags: ['classes'],
-    revalidate: 3600
-  }
-);
+  )();
+}
 
 export const getClassById = async (id: number) => {
   return await unstable_cache(

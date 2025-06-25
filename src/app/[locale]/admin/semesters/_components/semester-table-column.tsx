@@ -44,6 +44,9 @@ export function getSemesterColumns(): ColumnDef<SemesterWithDetails>[] {
     },
     {
       id: 'actions',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Action' />
+      ),
       cell: ({ row }) => <SemesterCellAction data={row.original} />,
       size: 40
     }
