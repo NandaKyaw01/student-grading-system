@@ -44,7 +44,7 @@ export async function createSemester(
     });
 
     revalidateTag('semesters');
-    revalidateTag(`semester-${newSemester.id}`);
+
     return { success: true, data: newSemester };
   } catch (error) {
     return {
@@ -116,27 +116,6 @@ export async function deleteSemester(id: number) {
       error:
         error instanceof Error ? error.message : 'Failed to delete semester'
     };
-  }
-}
-
-export async function setCurrentSemester(id: number) {
-  try {
-    await prisma.$transaction([
-      prisma.semester.updateMany({
-        where: { isCurrent: true },
-        data: { isCurrent: false }
-      }),
-      prisma.semester.update({
-        where: { id },
-        data: { isCurrent: true }
-      })
-    ]);
-
-    revalidateTag('semesters');
-    return true;
-  } catch (error) {
-    console.error('Error setting current semester:', error);
-    return false;
   }
 }
 
@@ -266,28 +245,10 @@ export const getSemesterById = async (id: number) => {
         return null;
       }
     },
-    ['semester'],
+    [`semester-${id}`],
     {
-      tags: [`semester-${id}`]
+      tags: [`semester-${id}`],
+      revalidate: 3600 // 1 hour cache
     }
   )();
 };
-
-export async function getSemestersForSelect() {
-  return await prisma.semester.findMany({
-    select: {
-      id: true,
-      semesterName: true,
-      academicYear: {
-        select: {
-          yearRange: true
-        }
-      }
-    },
-    orderBy: {
-      academicYear: {
-        yearRange: 'desc'
-      }
-    }
-  });
-}

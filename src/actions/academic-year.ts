@@ -62,7 +62,7 @@ export async function updateAcademicYear(
     });
 
     revalidateTag('academic-years');
-    revalidateTag(`academic-years-${id}`);
+    revalidateTag(`academic-year-${id}`);
 
     return { success: true, data: academicYear };
   } catch (error) {
@@ -97,6 +97,7 @@ export async function deleteAcademicYear(id: number) {
     });
 
     revalidateTag('academic-years');
+    revalidateTag(`academic-year-${id}`);
     return { success: true };
   } catch (error) {
     return {
@@ -123,6 +124,7 @@ export async function setCurrentAcademicYear(id: number) {
     ]);
 
     revalidateTag('academic-years');
+    revalidateTag(`academic-year-${id}`);
     return true;
   } catch (error) {
     console.error('Error setting current academic year:', error);
@@ -232,7 +234,7 @@ export const getAcademicYearById = async (id: number) => {
         return null;
       }
     },
-    ['academic-year'],
+    [`{academic-year-${id}}`],
     {
       tags: [`academic-year-${id}`],
       revalidate: 3600
