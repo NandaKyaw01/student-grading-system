@@ -102,64 +102,80 @@ export async function deleteClass(id: number) {
   }
 }
 
-export async function getClasses(
+export async function getClasses<T extends boolean = false>(
   input?: GetClassSchema,
-  options?: { semesterId?: number; includeDetails?: boolean }
-) {
-  return await unstable_cache(
-    async () => {
-      try {
-        const where: Prisma.ClassWhereInput = {};
-        let paginate = true;
-        if (!input || Object.keys(input).length === 0) {
-          paginate = false;
-        } else {
-          if (input.search?.trim()) {
-            where.OR = [
-              { id: { equals: parseInt(input.search) || undefined } }
-            ];
-          }
+  options?: {
+    semesterId?: number[];
+    includeDetails?: boolean;
+    useCache?: boolean;
+  }
+): Promise<{
+  classes: T extends true ? ClassWithDetails[] : Class[];
+  pageCount: number;
+}> {
+  const queryFunction = async () => {
+    try {
+      const where: Prisma.ClassWhereInput = {};
+      let paginate = true;
+      if (!input || Object.keys(input).length === 0) {
+        paginate = false;
+      } else {
+        if (input.search?.trim()) {
+          where.OR = [{ id: { equals: parseInt(input.search) || undefined } }];
         }
-        const orderBy =
-          input?.sort && input.sort.length > 0
-            ? input.sort.map((item) => ({
-                [item.id]: item.desc ? 'desc' : 'asc'
-              }))
-            : [{ createdAt: 'desc' }];
-        const page = input?.page ?? 1;
-        const limit = input?.perPage ?? 10;
-        const offset = (page - 1) * limit;
-        const [classlist, totalCount] = await prisma.$transaction([
-          prisma.class.findMany({
-            where: {
-              semesterId: options?.semesterId
-            },
-            include: options?.includeDetails ? classWithDetails : undefined,
-            orderBy,
-            ...(paginate ? { skip: offset, take: limit } : {})
-          }),
-          prisma.class.count({ where })
-        ]);
-        const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
-        const typedClass = classlist as ClassWithDetails[];
-        return {
-          classes: typedClass,
-          pageCount
-        };
-      } catch (error) {
-        console.error('Error fetching classes:', error);
-        return {
-          classes: [],
-          pageCount: 0
-        };
       }
-    },
-    [JSON.stringify(input ?? {})],
-    {
-      tags: ['classes'],
-      revalidate: 3600
+
+      if (options?.semesterId && options?.semesterId?.length > 0) {
+        where.semesterId = { in: options?.semesterId };
+      }
+
+      const orderBy =
+        input?.sort && input.sort.length > 0
+          ? input.sort.map((item) => ({
+              [item.id]: item.desc ? 'desc' : 'asc'
+            }))
+          : [{ createdAt: 'desc' }];
+
+      const page = input?.page ?? 1;
+      const limit = input?.perPage ?? 10;
+      const offset = (page - 1) * limit;
+
+      const [classlist, totalCount] = await prisma.$transaction([
+        prisma.class.findMany({
+          where,
+          include: options?.includeDetails ? classWithDetails : undefined,
+          orderBy,
+          ...(paginate ? { skip: offset, take: limit } : {})
+        }),
+        prisma.class.count({ where })
+      ]);
+
+      const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+
+      return {
+        classes: classlist as T extends true ? ClassWithDetails[] : Class[],
+        pageCount
+      };
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      return {
+        classes: [] as unknown as T extends true ? ClassWithDetails[] : Class[],
+        pageCount: 0
+      };
     }
-  )();
+  };
+
+  if (options?.useCache !== false) {
+    return await unstable_cache(
+      queryFunction,
+      [JSON.stringify(input ?? {}) + JSON.stringify(options ?? {})],
+      {
+        tags: ['classes'],
+        revalidate: 3600
+      }
+    )();
+  }
+  return await queryFunction();
 }
 
 export const getClassById = async (id: number) => {

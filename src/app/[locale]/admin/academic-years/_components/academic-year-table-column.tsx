@@ -10,8 +10,9 @@ import { Semester } from '@/generated/prisma';
 export function getAcademicYearColumns(): ColumnDef<AcademicYearWithDetails>[] {
   return [
     {
-      id: 'no',
+      id: 'No.',
       header: 'No.',
+      accessorKey: 'id',
       cell: ({ row, table }) => {
         const pageIndex = table.getState().pagination.pageIndex;
         const pageSize = table.getState().pagination.pageSize;
@@ -29,7 +30,7 @@ export function getAcademicYearColumns(): ColumnDef<AcademicYearWithDetails>[] {
         <DataTableColumnHeader column={column} title='Academic Year' />
       ),
       meta: {
-        label: 'Search',
+        label: 'Academic Year',
         placeholder: 'Search Year...',
         variant: 'text',
         icon: Text
@@ -57,7 +58,7 @@ export function getAcademicYearColumns(): ColumnDef<AcademicYearWithDetails>[] {
       enableSorting: false
     },
     {
-      id: 'semester',
+      id: 'Semester',
       accessorKey: 'semesters',
       header: 'Semesters',
       cell: ({ cell }) => {

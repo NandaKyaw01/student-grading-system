@@ -141,80 +141,83 @@ export type AcademicYearWithDetails = Prisma.AcademicYearGetPayload<{
 
 export async function getAcademicYears<T extends boolean = false>(
   input?: GetAcademicYearSchema,
-  options?: { currentOnly?: boolean; includeDetails?: T }
+  options?: { currentOnly?: boolean; includeDetails?: T; useCache?: boolean }
 ): Promise<{
   years: T extends true ? AcademicYearWithDetails[] : AcademicYear[];
   pageCount: number;
 }> {
-  return await unstable_cache(
-    async () => {
-      try {
-        const where: Prisma.AcademicYearWhereInput = {};
-        let paginate = true;
-        if (!input || Object.keys(input).length === 0) {
-          paginate = false;
-        } else {
-          if (input.yearRange?.trim()) {
-            where.OR = [
-              { yearRange: { contains: input.yearRange, mode: 'insensitive' } }
-            ];
-          }
-
-          if (input.isCurrent) {
-            where.isCurrent = input.isCurrent == 'true' ? true : false;
-          }
+  const queryFunction = async () => {
+    try {
+      const where: Prisma.AcademicYearWhereInput = {};
+      let paginate = true;
+      if (!input || Object.keys(input).length === 0) {
+        paginate = false;
+      } else {
+        if (input.yearRange?.trim()) {
+          where.OR = [
+            { yearRange: { contains: input.yearRange, mode: 'insensitive' } }
+          ];
         }
-        const orderBy =
-          input?.sort && input.sort.length > 0
-            ? input.sort.map((item) => ({
-                [item.id]: item.desc ? 'desc' : 'asc'
-              }))
-            : [{ yearRange: 'asc' }];
 
-        const page = input?.page ?? 1;
-        const limit = input?.perPage ?? 10;
-        const offset = (page - 1) * limit;
-
-        const [years, totalCount] = await prisma.$transaction([
-          prisma.academicYear.findMany({
-            where: options?.currentOnly
-              ? {
-                  ...where,
-                  isCurrent: true
-                }
-              : where,
-            include: options?.includeDetails
-              ? academicYearWithDetails
-              : undefined,
-            orderBy,
-            ...(paginate ? { skip: offset, take: limit } : {})
-          }),
-          prisma.academicYear.count({ where })
-        ]);
-        const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
-
-        return {
-          years: years as T extends true
-            ? AcademicYearWithDetails[]
-            : AcademicYear[],
-          pageCount
-        };
-      } catch (error) {
-        console.error('Error fetching academic years:', error);
-        return {
-          years: [] as unknown as T extends true
-            ? AcademicYearWithDetails[]
-            : AcademicYear[],
-          pageCount: 0
-        };
+        if (input.isCurrent) {
+          where.isCurrent = input.isCurrent == 'true' ? true : false;
+        }
       }
-    },
-    [JSON.stringify(input ?? {})],
-    {
-      tags: ['academic-years'],
-      revalidate: 3600 // 1 hour cache
+      const orderBy =
+        input?.sort && input.sort.length > 0
+          ? input.sort.map((item) => ({
+              [item.id]: item.desc ? 'desc' : 'asc'
+            }))
+          : [{ yearRange: 'asc' }];
+
+      const page = input?.page ?? 1;
+      const limit = input?.perPage ?? 10;
+      const offset = (page - 1) * limit;
+
+      const [years, totalCount] = await prisma.$transaction([
+        prisma.academicYear.findMany({
+          where: {
+            isCurrent: options?.currentOnly ? true : undefined,
+            ...where
+          },
+          include: options?.includeDetails
+            ? academicYearWithDetails
+            : undefined,
+          orderBy,
+          ...(paginate ? { skip: offset, take: limit } : {})
+        }),
+        prisma.academicYear.count({ where })
+      ]);
+      const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+
+      return {
+        years: years as T extends true
+          ? AcademicYearWithDetails[]
+          : AcademicYear[],
+        pageCount
+      };
+    } catch (error) {
+      console.error('Error fetching academic years:', error);
+      return {
+        years: [] as unknown as T extends true
+          ? AcademicYearWithDetails[]
+          : AcademicYear[],
+        pageCount: 0
+      };
     }
-  )();
+  };
+
+  if (options?.useCache !== false) {
+    return await unstable_cache(
+      queryFunction,
+      [JSON.stringify(input ?? {}) + JSON.stringify(options ?? {})],
+      {
+        tags: ['academic-years'],
+        revalidate: 3600 // 1 hour cache
+      }
+    )();
+  }
+  return await queryFunction();
 }
 
 export const getAcademicYearById = async (id: number) => {

@@ -13,7 +13,7 @@ export const classSearchParams = {
   perPage: parseAsInteger.withDefault(10),
   search: parseAsString,
   sort: getSortingStateParser<AcademicYear>().withDefault([
-    { id: 'yearRange', desc: false }
+    { id: 'createdAt', desc: true }
   ])
 };
 

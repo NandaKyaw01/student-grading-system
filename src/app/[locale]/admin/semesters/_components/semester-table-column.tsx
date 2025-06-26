@@ -14,7 +14,8 @@ export function getSemesterColumns({
 }): ColumnDef<SemesterWithDetails>[] {
   return [
     {
-      id: 'no',
+      id: 'No.',
+      accessorKey: 'id',
       header: 'No.',
       cell: ({ row, table }) => {
         const pageIndex = table.getState().pagination.pageIndex;
@@ -38,7 +39,7 @@ export function getSemesterColumns({
     },
     {
       id: 'academicYearId',
-      accessorKey: 'academicYear.yearRange',
+      accessorFn: (row) => row.academicYear?.yearRange,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Academic Year' />
       ),

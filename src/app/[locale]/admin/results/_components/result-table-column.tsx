@@ -1,16 +1,15 @@
 'use client';
 
 import { ResultWithDetails } from '@/actions/result';
-import CopyableIdCell from '@/components/copyable-id-cell';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { AcademicYear, Class, Semester, Status } from '@/generated/prisma';
 import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
 import { CalendarCheck, CalendarIcon, FileSearch2, Text } from 'lucide-react';
 import Link from 'next/link';
 import { ResultCellAction } from './result-cell-action';
-import { AcademicYear, Class, Semester, Status } from '@/generated/prisma';
 
 export function getResultColumns({
   academicYears,
@@ -113,22 +112,12 @@ export function getResultColumns({
           label: `${seme.semesterName} ${seme.isCurrent ? '(Current)' : ''}`,
           value: seme.id.toString()
         })),
-        //   options: (table) => {
-        //   const selectedCountry = table.getColumn('country')?.getFilterValue();
-        //   if (!selectedCountry) return [];
-
-        //   // Return cities only for the selected country
-        //   return data
-        //     .filter(row => row.country === selectedCountry)
-        //     .map(row => row.city)
-        //     .filter((value, index, self) => self.indexOf(value) === index); // Unique values
-        // }
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
       },
       enableColumnFilter: true
     },
     {
-      id: 'class',
+      id: 'classId',
       accessorFn: (row) =>
         `${row.enrollment?.class?.className} (${row.enrollment?.class?.departmentCode})`,
       header: 'Class',

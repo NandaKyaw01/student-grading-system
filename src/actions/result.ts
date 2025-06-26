@@ -107,130 +107,136 @@ export async function getAllResults<T extends boolean = false>(
   input?: GetResultSchema,
   options?: {
     includeDetails?: T;
+    useCache?: boolean;
   }
 ): Promise<{
   results: T extends true ? ResultWithDetails[] : Result[];
   pageCount: number;
 }> {
-  return await unstable_cache(
-    async () => {
-      try {
-        const where: Prisma.ResultWhereInput = {};
-        let paginate = true;
+  const queryFunction = async () => {
+    try {
+      const where: Prisma.ResultWhereInput = {};
+      let paginate = true;
 
-        if (!input || Object.keys(input).length === 0) {
-          paginate = false;
-        } else {
-          // Search
-          if (input.search?.trim()) {
-            where.OR = [
-              {
-                enrollment: {
-                  student: {
-                    studentName: {
-                      contains: input.search,
-                      mode: 'insensitive'
-                    }
-                  }
-                }
-              },
-              {
-                enrollment: {
-                  rollNumber: {
+      if (!input || Object.keys(input).length === 0) {
+        paginate = false;
+      } else {
+        // Search
+        if (input.search?.trim()) {
+          where.OR = [
+            {
+              enrollment: {
+                student: {
+                  studentName: {
                     contains: input.search,
                     mode: 'insensitive'
                   }
                 }
               }
-            ];
-          }
-
-          if (input?.academicYearId && input?.academicYearId?.length > 0) {
-            where.enrollment = {
-              semester: {
-                academicYearId: {
-                  in: input.academicYearId
+            },
+            {
+              enrollment: {
+                rollNumber: {
+                  contains: input.search,
+                  mode: 'insensitive'
                 }
               }
-            };
-          }
-
-          if (input?.semesterId && input?.semesterId?.length > 0) {
-            where.enrollment = {
-              semesterId: {
-                in: input.semesterId
-              }
-            };
-          }
-
-          if (input?.classId && input?.classId?.length > 0) {
-            where.enrollment = {
-              classId: {
-                in: input.classId
-              }
-            };
-          }
-
-          const range = Array.isArray(input.createdAt)
-            ? input.createdAt
-            : typeof input.createdAt === 'string' &&
-                input.createdAt.includes(',')
-              ? input.createdAt.split(',')
-              : null;
-
-          if (range?.length === 2) {
-            const [from, to] = range.map((ts) => new Date(Number(ts)));
-            if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
-              where.createdAt = { gte: from, lte: to };
             }
-          }
+          ];
         }
 
-        const orderBy =
-          input?.sort && input.sort.length > 0
-            ? [
-                ...input.sort.map((item) => ({
-                  [item.id]: item.desc ? 'desc' : 'asc'
-                }))
-              ]
-            : [{ createdAt: 'desc' }, { enrollmentId: 'desc' }];
+        if (input?.academicYearId && input?.academicYearId?.length > 0) {
+          where.enrollment = {
+            semester: {
+              academicYearId: {
+                in: input.academicYearId
+              }
+            }
+          };
+        }
 
-        const page = input?.page ?? 1;
-        const limit = input?.perPage ?? 10;
-        const offset = (page - 1) * limit;
+        if (input?.semesterId && input?.semesterId?.length > 0) {
+          where.enrollment = {
+            semesterId: {
+              in: input.semesterId
+            }
+          };
+        }
 
-        const [results, totalCount] = await prisma.$transaction([
-          prisma.result.findMany({
-            where,
-            include: options?.includeDetails ? resultWithDetails : undefined,
-            orderBy,
-            ...(paginate ? { skip: offset, take: limit } : {})
-          }),
-          prisma.result.count({ where })
-        ]);
+        if (input?.classId && input?.classId?.length > 0) {
+          where.enrollment = {
+            classId: {
+              in: input.classId
+            }
+          };
+        }
 
-        const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+        const range = Array.isArray(input.createdAt)
+          ? input.createdAt
+          : typeof input.createdAt === 'string' && input.createdAt.includes(',')
+            ? input.createdAt.split(',')
+            : null;
 
-        return {
-          results: results as T extends true ? ResultWithDetails[] : Result[],
-          pageCount
-        };
-      } catch (error) {
-        console.error('❌ Error fetching results:', error);
-        return {
-          results: [] as unknown as T extends true
-            ? ResultWithDetails[]
-            : Result[],
-          pageCount: 0
-        };
+        if (range?.length === 2) {
+          const [from, to] = range.map((ts) => new Date(Number(ts)));
+          if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+            where.createdAt = { gte: from, lte: to };
+          }
+        }
       }
-    },
-    [JSON.stringify(input ?? {})],
-    {
-      revalidate: 1,
-      tags: ['results']
+
+      const orderBy =
+        input?.sort && input.sort.length > 0
+          ? [
+              ...input.sort.map((item) => ({
+                [item.id]: item.desc ? 'desc' : 'asc'
+              }))
+            ]
+          : [{ createdAt: 'desc' }, { enrollmentId: 'desc' }];
+
+      const page = input?.page ?? 1;
+      const limit = input?.perPage ?? 10;
+      const offset = (page - 1) * limit;
+
+      const [results, totalCount] = await prisma.$transaction([
+        prisma.result.findMany({
+          where,
+          include: options?.includeDetails ? resultWithDetails : undefined,
+          orderBy,
+          ...(paginate ? { skip: offset, take: limit } : {})
+        }),
+        prisma.result.count({ where })
+      ]);
+
+      const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+
+      return {
+        results: results as T extends true ? ResultWithDetails[] : Result[],
+        pageCount
+      };
+    } catch (error) {
+      console.error('❌ Error fetching results:', error);
+      return {
+        results: [] as unknown as T extends true
+          ? ResultWithDetails[]
+          : Result[],
+        pageCount: 0
+      };
     }
-  )();
+  };
+
+  if (options?.useCache !== false) {
+    return await unstable_cache(
+      queryFunction,
+      [JSON.stringify(input ?? {}) + JSON.stringify(options ?? {})],
+      {
+        revalidate: 1,
+        tags: ['results']
+      }
+    )();
+  }
+
+  return await queryFunction();
 }
 
 export async function getResultById(enrollmentId: string) {

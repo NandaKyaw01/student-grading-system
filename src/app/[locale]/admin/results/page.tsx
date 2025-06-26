@@ -5,7 +5,10 @@ import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { resultSearchParamsCache } from '@/lib/search-params/result';
+import {
+  resultSearchParamsCache,
+  resultSerialize
+} from '@/lib/search-params/result';
 import { cn } from '@/lib/utils';
 import { getAllResults } from '@/actions/result';
 import { Plus } from 'lucide-react';
@@ -16,6 +19,7 @@ import { ResultDataTable } from './_components/result-data-table';
 import { getAcademicYears } from '@/actions/academic-year';
 import { getSemesters } from '@/actions/semester';
 import { getClasses } from '@/actions/class';
+import { semesterSearchParamsCache } from '@/lib/search-params/semester';
 
 export const metadata = {
   title: 'Admin: Results'
@@ -43,14 +47,19 @@ export default async function ResultsPage(props: pageProps) {
   const t = await getTranslations('AdminNavBarTitle');
   const searchParams = await props.searchParams;
   const search = resultSearchParamsCache.parse(searchParams);
+  const key = resultSerialize(search);
 
   const promises = Promise.all([
     getAllResults(search, {
       includeDetails: true
     }),
     getAcademicYears(),
-    getSemesters(),
-    getClasses()
+    getSemesters(undefined, {
+      academicYearId: search.academicYearId
+    }),
+    getClasses(undefined, {
+      semesterId: search.semesterId
+    })
   ]);
 
   return (
@@ -76,6 +85,7 @@ export default async function ResultsPage(props: pageProps) {
         <Separator />
 
         <Suspense
+          key={key}
           fallback={
             <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
           }
