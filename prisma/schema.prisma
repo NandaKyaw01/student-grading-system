@@ -178,11 +178,15 @@ model Result {
   totalGp      Float
   status       Status @default(FAIL)
 
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  academicYearResultId Int?
+
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  enrollment         Enrollment          @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  AcademicYearResult AcademicYearResult? @relation(fields: [academicYearResultId], references: [id])
 
   @@index([gpa])
+  @@index([academicYearResultId])
 }
 
 enum Status {
@@ -210,6 +214,8 @@ model AcademicYearResult {
   status   Status @default(INCOMPLETE) // INCOMPLETE, PASS, FAIL
   yearRank Int?
 
+  semesterResults Result[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -217,9 +223,9 @@ model AcademicYearResult {
   academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
   class        Class        @relation(fields: [classId], references: [id])
 
-  @@unique([studentId, academicYearId, classId])
+  @@unique([studentId, academicYearId])
   @@index([overallGpa])
-  // @@index([isComplete])
+  @@index([isComplete])
   @@index([status])
   @@index([yearRank])
 }
