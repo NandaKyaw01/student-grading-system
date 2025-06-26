@@ -7,8 +7,6 @@ import { useDataTable } from '@/hooks/use-data-table';
 
 import { getAllAcademicYearResults } from '@/actions/academic-result';
 import { getAcademicYears } from '@/actions/academic-year';
-import { getClasses } from '@/actions/class';
-import { getSemesters } from '@/actions/semester';
 import { Button } from '@/components/ui/button';
 import { exportTableToCSV } from '@/lib/export';
 import { Download, Loader } from 'lucide-react';
@@ -20,26 +18,21 @@ interface ResultsTableProps {
   promises: Promise<
     [
       Awaited<ReturnType<typeof getAllAcademicYearResults<true>>>,
-      Awaited<ReturnType<typeof getAcademicYears>>,
-      Awaited<ReturnType<typeof getSemesters>>,
-      Awaited<ReturnType<typeof getClasses>>
+      Awaited<ReturnType<typeof getAcademicYears<true>>>
     ]
   >;
 }
 
 export function AcademicResultDataTable({ promises }: ResultsTableProps) {
-  const [{ results, pageCount }, { years }, { semesters }, { classes }] =
-    React.use(promises);
+  const [{ results, pageCount }, { years }] = React.use(promises);
   const [isPending, startTransition] = React.useTransition();
 
   const columns = React.useMemo(
     () =>
       getAcademicResultColumns({
-        academicYears: years,
-        semesters,
-        classes
+        academicYears: years
       }),
-    [years, semesters, classes]
+    [years]
   );
 
   const { table } = useDataTable({

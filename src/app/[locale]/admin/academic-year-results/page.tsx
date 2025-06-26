@@ -1,7 +1,5 @@
 import { getAllAcademicYearResults } from '@/actions/academic-result';
 import { getAcademicYears } from '@/actions/academic-year';
-import { getClasses } from '@/actions/class';
-import { getSemesters } from '@/actions/semester';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
@@ -14,7 +12,7 @@ import { Suspense } from 'react';
 import { AcademicResultDataTable } from './_components/academic-result-data-table';
 
 export const metadata = {
-  title: 'Admin: Results'
+  title: 'Admin: Academic Year Results'
 };
 
 type pageProps = {
@@ -45,12 +43,8 @@ export default async function AcademicYearResultsPage(props: pageProps) {
     getAllAcademicYearResults(search, {
       includeDetails: true
     }),
-    getAcademicYears(),
-    getSemesters(undefined, {
-      academicYearId: search.academicYearId
-    }),
-    getClasses(undefined, {
-      semesterId: search.semesterId
+    getAcademicYears(undefined, {
+      includeDetails: true
     })
   ]);
 
@@ -73,7 +67,7 @@ export default async function AcademicYearResultsPage(props: pageProps) {
         <Separator />
 
         <Suspense
-          key={key}
+          // key={key}
           fallback={
             <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
           }

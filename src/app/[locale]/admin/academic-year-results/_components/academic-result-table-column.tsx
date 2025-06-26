@@ -1,10 +1,11 @@
 'use client';
 
 import { AcademicYearResultWithDetails } from '@/actions/academic-result';
+import { AcademicYearWithDetails } from '@/actions/academic-year';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { AcademicYear, Class, Semester, Status } from '@/generated/prisma';
+import { Status } from '@/generated/prisma';
 import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
 import { CalendarCheck, CalendarIcon, FileSearch2, Text } from 'lucide-react';
@@ -12,13 +13,9 @@ import Link from 'next/link';
 import { AcademicResultCellAction } from './academic-result-cell-action';
 
 export function getAcademicResultColumns({
-  academicYears,
-  semesters,
-  classes
+  academicYears
 }: {
-  academicYears: AcademicYear[];
-  semesters: Semester[];
-  classes: Class[];
+  academicYears: AcademicYearWithDetails[];
 }): ColumnDef<AcademicYearResultWithDetails>[] {
   return [
     {
@@ -79,11 +76,6 @@ export function getAcademicResultColumns({
       },
       enableColumnFilter: true
     },
-    // {
-    //   id: 'rollnumber',
-    //   accessorFn: (row) => `${row.senrollment?.rollNumber}`,
-    //   header: 'Roll No.'
-    // },
     {
       id: 'academicYearId',
       accessorFn: (row) => `${row.academicYear?.yearRange}`,
@@ -100,34 +92,55 @@ export function getAcademicResultColumns({
       enableColumnFilter: true
     },
     {
-      id: 'classId',
-      accessorFn: (row) =>
-        `${row.class?.className} (${row.class?.departmentCode})`,
-      header: 'Class',
+      id: 'totalGp',
+      accessorKey: 'totalGp',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Total GP' />
+      ),
       meta: {
-        label: 'Class',
-        variant: 'multiSelect',
-        options: classes.map((cls) => ({
-          label: `${cls.className} (${cls.departmentCode})`,
-          value: cls.id.toString()
-        })),
-        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+        label: 'Total GP'
       },
-      enableColumnFilter: true
+      enableSorting: true
     },
     {
-      id: 'gpa',
+      id: 'totalCredits',
+      accessorKey: 'totalCredits',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Total Credits' />
+      ),
+      meta: {
+        label: 'Total Credits'
+      },
+      enableSorting: true
+    },
+    {
+      id: 'overallGpa',
       accessorKey: 'overallGpa',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='GPA' />
-      )
-      // cell: ({ cell }) => cell.getValue<number>().toFixed(2)
+        <DataTableColumnHeader column={column} title='Overall GPA' />
+      ),
+      meta: {
+        label: 'Overall GPA'
+      },
+      enableSorting: true
     },
     {
       id: 'semester',
       accessorKey: 'semesterCount',
       header: 'Semester',
-      cell: ({ cell }) => <div>{cell.getValue<Status>()}</div>
+      cell: ({ cell }) => (
+        <div>
+          {cell.getValue<Status>()} /{' '}
+          {
+            academicYears.find(
+              (year) => year.id === cell.row.original.academicYearId
+            )?.semesters.length
+          }
+        </div>
+      ),
+      meta: {
+        label: 'Semester'
+      }
     },
     {
       id: 'status',

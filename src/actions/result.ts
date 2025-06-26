@@ -553,8 +553,6 @@ async function updateAcademicYearResult(
   });
 
   const semesterCount = allResults.length;
-  console.log('all results :', allResults);
-  console.log('semesterCount :', semesterCount);
 
   const isComplete = semesterCount === totalSemestersInYear;
 
@@ -610,7 +608,7 @@ async function updateAcademicYearResult(
     create: {
       studentId,
       academicYearId: academicYear.id,
-      classId,
+      // classId,
       overallGpa: parseFloat(overallGpa.toFixed(2)),
       totalCredits: parseFloat(totalCredits.toFixed(2)),
       totalGp: parseFloat(totalGp.toFixed(2)),

@@ -9,8 +9,7 @@ import { revalidateTag, unstable_cache } from 'next/cache';
 const academicYearResultWithDetails =
   Prisma.validator<Prisma.AcademicYearResultInclude>()({
     student: true,
-    academicYear: true,
-    class: true
+    academicYear: true
   });
 
 export type AcademicYearResultWithDetails =
@@ -49,14 +48,6 @@ export async function getAllAcademicYearResults<T extends boolean = false>(
                 }
               }
             }
-            // {
-            //   student: {
-            //     rollNumber: {
-            //       contains: input.search,
-            //       mode: 'insensitive'
-            //     }
-            //   }
-            // }
           ];
         }
 
@@ -66,32 +57,6 @@ export async function getAllAcademicYearResults<T extends boolean = false>(
             in: input.academicYearId
           };
         }
-
-        // Filter by class
-        if (input?.classId && input?.classId?.length > 0) {
-          where.classId = {
-            in: input.classId
-          };
-        }
-
-        // Filter by student
-        // if (input?.studentId && input?.studentId?.length > 0) {
-        //   where.studentId = {
-        //     in: input.studentId.map((id) => parseInt(id))
-        //   };
-        // }
-
-        // Filter by status
-        // if (input?.status && input?.status?.length > 0) {
-        //   where.status = {
-        //     in: input.status
-        //   };
-        // }
-
-        // Filter by completion status
-        // if (input?.isComplete !== undefined) {
-        //   where.isComplete = input.isComplete;
-        // }
 
         // Date range filter
         const range = Array.isArray(input.createdAt)
@@ -117,9 +82,9 @@ export async function getAllAcademicYearResults<T extends boolean = false>(
               }))
             ]
           : [
-              { overallGpa: 'desc' }, // Default sort by GPA (highest first)
-              { yearRank: 'asc' }, // Then by rank (lowest rank number first)
-              { createdAt: 'desc' } // Finally by creation date
+              // { overallGpa: 'desc' },
+              // { yearRank: 'asc' },
+              { createdAt: 'desc' }
             ];
 
       const page = input?.page ?? 1;
