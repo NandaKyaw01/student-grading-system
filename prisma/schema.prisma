@@ -52,13 +52,12 @@ enum Code {
 }
 
 model Class {
-  id                  Int                  @id @default(autoincrement())
-  className           String
-  departmentCode      Code
-  semesterId          Int
-  enrollments         Enrollment[]
-  subjects            ClassSubject[]
-  academicYearResults AcademicYearResult[]
+  id             Int            @id @default(autoincrement())
+  className      String
+  departmentCode Code
+  semesterId     Int
+  enrollments    Enrollment[]
+  subjects       ClassSubject[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -178,11 +177,15 @@ model Result {
   totalGp      Float
   status       Status @default(FAIL)
 
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  academicYearResultId Int?
+
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  enrollment         Enrollment          @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  AcademicYearResult AcademicYearResult? @relation(fields: [academicYearResultId], references: [id])
 
   @@index([gpa])
+  @@index([academicYearResultId])
 }
 
 enum Status {
@@ -195,7 +198,6 @@ model AcademicYearResult {
   id             Int @id @default(autoincrement())
   studentId      Int
   academicYearId Int
-  classId        Int
 
   // Calculated fields
   overallGpa   Float @default(0.0)
@@ -210,16 +212,17 @@ model AcademicYearResult {
   status   Status @default(INCOMPLETE) // INCOMPLETE, PASS, FAIL
   yearRank Int?
 
+  semesterResults Result[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   student      Student      @relation(fields: [studentId], references: [id])
   academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
-  class        Class        @relation(fields: [classId], references: [id])
 
-  @@unique([studentId, academicYearId, classId])
+  @@unique([studentId, academicYearId])
   @@index([overallGpa])
-  // @@index([isComplete])
+  @@index([isComplete])
   @@index([status])
   @@index([yearRank])
 }

@@ -34,7 +34,7 @@ export default async function ClassesPage(props: pageProps) {
   const searchParams = await props.searchParams;
   const search = classSearchParamsCache.parse(searchParams);
 
-  const classes = getClasses(undefined, { includeDetails: true });
+  const classes = getClasses<true>(undefined, { includeDetails: true });
   const t = await getTranslations('AdminNavBarTitle');
 
   return (

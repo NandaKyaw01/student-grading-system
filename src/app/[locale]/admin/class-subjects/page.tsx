@@ -23,7 +23,7 @@ const breadcrumb: BreadcrumbProps[] = [
 ];
 
 export default function ClassSubjectsPage() {
-  const classes = getClasses(undefined, { includeDetails: true });
+  const classes = getClasses<true>(undefined, { includeDetails: true });
 
   const t = useTranslations('AdminNavBarTitle');
 

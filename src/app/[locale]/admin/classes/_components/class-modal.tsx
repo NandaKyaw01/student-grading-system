@@ -74,8 +74,8 @@ export function ClassDialog({
 
   useEffect(() => {
     startTransition(async () => {
-      const { semester } = await getSemesters();
-      setSemester(semester);
+      const { semesters } = await getSemesters<true>();
+      setSemester(semesters);
     });
   }, []);
 

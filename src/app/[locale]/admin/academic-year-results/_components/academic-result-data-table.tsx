@@ -5,43 +5,34 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 
 import { useDataTable } from '@/hooks/use-data-table';
 
-import { getResultColumns } from './result-table-column';
-import React, { useEffect, useRef, useState } from 'react';
-import { ResultsTableActionBar } from './result-table-action-bar';
-import { getAllResults } from '@/actions/result';
-import { Button } from '@/components/ui/button';
-import { Download, Loader } from 'lucide-react';
-import { exportTableToCSV } from '@/lib/export';
+import { getAllAcademicYearResults } from '@/actions/academic-result';
 import { getAcademicYears } from '@/actions/academic-year';
-import { getSemesters } from '@/actions/semester';
-import { getClasses } from '@/actions/class';
-import { resultSearchParamsCache } from '@/lib/search-params/result';
-import { Semester } from '@/generated/prisma';
+import { Button } from '@/components/ui/button';
+import { exportTableToCSV } from '@/lib/export';
+import { Download, Loader } from 'lucide-react';
+import React from 'react';
+import { AcademicResultsTableActionBar } from './academic-result-table-action-bar';
+import { getAcademicResultColumns } from './academic-result-table-column';
 
 interface ResultsTableProps {
   promises: Promise<
     [
-      Awaited<ReturnType<typeof getAllResults<true>>>,
-      Awaited<ReturnType<typeof getAcademicYears>>,
-      Awaited<ReturnType<typeof getSemesters>>,
-      Awaited<ReturnType<typeof getClasses>>
+      Awaited<ReturnType<typeof getAllAcademicYearResults<true>>>,
+      Awaited<ReturnType<typeof getAcademicYears<true>>>
     ]
   >;
 }
 
-export function ResultDataTable({ promises }: ResultsTableProps) {
-  const [{ results, pageCount }, { years }, { semesters }, { classes }] =
-    React.use(promises);
+export function AcademicResultDataTable({ promises }: ResultsTableProps) {
+  const [{ results, pageCount }, { years }] = React.use(promises);
   const [isPending, startTransition] = React.useTransition();
 
   const columns = React.useMemo(
     () =>
-      getResultColumns({
-        academicYears: years,
-        semesters,
-        classes
+      getAcademicResultColumns({
+        academicYears: years
       }),
-    [years, semesters, classes]
+    [years]
   );
 
   const { table } = useDataTable({
@@ -52,7 +43,7 @@ export function ResultDataTable({ promises }: ResultsTableProps) {
       // sorting: [{ id: 'createdAt', desc: true }],
       columnPinning: { right: ['actions'] }
     },
-    getRowId: (originalRow) => originalRow.enrollmentId.toString(),
+    getRowId: (originalRow) => originalRow.id.toString(),
     shallow: false,
     clearOnDefault: true
   });
@@ -69,7 +60,7 @@ export function ResultDataTable({ promises }: ResultsTableProps) {
   return (
     <DataTable
       table={table}
-      actionBar={<ResultsTableActionBar table={table} />}
+      actionBar={<AcademicResultsTableActionBar table={table} />}
     >
       <DataTableToolbar table={table}>
         <Button

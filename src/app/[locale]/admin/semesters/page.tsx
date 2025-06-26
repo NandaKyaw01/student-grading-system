@@ -57,7 +57,7 @@ export default async function SemestersPage(props: pageProps) {
             <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
           }
         >
-          <SemestersTable semesters={semesters} academicYear={academicYears} />
+          <SemestersTable semester={semesters} academicYear={academicYears} />
         </Suspense>
       </div>
     </ContentLayout>

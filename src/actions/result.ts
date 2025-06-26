@@ -107,104 +107,136 @@ export async function getAllResults<T extends boolean = false>(
   input?: GetResultSchema,
   options?: {
     includeDetails?: T;
+    useCache?: boolean;
   }
 ): Promise<{
   results: T extends true ? ResultWithDetails[] : Result[];
   pageCount: number;
 }> {
-  return await unstable_cache(
-    async () => {
-      try {
-        const where: Prisma.ResultWhereInput = {};
-        let paginate = true;
+  const queryFunction = async () => {
+    try {
+      const where: Prisma.ResultWhereInput = {};
+      let paginate = true;
 
-        if (!input || Object.keys(input).length === 0) {
-          paginate = false;
-        } else {
-          // Search
-          if (input.student?.trim()) {
-            where.OR = [
-              {
-                enrollment: {
-                  student: {
-                    studentName: {
-                      contains: input.student,
-                      mode: 'insensitive'
-                    }
-                  }
-                }
-              },
-              {
-                enrollment: {
-                  rollNumber: {
-                    contains: input.student,
+      if (!input || Object.keys(input).length === 0) {
+        paginate = false;
+      } else {
+        // Search
+        if (input.search?.trim()) {
+          where.OR = [
+            {
+              enrollment: {
+                student: {
+                  studentName: {
+                    contains: input.search,
                     mode: 'insensitive'
                   }
                 }
               }
-            ];
-          }
-
-          const range = Array.isArray(input.createdAt)
-            ? input.createdAt
-            : typeof input.createdAt === 'string' &&
-                input.createdAt.includes(',')
-              ? input.createdAt.split(',')
-              : null;
-
-          if (range?.length === 2) {
-            const [from, to] = range.map((ts) => new Date(Number(ts)));
-            if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
-              where.createdAt = { gte: from, lte: to };
+            },
+            {
+              enrollment: {
+                rollNumber: {
+                  contains: input.search,
+                  mode: 'insensitive'
+                }
+              }
             }
-          }
+          ];
         }
 
-        const orderBy =
-          input?.sort && input.sort.length > 0
-            ? [
-                ...input.sort.map((item) => ({
-                  [item.id]: item.desc ? 'desc' : 'asc'
-                }))
-              ]
-            : [{ createdAt: 'desc' }, { enrollmentId: 'desc' }];
+        if (input?.academicYearId && input?.academicYearId?.length > 0) {
+          where.enrollment = {
+            semester: {
+              academicYearId: {
+                in: input.academicYearId
+              }
+            }
+          };
+        }
 
-        const page = input?.page ?? 1;
-        const limit = input?.perPage ?? 10;
-        const offset = (page - 1) * limit;
+        if (input?.semesterId && input?.semesterId?.length > 0) {
+          where.enrollment = {
+            semesterId: {
+              in: input.semesterId
+            }
+          };
+        }
 
-        const [results, totalCount] = await prisma.$transaction([
-          prisma.result.findMany({
-            where,
-            include: options?.includeDetails ? resultWithDetails : undefined,
-            orderBy,
-            ...(paginate ? { skip: offset, take: limit } : {})
-          }),
-          prisma.result.count({ where })
-        ]);
+        if (input?.classId && input?.classId?.length > 0) {
+          where.enrollment = {
+            classId: {
+              in: input.classId
+            }
+          };
+        }
 
-        const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+        const range = Array.isArray(input.createdAt)
+          ? input.createdAt
+          : typeof input.createdAt === 'string' && input.createdAt.includes(',')
+            ? input.createdAt.split(',')
+            : null;
 
-        return {
-          results: results as T extends true ? ResultWithDetails[] : Result[],
-          pageCount
-        };
-      } catch (error) {
-        console.error('❌ Error fetching results:', error);
-        return {
-          results: [] as unknown as T extends true
-            ? ResultWithDetails[]
-            : Result[],
-          pageCount: 0
-        };
+        if (range?.length === 2) {
+          const [from, to] = range.map((ts) => new Date(Number(ts)));
+          if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+            where.createdAt = { gte: from, lte: to };
+          }
+        }
       }
-    },
-    [JSON.stringify(input ?? {})],
-    {
-      revalidate: 1,
-      tags: ['results']
+
+      const orderBy =
+        input?.sort && input.sort.length > 0
+          ? [
+              ...input.sort.map((item) => ({
+                [item.id]: item.desc ? 'desc' : 'asc'
+              }))
+            ]
+          : [{ createdAt: 'desc' }, { enrollmentId: 'desc' }];
+
+      const page = input?.page ?? 1;
+      const limit = input?.perPage ?? 10;
+      const offset = (page - 1) * limit;
+
+      const [results, totalCount] = await prisma.$transaction([
+        prisma.result.findMany({
+          where,
+          include: options?.includeDetails ? resultWithDetails : undefined,
+          orderBy,
+          ...(paginate ? { skip: offset, take: limit } : {})
+        }),
+        prisma.result.count({ where })
+      ]);
+
+      const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+
+      return {
+        results: results as T extends true ? ResultWithDetails[] : Result[],
+        pageCount
+      };
+    } catch (error) {
+      console.error('❌ Error fetching results:', error);
+      return {
+        results: [] as unknown as T extends true
+          ? ResultWithDetails[]
+          : Result[],
+        pageCount: 0
+      };
     }
-  )();
+  };
+
+  if (options?.useCache !== false) {
+    return await unstable_cache(
+      queryFunction,
+      [JSON.stringify(input ?? {}) + JSON.stringify(options ?? {})],
+      {
+        revalidate: 1,
+        tags: ['results']
+      }
+    )();
+  }
+
+  return await queryFunction();
 }
 
 export async function getResultById(enrollmentId: string) {
@@ -408,7 +440,6 @@ export async function getSubjectsByEnrollment(enrollmentId: number) {
     return { success: false, error: 'Failed to fetch subjects' };
   }
 }
-
 // actions/grade-scale-actions.ts
 
 export async function getGradeScale() {
@@ -473,7 +504,7 @@ type TransactionClient = Omit<
 async function updateAcademicYearResult(
   enrollmentId: number,
   tx: TransactionClient
-) {
+): Promise<number> {
   // Get enrollment details
   const enrollment = await tx.enrollment.findUnique({
     where: { id: enrollmentId },
@@ -488,11 +519,14 @@ async function updateAcademicYearResult(
         }
       },
       student: true,
-      class: true
+      class: true,
+      result: true
     }
   });
 
-  if (!enrollment) return;
+  if (!enrollment) {
+    throw new Error('Enrollment not found');
+  }
 
   const { studentId, classId } = enrollment;
   const { academicYear } = enrollment.semester;
@@ -503,7 +537,7 @@ async function updateAcademicYearResult(
     where: {
       enrollment: {
         studentId,
-        classId,
+        // classId,
         semester: {
           academicYearId: academicYear.id
         }
@@ -519,6 +553,7 @@ async function updateAcademicYearResult(
   });
 
   const semesterCount = allResults.length;
+
   const isComplete = semesterCount === totalSemestersInYear;
 
   // Calculate aggregated values only if we have results
@@ -533,12 +568,9 @@ async function updateAcademicYearResult(
       0
     );
     totalGp = allResults.reduce((sum, result) => sum + result.totalGp, 0);
-    // Calculate overallGpa as average of all semester GPAs
-    const totalSemesterGpa = allResults.reduce(
-      (sum, result) => sum + result.gpa,
-      0
-    );
-    overallGpa = totalSemesterGpa / semesterCount;
+
+    // Calculate weighted overall GPA based on total credits
+    overallGpa = totalCredits > 0 ? totalGp / totalCredits : 0;
 
     // Determine status
     if (isComplete) {
@@ -556,13 +588,12 @@ async function updateAcademicYearResult(
     }
   }
 
-  // Update or create AcademicYearResult
-  await tx.academicYearResult.upsert({
+  // Update or create AcademicYearResult - this should only create ONE record per student/year/class
+  const academicYearResult = await tx.academicYearResult.upsert({
     where: {
-      studentId_academicYearId_classId: {
+      studentId_academicYearId: {
         studentId,
-        academicYearId: academicYear.id,
-        classId
+        academicYearId: academicYear.id
       }
     },
     update: {
@@ -577,7 +608,7 @@ async function updateAcademicYearResult(
     create: {
       studentId,
       academicYearId: academicYear.id,
-      classId,
+      // classId,
       overallGpa: parseFloat(overallGpa.toFixed(2)),
       totalCredits: parseFloat(totalCredits.toFixed(2)),
       totalGp: parseFloat(totalGp.toFixed(2)),
@@ -586,6 +617,8 @@ async function updateAcademicYearResult(
       status
     }
   });
+
+  return academicYearResult.id;
 }
 
 export async function createResult(data: CreateResultFormData) {
@@ -672,25 +705,36 @@ export async function createResult(data: CreateResultFormData) {
         )
       );
 
-      // Create result
-      const createdResult = await tx.result.create({
+      // Create result and link it to the AcademicYearResult
+      await tx.result.create({
         data: {
           enrollmentId: validatedData.enrollmentId,
           gpa: parseFloat(gpa.toFixed(2)),
           totalCredits: parseFloat(totalCredits.toFixed(2)),
           totalGp: parseFloat(totalGradePoints.toFixed(2)),
-          status
+          status,
+          academicYearResultId: null // Link to the shared AcademicYearResult
         }
       });
 
-      // Update AcademicYearResult
-      await updateAcademicYearResult(validatedData.enrollmentId, tx);
+      // Now update/create AcademicYearResult after the result exists
+      const academicYearResultId = await updateAcademicYearResult(
+        validatedData.enrollmentId,
+        tx
+      );
 
-      return { grades: createdGrades, result: createdResult };
+      // Update the result to link it to the AcademicYearResult
+      const updatedResult = await tx.result.update({
+        where: { enrollmentId: validatedData.enrollmentId },
+        data: { academicYearResultId }
+      });
+
+      return { grades: createdGrades, result: updatedResult };
     });
 
     revalidateTag('results');
     revalidateTag('academic-year-results');
+
     return { success: true, data: result };
   } catch (error) {
     console.error('Error creating result:', error);
@@ -848,13 +892,14 @@ export async function updateResult(input: UpdateResultFormData) {
       });
 
       // Update or create result
-      const result = await tx.result.upsert({
+      await tx.result.upsert({
         where: { enrollmentId },
         update: {
           gpa: parseFloat(gpa.toFixed(2)),
           totalCredits: parseFloat(totalCreditHours.toFixed(2)),
           totalGp: parseFloat(totalGradePoints.toFixed(2)),
           status,
+          academicYearResultId: null, // Ensure it's linked to the shared AcademicYearResult
           updatedAt: new Date()
         },
         create: {
@@ -862,21 +907,30 @@ export async function updateResult(input: UpdateResultFormData) {
           gpa: parseFloat(gpa.toFixed(2)),
           totalGp: parseFloat(totalGradePoints.toFixed(2)),
           totalCredits: parseFloat(totalCreditHours.toFixed(2)),
-          status
+          status,
+          academicYearResultId: null // Link to the shared AcademicYearResult
         }
       });
 
-      // Update AcademicYearResult
-      await updateAcademicYearResult(enrollmentId, tx);
+      // Now update/create AcademicYearResult after the result exists
+      const academicYearResultId = await updateAcademicYearResult(
+        enrollmentId,
+        tx
+      );
 
-      return result;
+      // Update the result to link it to the AcademicYearResult
+      const updatedResult = await tx.result.update({
+        where: { enrollmentId: enrollmentId },
+        data: { academicYearResultId }
+      });
+
+      return updatedResult;
     });
 
     // Revalidate relevant paths
     revalidateTag('results');
-    revalidateTag('result');
-    revalidateTag(`results-${enrollmentId}`);
     revalidateTag('academic-year-results');
+    revalidateTag(`result-${enrollmentId}`);
 
     return {
       success: true,

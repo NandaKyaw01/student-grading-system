@@ -340,7 +340,6 @@ async function main() {
             data: {
               studentId: student.id,
               academicYearId: academicYear.id,
-              classId: enrollment.class.id,
               overallGpa: enrollment.result.gpa,
               totalCredits: enrollment.result.totalCredits,
               totalGp: enrollment.result.totalGp,

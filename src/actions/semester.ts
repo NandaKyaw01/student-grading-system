@@ -44,7 +44,7 @@ export async function createSemester(
     });
 
     revalidateTag('semesters');
-    revalidateTag(`semester-${newSemester.id}`);
+
     return { success: true, data: newSemester };
   } catch (error) {
     return {
@@ -119,117 +119,117 @@ export async function deleteSemester(id: number) {
   }
 }
 
-export async function setCurrentSemester(id: number) {
-  try {
-    await prisma.$transaction([
-      prisma.semester.updateMany({
-        where: { isCurrent: true },
-        data: { isCurrent: false }
-      }),
-      prisma.semester.update({
-        where: { id },
-        data: { isCurrent: true }
-      })
-    ]);
-
-    revalidateTag('semesters');
-    return true;
-  } catch (error) {
-    console.error('Error setting current semester:', error);
-    return false;
-  }
-}
-
-export async function getSemesters(
+export async function getSemesters<T extends boolean = false>(
   input?: GetSemesterSchema,
   options?: {
-    academicYearId?: number;
+    academicYearId?: number[];
     currentOnly?: boolean;
-    includeDetails?: boolean;
+    includeDetails?: T;
+    useCache?: boolean;
   }
-) {
-  return await unstable_cache(
-    async () => {
-      try {
-        const where: Prisma.SemesterWhereInput = {};
-        let paginate = true;
-        if (!input || Object.keys(input).length === 0) {
-          paginate = false;
-        } else {
-          if (input.search?.trim()) {
-            where.OR = [
-              {
-                academicYear: {
-                  yearRange: { contains: input.search, mode: 'insensitive' }
-                }
-              },
-              {
-                semesterName: { contains: input.search, mode: 'insensitive' }
+): Promise<{
+  semesters: T extends true ? SemesterWithDetails[] : Semester[];
+  pageCount: number;
+}> {
+  const queryFunction = async () => {
+    try {
+      const where: Prisma.SemesterWhereInput = {};
+      let paginate = true;
+
+      if (!input || Object.keys(input).length === 0) {
+        paginate = false;
+      } else {
+        if (input.search?.trim()) {
+          where.OR = [
+            {
+              academicYear: {
+                yearRange: { contains: input.search, mode: 'insensitive' }
               }
-            ];
-          }
-
-          if (input.isCurrent) {
-            where.isCurrent = input.isCurrent == 'true' ? true : false;
-          }
-
-          if (input?.academicYearId && input?.academicYearId?.length > 0) {
-            where.academicYearId = { in: input.academicYearId };
-          }
+            },
+            {
+              semesterName: { contains: input.search, mode: 'insensitive' }
+            }
+          ];
         }
 
-        const orderBy: Prisma.SemesterOrderByWithRelationInput[] =
-          input?.sort && input.sort.length > 0
-            ? input.sort.map((item) => ({
-                academicYear: {
-                  yearRange: item.desc ? 'desc' : 'asc'
-                }
-              }))
-            : [
-                {
-                  academicYear: {
-                    yearRange: 'asc'
-                  }
-                }
-              ];
+        if (input.isCurrent) {
+          where.isCurrent = input.isCurrent == 'true' ? true : false;
+        }
 
-        const page = input?.page ?? 1;
-        const limit = input?.perPage ?? 10;
-        const offset = (page - 1) * limit;
-        const [semester, totalCount] = await prisma.$transaction([
-          prisma.semester.findMany({
-            where: {
-              academicYearId: options?.academicYearId,
-              isCurrent: options?.currentOnly ? true : undefined,
-              ...where
-            },
-            include: options?.includeDetails ? semesterWithDetails : undefined,
-            orderBy,
-            ...(paginate ? { skip: offset, take: limit } : {})
-          }),
-          prisma.semester.count({ where })
-        ]);
-
-        const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
-        const typedSemester = semester as SemesterWithDetails[];
-        return {
-          semester: typedSemester,
-          pageCount
-        };
-      } catch (error) {
-        console.error('Error fetching semesters:', error);
-        return {
-          semester: [],
-          pageCount: 0
-        };
+        if (input?.academicYearId && input?.academicYearId?.length > 0) {
+          where.academicYearId = { in: input.academicYearId };
+        }
       }
-    },
-    [JSON.stringify(input ?? {})],
-    {
-      tags: ['semesters'],
-      revalidate: 3600 // 1 hour cache
+
+      if (options?.academicYearId && options?.academicYearId?.length > 0) {
+        where.academicYearId = { in: options?.academicYearId };
+      }
+
+      const orderBy: Prisma.SemesterOrderByWithRelationInput[] =
+        input?.sort && input.sort.length > 0
+          ? input.sort.map((item) => ({
+              academicYear: {
+                yearRange: item.desc ? 'desc' : 'asc'
+              }
+            }))
+          : [
+              {
+                academicYear: {
+                  yearRange: 'asc'
+                }
+              }
+            ];
+
+      const page = input?.page ?? 1;
+      const limit = input?.perPage ?? 10;
+      const offset = (page - 1) * limit;
+
+      const [semester, totalCount] = await prisma.$transaction([
+        prisma.semester.findMany({
+          where: {
+            isCurrent: options?.currentOnly ? true : undefined,
+            ...where
+          },
+          include: options?.includeDetails ? semesterWithDetails : undefined,
+          orderBy,
+          ...(paginate ? { skip: offset, take: limit } : {})
+        }),
+        prisma.semester.count({ where })
+      ]);
+
+      const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+
+      return {
+        semesters: semester as T extends true
+          ? SemesterWithDetails[]
+          : Semester[],
+        pageCount
+      };
+    } catch (error) {
+      console.error('Error fetching semesters:', error);
+      return {
+        semesters: [] as unknown as T extends true
+          ? SemesterWithDetails[]
+          : Semester[],
+        pageCount: 0
+      };
     }
-  )();
+  };
+
+  // Use cache by default (explicitly disable with useCache: false)
+  if (options?.useCache !== false) {
+    return await unstable_cache(
+      queryFunction,
+      [JSON.stringify(input ?? {}) + JSON.stringify(options ?? {})],
+      {
+        tags: ['semesters'],
+        revalidate: 3600 // 1 hour cache
+      }
+    )();
+  }
+
+  // Execute directly without cache
+  return await queryFunction();
 }
 
 export const getSemesterById = async (id: number) => {
@@ -245,28 +245,10 @@ export const getSemesterById = async (id: number) => {
         return null;
       }
     },
-    ['semester'],
+    [`semester-${id}`],
     {
-      tags: [`semester-${id}`]
+      tags: [`semester-${id}`],
+      revalidate: 3600 // 1 hour cache
     }
   )();
 };
-
-export async function getSemestersForSelect() {
-  return await prisma.semester.findMany({
-    select: {
-      id: true,
-      semesterName: true,
-      academicYear: {
-        select: {
-          yearRange: true
-        }
-      }
-    },
-    orderBy: {
-      academicYear: {
-        yearRange: 'desc'
-      }
-    }
-  });
-}

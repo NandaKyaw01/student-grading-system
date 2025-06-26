@@ -1,25 +1,22 @@
 'use client';
 
-import { ResultWithDetails } from '@/actions/result';
+import { AcademicYearResultWithDetails } from '@/actions/academic-result';
+import { AcademicYearWithDetails } from '@/actions/academic-year';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { AcademicYear, Class, Semester, Status } from '@/generated/prisma';
+import { Status } from '@/generated/prisma';
 import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
 import { CalendarCheck, CalendarIcon, FileSearch2, Text } from 'lucide-react';
 import Link from 'next/link';
-import { ResultCellAction } from './result-cell-action';
+import { AcademicResultCellAction } from './academic-result-cell-action';
 
-export function getResultColumns({
-  academicYears,
-  semesters,
-  classes
+export function getAcademicResultColumns({
+  academicYears
 }: {
-  academicYears: AcademicYear[];
-  semesters: Semester[];
-  classes: Class[];
-}): ColumnDef<ResultWithDetails>[] {
+  academicYears: AcademicYearWithDetails[];
+}): ColumnDef<AcademicYearResultWithDetails>[] {
   return [
     {
       id: 'select',
@@ -69,7 +66,7 @@ export function getResultColumns({
     },
     {
       id: 'search',
-      accessorFn: (row) => row.enrollment?.student?.studentName,
+      accessorFn: (row) => row.student?.studentName,
       header: 'Student',
       meta: {
         label: 'Student',
@@ -80,15 +77,8 @@ export function getResultColumns({
       enableColumnFilter: true
     },
     {
-      id: 'rollnumber',
-      accessorFn: (row) => `${row.enrollment?.rollNumber}`,
-      header: 'Roll No.'
-    },
-
-    {
       id: 'academicYearId',
-      accessorFn: (row) =>
-        `${row.enrollment?.semester?.academicYear?.yearRange}`,
+      accessorFn: (row) => `${row.academicYear?.yearRange}`,
       header: 'Year',
       meta: {
         label: 'Academic Year',
@@ -102,43 +92,55 @@ export function getResultColumns({
       enableColumnFilter: true
     },
     {
-      id: 'semesterId',
-      accessorFn: (row) => `${row.enrollment?.semester?.semesterName}`,
-      header: 'Semester',
-      meta: {
-        label: 'Semester',
-        variant: 'multiSelect',
-        options: semesters.map((seme) => ({
-          label: `${seme.semesterName} ${seme.isCurrent ? '(Current)' : ''}`,
-          value: seme.id.toString()
-        })),
-        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
-      },
-      enableColumnFilter: true
-    },
-    {
-      id: 'classId',
-      accessorFn: (row) =>
-        `${row.enrollment?.class?.className} (${row.enrollment?.class?.departmentCode})`,
-      header: 'Class',
-      meta: {
-        label: 'Class',
-        variant: 'multiSelect',
-        options: classes.map((cls) => ({
-          label: `${cls.className} (${cls.departmentCode})`,
-          value: cls.id.toString()
-        })),
-        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
-      },
-      enableColumnFilter: true
-    },
-    {
-      id: 'gpa',
-      accessorKey: 'gpa',
+      id: 'totalGp',
+      accessorKey: 'totalGp',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='GPA' />
+        <DataTableColumnHeader column={column} title='Total GP' />
       ),
-      cell: ({ cell }) => cell.getValue<number>().toFixed(2)
+      meta: {
+        label: 'Total GP'
+      },
+      enableSorting: true
+    },
+    {
+      id: 'totalCredits',
+      accessorKey: 'totalCredits',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Total Credits' />
+      ),
+      meta: {
+        label: 'Total Credits'
+      },
+      enableSorting: true
+    },
+    {
+      id: 'overallGpa',
+      accessorKey: 'overallGpa',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Overall GPA' />
+      ),
+      meta: {
+        label: 'Overall GPA'
+      },
+      enableSorting: true
+    },
+    {
+      id: 'semester',
+      accessorKey: 'semesterCount',
+      header: 'Semester',
+      cell: ({ cell }) => (
+        <div>
+          {cell.getValue<Status>()} /{' '}
+          {
+            academicYears.find(
+              (year) => year.id === cell.row.original.academicYearId
+            )?.semesters.length
+          }
+        </div>
+      ),
+      meta: {
+        label: 'Semester'
+      }
     },
     {
       id: 'status',
@@ -165,12 +167,12 @@ export function getResultColumns({
       cell: ({ row }) => (
         <div className='flex justify-center gap-2 items-center'>
           <Link
-            href={`/admin/results/${row.original.enrollmentId}/view`}
+            href={`/admin/results/${row.original.id}`}
             className={buttonVariants()}
           >
             <FileSearch2 className='h-4 w-4' />
           </Link>
-          <ResultCellAction data={row.original} />
+          <AcademicResultCellAction data={row.original} />
         </div>
       ),
       size: 40
