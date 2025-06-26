@@ -21,7 +21,7 @@ import { Edit, Trash } from 'lucide-react';
 import { DeleteClassDialog } from './delete-class-modal';
 
 interface ClassTableProps {
-  classProp: Promise<Awaited<ReturnType<typeof getClasses>>>;
+  classProp: Promise<Awaited<ReturnType<typeof getClasses<true>>>>;
 }
 const ClassesTable = ({ classProp }: ClassTableProps) => {
   // const classList = use(classProp) as ClassWithDetails[];

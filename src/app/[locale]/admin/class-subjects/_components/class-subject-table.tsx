@@ -13,7 +13,7 @@ import { use } from 'react';
 import { ClassSubjectManager } from './class-subject-manager';
 
 interface ClassTableProps {
-  classProp: Promise<Awaited<ReturnType<typeof getClasses>>>;
+  classProp: Promise<Awaited<ReturnType<typeof getClasses<true>>>>;
 }
 
 const ClassSubjectsTable = ({ classProp }: ClassTableProps) => {
