@@ -12,6 +12,7 @@ import {
 } from '@/actions/result';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -23,7 +24,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   CreateResultFormData,
   createResultSchema,
@@ -33,23 +33,22 @@ import {
 } from '@/lib/zod/result';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
+import { Loader } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 import { Combobox } from './result-combobox';
 import ExistingResultDialog from './result-existing-alert';
 
 export interface ResultFormProps {
-  initialData?: UpdateResultFormData | null;
+  initialData?: UpdateResultFormData | CreateResultFormData | null;
   onSuccess?: () => void;
 }
 
 // Loading skeleton components
 const ComboboxSkeleton = () => (
   <div className='space-y-2'>
-    {/* <Skeleton className='h-4 w-20' /> */}
     <Skeleton className='h-10 w-full' />
   </div>
 );
@@ -95,12 +94,29 @@ export default function ResultForm({
   onSuccess
 }: ResultFormProps) {
   const router = useRouter();
-  const isEditMode = !!initialData?.enrollmentId;
 
-  const [autoSelectCurrentYear, setAutoSelectCurrentYear] =
-    useState(isEditMode);
-  const [autoSelectCurrentSemester, setAutoSelectCurrentSemester] =
-    useState(isEditMode);
+  // Check if this is edit mode by looking for enrollmentId in initialData
+  const isEditMode = !!(
+    initialData &&
+    'enrollmentId' in initialData &&
+    initialData.enrollmentId > 0
+  );
+
+  // Check if we have query parameters for pre-filling
+  const hasQueryParams = !!(
+    initialData &&
+    !isEditMode &&
+    (initialData.studentId > 0 ||
+      initialData.academicYearId > 0 ||
+      initialData.semesterId > 0)
+  );
+
+  const [autoSelectCurrentYear, setAutoSelectCurrentYear] = useState(
+    isEditMode || !hasQueryParams
+  );
+  const [autoSelectCurrentSemester, setAutoSelectCurrentSemester] = useState(
+    isEditMode || !hasQueryParams
+  );
   const [showExistingResultDialog, setShowExistingResultDialog] =
     useState(false);
 
@@ -111,24 +127,13 @@ export default function ResultForm({
   const form = useForm<CreateResultFormData>({
     resolver: zodResolver(dynamicSchema),
     defaultValues: {
-      studentId: 0,
-      academicYearId: 0,
-      semesterId: 0,
-      enrollmentId: 0,
-      grades: []
+      studentId: initialData?.studentId || 0,
+      academicYearId: initialData?.academicYearId || 0,
+      semesterId: initialData?.semesterId || 0,
+      enrollmentId: initialData?.enrollmentId || 0,
+      grades: initialData?.grades || []
     }
   });
-
-  // const form = useForm<CreateResultFormData>({
-  //   resolver: zodResolver(isEditMode ? updateResultSchema : createResultSchema),
-  //   defaultValues: {
-  //     studentId: 0,
-  //     academicYearId: 0,
-  //     semesterId: 0,
-  //     enrollmentId: 0,
-  //     grades: []
-  //   }
-  // });
 
   const { fields, replace } = useFieldArray({
     control: form.control,
@@ -146,10 +151,10 @@ export default function ResultForm({
 
   // Initialize form with initial data
   useEffect(() => {
-    if (initialData && isEditMode) {
+    if (initialData) {
       form.reset(initialData);
     }
-  }, [initialData, isEditMode, form]);
+  }, [initialData, form]);
 
   // Data fetching queries
   const { data: studentsData, isLoading: studentsLoading } = useQuery({
@@ -236,7 +241,8 @@ export default function ResultForm({
       autoSelectCurrentYear &&
       !academicYearsLoading &&
       !isEditMode &&
-      studentId > 0
+      studentId > 0 &&
+      !hasQueryParams
     ) {
       const currentAcademicYear = academicYears.find((ay) => ay.isCurrent);
       if (currentAcademicYear && academicYearId !== currentAcademicYear.id) {
@@ -250,6 +256,7 @@ export default function ResultForm({
     isEditMode,
     studentId,
     academicYearId,
+    hasQueryParams,
     form
   ]);
 
@@ -258,7 +265,8 @@ export default function ResultForm({
       autoSelectCurrentSemester &&
       !semestersLoading &&
       !isEditMode &&
-      academicYearId > 0
+      academicYearId > 0 &&
+      !hasQueryParams
     ) {
       const currentSemester = semesters.find((s) => s.isCurrent);
       if (currentSemester && semesterId !== currentSemester.id) {
@@ -272,6 +280,7 @@ export default function ResultForm({
     isEditMode,
     academicYearId,
     semesterId,
+    hasQueryParams,
     form
   ]);
 
@@ -314,7 +323,7 @@ export default function ResultForm({
     } else {
       form.clearErrors('enrollmentId');
     }
-  }, [hasExistingResult, isEditMode, form, replace]);
+  }, [hasExistingResult, isEditMode, form]);
 
   // Create/Update result mutation
   const resultMutation = useMutation({
@@ -386,7 +395,6 @@ export default function ResultForm({
 
   const handleEditExisting = () => {
     if (existingResultData?.data) {
-      // setShowExistingResultDialog(false);
       router.push(`/admin/results/${existingResultData.data.enrollmentId}`);
     }
   };
@@ -699,7 +707,7 @@ export default function ResultForm({
         {/* Submit Button */}
         <Button type='submit' className='w-full' disabled={isSubmitDisabled}>
           {resultMutation.isPending && (
-            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+            <Loader className='mr-2 h-4 w-4 animate-spin' />
           )}
           {isEditMode ? 'Update Result' : 'Create Result'}
         </Button>

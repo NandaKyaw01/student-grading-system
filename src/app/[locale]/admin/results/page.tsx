@@ -62,6 +62,8 @@ export default async function ResultsPage(props: pageProps) {
     })
   ]);
 
+  const suspenseKey = `results-${search.academicYearId || 'all'}-${search.semesterId || 'all'}`;
+
   return (
     <ContentLayout
       title={'Results'}
@@ -70,7 +72,9 @@ export default async function ResultsPage(props: pageProps) {
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-3xl font-bold tracking-tight'>Results</h5>
+            <h5 className='text-2xl font-bold tracking-tight'>
+              Semester Results
+            </h5>
             <p className='text-muted-foreground text-sm'>
               Manage student results (Server side table functionalities.)
             </p>
@@ -85,7 +89,7 @@ export default async function ResultsPage(props: pageProps) {
         <Separator />
 
         <Suspense
-          key={key}
+          key={suspenseKey}
           fallback={
             <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
           }

@@ -25,7 +25,7 @@ import {
   Award
 } from 'lucide-react';
 import { getResultById, type ResultData } from '@/actions/result-view';
-import { DownloadButton } from '../../_components/download-button';
+import { ResultDownloadButton } from '../../_components/result-download-button';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 
@@ -136,7 +136,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                   </CardDescription>
                 </div>
                 <div className='flex-shrink-0'>
-                  <DownloadButton resultData={resultData} />
+                  <ResultDownloadButton resultData={resultData} />
                 </div>
               </div>
             </CardHeader>

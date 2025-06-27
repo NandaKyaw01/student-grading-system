@@ -156,3 +156,58 @@ export async function deleteAcademicResult(id: number) {
     };
   }
 }
+
+const academicYearResultViewWithDetails =
+  Prisma.validator<Prisma.AcademicYearResultInclude>()({
+    student: true,
+    academicYear: {
+      include: {
+        semesters: true
+      }
+    },
+    semesterResults: {
+      include: {
+        enrollment: {
+          include: {
+            grades: {
+              include: {
+                classSubject: {
+                  include: {
+                    subject: true
+                  }
+                }
+              }
+            },
+            class: true,
+            semester: true
+          }
+        }
+      }
+    }
+  });
+
+export type AcademicYearResultViewWithDetails =
+  Prisma.AcademicYearResultGetPayload<{
+    include: typeof academicYearResultViewWithDetails;
+  }>;
+
+export async function getAcademicYearResult(id: number) {
+  try {
+    const result = await prisma.academicYearResult.findUnique({
+      where: {
+        id: id
+      },
+      include: academicYearResultViewWithDetails
+    });
+
+    return {
+      result,
+      error: null
+    };
+  } catch (err) {
+    return {
+      data: null,
+      error: getErrorMessage(err)
+    };
+  }
+}

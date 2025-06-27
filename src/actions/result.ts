@@ -50,9 +50,12 @@ export async function deleteResult(enrollmentId: number) {
       await tx.result.delete({
         where: { enrollmentId }
       });
+
+      await updateAcademicYearResult(enrollmentId, tx);
     });
 
     revalidateTag('results');
+    revalidateTag('academic-year-results');
     revalidateTag(`result-${enrollmentId}`);
 
     return {

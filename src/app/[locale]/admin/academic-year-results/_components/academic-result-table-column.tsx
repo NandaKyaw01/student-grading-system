@@ -167,7 +167,7 @@ export function getAcademicResultColumns({
       cell: ({ row }) => (
         <div className='flex justify-center gap-2 items-center'>
           <Link
-            href={`/admin/results/${row.original.id}`}
+            href={`/admin/academic-year-results/${row.original.id}`}
             className={buttonVariants()}
           >
             <FileSearch2 className='h-4 w-4' />

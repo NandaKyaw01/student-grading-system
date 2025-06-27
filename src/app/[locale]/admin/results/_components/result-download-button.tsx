@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Download, Loader } from 'lucide-react';
 import { type ResultData } from '@/actions/result-view';
 
-interface DownloadButtonProps {
+interface ResultDownloadButtonProps {
   resultData: ResultData;
 }
 
-export function DownloadButton({ resultData }: DownloadButtonProps) {
+export function ResultDownloadButton({
+  resultData
+}: ResultDownloadButtonProps) {
   const [isPending, startTransition] = useTransition();
   const generateWordFromTemplate = () => {
     startTransition(async () => {

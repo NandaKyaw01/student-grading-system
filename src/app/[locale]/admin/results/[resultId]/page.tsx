@@ -11,19 +11,41 @@ export const metadata = {
   title: 'Results : Result View'
 };
 
-type PageProps = { params: Promise<{ resultId: string }> };
+type PageProps = {
+  params: Promise<{ resultId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
 export default async function Page(props: PageProps) {
   const params = await props.params;
+  const searchParams = await props.searchParams;
+
   let result = null;
   let pageTitle = 'Create New Result';
+  let initialFormData = null;
 
   if (params.resultId !== 'new') {
+    // This is edit mode - fetch existing result
     result = await getResultById(params.resultId);
     if (!result) {
       notFound();
     }
-    pageTitle = `Edit Result`;
+    pageTitle = `Edit Result ( ID - ${params.resultId} )`;
+  } else {
+    // This is create mode - check for query parameters
+    const { semesterId, studentId, academicYearId } = searchParams;
+
+    if (semesterId || studentId || academicYearId) {
+      initialFormData = {
+        studentId: studentId ? parseInt(studentId as string) || 0 : 0,
+        academicYearId: academicYearId
+          ? parseInt(academicYearId as string) || 0
+          : 0,
+        semesterId: semesterId ? parseInt(semesterId as string) || 0 : 0,
+        enrollmentId: 0,
+        grades: []
+      };
+    }
   }
 
   return (
@@ -51,19 +73,12 @@ export default async function Page(props: PageProps) {
       <div className='flex-1 space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-2xl font-bold tracking-tight'>
-              {params.resultId !== 'new'
-                ? `Edit Result ( ID - ${params.resultId} )`
-                : 'Add New Result'}
-            </h5>
-            <p className='text-muted-foreground text-sm'>
-              Manage student results (Server side table functionalities.)
-            </p>
+            <h5 className='text-2xl font-bold tracking-tight'>{pageTitle}</h5>
           </div>
         </div>
         <Separator />
         <Suspense fallback={<FormCardSkeleton />}>
-          <ResultForm initialData={result} />
+          <ResultForm initialData={result || initialFormData} />
         </Suspense>
       </div>
     </ContentLayout>
