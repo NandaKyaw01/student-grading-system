@@ -29,6 +29,7 @@ export type ResultData = {
     finalMark: number;
     grade: string;
     gp: number;
+    score: number;
   }>;
   gradeScales: {
     gradeDescRow1: Array<{
@@ -177,7 +178,8 @@ export async function getResultById(
         assignMark: grade.assignMark,
         finalMark: grade.finalMark,
         grade: grade.grade,
-        gp: grade.gp
+        gp: grade.gp,
+        score: grade.score
       })),
       gradeScales: {
         // Grade descriptions in two rows

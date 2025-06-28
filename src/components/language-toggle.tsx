@@ -45,35 +45,36 @@ const LanguageToggle = () => {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <div className='inline-block'>
-            <div className='flex items-center gap-2'>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+        <div className='inline-block'>
+          <div className='flex items-center gap-2'>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <TooltipTrigger asChild>
                   <Button variant='ghost'>
                     <Languages className='w-5 h-5' />
                     <span className='sr-only'>Toggle language</span>
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align='end' className='min-w-min'>
-                  {routing.locales.map((cur) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        checked={locale === cur}
-                        onClick={() => onSelectChange(cur)}
-                        disabled={isPending}
-                        className='cursor-pointer'
-                        key={cur}
-                      >
-                        {t('locale', { locale: cur })}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                </TooltipTrigger>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='min-w-min'>
+                {routing.locales.map((cur) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      checked={locale === cur}
+                      onClick={() => onSelectChange(cur)}
+                      disabled={isPending}
+                      className='cursor-pointer'
+                      key={cur}
+                    >
+                      {t('locale', { locale: cur })}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </TooltipTrigger>
+        </div>
+
         <TooltipContent>
           <p>Switch Language.</p>
         </TooltipContent>

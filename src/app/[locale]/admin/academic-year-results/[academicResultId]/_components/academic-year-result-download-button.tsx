@@ -37,20 +37,20 @@ export function AcademicResultDownloadButton({
 
           // Overall Result Information
           overallGpa: resultData.overallGpa.toFixed(2),
-          totalCredits: resultData.totalCredits,
+          totalCredits: resultData.totalCredits.toFixed(2),
           totalGp: resultData.totalGp.toFixed(2),
           status: resultData.status,
           className: resultData.semesterResults[0].enrollment.class.className,
 
           // Semester Results
-          semesters: resultData.semesterResults.map(
-            (semesterResult, index) => ({
+          semesters: resultData.semesterResults
+            .map((semesterResult, index) => ({
               semesterNumber: index + 1,
               semesterName: semesterResult.enrollment.semester.semesterName,
               className: semesterResult.enrollment.class.className,
               departmentCode: semesterResult.enrollment.class.departmentCode,
               gpa: semesterResult.gpa.toFixed(2),
-              semesterCredits: semesterResult.totalCredits,
+              semesterCredits: semesterResult.totalCredits.toFixed(2),
               semesterGp: semesterResult.totalGp.toFixed(2),
               semesterStatus: semesterResult.status,
 
@@ -59,19 +59,39 @@ export function AcademicResultDownloadButton({
                 (grade, gradeIndex) => ({
                   no: gradeIndex + 1,
                   subjectName: grade.classSubject.subject.subjectName,
-                  crdUnit: grade.classSubject.subject.creditHours,
+                  creditUnit: grade.classSubject.subject.creditHours.toFixed(2),
                   grade: grade.grade,
-                  score: grade.gp.toFixed(2),
-                  point: (
-                    grade.gp * grade.classSubject.subject.creditHours
-                  ).toFixed(2),
+                  score: grade.score.toFixed(2),
+                  point: grade.gp.toFixed(2),
                   examMark: grade.examMark,
                   assignMark: grade.assignMark,
                   finalMark: grade.finalMark
                 })
               )
-            })
-          ),
+            }))
+            .sort((a, b) => {
+              const getSemesterNumber = (name: string) => {
+                const numMatch = name.match(/(\d+)/);
+                if (numMatch) return parseInt(numMatch[0]);
+                const textualNumbers = [
+                  'first',
+                  'second',
+                  'third',
+                  'fourth',
+                  'fifth',
+                  'sixth'
+                ];
+                const lowerName = name.toLowerCase();
+                for (let i = 0; i < textualNumbers.length; i++) {
+                  if (lowerName.includes(textualNumbers[i])) return i + 1;
+                }
+                return 0;
+              };
+              return (
+                getSemesterNumber(a.semesterName) -
+                getSemesterNumber(b.semesterName)
+              );
+            }),
 
           // Current date
           currentDate: new Date().toLocaleDateString('en-US', {

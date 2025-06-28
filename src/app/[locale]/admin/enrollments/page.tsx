@@ -59,7 +59,7 @@ export default async function Page(props: pageProps) {
       <div className='flex-1 space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-3xl font-bold tracking-tight'>Enrollments</h5>
+            <h5 className='text-2xl font-bold tracking-tight'>Enrollments</h5>
             <p className='text-muted-foreground text-sm'>
               Manage Enrollments (Server side table functionalities.)
             </p>

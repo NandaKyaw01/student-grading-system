@@ -39,17 +39,17 @@ export function ResultDownloadButton({
 
           // Results
           gpa: resultData.result.gpa.toFixed(2),
-          totalCredit: resultData.result.totalCredits,
+          totalCredit: resultData.result.totalCredits.toFixed(2),
           totalGp: resultData.result.totalGp.toFixed(2),
 
           // Grades array for table iteration
           grades: resultData.grades.map((grade, index) => ({
             no: index + 1,
             subjectName: grade.subject.name,
-            creditUnit: grade.subject.creditHours,
+            creditUnit: grade.subject.creditHours.toFixed(2),
             grade: grade.grade,
-            score: grade.gp.toFixed(2),
-            point: (grade.gp * grade.subject.creditHours).toFixed(2),
+            score: grade.score.toFixed(2),
+            point: grade.gp.toFixed(2),
             examMark: grade.examMark,
             assignMark: grade.assignMark,
             finalMark: grade.finalMark

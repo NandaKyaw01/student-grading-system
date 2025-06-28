@@ -124,7 +124,7 @@ export default function AcademicYearResultView({ data }: Props) {
               <div className='min-w-0 flex-1'>
                 <p className='text-sm text-muted-foreground'>Overall GPA</p>
                 <p className={`font-medium ${getGpaColor(data.overallGpa)}`}>
-                  {data.overallGpa}
+                  {data.overallGpa.toFixed(2)}
                   {!data.isComplete && (
                     <span className='text-xs text-muted-foreground ml-1'>
                       (Partial)
@@ -138,7 +138,7 @@ export default function AcademicYearResultView({ data }: Props) {
               <div className='min-w-0 flex-1'>
                 <p className='text-sm text-muted-foreground'>Total Credits</p>
                 <p className='font-medium text-foreground'>
-                  {data.totalCredits}
+                  {data.totalCredits.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -146,7 +146,9 @@ export default function AcademicYearResultView({ data }: Props) {
               <Award className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
                 <p className='text-sm text-muted-foreground'>Total GP</p>
-                <p className='font-medium text-foreground'>{data.totalGp}</p>
+                <p className='font-medium text-foreground'>
+                  {data.totalGp.toFixed(2)}
+                </p>
               </div>
             </div>
             <div className='flex items-center gap-3'>
@@ -185,7 +187,7 @@ export default function AcademicYearResultView({ data }: Props) {
                 <p
                   className={`text-3xl sm:text-3xl font-bold ${getGpaColor(data.overallGpa)}`}
                 >
-                  {data.overallGpa}
+                  {data.overallGpa.toFixed(2)}
                 </p>
               </div>
               <div className='p-2 sm:p-3 bg-green-100 dark:bg-green-900/50 rounded-full self-end sm:self-auto'>
@@ -206,7 +208,7 @@ export default function AcademicYearResultView({ data }: Props) {
                   Total Credits
                 </p>
                 <p className='text-3xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400'>
-                  {data.totalCredits}
+                  {data.totalCredits.toFixed(2)}
                 </p>
               </div>
               <div className='p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full self-end sm:self-auto'>
@@ -317,7 +319,7 @@ export default function AcademicYearResultView({ data }: Props) {
               </p>
               <Button asChild>
                 <Link
-                  href={`/results/create?academicYearId=${data.academicYearId}&studentId=${data.studentId}`}
+                  href={`/admin/results/new/?studentId=${data.studentId}&academicYearId=${data.academicYearId}`}
                 >
                   <Plus className='h-4 w-4 mr-2' />
                   Create First Result
@@ -344,7 +346,7 @@ export default function AcademicYearResultView({ data }: Props) {
                           <span
                             className={`font-semibold ${getGpaColor(semesterResult.gpa)}`}
                           >
-                            GPA: {semesterResult.gpa}
+                            GPA: {semesterResult.gpa.toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -381,7 +383,7 @@ export default function AcademicYearResultView({ data }: Props) {
                               Credits
                             </p>
                             <p className='font-medium text-foreground'>
-                              {semesterResult.totalCredits}
+                              {semesterResult.totalCredits.toFixed(2)}
                             </p>
                           </div>
                         </div>
@@ -423,7 +425,9 @@ export default function AcademicYearResultView({ data }: Props) {
                                       Credits:{' '}
                                     </span>
                                     <span className='font-medium text-foreground'>
-                                      {grade.classSubject.subject.creditHours}
+                                      {grade.classSubject.subject.creditHours.toFixed(
+                                        2
+                                      )}
                                     </span>
                                   </div>
                                   <div>
@@ -431,7 +435,7 @@ export default function AcademicYearResultView({ data }: Props) {
                                       GP:{' '}
                                     </span>
                                     <span className='font-medium text-foreground'>
-                                      {grade.gp}
+                                      {grade.gp.toFixed(2)}
                                     </span>
                                   </div>
                                 </div>
@@ -441,7 +445,7 @@ export default function AcademicYearResultView({ data }: Props) {
                                     Final Mark:{' '}
                                   </span>
                                   <span className='font-bold text-foreground'>
-                                    {grade.finalMark}
+                                    {grade.finalMark.toFixed(2)}
                                   </span>
                                 </div>
                               </div>
@@ -468,7 +472,9 @@ export default function AcademicYearResultView({ data }: Props) {
                                 </p>
                                 <p className='text-sm text-muted-foreground'>
                                   {grade.classSubject.subject.id} •{' '}
-                                  {grade.classSubject.subject.creditHours}{' '}
+                                  {grade.classSubject.subject.creditHours.toFixed(
+                                    2
+                                  )}{' '}
                                   credits
                                 </p>
                               </div>
@@ -478,7 +484,7 @@ export default function AcademicYearResultView({ data }: Props) {
                                     Final Mark
                                   </p>
                                   <p className='font-medium text-foreground'>
-                                    {grade.finalMark}
+                                    {grade.finalMark.toFixed(2)}
                                   </p>
                                 </div>
                                 <div className='text-center'>
@@ -490,7 +496,7 @@ export default function AcademicYearResultView({ data }: Props) {
                                 <div className='text-center'>
                                   <p className='text-muted-foreground'>GP</p>
                                   <p className='font-medium text-foreground'>
-                                    {grade.gp}
+                                    {grade.gp.toFixed(2)}
                                   </p>
                                 </div>
                               </div>
@@ -509,7 +515,7 @@ export default function AcademicYearResultView({ data }: Props) {
                             <span className='text-muted-foreground'>
                               Credits:{' '}
                               <span className='font-bold text-foreground'>
-                                {semesterResult.totalCredits}
+                                {semesterResult.totalCredits.toFixed(2)}
                               </span>
                             </span>
                             <span className='text-muted-foreground'>
@@ -517,7 +523,7 @@ export default function AcademicYearResultView({ data }: Props) {
                               <span
                                 className={`font-bold ${getGpaColor(semesterResult.gpa)}`}
                               >
-                                {semesterResult.gpa}
+                                {semesterResult.gpa.toFixed(2)}
                               </span>
                             </span>
                             <span className='text-muted-foreground'>
