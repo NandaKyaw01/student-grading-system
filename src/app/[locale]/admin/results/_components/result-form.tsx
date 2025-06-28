@@ -35,7 +35,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Combobox } from './result-combobox';
@@ -112,10 +112,12 @@ export default function ResultForm({
   );
 
   const [autoSelectCurrentYear, setAutoSelectCurrentYear] = useState(
-    isEditMode || !hasQueryParams
+    // isEditMode || !hasQueryParams
+    false
   );
   const [autoSelectCurrentSemester, setAutoSelectCurrentSemester] = useState(
-    isEditMode || !hasQueryParams
+    // isEditMode || !hasQueryParams
+    false
   );
   const [showExistingResultDialog, setShowExistingResultDialog] =
     useState(false);
@@ -123,6 +125,12 @@ export default function ResultForm({
   const [dynamicSchema, setDynamicSchema] = useState(
     isEditMode ? updateResultSchema : createResultSchema
   );
+
+  // Use refs to track if we've already initialized form values
+  const initialDataProcessed = useRef(false);
+  const currentYearProcessed = useRef(false);
+  const currentSemesterProcessed = useRef(false);
+  const subjectsProcessed = useRef(false);
 
   const form = useForm<CreateResultFormData>({
     resolver: zodResolver(dynamicSchema),
@@ -149,10 +157,11 @@ export default function ResultForm({
   ]);
   const [studentId, academicYearId, semesterId, enrollmentId] = watchedValues;
 
-  // Initialize form with initial data
+  // Initialize form with initial data - only once
   useEffect(() => {
-    if (initialData) {
+    if (initialData && !initialDataProcessed.current) {
       form.reset(initialData);
+      initialDataProcessed.current = true;
     }
   }, [initialData, form]);
 
@@ -219,34 +228,36 @@ export default function ResultForm({
     [subjectsData]
   );
 
-  const hasExistingResult =
-    existingResultData?.success && existingResultData.data;
+  const hasExistingResult = useMemo(
+    () => existingResultData?.success && existingResultData.data,
+    [existingResultData]
+  );
 
+  // Update schema when subjects change - only once per subjects array
   useEffect(() => {
-    if (subjects.length > 0) {
+    if (subjects.length > 0 && !subjectsProcessed.current) {
       const newSchema = createResultSchemaWithSubjects(subjects);
       setDynamicSchema(newSchema);
-
-      // Get current form values
-      const currentValues = form.getValues();
-
-      // Recreate form with new schema
-      form.reset(currentValues);
+      subjectsProcessed.current = true;
+    } else if (subjects.length === 0) {
+      subjectsProcessed.current = false;
     }
-  }, [subjects, form]);
+  }, [subjects]);
 
-  // Auto-selection effects
+  // Auto-selection effects - use refs to prevent multiple executions
   useEffect(() => {
     if (
       autoSelectCurrentYear &&
       !academicYearsLoading &&
       !isEditMode &&
       studentId > 0 &&
-      !hasQueryParams
+      !hasQueryParams &&
+      !currentYearProcessed.current
     ) {
       const currentAcademicYear = academicYears.find((ay) => ay.isCurrent);
       if (currentAcademicYear && academicYearId !== currentAcademicYear.id) {
         form.setValue('academicYearId', currentAcademicYear.id);
+        currentYearProcessed.current = true;
       }
     }
   }, [
@@ -266,11 +277,13 @@ export default function ResultForm({
       !semestersLoading &&
       !isEditMode &&
       academicYearId > 0 &&
-      !hasQueryParams
+      !hasQueryParams &&
+      !currentSemesterProcessed.current
     ) {
       const currentSemester = semesters.find((s) => s.isCurrent);
       if (currentSemester && semesterId !== currentSemester.id) {
         form.setValue('semesterId', currentSemester.id);
+        currentSemesterProcessed.current = true;
       }
     }
   }, [
@@ -284,33 +297,35 @@ export default function ResultForm({
     form
   ]);
 
-  // Setup grade fields when subjects are loaded
-  useEffect(() => {
-    if (subjects.length > 0) {
-      let gradeFields;
+  // Setup grade fields when subjects are loaded - memoize the grade fields creation
+  const gradeFields = useMemo(() => {
+    if (subjects.length === 0) return [];
 
-      if (isEditMode && initialData?.grades?.length > 0) {
-        gradeFields = subjects.map((subject) => {
-          const existingGrade = initialData.grades.find(
-            (grade) => grade.classSubjectId === subject.classSubjectId
-          );
-          return {
-            classSubjectId: subject.classSubjectId,
-            examMark: existingGrade?.examMark?.toString() ?? '',
-            assignMark: existingGrade?.assignMark?.toString() ?? ''
-          };
-        });
-      } else {
-        gradeFields = subjects.map((subject) => ({
+    if (isEditMode && initialData?.grades?.length > 0) {
+      return subjects.map((subject) => {
+        const existingGrade = initialData.grades.find(
+          (grade) => grade.classSubjectId === subject.classSubjectId
+        );
+        return {
           classSubjectId: subject.classSubjectId,
-          examMark: '',
-          assignMark: ''
-        }));
-      }
+          examMark: existingGrade?.examMark?.toString() ?? '',
+          assignMark: existingGrade?.assignMark?.toString() ?? ''
+        };
+      });
+    } else {
+      return subjects.map((subject) => ({
+        classSubjectId: subject.classSubjectId,
+        examMark: '',
+        assignMark: ''
+      }));
+    }
+  }, [subjects, isEditMode, initialData?.grades]);
 
+  useEffect(() => {
+    if (gradeFields.length > 0) {
       replace(gradeFields);
     }
-  }, [subjects, replace, isEditMode, initialData?.grades]);
+  }, [gradeFields, replace]);
 
   // Handle existing result
   useEffect(() => {
@@ -344,6 +359,10 @@ export default function ResultForm({
           form.reset();
           setAutoSelectCurrentYear(false);
           setAutoSelectCurrentSemester(false);
+          // Reset processed flags
+          currentYearProcessed.current = false;
+          currentSemesterProcessed.current = false;
+          subjectsProcessed.current = false;
           router.push('/admin/results');
         }
 
@@ -359,86 +378,113 @@ export default function ResultForm({
     }
   });
 
-  // Event handlers
-  const handleFieldChange = (fieldName: string) => (value: string) => {
-    const numValue = Number(value) || 0;
-    form.setValue(
-      fieldName as
-        | 'studentId'
-        | 'academicYearId'
-        | 'semesterId'
-        | 'enrollmentId',
-      numValue
-    );
+  // Event handlers - use useCallback to prevent recreation
+  const handleFieldChange = useCallback(
+    (fieldName: string) => (value: string) => {
+      const numValue = Number(value) || 0;
+      form.setValue(
+        fieldName as
+          | 'studentId'
+          | 'academicYearId'
+          | 'semesterId'
+          | 'enrollmentId',
+        numValue
+      );
 
-    if (!isEditMode) {
-      // Reset dependent fields in create mode
-      if (fieldName === 'studentId') {
-        form.setValue('academicYearId', 0);
-        form.setValue('semesterId', 0);
-        form.setValue('enrollmentId', 0);
-        replace([]);
-      } else if (fieldName === 'academicYearId') {
-        form.setValue('semesterId', 0);
-        form.setValue('enrollmentId', 0);
-        setAutoSelectCurrentYear(false);
-        replace([]);
-      } else if (fieldName === 'semesterId') {
-        form.setValue('enrollmentId', 0);
-        setAutoSelectCurrentSemester(false);
-        replace([]);
-      } else if (fieldName === 'enrollmentId') {
-        replace([]);
+      if (!isEditMode) {
+        // Reset dependent fields in create mode
+        if (fieldName === 'studentId') {
+          form.setValue('academicYearId', 0);
+          form.setValue('semesterId', 0);
+          form.setValue('enrollmentId', 0);
+          replace([]);
+          // Reset processed flags
+          currentYearProcessed.current = false;
+          currentSemesterProcessed.current = false;
+          subjectsProcessed.current = false;
+        } else if (fieldName === 'academicYearId') {
+          form.setValue('semesterId', 0);
+          form.setValue('enrollmentId', 0);
+          setAutoSelectCurrentYear(false);
+          replace([]);
+          currentSemesterProcessed.current = false;
+          subjectsProcessed.current = false;
+        } else if (fieldName === 'semesterId') {
+          form.setValue('enrollmentId', 0);
+          setAutoSelectCurrentSemester(false);
+          replace([]);
+          subjectsProcessed.current = false;
+        } else if (fieldName === 'enrollmentId') {
+          replace([]);
+          subjectsProcessed.current = false;
+        }
       }
-    }
-  };
+    },
+    [form, isEditMode, replace]
+  );
 
-  const handleEditExisting = () => {
+  const handleEditExisting = useCallback(() => {
     if (existingResultData?.data) {
       router.push(`/admin/results/${existingResultData.data.enrollmentId}`);
     }
-  };
+  }, [existingResultData?.data, router]);
 
-  const handleCancelExisting = () => {
+  const handleCancelExisting = useCallback(() => {
     form.setValue('enrollmentId', 0);
     form.clearErrors('enrollmentId');
-  };
+  }, [form]);
 
-  const onSubmit = (data: CreateResultFormData | UpdateResultFormData) => {
-    resultMutation.mutate(data);
-  };
+  const onSubmit = useCallback(
+    (data: CreateResultFormData | UpdateResultFormData) => {
+      resultMutation.mutate(data);
+    },
+    [resultMutation]
+  );
 
-  const calculateFinalMark = (index: number) => {
-    const subject = subjects[index];
-    if (!subject) return '0.00';
+  const calculateFinalMark = useCallback(
+    (index: number) => {
+      const subject = subjects[index];
+      if (!subject) return '0.00';
 
-    const examMarkValue = form.watch(`grades.${index}.examMark`);
-    const assignMarkValue = form.watch(`grades.${index}.assignMark`);
+      const examMarkValue = form.watch(`grades.${index}.examMark`);
+      const assignMarkValue = form.watch(`grades.${index}.assignMark`);
 
-    const examMark =
-      typeof examMarkValue === 'string'
-        ? parseFloat(examMarkValue) || 0
-        : examMarkValue || 0;
-    const assignMark =
-      typeof assignMarkValue === 'string'
-        ? parseFloat(assignMarkValue) || 0
-        : assignMarkValue || 0;
+      const examMark =
+        typeof examMarkValue === 'string'
+          ? parseFloat(examMarkValue) || 0
+          : examMarkValue || 0;
+      const assignMark =
+        typeof assignMarkValue === 'string'
+          ? parseFloat(assignMarkValue) || 0
+          : assignMarkValue || 0;
 
-    const finalMark = examMark * subject.examWeight + assignMark;
-    return finalMark.toFixed(2);
-  };
+      const finalMark = examMark * subject.examWeight + assignMark;
+      return finalMark.toFixed(2);
+    },
+    [subjects, form]
+  );
 
-  const isSubmitDisabled =
-    resultMutation.isPending ||
-    !enrollmentId ||
-    subjects.length === 0 ||
-    subjectsLoading ||
-    (Boolean(hasExistingResult) && !isEditMode);
+  const isSubmitDisabled = useMemo(
+    () =>
+      resultMutation.isPending ||
+      !enrollmentId ||
+      subjects.length === 0 ||
+      subjectsLoading ||
+      (Boolean(hasExistingResult) && !isEditMode),
+    [
+      resultMutation.isPending,
+      enrollmentId,
+      subjects.length,
+      subjectsLoading,
+      hasExistingResult,
+      isEditMode
+    ]
+  );
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-        <div className='grid grid-cols-2 gap-5'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
           {/* Student Selection */}
           <FormField
             control={form.control}

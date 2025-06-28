@@ -7,7 +7,8 @@ import {
   BookOpenCheck,
   GraduationCap,
   FileCog,
-  Library
+  Library,
+  Import
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -111,6 +112,22 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
             {
               href: '/admin/class-subjects',
               label: t('SubAcademic.class_subjects')
+            }
+          ]
+        }
+      ]
+    },
+    {
+      groupLabel: '',
+      menus: [
+        {
+          href: '',
+          label: 'Imports',
+          icon: Import,
+          submenus: [
+            {
+              href: '/admin/import-results',
+              label: 'Import results'
             }
           ]
         }
