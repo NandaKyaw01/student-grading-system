@@ -20,7 +20,9 @@ export function AcademicResultDownloadButton({
         const { createReport } = await import('docx-templates');
 
         // Load template file
-        const templateResponse = await fetch('/templates/result_template.docx');
+        const templateResponse = await fetch(
+          '/templates/academic-result-template-default.docx'
+        );
         const templateBuffer = await templateResponse.arrayBuffer();
 
         // Convert ArrayBuffer to Uint8Array
@@ -38,6 +40,7 @@ export function AcademicResultDownloadButton({
           totalCredits: resultData.totalCredits,
           totalGp: resultData.totalGp.toFixed(2),
           status: resultData.status,
+          className: resultData.semesterResults[0].enrollment.class.className,
 
           // Semester Results
           semesters: resultData.semesterResults.map(

@@ -1,93 +1,74 @@
-'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
+import { AcademicYearResultViewWithDetails } from '@/actions/academic-result';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
-  CardTitle,
-  CardDescription
+  CardTitle
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
-  Download,
-  Plus,
-  GraduationCap,
-  Calendar,
-  User,
-  Trophy,
-  BookOpen,
-  TrendingUp,
   AlertTriangle,
-  Award
+  Award,
+  BookOpen,
+  Calendar,
+  GraduationCap,
+  Plus,
+  TrendingUp,
+  Trophy,
+  User
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { AcademicYearResultViewWithDetails } from '@/actions/academic-result';
+import Link from 'next/link';
 import { AcademicResultDownloadButton } from './academic-year-result-download-button';
 
 interface Props {
   data: AcademicYearResultViewWithDetails;
 }
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'PASS':
+      return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800';
+    case 'FAIL':
+      return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800';
+    default:
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800';
+  }
+};
+
+const getGpaColor = (gpa: number) => {
+  if (gpa >= 3.5) return 'text-green-600 dark:text-green-400';
+  if (gpa >= 3.0) return 'text-blue-600 dark:text-blue-400';
+  if (gpa >= 2.5) return 'text-yellow-600 dark:text-yellow-400';
+  return 'text-red-600 dark:text-red-400';
+};
+
+const getGradeColor = (grade: string) => {
+  switch (grade) {
+    case 'A+':
+    case 'A':
+    case 'A-':
+      return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800';
+    case 'B+':
+    case 'B':
+    case 'B-':
+      return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800';
+    case 'C+':
+    case 'C':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800';
+    case 'D':
+      return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800';
+    case 'F':
+      return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
+  }
+};
+
 export default function AcademicYearResultView({ data }: Props) {
-  const [isExporting, setIsExporting] = useState(false);
-
-  const handleExport = async () => {
-    setIsExporting(true);
-    try {
-      // In a real implementation, trigger download here
-      toast.success('Export completed successfully');
-    } catch (error) {
-      toast.error('Failed to export data');
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PASS':
-        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800';
-      case 'FAIL':
-        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800';
-      default:
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800';
-    }
-  };
-
-  const getGpaColor = (gpa: number) => {
-    if (gpa >= 3.5) return 'text-green-600 dark:text-green-400';
-    if (gpa >= 3.0) return 'text-blue-600 dark:text-blue-400';
-    if (gpa >= 2.5) return 'text-yellow-600 dark:text-yellow-400';
-    return 'text-red-600 dark:text-red-400';
-  };
-
-  const getGradeColor = (grade: string) => {
-    switch (grade) {
-      case 'A+':
-      case 'A':
-      case 'A-':
-        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800';
-      case 'B+':
-      case 'B':
-      case 'B-':
-        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800';
-      case 'C+':
-      case 'C':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800';
-      case 'D':
-        return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800';
-      case 'F':
-        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
-    }
-  };
-
   // Find missing semesters
   const allSemesters = data.academicYear.semesters;
   const completedSemesterIds = data.semesterResults.map(
@@ -128,7 +109,7 @@ export default function AcademicYearResultView({ data }: Props) {
           </div>
         </CardHeader>
         <CardContent className='p-4 sm:p-6'>
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
             <div className='flex items-center gap-3'>
               <Calendar className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
@@ -159,6 +140,13 @@ export default function AcademicYearResultView({ data }: Props) {
                 <p className='font-medium text-foreground'>
                   {data.totalCredits}
                 </p>
+              </div>
+            </div>
+            <div className='flex items-center gap-3'>
+              <Award className='h-5 w-5 text-primary flex-shrink-0' />
+              <div className='min-w-0 flex-1'>
+                <p className='text-sm text-muted-foreground'>Total GP</p>
+                <p className='font-medium text-foreground'>{data.totalGp}</p>
               </div>
             </div>
             <div className='flex items-center gap-3'>

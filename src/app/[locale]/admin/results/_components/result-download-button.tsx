@@ -19,7 +19,9 @@ export function ResultDownloadButton({
         const { createReport } = await import('docx-templates');
 
         // Load template file
-        const templateResponse = await fetch('/templates/result_template.docx');
+        const templateResponse = await fetch(
+          '/templates/result-template-default.docx'
+        );
         const templateBuffer = await templateResponse.arrayBuffer();
 
         // Convert ArrayBuffer to Uint8Array
@@ -37,14 +39,14 @@ export function ResultDownloadButton({
 
           // Results
           gpa: resultData.result.gpa.toFixed(2),
-          totalCrd: resultData.result.totalCredits,
+          totalCredit: resultData.result.totalCredits,
           totalGp: resultData.result.totalGp.toFixed(2),
 
           // Grades array for table iteration
           grades: resultData.grades.map((grade, index) => ({
             no: index + 1,
             subjectName: grade.subject.name,
-            crdUnit: grade.subject.creditHours,
+            creditUnit: grade.subject.creditHours,
             grade: grade.grade,
             score: grade.gp.toFixed(2),
             point: (grade.gp * grade.subject.creditHours).toFixed(2),
@@ -106,7 +108,7 @@ export function ResultDownloadButton({
       ) : (
         <Download className='h-4 w-4 mr-2' />
       )}
-      Download
+      {isPending ? 'Exporting...' : 'Export DOCX'}
     </Button>
   );
 }
