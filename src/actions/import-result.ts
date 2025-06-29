@@ -125,7 +125,7 @@ export async function generateStudentTemplate(
     const workbook = XLSX.utils.book_new();
 
     // Generate headers
-    const headers = ['No.', 'Admission ID', 'Roll Number', 'Name'];
+    const headers = ['Admission ID', 'Roll Number', 'Student Name'];
 
     // Add subject-specific columns
     classSubjects.forEach((cs) => {
@@ -148,7 +148,6 @@ export async function generateStudentTemplate(
     // Add 5 sample rows to show the format
     for (let i = 1; i <= 5; i++) {
       const row = [
-        i, // No.
         `${String(i).padStart(6, '0')}`,
         `${templateData.classCode || 'CS'}-${i}`,
         `Sample Student ${i}` // Name
@@ -171,7 +170,6 @@ export async function generateStudentTemplate(
 
     // Set column widths
     const columnWidths = [
-      { wch: 5 }, // No.
       { wch: 12 }, // Admission ID
       { wch: 10 }, // Roll Number
       { wch: 20 } // Name
@@ -229,10 +227,10 @@ export async function generateStudentTemplate(
       [''],
       ['INSTRUCTIONS:'],
       ['1. Fill in student information in the main sheet'],
-      ['2. No. column: Sequential number (1, 2, 3, ...)'],
-      ['3. Admission ID column: Admission ID number (e.g., 000001)'],
-      ['4. Roll Number: Student roll number (e.g., CS-1)'],
-      ['5. Name: Full student name'],
+      // ['2. No. column: Sequential number (1, 2, 3, ...)'],
+      ['2. Admission ID column: Admission ID number (e.g., 000001)'],
+      ['3. Roll Number: Student roll number (e.g., CS-1)'],
+      ['4. Name: Full student name'],
       [''],
       ['SUBJECT COLUMNS:'],
       ['For each subject, fill in the following columns:'],
@@ -314,5 +312,536 @@ export async function generateStudentTemplate(
       success: false,
       error: getErrorMessage(error)
     };
+  }
+}
+
+interface ImportError {
+  row: number;
+  column: string;
+  field: string;
+  message: string;
+  value?: unknown;
+}
+
+interface ImportResult {
+  success: boolean;
+  processedCount?: number;
+  errors?: ImportError[];
+  errorData?: Record<string, unknown>[];
+  headers?: string[];
+  message?: string;
+}
+
+interface RowData {
+  [key: string]: string | number | boolean | null | undefined;
+}
+
+interface StudentResultRow extends RowData {
+  'Student Name': string;
+  'Admission ID': string;
+  'Roll Number': string;
+}
+
+export async function importStudentResults(
+  formData: FormData
+): Promise<ImportResult> {
+  try {
+    const file = formData.get('file') as File;
+    const academicYearId = parseInt(formData.get('academicYearId') as string);
+    const semesterId = parseInt(formData.get('semesterId') as string);
+    const classId = parseInt(formData.get('classId') as string);
+
+    if (!file) {
+      return { success: false, message: 'No file provided' };
+    }
+
+    // Read Excel file
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+      header: 1,
+      raw: false,
+      defval: '' // This ensures empty cells are treated as empty strings
+    }) as (string | number | boolean | null)[][];
+
+    if (jsonData.length < 2) {
+      return {
+        success: false,
+        message: 'Excel file must contain at least header and one data row'
+      };
+    }
+
+    const headers = jsonData[0] as string[];
+    const dataRows = jsonData.slice(1);
+
+    // Get class subjects for validation
+    const classSubjects = await prisma.classSubject.findMany({
+      where: { classId },
+      include: { subject: true }
+    });
+
+    if (classSubjects.length === 0) {
+      return { success: false, message: 'No subjects found for this class' };
+    }
+
+    const errors: ImportError[] = [];
+    const validData: StudentResultRow[] = [];
+    const errorRowsData: RowData[] = [];
+
+    // Expected columns
+    const requiredColumns = ['Student Name', 'Admission ID', 'Roll Number'];
+    const subjectColumns = classSubjects.flatMap((cs) => [
+      `${(cs.subject.examWeight * 100).toFixed(0)}%`,
+      `${(cs.subject.assignWeight * 100).toFixed(0)}%`,
+      `${cs.subject.id}`,
+      'Grade',
+      'Score',
+      'GP'
+    ]);
+    const overallColumns = ['Total GP', 'GPA'];
+    const expectedColumns = [
+      ...requiredColumns,
+      ...subjectColumns,
+      ...overallColumns
+    ];
+
+    // Validate headers
+    const missingColumns = expectedColumns.filter(
+      (col) => !headers.includes(col)
+    );
+
+    if (missingColumns.length > 0) {
+      return {
+        success: false,
+        message: `Missing required columns: ${missingColumns.join(', ')}`,
+        headers,
+        errorData: dataRows.map((row) =>
+          Object.fromEntries(headers.map((h, i) => [h, row[i]]))
+        ) as Record<string, unknown>[]
+      };
+    }
+
+    // Process each row
+    for (let i = 0; i < dataRows.length; i++) {
+      const row = dataRows[i];
+      const rowNumber = i + 2; // +2 for header row and 0-indexing
+      const rowData: RowData = {};
+      let hasErrors = false;
+
+      // Convert row array to object
+      headers.forEach((header, index) => {
+        const cellValue = row[index];
+        rowData[header] =
+          cellValue === null || cellValue === undefined ? '' : cellValue;
+      });
+
+      // Validate required fields
+      if (
+        !rowData['Student Name'] ||
+        rowData['Student Name'].toString().trim() === '' ||
+        rowData['Student Name'] === null ||
+        rowData['Student Name'] === undefined
+      ) {
+        errors.push({
+          row: rowNumber,
+          column: 'Student Name',
+          field: 'studentName',
+          message: 'Student name is required'
+        });
+        hasErrors = true;
+      }
+
+      if (
+        !rowData['Admission ID'] ||
+        rowData['Admission ID'].toString().trim() === '' ||
+        rowData['Admission ID'] === null ||
+        rowData['Admission ID'] === undefined
+      ) {
+        errors.push({
+          row: rowNumber,
+          column: 'Admission ID',
+          field: 'admissionId',
+          message: 'Admission ID is required'
+        });
+        hasErrors = true;
+      }
+
+      if (
+        !rowData['Roll Number'] ||
+        rowData['Roll Number'].toString().trim() === '' ||
+        rowData['Roll Number'] === null ||
+        rowData['Roll Number'] === undefined
+      ) {
+        errors.push({
+          row: rowNumber,
+          column: 'Roll Number',
+          field: 'rollNumber',
+          message: 'Roll number is required'
+        });
+        hasErrors = true;
+      }
+
+      // Validate subject grades
+      for (const cs of classSubjects) {
+        const subjectId = cs.subject.id.toString();
+        const examWeightCol = `${(cs.subject.examWeight * 100).toFixed(0)}%`;
+        const assignWeightCol = `${(cs.subject.assignWeight * 100).toFixed(0)}%`;
+        const subjectIdCol = subjectId;
+
+        if (
+          !rowData[examWeightCol] ||
+          rowData[examWeightCol].toString().trim() === '' ||
+          rowData[examWeightCol] === null ||
+          rowData[examWeightCol] === undefined
+        ) {
+          errors.push({
+            row: rowNumber,
+            column: examWeightCol,
+            field: 'examWeight',
+            message: 'Exam Mark is required'
+          });
+          hasErrors = true;
+        }
+
+        if (
+          !rowData[assignWeightCol] ||
+          rowData[assignWeightCol].toString().trim() === '' ||
+          rowData[assignWeightCol] === null ||
+          rowData[assignWeightCol] === undefined
+        ) {
+          errors.push({
+            row: rowNumber,
+            column: assignWeightCol,
+            field: 'assignWeight',
+            message: 'Assignment Mark is required'
+          });
+          hasErrors = true;
+        }
+        if (
+          !rowData[subjectIdCol] ||
+          rowData[subjectIdCol].toString().trim() === '' ||
+          rowData[subjectIdCol] === null ||
+          rowData[subjectIdCol] === undefined
+        ) {
+          errors.push({
+            row: rowNumber,
+            column: subjectIdCol,
+            field: 'subjectName',
+            message: 'Subject Name is required'
+          });
+          hasErrors = true;
+        }
+
+        // Find the index of this subject's columns in headers
+        const subjectStartIndex = headers.findIndex(
+          (h, i) =>
+            headers[i] === examWeightCol &&
+            headers[i + 1] === assignWeightCol &&
+            headers[i + 2] === subjectIdCol
+        );
+
+        if (subjectStartIndex !== -1) {
+          const gradeColumnIndex = subjectStartIndex + 3; // Grade is 4th column (index +3)
+          const scoreColumnIndex = subjectStartIndex + 4; // Score is 5th column (index +4)
+          const gpColumnIndex = subjectStartIndex + 5; // GP is 6th column (index +5)
+
+          const gradeColumnKey = headers[gradeColumnIndex]; // Should be "Grade"
+          const scoreColumnKey = headers[scoreColumnIndex]; // Should be "Score"
+          const gpColumnKey = headers[gpColumnIndex]; // Should be "GP"
+
+          const gradeValue = rowData[gradeColumnKey];
+          const scoreValue = rowData[scoreColumnKey];
+          const gpValue = rowData[gpColumnKey];
+
+          // Validate Grade
+          if (
+            gradeValue !== undefined &&
+            gradeValue !== null &&
+            gradeValue !== ''
+          ) {
+            const grade = gradeValue.toString().trim().toUpperCase();
+            const validGrades = [
+              'A+',
+              'A',
+              'A-',
+              'B+',
+              'B',
+              'B-',
+              'C+',
+              'C',
+              'C-',
+              'D+',
+              'D',
+              'F'
+            ];
+
+            if (!validGrades.includes(grade)) {
+              errors.push({
+                row: rowNumber,
+                column: `Grade`,
+                field: 'grade',
+                message: `Invalid grade '${grade}' for subject ${subjectId}. Valid grades: ${validGrades.join(', ')}`,
+                value: gradeValue
+              });
+              hasErrors = true;
+            }
+          } else {
+            errors.push({
+              row: rowNumber,
+              column: 'Grade',
+              field: 'subjectName',
+              message: 'Grade is required'
+            });
+            hasErrors = true;
+          }
+
+          // Validate Score (should be between 0.0 and 4.0)
+          if (
+            scoreValue !== undefined &&
+            scoreValue !== null &&
+            scoreValue !== ''
+          ) {
+            const score = parseFloat(scoreValue.toString());
+
+            if (isNaN(score) || score < 0 || score > 4.0) {
+              errors.push({
+                row: rowNumber,
+                column: `Score`,
+                field: 'score',
+                message: `Invalid score '${scoreValue}' for subject ${subjectId}. Score must be between 0.0 and 4.0`,
+                value: scoreValue
+              });
+              hasErrors = true;
+            }
+          } else {
+            errors.push({
+              row: rowNumber,
+              column: 'Score',
+              field: 'score',
+              message: 'Score is required'
+            });
+            hasErrors = true;
+          }
+
+          // Validate GP (Grade Point = Score × Credit Hours)
+          if (gpValue !== undefined && gpValue !== null && gpValue !== '') {
+            const gp = parseFloat(gpValue.toString());
+            const expectedMaxGP = 4.0 * cs.subject.creditHours;
+
+            if (isNaN(gp) || gp < 0 || gp > expectedMaxGP) {
+              errors.push({
+                row: rowNumber,
+                column: `GP`,
+                field: 'gp',
+                message: `Invalid GP '${gpValue}' for subject ${subjectId}. GP must be between 0 and ${expectedMaxGP} (4.0 × ${cs.subject.creditHours} credit hours)`,
+                value: gpValue
+              });
+              hasErrors = true;
+            }
+          } else {
+            errors.push({
+              row: rowNumber,
+              column: 'GP',
+              field: 'gp',
+              message: 'GP is required'
+            });
+            hasErrors = true;
+          }
+        }
+      }
+
+      if (
+        !rowData['Total GP'] ||
+        rowData['Total GP'].toString().trim() === '' ||
+        rowData['Total GP'] === null ||
+        rowData['Total GP'] === undefined
+      ) {
+        errors.push({
+          row: rowNumber,
+          column: 'Total GP',
+          field: 'totalGp',
+          message: 'Total GP is required'
+        });
+        hasErrors = true;
+      }
+
+      if (
+        !rowData['GPA'] ||
+        rowData['GPA'].toString().trim() === '' ||
+        rowData['GPA'] === null ||
+        rowData['GPA'] === undefined
+      ) {
+        errors.push({
+          row: rowNumber,
+          column: 'GPA',
+          field: 'gpa',
+          message: 'GPA is required'
+        });
+        hasErrors = true;
+      }
+
+      if (hasErrors) {
+        errorRowsData.push(rowData);
+      } else {
+        validData.push(rowData as StudentResultRow);
+      }
+    }
+
+    // If there are errors, return them
+    if (errors.length > 0) {
+      // Convert all data rows to proper format
+      const allRowsData = dataRows.map((row) => {
+        const rowData: Record<string, unknown> = {};
+        headers.forEach((header, index) => {
+          rowData[header] = row[index] || '';
+        });
+        return rowData;
+      });
+
+      return {
+        success: false,
+        errors,
+        errorData: allRowsData, // Send ALL rows
+        headers
+      };
+    }
+
+    // Process valid data
+    const processedCount = 0;
+
+    // await prisma.$transaction(async (tx) => {
+    //   for (const rowData of validData) {
+    //     try {
+    //       // Find or create student
+    //       let student = await tx.student.findUnique({
+    //         where: { admissionId: rowData['Admission ID'].toString().trim() }
+    //       });
+
+    //       if (!student) {
+    //         student = await tx.student.create({
+    //           data: {
+    //             studentName: rowData['Student Name'].toString().trim(),
+    //             admissionId: rowData['Admission ID'].toString().trim()
+    //           }
+    //         });
+    //       } else {
+    //         // Update student name if different
+    //         const newName = rowData['Student Name'].toString().trim();
+    //         if (student.studentName !== newName) {
+    //           student = await tx.student.update({
+    //             where: { id: student.id },
+    //             data: { studentName: newName }
+    //           });
+    //         }
+    //       }
+
+    //       // Find or create enrollment
+    //       let enrollment = await tx.enrollment.findUnique({
+    //         where: {
+    //           classId_semesterId_studentId: {
+    //             classId,
+    //             semesterId,
+    //             studentId: student.id
+    //           }
+    //         }
+    //       });
+
+    //       if (!enrollment) {
+    //         enrollment = await tx.enrollment.create({
+    //           data: {
+    //             rollNumber: rowData['Roll Number'].toString().trim(),
+    //             studentId: student.id,
+    //             classId,
+    //             semesterId,
+    //             isActive: true
+    //           }
+    //         });
+    //       } else {
+    //         // Update roll number if different
+    //         const newRollNumber = rowData['Roll Number'].toString().trim();
+    //         if (enrollment.rollNumber !== newRollNumber) {
+    //           enrollment = await tx.enrollment.update({
+    //             where: { id: enrollment.id },
+    //             data: { rollNumber: newRollNumber }
+    //           });
+    //         }
+    //       }
+
+    //       // Process grades
+    //       for (const cs of classSubjects) {
+    //         const subjectName = cs.subject.subjectName;
+    //         const gradeValue = rowData[subjectName];
+
+    //         if (gradeValue && gradeValue.toString().trim() !== '') {
+    //           const grade = gradeValue.toString().trim().toUpperCase();
+
+    //           // Get grade scale info
+    //           const gradeScale = await tx.gradeScale.findFirst({
+    //             where: { grade }
+    //           });
+
+    //           if (gradeScale) {
+    //             // Calculate marks based on grade (you might want to adjust this logic)
+    //             const finalMark = (gradeScale.minMark + gradeScale.maxMark) / 2;
+    //             const examMark = finalMark * cs.subject.examWeight;
+    //             const assignMark = finalMark * cs.subject.assignWeight;
+
+    //             // Create or update grade
+    //             await tx.grade.upsert({
+    //               where: {
+    //                 enrollmentId_classSubjectId: {
+    //                   enrollmentId: enrollment.id,
+    //                   classSubjectId: cs.id
+    //                 }
+    //               },
+    //               update: {
+    //                 examMark,
+    //                 assignMark,
+    //                 finalMark,
+    //                 grade,
+    //                 score: gradeScale.score,
+    //                 gp: gradeScale.score * cs.subject.creditHours
+    //               },
+    //               create: {
+    //                 enrollmentId: enrollment.id,
+    //                 classSubjectId: cs.id,
+    //                 examMark,
+    //                 assignMark,
+    //                 finalMark,
+    //                 grade,
+    //                 score: gradeScale.score,
+    //                 gp: gradeScale.score * cs.subject.creditHours
+    //               }
+    //             });
+    //           }
+    //         }
+    //       }
+
+    //       processedCount++;
+    //     } catch (error) {
+    //       console.error(
+    //         `Error processing row for ${rowData['Student Name']}:`,
+    //         error
+    //       );
+    //       // Continue with next row instead of failing entire transaction
+    //     }
+    //   }
+    // });
+
+    return {
+      success: true,
+      processedCount
+    };
+  } catch (error) {
+    console.error('Import error:', error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : 'An unexpected error occurred'
+    };
+  } finally {
+    await prisma.$disconnect();
   }
 }

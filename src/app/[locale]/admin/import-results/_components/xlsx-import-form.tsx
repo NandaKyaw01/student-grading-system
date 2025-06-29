@@ -1,6 +1,11 @@
 'use client';
 
-import React, { useState, useCallback, useMemo, useTransition } from 'react';
+import {
+  generateStudentTemplate,
+  importStudentResults
+} from '@/actions/import-result';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -8,7 +13,8 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -16,35 +22,41 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 import {
-  Upload,
-  Download,
-  FileSpreadsheet,
-  AlertCircle,
-  CheckCircle,
-  X,
-  Loader2,
-  Loader
-} from 'lucide-react';
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 import {
   useAcademicYears,
-  useSemesters,
   useClasses,
-  useClassSubjects
+  useClassSubjects,
+  useSemesters
 } from '@/hooks/use-academic-data';
-import { Skeleton } from '@/components/ui/skeleton';
-import { generateStudentTemplate } from '@/actions/import-result';
+import {
+  AlertCircle,
+  CheckCircle,
+  Download,
+  FileSpreadsheet,
+  Loader,
+  Upload,
+  X
+} from 'lucide-react';
+import React, { useCallback, useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { Separator } from '@/components/ui/separator';
-
-interface UploadError {
-  row: number;
-  field: string;
-  message: string;
-}
 
 interface SelectionState {
   academicYearId: number | null;
@@ -87,6 +99,15 @@ export interface ClassSubject {
   subject: Subject;
 }
 
+// Update UploadError interface to include column info
+interface UploadError {
+  row: number;
+  column: string;
+  field: string;
+  message: string;
+  value?: unknown;
+}
+
 const XlsxImportForm = () => {
   const [selection, setSelection] = useState<SelectionState>({
     academicYearId: null,
@@ -104,6 +125,11 @@ const XlsxImportForm = () => {
   );
   const [errorDetails, setErrorDetails] = useState<UploadError[]>([]);
   const [fileError, setFileError] = useState<string | null>(null);
+
+  // Add new state for error sheet
+  const [showErrorSheet, setShowErrorSheet] = useState(false);
+  const [errorData, setErrorData] = useState<Record<string, unknown>[]>([]);
+  const [errorHeaders, setErrorHeaders] = useState<string[]>([]);
 
   // Queries with proper dependency chain
   const { data: academicYears = [], isLoading: loadingYears } =
@@ -396,6 +422,8 @@ const XlsxImportForm = () => {
     setUploadProgress(0);
     setUploadStatus(null);
     setErrorDetails([]);
+    setErrorData([]);
+    setErrorHeaders([]);
 
     try {
       const formData = new FormData();
@@ -404,38 +432,45 @@ const XlsxImportForm = () => {
       formData.append('semesterId', selection.semesterId!.toString());
       formData.append('classId', selection.classId!.toString());
 
-      // Simulate progress
+      // Progress simulation
       const progressInterval = setInterval(() => {
         setUploadProgress((prev) => Math.min(prev + 10, 90));
       }, 200);
 
-      const response = await fetch('/api/import/students', {
-        method: 'POST',
-        body: formData
-      });
+      const result = await importStudentResults(formData);
 
       clearInterval(progressInterval);
       setUploadProgress(100);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-
       if (result.success) {
         setUploadStatus('success');
+        setErrorDetails([]); // Clear any previous errors
+        setErrorData([]); // Clear error data
+        setErrorHeaders([]); // Clear error headers
         toast.success('Import Successful', {
-          description: 'All student data has been imported successfully!'
+          description: `Successfully imported ${result.processedCount} student records!`
         });
       } else {
         setUploadStatus('error');
-        setErrorDetails(result.errors || []);
+        const errors = result.errors || [];
+        setErrorDetails(errors);
 
-        const errorCount = result.errors?.length || 0;
-        toast.error('Import Failed', {
-          description: `Import completed with ${errorCount} error${errorCount !== 1 ? 's' : ''}. Please review and fix the issues.`
-        });
+        // Only set error data if there are actual errors
+        if (errors.length > 0 && result.errorData) {
+          setErrorData(result.errorData);
+          setErrorHeaders(result.headers || []);
+        }
+
+        const errorCount = errors.length;
+        if (errorCount > 0) {
+          toast.error('Import Failed', {
+            description: `Import completed with ${errorCount} error${errorCount !== 1 ? 's' : ''}. Click 'View Errors' for details.`
+          });
+        } else {
+          toast.error('Import Failed', {
+            description: result.message || 'Import failed for unknown reasons.'
+          });
+        }
       }
     } catch (error) {
       console.error('Upload error:', error);
@@ -446,6 +481,7 @@ const XlsxImportForm = () => {
       setErrorDetails([
         {
           row: 0,
+          column: 'general',
           field: 'general',
           message: `Upload failed: ${errorMessage}`
         }
@@ -758,10 +794,118 @@ const XlsxImportForm = () => {
             <Alert className='border-red-200 bg-red-50'>
               <AlertCircle className='h-4 w-4 text-red-600' />
               <AlertDescription className='text-red-800'>
-                <div className='space-y-2'>
+                <div className='space-y-3'>
                   <p className='font-medium'>Import completed with errors:</p>
+                  <div className='flex gap-2'>
+                    <Sheet
+                      open={showErrorSheet}
+                      onOpenChange={setShowErrorSheet}
+                    >
+                      <SheetTrigger asChild>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          className='text-red-700 border-red-300'
+                        >
+                          View Errors ({errorDetails.length})
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent className='w-[90vw] sm:max-w-[90vw] max-w-none'>
+                        <SheetHeader>
+                          <SheetTitle>Import Errors</SheetTitle>
+                          <SheetDescription>
+                            Review the data with errors. Cells with errors are
+                            highlighted in red.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className='mt-6 h-[calc(100vh-200px)] overflow-auto'>
+                          {errorData.length > 0 && (
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className='w-16'>Row</TableHead>
+                                  {errorHeaders.map((header, index) => (
+                                    <TableHead
+                                      key={index}
+                                      className='min-w-[120px]'
+                                    >
+                                      {header}
+                                    </TableHead>
+                                  ))}
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {errorData.map((row, rowIndex) => {
+                                  const actualRowNumber = rowIndex + 2; // +2 for header row and 0-indexing
+                                  const rowErrors = errorDetails.filter(
+                                    (err) => err.row === actualRowNumber
+                                  );
+                                  const hasRowErrors = rowErrors.length > 0;
+
+                                  return (
+                                    <TableRow
+                                      key={rowIndex}
+                                      className={
+                                        hasRowErrors ? 'bg-red-50/50' : ''
+                                      }
+                                    >
+                                      <TableCell
+                                        className={`font-medium ${hasRowErrors ? 'text-red-700' : ''}`}
+                                      >
+                                        {actualRowNumber}
+                                      </TableCell>
+                                      {errorHeaders.map((header, colIndex) => {
+                                        const cellError = rowErrors.find(
+                                          (err) =>
+                                            err.column === header ||
+                                            err.field ===
+                                              header
+                                                .toLowerCase()
+                                                .replace(/\s+/g, '')
+                                        );
+                                        const hasError = !!cellError;
+
+                                        return (
+                                          <TableCell
+                                            key={colIndex}
+                                            className={
+                                              hasError
+                                                ? 'bg-red-100 border border-red-300 text-red-800'
+                                                : ''
+                                            }
+                                          >
+                                            <div
+                                              className={
+                                                hasError
+                                                  ? 'text-red-800 font-medium'
+                                                  : ''
+                                              }
+                                            >
+                                              {
+                                                (row[header] ??
+                                                  '') as React.ReactNode
+                                              }
+                                            </div>
+                                            {hasError && (
+                                              <div className='text-xs text-red-600 mt-1 font-medium'>
+                                                {cellError.message}
+                                              </div>
+                                            )}
+                                          </TableCell>
+                                        );
+                                      })}
+                                    </TableRow>
+                                  );
+                                })}
+                              </TableBody>
+                            </Table>
+                          )}
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                  </div>
                   <div className='max-h-32 overflow-y-auto space-y-1'>
-                    {errorDetails.map((error, index) => (
+                    {errorDetails.slice(0, 5).map((error, index) => (
                       <div
                         key={index}
                         className='text-xs bg-white p-2 rounded border'
@@ -771,11 +915,16 @@ const XlsxImportForm = () => {
                         {error.field !== 'general' && (
                           <span className='text-gray-600'>
                             {' '}
-                            (Field: {error.field})
+                            (Column: {error.column})
                           </span>
                         )}
                       </div>
                     ))}
+                    {errorDetails.length > 5 && (
+                      <div className='text-xs text-gray-600'>
+                        ... and {errorDetails.length - 5} more errors
+                      </div>
+                    )}
                   </div>
                 </div>
               </AlertDescription>
