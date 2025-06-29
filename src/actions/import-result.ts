@@ -90,10 +90,24 @@ export async function getClassSubjects(classId: number) {
     return { success: false, error: 'Failed to fetch class subjects' };
   }
 }
+
+type TemplateData = {
+  academicYear: string;
+  semester: string;
+  class: string;
+  classCode: 'CS' | 'CT' | 'CST';
+  subjects: Array<{
+    id: string;
+    name: string;
+    creditHours: number;
+    assignWeight: number;
+    examWeight: number;
+  }>;
+};
+
 export async function generateStudentTemplate(
   classId: number,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  templateData: any
+  templateData: TemplateData
 ) {
   try {
     if (!classId) {
@@ -101,19 +115,7 @@ export async function generateStudentTemplate(
     }
 
     // Fetch class subjects with subject details
-    const classSubjects = await prisma.classSubject.findMany({
-      where: {
-        classId: classId
-      },
-      include: {
-        subject: true
-      },
-      orderBy: {
-        subject: {
-          subjectName: 'asc'
-        }
-      }
-    });
+    const classSubjects = templateData.subjects;
 
     if (classSubjects.length === 0) {
       throw new Error('No subjects found for this class');
@@ -123,15 +125,14 @@ export async function generateStudentTemplate(
     const workbook = XLSX.utils.book_new();
 
     // Generate headers
-    const headers = ['No.', 'Roll Number', 'Name'];
+    const headers = ['No.', 'Admission ID', 'Roll Number', 'Name'];
 
     // Add subject-specific columns
     classSubjects.forEach((cs) => {
-      const subjectName = cs.subject.subjectName;
-      const creditHours = cs.subject.creditHours;
-
       headers.push(
-        `${subjectName} (${creditHours} Credits)`,
+        `${(cs.examWeight * 100).toFixed(0)}%`,
+        `${(cs.assignWeight * 100).toFixed(0)}%`,
+        `${cs.id}`,
         'Grade',
         'Score',
         'GP'
@@ -148,13 +149,14 @@ export async function generateStudentTemplate(
     for (let i = 1; i <= 5; i++) {
       const row = [
         i, // No.
-        `2024-${templateData.class?.substring(0, 2).toUpperCase() || 'CS'}-${String(i).padStart(3, '0')}`, // Roll Number
+        `${String(i).padStart(6, '0')}`,
+        `${templateData.classCode || 'CS'}-${i}`,
         `Sample Student ${i}` // Name
       ];
 
       // Add empty cells for each subject's columns
       classSubjects.forEach(() => {
-        row.push('', '', '', ''); // Subject Mark, Grade, Score, GP
+        row.push('', '', '', '', '', '');
       });
 
       // Add empty cells for summary columns
@@ -170,14 +172,17 @@ export async function generateStudentTemplate(
     // Set column widths
     const columnWidths = [
       { wch: 5 }, // No.
-      { wch: 15 }, // Roll Number
+      { wch: 12 }, // Admission ID
+      { wch: 10 }, // Roll Number
       { wch: 20 } // Name
     ];
 
     // Add widths for subject columns
     classSubjects.forEach(() => {
       columnWidths.push(
-        { wch: 25 }, // Subject Name
+        { wch: 8 }, // Grade
+        { wch: 8 }, // Grade
+        { wch: 8 }, // Subject Name
         { wch: 8 }, // Grade
         { wch: 8 }, // Score
         { wch: 8 } // GP
@@ -225,12 +230,15 @@ export async function generateStudentTemplate(
       ['INSTRUCTIONS:'],
       ['1. Fill in student information in the main sheet'],
       ['2. No. column: Sequential number (1, 2, 3, ...)'],
-      ['3. Roll Number: Student roll number (e.g., 2024-CS-001)'],
-      ['4. Name: Full student name'],
+      ['3. Admission ID column: Admission ID number (e.g., 000001)'],
+      ['4. Roll Number: Student roll number (e.g., CS-1)'],
+      ['5. Name: Full student name'],
       [''],
       ['SUBJECT COLUMNS:'],
       ['For each subject, fill in the following columns:'],
-      ['- Subject Mark: Raw marks obtained'],
+      ['- Exam Mark: Calculated marks obtained'],
+      ['- Assignment Mark: Raw marks obtained'],
+      ['- Final Mark: Combined marks obtained'],
       ['- Grade: Letter grade (A+, A, B+, B, C+, C, D+, D, F)'],
       ['- Score: Numerical score (0-4.0)'],
       ['- GP: Grade Points (Score × Credit Hours)'],
@@ -241,10 +249,10 @@ export async function generateStudentTemplate(
       [''],
       ['SUBJECTS IN THIS CLASS:'],
       ...classSubjects.map((cs, index) => [
-        `${index + 1}. ${cs.subject.subjectName}`,
-        `Credit Hours: ${cs.subject.creditHours}`,
-        `Exam Weight: ${(cs.subject.examWeight * 100).toFixed(0)}%`,
-        `Assignment Weight: ${(cs.subject.assignWeight * 100).toFixed(0)}%`
+        `${index + 1}. ${cs.name}`,
+        `Credit Hours: ${cs.creditHours}`,
+        `Exam Weight: ${(cs.examWeight * 100).toFixed(0)}%`,
+        `Assignment Weight: ${(cs.assignWeight * 100).toFixed(0)}%`
       ]),
       [''],
       ['GRADE SCALE:'],

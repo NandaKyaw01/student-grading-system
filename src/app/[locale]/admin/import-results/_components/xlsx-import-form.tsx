@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useTransition } from 'react';
 import {
   Card,
   CardContent,
@@ -37,6 +37,8 @@ import {
 } from '@/hooks/use-academic-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { generateStudentTemplate } from '@/actions/import-result';
+import { toast } from 'sonner';
+import { Separator } from '@/components/ui/separator';
 
 interface UploadError {
   row: number;
@@ -95,11 +97,13 @@ const XlsxImportForm = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDownloadingTemplate, startDownloadTransition] = useTransition();
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<'success' | 'error' | null>(
     null
   );
   const [errorDetails, setErrorDetails] = useState<UploadError[]>([]);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   // Queries with proper dependency chain
   const { data: academicYears = [], isLoading: loadingYears } =
@@ -110,9 +114,8 @@ const XlsxImportForm = () => {
   const { data: classes = [], isLoading: loadingClasses } = useClasses(
     selection.semesterId || undefined
   );
-  const { data: classSubjects = [] } = useClassSubjects(
-    selection.classId || undefined
-  );
+  const { data: classSubjects = [], isLoading: loadingclassSubjects } =
+    useClassSubjects(selection.classId || undefined);
 
   // Memoized computed values to prevent re-renders
   const selectedAcademicYear = useMemo(
@@ -132,66 +135,123 @@ const XlsxImportForm = () => {
 
   const canDownloadTemplate = useMemo(
     () =>
-      !!(selection.academicYearId && selection.semesterId && selection.classId),
-    [selection]
+      !!(
+        selection.academicYearId &&
+        selection.semesterId &&
+        selection.classId &&
+        classSubjects.length > 0
+      ),
+    [selection, classSubjects.length]
+  );
+
+  const showNoSubjectsError = useMemo(
+    () => selection.classId && classSubjects.length === 0,
+    [selection.classId, classSubjects.length]
   );
 
   const canSubmit = useMemo(
-    () => canDownloadTemplate && uploadedFile && !isUploading,
-    [canDownloadTemplate, uploadedFile, isUploading]
+    () => canDownloadTemplate && uploadedFile && !isUploading && !fileError,
+    [canDownloadTemplate, uploadedFile, isUploading, fileError]
   );
 
+  // Clear errors when selection changes
+  const clearErrors = useCallback(() => {
+    setUploadedFile(null);
+    setUploadStatus(null);
+    setErrorDetails([]);
+    setFileError(null);
+  }, []);
+
   // Optimized selection handlers to prevent unnecessary re-renders
-  const handleAcademicYearChange = useCallback((value: string) => {
-    const academicYearId = parseInt(value);
-    setSelection((prev) => ({
-      academicYearId,
-      semesterId: null,
-      classId: null
-    }));
-    // Reset upload state when selection changes
-    setUploadedFile(null);
-    setUploadStatus(null);
-    setErrorDetails([]);
-  }, []);
+  const handleAcademicYearChange = useCallback(
+    (value: string) => {
+      const academicYearId = parseInt(value);
+      setSelection((prev) => ({
+        academicYearId,
+        semesterId: null,
+        classId: null
+      }));
+      clearErrors();
+    },
+    [clearErrors]
+  );
 
-  const handleSemesterChange = useCallback((value: string) => {
-    const semesterId = parseInt(value);
-    setSelection((prev) => ({
-      ...prev,
-      semesterId,
-      classId: null
-    }));
-    setUploadedFile(null);
-    setUploadStatus(null);
-    setErrorDetails([]);
-  }, []);
+  const handleSemesterChange = useCallback(
+    (value: string) => {
+      const semesterId = parseInt(value);
+      setSelection((prev) => ({
+        ...prev,
+        semesterId,
+        classId: null
+      }));
+      clearErrors();
+    },
+    [clearErrors]
+  );
 
-  const handleClassChange = useCallback((value: string) => {
-    const classId = parseInt(value);
-    setSelection((prev) => ({
-      ...prev,
-      classId
-    }));
-    setUploadedFile(null);
-    setUploadStatus(null);
-    setErrorDetails([]);
-  }, []);
+  const handleClassChange = useCallback(
+    (value: string) => {
+      const classId = parseInt(value);
+      setSelection((prev) => ({
+        ...prev,
+        classId
+      }));
+      clearErrors();
+    },
+    [clearErrors]
+  );
 
-  const handleFileUpload = useCallback((files: File[]) => {
-    const file = files[0];
+  const validateFile = useCallback((file: File): string | null => {
+    // Check file type
     if (
-      file &&
-      file.type ===
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      file.type !==
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ) {
+      return 'Please select a valid XLSX file format.';
+    }
+
+    // Check file size (limit to 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      return 'File size exceeds 10MB limit. Please use a smaller file.';
+    }
+
+    // Check file name extension
+    if (!file.name.toLowerCase().endsWith('.xlsx')) {
+      return 'File must have .xlsx extension.';
+    }
+
+    return null;
+  }, []);
+
+  const handleFileUpload = useCallback(
+    (files: File[]) => {
+      setFileError(null);
+
+      if (!files.length) {
+        return;
+      }
+
+      const file = files[0];
+      const validationError = validateFile(file);
+
+      if (validationError) {
+        setFileError(validationError);
+        toast.error('Invalid File', {
+          description: validationError
+        });
+        return;
+      }
+
       setUploadedFile(file);
       setUploadStatus(null);
       setErrorDetails([]);
-    } else {
-      alert('Please select a valid XLSX file');
-    }
-  }, []);
+      toast.success('File Selected', {
+        description: `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`
+      });
+    },
+    [validateFile]
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -217,6 +277,8 @@ const XlsxImportForm = () => {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files || []);
       handleFileUpload(files);
+      // Reset input value to allow re-selecting the same file
+      e.target.value = '';
     },
     [handleFileUpload]
   );
@@ -225,57 +287,88 @@ const XlsxImportForm = () => {
     setUploadedFile(null);
     setUploadStatus(null);
     setErrorDetails([]);
+    setFileError(null);
+    toast.info('File Removed', {
+      description: 'Please select another file to continue.'
+    });
   }, []);
 
-  const downloadTemplate = useCallback(async () => {
+  const downloadTemplate = useCallback(() => {
     if (!canDownloadTemplate) {
-      alert('Please select a class first');
+      toast.error('Selection Required', {
+        description: 'Please select academic year, semester, and class first.'
+      });
       return;
     }
 
-    try {
-      // Create template with class subjects
-      const templateData = {
-        academicYear: selectedAcademicYear?.yearRange,
-        semester: selectedSemester?.semesterName,
-        class: selectedClass?.className,
-        subjects: classSubjects.map((cs) => ({
-          id: cs.subject.id,
-          name: cs.subject.subjectName,
-          creditHours: cs.subject.creditHours
-        }))
-      };
-
-      // Call server action
-      const result = await generateStudentTemplate(
-        selection.classId!,
-        templateData
-      );
-
-      if (result.success) {
-        // Convert base64 to blob and download
-        const binaryString = atob(result.data);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-
-        const blob = new Blob([bytes], { type: result.mimeType });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = result.filename!;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      alert('Failed to download template. Please try again.');
-      console.error('Template download error:', error);
+    if (classSubjects.length === 0) {
+      toast.error('Download Failed', {
+        description: 'No subjects found for this class'
+      });
+      return;
     }
+
+    startDownloadTransition(async () => {
+      try {
+        // Create template with class subjects
+        const templateData = {
+          academicYear: selectedAcademicYear!.yearRange,
+          semester: selectedSemester!.semesterName,
+          class: selectedClass!.className,
+          classCode: selectedClass!.departmentCode,
+          subjects: classSubjects.map((cs) => ({
+            id: cs.subject.id,
+            name: cs.subject.subjectName,
+            creditHours: cs.subject.creditHours,
+            assignWeight: cs.subject.assignWeight,
+            examWeight: cs.subject.examWeight
+          }))
+        };
+
+        // Call server action
+        const result = await generateStudentTemplate(
+          selection.classId!,
+          templateData
+        );
+
+        if (result.success) {
+          // Convert base64 to blob and download
+          const binaryString = atob(result.data);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+
+          const blob = new Blob([bytes], { type: result.mimeType });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = result.filename!;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+
+          toast.success('Template Downloaded', {
+            description: `${result.filename} has been downloaded successfully.`
+          });
+        } else {
+          toast.error('Download Failed', {
+            description: `Failed to download template: ${result.error || 'Failed to generate template'}`
+          });
+        }
+      } catch (error) {
+        console.error('Template download error:', error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred';
+
+        toast.error('Download Failed', {
+          description: `Failed to download template: ${errorMessage}`
+        });
+      }
+    });
   }, [
     canDownloadTemplate,
     selection.classId,
@@ -287,7 +380,15 @@ const XlsxImportForm = () => {
 
   const handleSubmit = useCallback(async () => {
     if (!canSubmit) {
-      alert('Please select all fields and upload a file');
+      if (!canDownloadTemplate) {
+        toast.error('Selection Required', {
+          description: 'Please select academic year, semester, and class first.'
+        });
+      } else if (!uploadedFile) {
+        toast.error('File Required', {
+          description: 'Please upload an Excel file to proceed.'
+        });
+      }
       return;
     }
 
@@ -316,44 +417,62 @@ const XlsxImportForm = () => {
       clearInterval(progressInterval);
       setUploadProgress(100);
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
 
       if (result.success) {
         setUploadStatus('success');
+        toast.success('Import Successful', {
+          description: 'All student data has been imported successfully!'
+        });
       } else {
         setUploadStatus('error');
         setErrorDetails(result.errors || []);
+
+        const errorCount = result.errors?.length || 0;
+        toast.error('Import Failed', {
+          description: `Import completed with ${errorCount} error${errorCount !== 1 ? 's' : ''}. Please review and fix the issues.`
+        });
       }
     } catch (error) {
+      console.error('Upload error:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unexpected error occurred';
+
       setUploadStatus('error');
       setErrorDetails([
         {
           row: 0,
           field: 'general',
-          message: 'Upload failed. Please try again.'
+          message: `Upload failed: ${errorMessage}`
         }
       ]);
-      console.error('Upload error:', error);
+
+      toast.error('Upload Failed', {
+        description: 'Failed to upload and process the file. Please try again.'
+      });
     } finally {
       setIsUploading(false);
     }
-  }, [canSubmit, uploadedFile, selection]);
+  }, [canSubmit, canDownloadTemplate, uploadedFile, selection]);
 
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
-      {/* Header */}
-      <div className='text-center space-y-2'>
-        <h1 className='text-2xl font-bold text-gray-900'>
-          Student Results Import
-        </h1>
-        <p className='text-gray-600'>
-          Import student enrollment data from Excel files
-        </p>
-      </div>
-
       {/* Selection Form */}
       <Card>
-        <CardHeader>
+        <CardHeader className='space-y-3'>
+          <div className='space-y-2'>
+            <h1 className='text-2xl font-bold text-gray-900'>
+              Student Results Import
+            </h1>
+            <p className='text-gray-600'>
+              Import student result data from Excel files
+            </p>
+          </div>
+          <Separator />
           <CardTitle className='flex items-center gap-2'>
             <FileSpreadsheet className='h-5 w-5' />
             Select Academic Context
@@ -472,17 +591,41 @@ const XlsxImportForm = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {!loadingclassSubjects && showNoSubjectsError && (
+            <Alert className='border-red-200 bg-red-50 mb-4'>
+              <AlertCircle className='h-4 w-4 text-red-600' />
+              <AlertDescription className='text-red-800'>
+                No subjects found for the selected class. Please ensure the
+                class has subjects assigned before generating the template.
+              </AlertDescription>
+            </Alert>
+          )}
           <Button
             onClick={downloadTemplate}
-            disabled={!canDownloadTemplate}
+            disabled={!canDownloadTemplate || isDownloadingTemplate}
             className='w-full md:w-auto'
           >
-            <Download className='h-4 w-4 mr-2' />
-            Download Excel Template
+            {isDownloadingTemplate ? (
+              <>
+                <Loader className='h-4 w-4 mr-2 animate-spin' />
+                Generating Template...
+              </>
+            ) : (
+              <>
+                <Download className='h-4 w-4 mr-2' />
+                Download Excel Template
+              </>
+            )}
           </Button>
-          {!canDownloadTemplate && (
+          {!loadingclassSubjects && !canDownloadTemplate && (
             <p className='text-sm text-gray-500 mt-2'>
-              Please select academic year, semester, and class first
+              {!selection.academicYearId ||
+              !selection.semesterId ||
+              !selection.classId
+                ? 'Please select academic year, semester, and class first'
+                : classSubjects.length === 0
+                  ? 'No subjects available for the selected class'
+                  : 'Please complete all selections'}
             </p>
           )}
         </CardContent>
@@ -505,9 +648,11 @@ const XlsxImportForm = () => {
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
               isDragOver
                 ? 'border-blue-500 bg-blue-50'
-                : uploadedFile
+                : uploadedFile && !fileError
                   ? 'border-green-500 bg-green-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                  : fileError
+                    ? 'border-red-500 bg-red-50'
+                    : 'border-gray-300 hover:border-gray-400'
               }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -515,9 +660,13 @@ const XlsxImportForm = () => {
           >
             {uploadedFile ? (
               <div className='space-y-2'>
-                <FileSpreadsheet className='h-8 w-8 mx-auto text-green-600' />
+                <FileSpreadsheet
+                  className={`h-8 w-8 mx-auto ${fileError ? 'text-red-600' : 'text-green-600'}`}
+                />
                 <div className='flex items-center justify-center gap-2'>
-                  <span className='text-sm font-medium'>
+                  <span
+                    className={`text-sm font-medium ${fileError ? 'text-red-700' : ''}`}
+                  >
                     {uploadedFile.name}
                   </span>
                   <Button
@@ -532,6 +681,14 @@ const XlsxImportForm = () => {
                 <p className='text-xs text-gray-500'>
                   {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
                 </p>
+                {fileError && (
+                  <Alert className='border-red-200 bg-red-50 mt-2'>
+                    <AlertCircle className='h-4 w-4 text-red-600' />
+                    <AlertDescription className='text-red-800 text-sm'>
+                      {fileError}
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
             ) : (
               <div className='space-y-2'>
@@ -562,7 +719,13 @@ const XlsxImportForm = () => {
                 </label>
                 {!canDownloadTemplate && (
                   <p className='text-xs text-gray-500 mt-1'>
-                    Please select academic year, semester, and class first
+                    {!selection.academicYearId ||
+                    !selection.semesterId ||
+                    !selection.classId
+                      ? 'Please select academic year, semester, and class first'
+                      : classSubjects.length === 0
+                        ? 'No subjects available for the selected class'
+                        : 'Please complete all selections first'}
                   </p>
                 )}
               </div>
@@ -628,7 +791,7 @@ const XlsxImportForm = () => {
           >
             {isUploading ? (
               <>
-                <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                <Loader className='h-4 w-4 mr-2 animate-spin' />
                 Processing...
               </>
             ) : (
@@ -641,7 +804,19 @@ const XlsxImportForm = () => {
 
           {!canSubmit && !isUploading && (
             <p className='text-sm text-gray-500'>
-              Please complete all selections and upload a file to proceed
+              {!canDownloadTemplate
+                ? !selection.academicYearId ||
+                  !selection.semesterId ||
+                  !selection.classId
+                  ? 'Please complete all selections first'
+                  : classSubjects.length === 0
+                    ? 'No subjects available for the selected class'
+                    : 'Please complete all selections'
+                : !uploadedFile
+                  ? 'Please upload a valid Excel file to proceed'
+                  : fileError
+                    ? 'Please fix the file error before proceeding'
+                    : 'Please complete all steps to proceed'}
             </p>
           )}
         </CardContent>
