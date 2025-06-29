@@ -504,7 +504,7 @@ type TransactionClient = Omit<
 >;
 
 // Helper function to update or create AcademicYearResult
-async function updateAcademicYearResult(
+export async function updateAcademicYearResult(
   enrollmentId: number,
   tx: TransactionClient
 ): Promise<number> {
