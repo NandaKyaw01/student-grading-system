@@ -1,17 +1,25 @@
 'use client';
 
 import { ResultWithDetails } from '@/actions/result';
-import CopyableIdCell from '@/components/copyable-id-cell';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { AcademicYear, Class, Semester, Status } from '@/generated/prisma';
 import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
-import { CalendarIcon, FileSearch2, Text } from 'lucide-react';
+import { CalendarCheck, CalendarIcon, FileSearch2, Text } from 'lucide-react';
 import Link from 'next/link';
 import { ResultCellAction } from './result-cell-action';
 
-export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
+export function getResultColumns({
+  academicYears,
+  semesters,
+  classes
+}: {
+  academicYears: AcademicYear[];
+  semesters: Semester[];
+  classes: Class[];
+}): ColumnDef<ResultWithDetails>[] {
   return [
     {
       id: 'select',
@@ -38,69 +46,91 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       enableHiding: false,
       size: 40
     },
-    // {
-    //   id: 'no',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title='No.' />
-    //   ),
-    //   cell: ({ row, table }) => {
-    //     const pageIndex = table.getState().pagination.pageIndex;
-    //     const pageSize = table.getState().pagination.pageSize;
-    //     const rowIndex = row.index;
-    //     return pageIndex * pageSize + rowIndex + 1;
-    //   },
-    //   enableSorting: false,
-    //   enableColumnFilter: false,
-    //   size: 60
-    // },
     {
-      id: 'enrollmentId',
+      id: 'no',
       accessorKey: 'enrollmentId',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='ID' />
-      ),
-      cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
+      header: () => <div className='text-center'>No.</div>,
+      cell: ({ row, table }) => {
+        const pageIndex = table.getState().pagination.pageIndex;
+        const pageSize = table.getState().pagination.pageSize;
+        const rowIndex = row.index;
+        return (
+          <div className='text-center'>
+            {pageIndex * pageSize + rowIndex + 1}
+          </div>
+        );
+      },
       meta: {
-        label: 'Search',
+        label: 'No.'
+      },
+      enableSorting: false,
+      enableColumnFilter: false,
+      size: 60
+    },
+    {
+      id: 'search',
+      accessorFn: (row) => row.enrollment?.student?.studentName,
+      header: 'Student',
+      meta: {
+        label: 'Student',
         placeholder: 'Search Result...',
         variant: 'text',
         icon: Text
       },
-      enableSorting: true,
       enableColumnFilter: true
     },
-    // {
-    //   id: 'studentId',
-    //   accessorFn: (row) => row.enrollment?.studentId,
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title='Student ID' />
-    //   ),
-    //   cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
-    //   enableSorting: true,
-    //   enableColumnFilter: true
-    // },
     {
-      id: 'student',
-      accessorFn: (row) => row.enrollment?.student?.studentName,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Student' />
-      )
+      id: 'rollnumber',
+      accessorFn: (row) => `${row.enrollment?.rollNumber}`,
+      header: 'Roll No.'
     },
+
     {
-      id: 'class',
-      accessorFn: (row) =>
-        `${row.enrollment?.class?.className} (${row.enrollment?.class?.departmentCode})`,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Class' />
-      )
-    },
-    {
-      id: 'year',
+      id: 'academicYearId',
       accessorFn: (row) =>
         `${row.enrollment?.semester?.academicYear?.yearRange}`,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Year' />
-      )
+      header: 'Year',
+      meta: {
+        label: 'Academic Year',
+        variant: 'multiSelect',
+        options: academicYears.map((year) => ({
+          label: `${year.yearRange} ${year.isCurrent ? '(Current)' : ''}`,
+          value: year.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
+    },
+    {
+      id: 'semesterId',
+      accessorFn: (row) => `${row.enrollment?.semester?.semesterName}`,
+      header: 'Semester',
+      meta: {
+        label: 'Semester',
+        variant: 'multiSelect',
+        options: semesters.map((seme) => ({
+          label: `${seme.semesterName} ${seme.isCurrent ? '(Current)' : ''}`,
+          value: seme.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
+    },
+    {
+      id: 'classId',
+      accessorFn: (row) =>
+        `${row.enrollment?.class?.className} (${row.enrollment?.class?.departmentCode})`,
+      header: 'Class',
+      meta: {
+        label: 'Class',
+        variant: 'multiSelect',
+        options: classes.map((cls) => ({
+          label: `${cls.className} (${cls.departmentCode})`,
+          value: cls.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
     },
     {
       id: 'gpa',
@@ -110,14 +140,12 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
       ),
       cell: ({ cell }) => cell.getValue<number>().toFixed(2)
     },
-    // {
-    //   id: 'totalCredits',
-    //   accessorKey: 'totalCredits',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title='Total Credits' />
-    //   ),
-    //   cell: ({ cell }) => cell.getValue<number>().toFixed(1)
-    // },
+    {
+      id: 'status',
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ cell }) => cell.getValue<Status>()
+    },
     {
       id: 'createdAt',
       accessorKey: 'createdAt',
@@ -131,13 +159,6 @@ export function getResultColumns(): ColumnDef<ResultWithDetails>[] {
         icon: CalendarIcon
       },
       enableColumnFilter: true
-    },
-    {
-      id: 'rank',
-      accessorKey: 'rank',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Rank' />
-      )
     },
     {
       id: 'actions',

@@ -12,12 +12,12 @@ import {
 import { use } from 'react';
 import { ClassSubjectManager } from './class-subject-manager';
 
-const ClassSubjectsTable = ({
-  classes
-}: {
-  classes: Promise<Awaited<ReturnType<typeof getClasses>>>;
-}) => {
-  const classList = use(classes) as ClassWithDetails[];
+interface ClassTableProps {
+  classProp: Promise<Awaited<ReturnType<typeof getClasses<true>>>>;
+}
+
+const ClassSubjectsTable = ({ classProp }: ClassTableProps) => {
+  const { classes, pageCount } = use(classProp);
 
   return (
     <Table>
@@ -32,7 +32,7 @@ const ClassSubjectsTable = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {classList.map((cls) => (
+        {classes.map((cls) => (
           <TableRow key={cls.id}>
             <TableCell className='font-medium'>{cls.className}</TableCell>
             <TableCell>{cls.departmentCode}</TableCell>

@@ -48,7 +48,8 @@ export default async function StudentsPage(props: pageProps) {
   const promises = getAllStudents({
     ...search
   });
-
+  // console.log('search', search);
+  // promises.then((value) => console.log('parimise: ', value));
   return (
     <ContentLayout
       title={t('students')}
@@ -57,7 +58,7 @@ export default async function StudentsPage(props: pageProps) {
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-3xl font-bold tracking-tight'>Students</h5>
+            <h5 className='text-2xl font-bold tracking-tight'>Students</h5>
             <p className='text-muted-foreground text-sm'>
               Manage students (Server side table functionalities.)
             </p>

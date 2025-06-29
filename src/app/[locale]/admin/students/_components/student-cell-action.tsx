@@ -24,7 +24,7 @@ export const StudentCellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useRouter();
   const [isDeletePending, startDeleteTransition] = React.useTransition();
 
-  const onConfirm = async () => {
+  const onConfirm = () => {
     startDeleteTransition(async () => {
       const { error } = await deleteStudent(data.id);
 

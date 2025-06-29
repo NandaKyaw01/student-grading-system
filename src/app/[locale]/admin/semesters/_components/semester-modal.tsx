@@ -1,15 +1,16 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import {
+  createSemester,
+  SemesterWithDetails,
+  updateSemester
+} from '@/actions/semester';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -20,7 +21,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -28,11 +28,14 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { createSemester, updateSemester } from '@/actions/semester';
+import { Switch } from '@/components/ui/switch';
+import { AcademicYear } from '@/generated/prisma';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader } from 'lucide-react';
+import { useTransition } from 'react';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { useState } from 'react';
-import { getAcademicYears } from '@/actions/academic-year';
-import { use } from 'react';
+import * as z from 'zod';
 
 const semesterFormSchema = z.object({
   semesterName: z.string().min(1, {
@@ -48,26 +51,20 @@ type SemesterFormValues = z.infer<typeof semesterFormSchema>;
 
 interface SemesterDialogProps {
   mode?: 'new' | 'edit';
-  semester?: {
-    id: number;
-    semesterName: string;
-    academicYearId: number;
-    isCurrent: boolean;
-  };
-  academicYear: Promise<Awaited<ReturnType<typeof getAcademicYears>>>;
-  onSuccess?: () => void;
-  children?: React.ReactNode;
+  semester?: SemesterWithDetails;
+  academicYear: AcademicYear[];
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function SemesterDialog({
   mode = 'new',
   semester,
   academicYear,
-  onSuccess,
-  children
+  isOpen,
+  onClose
 }: SemesterDialogProps) {
-  const [open, setOpen] = useState(false);
-  const academicYears = use(academicYear);
+  const [isPending, startTransition] = useTransition();
 
   const defaultValues: Partial<SemesterFormValues> = {
     semesterName: semester?.semesterName || '',
@@ -80,43 +77,44 @@ export function SemesterDialog({
     defaultValues
   });
 
-  async function onSubmit(data: SemesterFormValues) {
-    try {
-      const payload = {
-        semesterName: data.semesterName,
-        academicYearId: parseInt(data.academicYearId),
-        isCurrent: data.isCurrent
-      };
+  const onSubmit = (data: SemesterFormValues) => {
+    startTransition(async () => {
+      try {
+        const payload = {
+          semesterName: data.semesterName,
+          academicYearId: parseInt(data.academicYearId),
+          isCurrent: data.isCurrent
+        };
 
-      if (mode === 'new') {
-        await createSemester(payload);
-      } else if (semester?.id) {
-        await updateSemester(semester.id, payload);
+        let result;
+        if (mode === 'new') {
+          result = await createSemester(payload);
+        } else if (semester?.id) {
+          result = await updateSemester(semester.id, payload);
+        }
+
+        if (!result?.success) {
+          throw new Error(result?.error);
+        }
+
+        toast.success('Success', {
+          description: `Semester ${mode === 'new' ? 'created' : 'updated'} successfully.`
+        });
+        form.reset();
+        setTimeout(onClose, 300);
+      } catch (error) {
+        toast.error('Error', {
+          description:
+            error instanceof Error ? error.message : 'An error occurred'
+        });
       }
+    });
+  };
 
-      toast.success('Success', {
-        description: `Semester ${mode === 'new' ? 'created' : 'updated'} successfully.`
-      });
-
-      setOpen(false);
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error ? error.message : 'An error occurred'
-      });
-    }
-  }
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button variant={mode === 'new' ? 'default' : 'outline'}>
-            {mode === 'new' ? 'Add Semester' : 'Edit'}
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>
@@ -148,14 +146,19 @@ export function SemesterDialog({
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
+                    disabled={isPending}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select academic year' />
+                        <SelectValue
+                          placeholder={
+                            isPending ? 'Loading...' : 'Select academic year'
+                          }
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {academicYears.map((year) => (
+                      {academicYear.map((year) => (
                         <SelectItem key={year.id} value={year.id.toString()}>
                           {year.yearRange}
                         </SelectItem>
@@ -190,8 +193,18 @@ export function SemesterDialog({
               )}
             />
 
-            <Button type='submit'>
-              {mode === 'new' ? 'Create Semester' : 'Save Changes'}
+            <Button type='submit' disabled={isPending}>
+              {isPending && (
+                <Loader
+                  className='mr-2 size-4 animate-spin'
+                  aria-hidden='true'
+                />
+              )}
+              {isPending
+                ? 'Saving...'
+                : mode === 'new'
+                  ? 'Create Semester'
+                  : 'Save Changes'}
             </Button>
           </form>
         </Form>

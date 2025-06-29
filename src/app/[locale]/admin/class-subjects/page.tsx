@@ -23,7 +23,7 @@ const breadcrumb: BreadcrumbProps[] = [
 ];
 
 export default function ClassSubjectsPage() {
-  const classes = getClasses({ includeDetails: true });
+  const classes = getClasses<true>(undefined, { includeDetails: true });
 
   const t = useTranslations('AdminNavBarTitle');
 
@@ -49,7 +49,7 @@ export default function ClassSubjectsPage() {
             <DataTableSkeleton columnCount={6} rowCount={8} filterCount={2} />
           }
         >
-          <ClassSubjectsTable classes={classes} />
+          <ClassSubjectsTable classProp={classes} />
         </Suspense>
       </div>
     </ContentLayout>

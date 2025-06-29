@@ -2,6 +2,7 @@
 
 import { Prisma, Semester } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
+import { GetSemesterSchema } from '@/lib/search-params/semester';
 import { revalidateTag, unstable_cache } from 'next/cache';
 
 const semesterWithDetails = Prisma.validator<Prisma.SemesterInclude>()({
@@ -18,6 +19,18 @@ export async function createSemester(
   data: Omit<Semester, 'id' | 'createdAt' | 'updatedAt'>
 ) {
   try {
+    // First check if there are any dependent records
+    const hasSemester = await prisma.semester.findFirst({
+      where: {
+        academicYearId: data.academicYearId,
+        semesterName: data.semesterName
+      }
+    });
+
+    if (hasSemester) {
+      throw new Error('Duplicate semester');
+    }
+
     // If setting as current, first unset any existing current semester
     if (data.isCurrent) {
       await prisma.semester.updateMany({
@@ -31,7 +44,7 @@ export async function createSemester(
     });
 
     revalidateTag('semesters');
-    revalidateTag(`semester-${newSemester.id}`);
+
     return { success: true, data: newSemester };
   } catch (error) {
     return {
@@ -106,53 +119,118 @@ export async function deleteSemester(id: number) {
   }
 }
 
-export async function setCurrentSemester(id: number) {
-  try {
-    await prisma.$transaction([
-      prisma.semester.updateMany({
-        where: { isCurrent: true },
-        data: { isCurrent: false }
-      }),
-      prisma.semester.update({
-        where: { id },
-        data: { isCurrent: true }
-      })
-    ]);
-
-    revalidateTag('semesters');
-    return true;
-  } catch (error) {
-    console.error('Error setting current semester:', error);
-    return false;
-  }
-}
-
-export const getSemesters = unstable_cache(
-  async (options?: {
-    academicYearId?: number;
+export async function getSemesters<T extends boolean = false>(
+  input?: GetSemesterSchema,
+  options?: {
+    academicYearId?: number[];
     currentOnly?: boolean;
-    includeDetails?: boolean;
-  }) => {
+    includeDetails?: T;
+    useCache?: boolean;
+  }
+): Promise<{
+  semesters: T extends true ? SemesterWithDetails[] : Semester[];
+  pageCount: number;
+}> {
+  const queryFunction = async () => {
     try {
-      return await prisma.semester.findMany({
-        where: {
-          academicYearId: options?.academicYearId,
-          isCurrent: options?.currentOnly ? true : undefined
-        },
-        include: options?.includeDetails ? semesterWithDetails : undefined,
-        orderBy: { semesterName: 'asc' }
-      });
+      const where: Prisma.SemesterWhereInput = {};
+      let paginate = true;
+
+      if (!input || Object.keys(input).length === 0) {
+        paginate = false;
+      } else {
+        if (input.search?.trim()) {
+          where.OR = [
+            {
+              academicYear: {
+                yearRange: { contains: input.search, mode: 'insensitive' }
+              }
+            },
+            {
+              semesterName: { contains: input.search, mode: 'insensitive' }
+            }
+          ];
+        }
+
+        if (input.isCurrent) {
+          where.isCurrent = input.isCurrent == 'true' ? true : false;
+        }
+
+        if (input?.academicYearId && input?.academicYearId?.length > 0) {
+          where.academicYearId = { in: input.academicYearId };
+        }
+      }
+
+      if (options?.academicYearId && options?.academicYearId?.length > 0) {
+        where.academicYearId = { in: options?.academicYearId };
+      }
+
+      const orderBy: Prisma.SemesterOrderByWithRelationInput[] =
+        input?.sort && input.sort.length > 0
+          ? input.sort.map((item) => ({
+              academicYear: {
+                yearRange: item.desc ? 'desc' : 'asc'
+              }
+            }))
+          : [
+              {
+                academicYear: {
+                  yearRange: 'asc'
+                }
+              }
+            ];
+
+      const page = input?.page ?? 1;
+      const limit = input?.perPage ?? 10;
+      const offset = (page - 1) * limit;
+
+      const [semester, totalCount] = await prisma.$transaction([
+        prisma.semester.findMany({
+          where: {
+            isCurrent: options?.currentOnly ? true : undefined,
+            ...where
+          },
+          include: options?.includeDetails ? semesterWithDetails : undefined,
+          orderBy,
+          ...(paginate ? { skip: offset, take: limit } : {})
+        }),
+        prisma.semester.count({ where })
+      ]);
+
+      const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+
+      return {
+        semesters: semester as T extends true
+          ? SemesterWithDetails[]
+          : Semester[],
+        pageCount
+      };
     } catch (error) {
       console.error('Error fetching semesters:', error);
-      return [];
+      return {
+        semesters: [] as unknown as T extends true
+          ? SemesterWithDetails[]
+          : Semester[],
+        pageCount: 0
+      };
     }
-  },
-  ['semesters'],
-  {
-    tags: ['semesters'],
-    revalidate: 3600 // 1 hour cache
+  };
+
+  // Use cache by default (explicitly disable with useCache: false)
+  if (options?.useCache !== false) {
+    return await unstable_cache(
+      queryFunction,
+      [JSON.stringify(input ?? {}) + JSON.stringify(options ?? {})],
+      {
+        tags: ['semesters'],
+        revalidate: 3600 // 1 hour cache
+      }
+    )();
   }
-);
+
+  // Execute directly without cache
+  return await queryFunction();
+}
 
 export const getSemesterById = async (id: number) => {
   return await unstable_cache(
@@ -167,28 +245,10 @@ export const getSemesterById = async (id: number) => {
         return null;
       }
     },
-    ['semester'],
+    [`semester-${id}`],
     {
-      tags: [`semester-${id}`]
+      tags: [`semester-${id}`],
+      revalidate: 3600 // 1 hour cache
     }
   )();
 };
-
-export async function getSemestersForSelect() {
-  return await prisma.semester.findMany({
-    select: {
-      id: true,
-      semesterName: true,
-      academicYear: {
-        select: {
-          yearRange: true
-        }
-      }
-    },
-    orderBy: {
-      academicYear: {
-        yearRange: 'desc'
-      }
-    }
-  });
-}

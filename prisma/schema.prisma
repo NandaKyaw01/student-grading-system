@@ -16,12 +16,14 @@ datasource db {
 }
 
 model AcademicYear {
-  id        Int        @id @default(autoincrement())
-  yearRange String     @unique
-  isCurrent Boolean    @default(false)
-  semesters Semester[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id                  Int                  @id @default(autoincrement())
+  yearRange           String               @unique
+  isCurrent           Boolean              @default(false)
+  semesters           Semester[]
+  academicYearResults AcademicYearResult[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([isCurrent])
 }
@@ -33,9 +35,11 @@ model Semester {
   isCurrent      Boolean      @default(false)
   classes        Class[]
   enrollments    Enrollment[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
 
   @@index([academicYearId])
   @@index([isCurrent])
@@ -54,9 +58,11 @@ model Class {
   semesterId     Int
   enrollments    Enrollment[]
   subjects       ClassSubject[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  semester       Semester       @relation(fields: [semesterId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  semester Semester @relation(fields: [semesterId], references: [id])
 
   @@index([semesterId])
   @@index([departmentCode])
@@ -69,8 +75,9 @@ model Subject {
   examWeight   Float          @default(0.6)
   assignWeight Float          @default(0.4)
   classes      ClassSubject[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([subjectName])
 }
@@ -82,38 +89,45 @@ model ClassSubject {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   grades    Grade[]
-  class     Class    @relation(fields: [classId], references: [id])
-  subject   Subject  @relation(fields: [subjectId], references: [id])
+
+  class   Class   @relation(fields: [classId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
 
   @@unique([classId, subjectId])
 }
 
 model Student {
-  id          Int          @id @default(autoincrement())
-  studentName String
-  enrollments Enrollment[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id                  Int                  @id @default(autoincrement())
+  studentName         String
+  admissionId         String               @unique
+  enrollments         Enrollment[]
+  academicYearResults AcademicYearResult[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([studentName])
+  @@index([admissionId])
 }
 
 model Enrollment {
-  id         Int      @id @default(autoincrement())
+  id         Int     @id @default(autoincrement())
   rollNumber String
   studentId  Int
   classId    Int
   semesterId Int
-  isActive   Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  isActive   Boolean @default(false)
   result     Result?
   grades     Grade[]
-  student    Student  @relation(fields: [studentId], references: [id])
-  class      Class    @relation(fields: [classId], references: [id])
-  semester   Semester @relation(fields: [semesterId], references: [id])
 
-  @@unique([classId, semesterId, rollNumber])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student  Student  @relation(fields: [studentId], references: [id])
+  class    Class    @relation(fields: [classId], references: [id])
+  semester Semester @relation(fields: [semesterId], references: [id])
+
+  @@unique([classId, semesterId, studentId])
   @@index([studentId])
   @@index([classId])
   @@index([semesterId])
@@ -121,7 +135,7 @@ model Enrollment {
 }
 
 model Grade {
-  id             Int          @id @default(autoincrement())
+  id             Int    @id @default(autoincrement())
   enrollmentId   Int
   classSubjectId Int
   examMark       Float
@@ -130,21 +144,24 @@ model Grade {
   grade          String
   score          Float
   gp             Float
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  enrollment     Enrollment   @relation(fields: [enrollmentId], references: [id])
-  classSubject   ClassSubject @relation(fields: [classSubjectId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  enrollment   Enrollment   @relation(fields: [enrollmentId], references: [id])
+  classSubject ClassSubject @relation(fields: [classSubjectId], references: [id])
 
   @@unique([enrollmentId, classSubjectId])
   @@index([grade])
 }
 
 model GradeScale {
-  id        Int      @id @default(autoincrement())
-  minMark   Int
-  maxMark   Int
-  grade     String
-  score     Float
+  id      Int    @id @default(autoincrement())
+  minMark Int
+  maxMark Int
+  grade   String
+  score   Float
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -154,17 +171,60 @@ model GradeScale {
 }
 
 model Result {
-  enrollmentId Int        @id // Using enrollmentId as primary key
+  enrollmentId Int    @id // Using enrollmentId as primary key
   gpa          Float
   totalCredits Float
   totalGp      Float
-  rank         Int?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  status       Status @default(FAIL)
+
+  academicYearResultId Int?
+
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  enrollment         Enrollment          @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  AcademicYearResult AcademicYearResult? @relation(fields: [academicYearResultId], references: [id])
 
   @@index([gpa])
-  @@index([rank])
+  @@index([academicYearResultId])
+}
+
+enum Status {
+  INCOMPLETE
+  PASS
+  FAIL
+}
+
+model AcademicYearResult {
+  id             Int @id @default(autoincrement())
+  studentId      Int
+  academicYearId Int
+
+  // Calculated fields
+  overallGpa   Float @default(0.0)
+  totalCredits Float @default(0.0)
+  totalGp      Float @default(0.0)
+
+  // Semester tracking
+  semesterCount Int     @default(0)
+  isComplete    Boolean @default(false) // true when has both semesters
+
+  // Status and ranking
+  status   Status @default(INCOMPLETE) // INCOMPLETE, PASS, FAIL
+  yearRank Int?
+
+  semesterResults Result[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student      Student      @relation(fields: [studentId], references: [id])
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  @@unique([studentId, academicYearId])
+  @@index([overallGpa])
+  @@index([isComplete])
+  @@index([status])
+  @@index([yearRank])
 }
 
 model User {

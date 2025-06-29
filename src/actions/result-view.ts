@@ -17,7 +17,6 @@ export type ResultData = {
     gpa: number;
     totalCredits: number;
     totalGp: number;
-    rank: number | null;
   };
   grades: Array<{
     subject: {
@@ -30,7 +29,30 @@ export type ResultData = {
     finalMark: number;
     grade: string;
     gp: number;
+    score: number;
   }>;
+  gradeScales: {
+    gradeDescRow1: Array<{
+      grade: string;
+      range: string;
+      display: string;
+    }>;
+    gradeDescRow2: Array<{
+      grade: string;
+      range: string;
+      display: string;
+    }>;
+    gradeScoreRow1: Array<{
+      score: string;
+      range: string;
+      display: string;
+    }>;
+    gradeScoreRow2: Array<{
+      score: string;
+      range: string;
+      display: string;
+    }>;
+  };
 };
 
 export async function getResultById(
@@ -86,6 +108,49 @@ export async function getResultById(
       return null;
     }
 
+    function splitIntoTwoRows<T>(array: T[]) {
+      if (array.length === 0) {
+        return { row1: [], row2: [] };
+      }
+
+      if (array.length === 1) {
+        return { row1: array, row2: [] };
+      }
+
+      // For even distribution, use Math.ceil to put extra item in first row if odd number
+      const midpoint = Math.ceil(array.length / 2);
+
+      return {
+        row1: array.slice(0, midpoint),
+        row2: array.slice(midpoint)
+      };
+    }
+
+    const gradeScales = await prisma.gradeScale.findMany({
+      orderBy: { minMark: 'desc' }
+    });
+
+    const gradeDescriptions = gradeScales.map((scale) => ({
+      grade: scale.grade,
+      range:
+        scale.maxMark === 100
+          ? `(>${scale.minMark})`
+          : `(${scale.minMark}-${scale.maxMark})`,
+      display: `${scale.grade} ${scale.maxMark === 100 ? `(>${scale.minMark})` : `(${scale.minMark}-${scale.maxMark})`}`
+    }));
+
+    const gradeScoreDescriptions = gradeScales.map((scale) => ({
+      score: scale.score.toFixed(2),
+      range:
+        scale.maxMark === 100
+          ? `(>${scale.minMark})`
+          : `(${scale.minMark}-${scale.maxMark})`,
+      display: `${scale.score.toFixed(2)} ${scale.maxMark === 100 ? `(>${scale.minMark})` : `(${scale.minMark}-${scale.maxMark})`}`
+    }));
+
+    const gradeDescRows = splitIntoTwoRows(gradeDescriptions);
+    const gradeScoreRows = splitIntoTwoRows(gradeScoreDescriptions);
+
     // Transform the data to match the expected format
     const transformedData: ResultData = {
       student: {
@@ -101,8 +166,7 @@ export async function getResultById(
       result: {
         gpa: result.gpa,
         totalCredits: result.totalCredits,
-        totalGp: result.totalGp,
-        rank: result.rank
+        totalGp: result.totalGp
       },
       grades: result.enrollment.grades.map((grade) => ({
         subject: {
@@ -114,8 +178,18 @@ export async function getResultById(
         assignMark: grade.assignMark,
         finalMark: grade.finalMark,
         grade: grade.grade,
-        gp: grade.gp
-      }))
+        gp: grade.gp,
+        score: grade.score
+      })),
+      gradeScales: {
+        // Grade descriptions in two rows
+        gradeDescRow1: gradeDescRows.row1,
+        gradeDescRow2: gradeDescRows.row2,
+
+        // Grade score descriptions in two rows
+        gradeScoreRow1: gradeScoreRows.row1,
+        gradeScoreRow2: gradeScoreRows.row2
+      }
     };
 
     return transformedData;
@@ -142,9 +216,6 @@ export async function getResultsByClass(classId: number, semesterId: number) {
             student: true
           }
         }
-      },
-      orderBy: {
-        rank: 'asc'
       }
     });
 
@@ -153,8 +224,7 @@ export async function getResultsByClass(classId: number, semesterId: number) {
       studentName: result.enrollment.student.studentName,
       rollNumber: result.enrollment.rollNumber,
       gpa: result.gpa,
-      totalCredits: result.totalCredits,
-      rank: result.rank
+      totalCredits: result.totalCredits
     }));
   } catch (error) {
     console.error('Error fetching class results:', error);

@@ -1,18 +1,17 @@
 'use client';
 
+import { deleteAcademicYear } from '@/actions/academic-year';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  DialogDescription,
   DialogFooter,
-  DialogDescription
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog';
-import { deleteAcademicYear } from '@/actions/academic-year';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { Loader } from 'lucide-react';
+import { useTransition } from 'react';
 import { toast } from 'sonner';
 
 interface DeleteAcademicYearDialogProps {
@@ -20,53 +19,42 @@ interface DeleteAcademicYearDialogProps {
     id: number;
     yearRange: string;
   };
-  children?: React.ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function DeleteAcademicYearDialog({
   academicYear,
-  children
+  isOpen,
+  onClose
 }: DeleteAcademicYearDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const router = useRouter();
+  const [isDeleting, startTransition] = useTransition();
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      const result = await deleteAcademicYear(academicYear.id);
+  const handleDelete = () => {
+    startTransition(async () => {
+      try {
+        const result = await deleteAcademicYear(academicYear.id);
 
-      if (!result.success) {
-        throw new Error(result.error);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        toast.success('Success', {
+          description: `Academic year ${academicYear.yearRange} deleted successfully.`
+        });
+      } catch (error) {
+        toast.error('Error', {
+          description:
+            error instanceof Error
+              ? error.message
+              : 'Failed to delete academic year'
+        });
       }
-
-      toast.success('Success', {
-        description: `Academic year ${academicYear.yearRange} deleted successfully.`
-      });
-
-      setOpen(false);
-      router.refresh(); // Refresh the page to update the list
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error
-            ? error.message
-            : 'Failed to delete academic year'
-      });
-    } finally {
-      setIsDeleting(false);
-    }
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button variant='destructive' size='sm'>
-            Delete
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Delete Academic Year</DialogTitle>
@@ -76,7 +64,7 @@ export function DeleteAcademicYearDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant='outline' onClick={() => setOpen(false)}>
+          <Button variant='outline' onClick={onClose} disabled={isDeleting}>
             Cancel
           </Button>
           <Button
@@ -84,6 +72,9 @@ export function DeleteAcademicYearDialog({
             onClick={handleDelete}
             disabled={isDeleting}
           >
+            {isDeleting && (
+              <Loader className='mr-2 size-4 animate-spin' aria-hidden='true' />
+            )}
             {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>

@@ -33,7 +33,7 @@ export default function NotFound() {
             </ul>
           </div>
           <div className='pt-4'>
-            <Link href='/results'>
+            <Link href='/admin/results'>
               <Button className='w-full'>
                 <ArrowLeft className='h-4 w-4 mr-2' />
                 Back to Results

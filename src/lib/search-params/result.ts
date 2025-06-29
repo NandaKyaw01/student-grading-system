@@ -8,15 +8,17 @@ import {
 
 import { getSortingStateParser } from '@/lib/parsers';
 import { Result } from '@/generated/prisma';
+import { z } from 'zod';
 
 export const resultSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
-  enrollmentId: parseAsString.withDefault(''),
-  createdAt: parseAsString.withDefault(''),
-  sort: getSortingStateParser<Result>().withDefault([
-    { id: 'createdAt', desc: true }
-  ])
+  search: parseAsString,
+  academicYearId: parseAsArrayOf(z.coerce.number()).withDefault([]),
+  semesterId: parseAsArrayOf(z.coerce.number()).withDefault([]),
+  classId: parseAsArrayOf(z.coerce.number()).withDefault([]),
+  createdAt: parseAsString,
+  sort: getSortingStateParser<Result>()
 };
 
 export const resultSearchParamsCache =

@@ -7,7 +7,8 @@ import {
   BookOpenCheck,
   GraduationCap,
   FileCog,
-  Library
+  Library,
+  Import
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -41,22 +42,6 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
           label: t('dashboard'),
           icon: LayoutGrid,
           submenus: []
-        },
-        {
-          href: `/admin/results`,
-          label: t('grades'),
-          icon: BookOpenCheck,
-          submenus: []
-        },
-        {
-          href: '/admin/students',
-          label: t('students'),
-          icon: Users
-        },
-        {
-          href: '/admin/enrollments',
-          label: 'Enrollments',
-          icon: Library
         }
       ]
     },
@@ -65,7 +50,47 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
       menus: [
         {
           href: '',
-          label: t('academic'),
+          label: 'Results',
+          icon: BookOpenCheck,
+          submenus: [
+            {
+              href: `/admin/results`,
+              label: 'By Semester'
+            },
+            {
+              href: `/admin/academic-year-results`,
+              label: 'By Year'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      groupLabel: '',
+      menus: [
+        {
+          href: '',
+          label: t('students'),
+          icon: Users,
+          submenus: [
+            {
+              href: '/admin/students',
+              label: t('students')
+            },
+            {
+              href: '/admin/enrollments',
+              label: 'Enrollments'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      groupLabel: '',
+      menus: [
+        {
+          href: '',
+          label: 'Configurations',
           icon: GraduationCap,
           submenus: [
             {
@@ -87,6 +112,22 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
             {
               href: '/admin/class-subjects',
               label: t('SubAcademic.class_subjects')
+            }
+          ]
+        }
+      ]
+    },
+    {
+      groupLabel: '',
+      menus: [
+        {
+          href: '',
+          label: 'Imports',
+          icon: Import,
+          submenus: [
+            {
+              href: '/admin/import-results',
+              label: 'Import results'
             }
           ]
         }
