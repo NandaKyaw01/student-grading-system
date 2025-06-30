@@ -80,7 +80,7 @@ const createAssignMarkSchema = (maxValue: number) =>
 const createGradeSchema = (assignWeight: number) =>
   z.object({
     classSubjectId: z.number(),
-    examMark: markSchema,
+    baseMark: markSchema,
     assignMark: createAssignMarkSchema(assignWeight)
   });
 
@@ -97,7 +97,7 @@ export const createResultSchemaWithSubjects = (
       .array(
         z.object({
           classSubjectId: z.number(),
-          examMark: markSchema,
+          baseMark: markSchema,
           assignMark: z
             .union([
               z
@@ -140,7 +140,7 @@ export const createResultSchema = z.object({
     .array(
       z.object({
         classSubjectId: z.number(),
-        examMark: markSchema,
+        baseMark: markSchema,
         assignMark: markSchema // Keep original for backward compatibility
       })
     )
@@ -157,7 +157,7 @@ export type CreateResultFormData = {
   enrollmentId: number;
   grades: {
     classSubjectId: number;
-    examMark: string | number;
+    baseMark: string | number;
     assignMark: string | number; // Allow both for form handling
   }[];
 };
