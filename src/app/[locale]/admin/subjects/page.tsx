@@ -25,7 +25,7 @@ const breadcrumb: BreadcrumbProps[] = [
 ];
 
 export default function SubjectsPage() {
-  const subjects = getSubjects();
+  const subjects = getSubjects<true>(undefined, { includeDetails: true });
   const t = useTranslations('AdminNavBarTitle');
 
   return (
@@ -49,7 +49,7 @@ export default function SubjectsPage() {
         </div>
         <Separator />
         <Suspense fallback='loading...'>
-          <SubjectsTable subjects={subjects} />
+          <SubjectsTable subjectProp={subjects} />
         </Suspense>
       </div>
     </ContentLayout>

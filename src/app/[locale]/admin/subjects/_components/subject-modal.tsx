@@ -24,6 +24,7 @@ import { createSubject, updateSubject } from '@/actions/subject';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { SubjectWithDetails } from '@/actions/subject';
+import { Subject } from '@/generated/prisma';
 
 const subjectFormSchema = z.object({
   id: z.string().min(1, {
@@ -41,7 +42,7 @@ type SubjectFormValues = z.infer<typeof subjectFormSchema>;
 
 interface SubjectDialogProps {
   mode?: 'new' | 'edit';
-  subject?: SubjectWithDetails;
+  subject?: SubjectWithDetails | Subject;
   onSuccess?: () => void;
   children?: React.ReactNode;
 }
