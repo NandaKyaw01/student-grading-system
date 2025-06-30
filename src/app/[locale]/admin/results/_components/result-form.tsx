@@ -5,6 +5,7 @@ import {
   createResult,
   getAcademicYears,
   getEnrollmentsByStudentAndSemester,
+  getGradeScale,
   getSemestersByAcademicYear,
   getStudents,
   getSubjectsByEnrollment,
@@ -60,7 +61,7 @@ const SubjectGradeSkeleton = () => (
       <Skeleton className='h-3 w-40' />
     </div>
     <div className='space-y-2'>
-      <Skeleton className='h-4 w-16' />
+      <Skeleton className='h-4 w-20' />
       <Skeleton className='h-10 w-full' />
     </div>
     <div className='space-y-2'>
@@ -70,7 +71,10 @@ const SubjectGradeSkeleton = () => (
     <div className='flex items-end'>
       <div className='space-y-1'>
         <Skeleton className='h-3 w-16' />
-        <Skeleton className='h-5 w-12' />
+        <Skeleton className='h-3 w-16' />
+        <Skeleton className='h-3 w-16' />
+        <Skeleton className='h-3 w-16' />
+        <Skeleton className='h-3 w-12' />
       </div>
     </div>
   </div>
@@ -202,6 +206,11 @@ export default function ResultForm({
     enabled: enrollmentId > 0
   });
 
+  const { data: gradeScalesData } = useQuery({
+    queryKey: ['grade-scales'],
+    queryFn: getGradeScale // You'll need to create this action
+  });
+
   // Memoized data transformations
   const students = useMemo(
     () => (studentsData?.success ? (studentsData.data ?? []) : []),
@@ -231,6 +240,11 @@ export default function ResultForm({
   const hasExistingResult = useMemo(
     () => existingResultData?.success && existingResultData.data,
     [existingResultData]
+  );
+
+  const gradeScales = useMemo(
+    () => (gradeScalesData?.success ? (gradeScalesData.data ?? []) : []),
+    [gradeScalesData]
   );
 
   // Update schema when subjects change - only once per subjects array
@@ -308,14 +322,14 @@ export default function ResultForm({
         );
         return {
           classSubjectId: subject.classSubjectId,
-          examMark: existingGrade?.examMark?.toString() ?? '',
+          baseMark: existingGrade?.baseMark?.toString() ?? '', // This will be the input field
           assignMark: existingGrade?.assignMark?.toString() ?? ''
         };
       });
     } else {
       return subjects.map((subject) => ({
         classSubjectId: subject.classSubjectId,
-        examMark: '',
+        baseMark: '', // This will be the input field
         assignMark: ''
       }));
     }
@@ -441,27 +455,74 @@ export default function ResultForm({
     [resultMutation]
   );
 
-  const calculateFinalMark = useCallback(
+  // const calculateFinalMark = useCallback(
+  //   (index: number) => {
+  //     const subject = subjects[index];
+  //     if (!subject) return '0.00';
+
+  //     const examMarkValue = form.watch(`grades.${index}.examMark`);
+  //     const assignMarkValue = form.watch(`grades.${index}.assignMark`);
+
+  //     const examMark =
+  //       typeof examMarkValue === 'string'
+  //         ? parseFloat(examMarkValue) || 0
+  //         : examMarkValue || 0;
+  //     const assignMark =
+  //       typeof assignMarkValue === 'string'
+  //         ? parseFloat(assignMarkValue) || 0
+  //         : assignMarkValue || 0;
+
+  //     const finalMark = examMark * subject.examWeight + assignMark;
+  //     return finalMark.toFixed(2);
+  //   },
+  //   [subjects, form]
+  // );
+  const calculateGradeInfo = useCallback(
     (index: number) => {
       const subject = subjects[index];
-      if (!subject) return '0.00';
+      if (!subject)
+        return {
+          examMark: '0.00',
+          finalMark: '0.00',
+          grade: '',
+          score: 0,
+          gp: 0
+        };
 
-      const examMarkValue = form.watch(`grades.${index}.examMark`);
+      const baseMarkValue = form.watch(`grades.${index}.baseMark`);
       const assignMarkValue = form.watch(`grades.${index}.assignMark`);
 
-      const examMark =
-        typeof examMarkValue === 'string'
-          ? parseFloat(examMarkValue) || 0
-          : examMarkValue || 0;
+      const baseMark =
+        typeof baseMarkValue === 'string'
+          ? parseFloat(baseMarkValue) || 0
+          : baseMarkValue || 0;
       const assignMark =
         typeof assignMarkValue === 'string'
           ? parseFloat(assignMarkValue) || 0
           : assignMarkValue || 0;
 
-      const finalMark = examMark * subject.examWeight + assignMark;
-      return finalMark.toFixed(2);
+      // Calculate exam mark from base mark
+      const examMark = baseMark * subject.examWeight;
+
+      // Calculate final mark
+      const finalMark = examMark + assignMark;
+
+      // Find grade from grade scale
+      const gradeScale = gradeScales.find(
+        (scale) => finalMark >= scale.minMark && finalMark <= scale.maxMark
+      );
+
+      const gp = (gradeScale?.score || 0) * subject.creditHours;
+
+      return {
+        examMark: examMark.toFixed(2),
+        finalMark: finalMark.toFixed(2),
+        grade: gradeScale?.grade || '',
+        score: gradeScale?.score || 0,
+        gp: gp // Assuming GP is same as score
+      };
     },
-    [subjects, form]
+    [subjects, form, gradeScales]
   );
 
   const isSubmitDisabled = useMemo(
@@ -661,7 +722,7 @@ export default function ResultForm({
                     return (
                       <div
                         key={field.id}
-                        className='grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg'
+                        className='grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg items-center'
                       >
                         <div className='md:col-span-1'>
                           <Label className='font-medium'>
@@ -677,10 +738,10 @@ export default function ResultForm({
 
                         <FormField
                           control={form.control}
-                          name={`grades.${index}.examMark`}
+                          name={`grades.${index}.baseMark`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Exam Mark *</FormLabel>
+                              <FormLabel>Base Mark *</FormLabel>
                               <FormControl>
                                 <Input
                                   type='number'
@@ -734,11 +795,51 @@ export default function ResultForm({
                         />
 
                         <div className='flex items-end'>
-                          <div className='text-sm'>
-                            <div>Final Mark:</div>
-                            <div className='font-semibold'>
-                              {calculateFinalMark(index)}
-                            </div>
+                          <div className='text-sm space-y-1'>
+                            {(() => {
+                              const gradeInfo = calculateGradeInfo(index);
+                              return (
+                                <>
+                                  <div className='flex gap-1'>
+                                    <div>
+                                      Exam:{' '}
+                                      <span className='font-semibold'>
+                                        {gradeInfo.examMark}
+                                      </span>{' '}
+                                      |
+                                    </div>
+                                    <div>
+                                      Final:{' '}
+                                      <span className='font-semibold'>
+                                        {gradeInfo.finalMark}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className='flex gap-1'>
+                                    <div>
+                                      Grade:{' '}
+                                      <span className='font-semibold'>
+                                        {gradeInfo.grade}
+                                      </span>{' '}
+                                      |
+                                    </div>
+                                    <div>
+                                      Score:{' '}
+                                      <span className='font-semibold'>
+                                        {gradeInfo.score}
+                                      </span>{' '}
+                                      |
+                                    </div>
+                                    <div>
+                                      GP:{' '}
+                                      <span className='font-semibold'>
+                                        {gradeInfo.gp}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>

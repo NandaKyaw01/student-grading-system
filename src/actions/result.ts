@@ -286,7 +286,7 @@ export async function getResultById(enrollmentId: string) {
             );
             return {
               classSubjectId: subject.id,
-              examMark: existingGrade?.examMark || 0,
+              baseMark: existingGrade?.examMark || 0,
               assignMark: existingGrade?.assignMark || 0
             };
           })
@@ -663,8 +663,8 @@ export async function createResult(data: CreateResultFormData) {
         (s) => s.classSubjectId === gradeInput.classSubjectId
       )!;
 
-      const finalMark =
-        gradeInput.examMark * subject.examWeight + gradeInput.assignMark;
+      const examMark = gradeInput.baseMark * subject.examWeight;
+      const finalMark = examMark + gradeInput.assignMark;
 
       const gradeInfo = calculateGradeDetails(finalMark, gradeScale);
       const gp = calculateGP(gradeInfo.score, subject.creditHours);
@@ -672,7 +672,8 @@ export async function createResult(data: CreateResultFormData) {
       return {
         enrollmentId: validatedData.enrollmentId,
         classSubjectId: gradeInput.classSubjectId,
-        examMark: gradeInput.examMark,
+        baseMark: gradeInput.baseMark,
+        examMark: examMark,
         assignMark: gradeInput.assignMark,
         finalMark: finalMark,
         grade: gradeInfo.grade,
@@ -697,6 +698,7 @@ export async function createResult(data: CreateResultFormData) {
             data: {
               enrollmentId: gradeData.enrollmentId,
               classSubjectId: gradeData.classSubjectId,
+              baseMark: parseFloat(gradeData.baseMark.toFixed(2)),
               examMark: parseFloat(gradeData.examMark.toFixed(2)),
               assignMark: parseFloat(gradeData.assignMark.toFixed(2)),
               finalMark: parseFloat(gradeData.finalMark.toFixed(2)),
@@ -838,9 +840,9 @@ export async function updateResult(input: UpdateResultFormData) {
       }
 
       // Calculate final mark using subject weights
-      const finalMark =
-        gradeInput.examMark * classSubject.subject.examWeight +
-        gradeInput.assignMark;
+
+      const examMark = gradeInput.baseMark * classSubject.subject.examWeight;
+      const finalMark = examMark + gradeInput.assignMark;
 
       // Get grade details based on final mark
       const gradeDetails = calculateGradeDetails(finalMark, gradeScales);
@@ -851,7 +853,8 @@ export async function updateResult(input: UpdateResultFormData) {
 
       return {
         classSubjectId: gradeInput.classSubjectId,
-        examMark: gradeInput.examMark,
+        baseMark: gradeInput.baseMark,
+        examMark: examMark,
         assignMark: gradeInput.assignMark,
         finalMark: finalMark,
         grade: gradeDetails.grade,
@@ -885,6 +888,7 @@ export async function updateResult(input: UpdateResultFormData) {
         data: processedGrades.map((grade) => ({
           enrollmentId,
           classSubjectId: grade.classSubjectId,
+          baseMark: parseFloat(grade.baseMark.toFixed(2)),
           examMark: parseFloat(grade.examMark.toFixed(2)),
           assignMark: parseFloat(grade.assignMark.toFixed(2)),
           finalMark: parseFloat(grade.finalMark.toFixed(2)),

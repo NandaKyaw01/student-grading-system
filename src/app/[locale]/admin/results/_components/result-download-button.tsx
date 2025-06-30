@@ -50,15 +50,11 @@ export function ResultDownloadButton({
             grade: grade.grade,
             score: grade.score.toFixed(2),
             point: grade.gp.toFixed(2),
+            baseMark: grade.baseMark,
             examMark: grade.examMark,
             assignMark: grade.assignMark,
             finalMark: grade.finalMark
           })),
-
-          gradeDesc1: resultData.gradeScales.gradeDescRow1,
-          gradeDesc2: resultData.gradeScales.gradeDescRow2,
-          gradeScore1: resultData.gradeScales.gradeScoreRow1,
-          gradeScore2: resultData.gradeScales.gradeScoreRow2,
 
           // Current date
           currentDate: new Date().toLocaleDateString('en-US', {

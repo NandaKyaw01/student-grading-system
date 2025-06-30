@@ -81,7 +81,7 @@ export async function getClassSubjects(classId: number) {
       },
       orderBy: {
         subject: {
-          subjectName: 'asc'
+          id: 'desc'
         }
       }
     });
@@ -117,7 +117,13 @@ export async function generateStudentTemplate(
     }
 
     // Fetch class subjects with subject details
-    const classSubjects = templateData.subjects;
+    const classSubjects = templateData.subjects.sort((a, b) => {
+      const numA = parseInt(a.id.match(/\d+/)?.[0] || '0');
+      const numB = parseInt(b.id.match(/\d+/)?.[0] || '0');
+      return numA - numB;
+    });
+
+    console.log(classSubjects);
 
     if (classSubjects.length === 0) {
       throw new Error('No subjects found for this class');
@@ -132,9 +138,10 @@ export async function generateStudentTemplate(
     // Add subject-specific columns
     classSubjects.forEach((cs) => {
       headers.push(
+        cs.name,
         `${(cs.examWeight * 100).toFixed(0)}%`,
         `${(cs.assignWeight * 100).toFixed(0)}%`,
-        `${cs.id}`,
+        `${cs.id} 100%`,
         'Grade',
         'Score',
         'GP'
@@ -157,7 +164,7 @@ export async function generateStudentTemplate(
 
       // Add empty cells for each subject's columns
       classSubjects.forEach(() => {
-        row.push('', '', '', '', '', '');
+        row.push('', '', '', '', '', '', '');
       });
 
       // Add empty cells for summary columns
@@ -180,8 +187,9 @@ export async function generateStudentTemplate(
     // Add widths for subject columns
     classSubjects.forEach(() => {
       columnWidths.push(
-        { wch: 8 }, // Grade
-        { wch: 8 }, // Grade
+        { wch: 8 }, // real
+        { wch: 8 }, // exam
+        { wch: 8 }, // assign
         { wch: 8 }, // Subject Name
         { wch: 8 }, // Grade
         { wch: 8 }, // Score
@@ -190,7 +198,7 @@ export async function generateStudentTemplate(
     });
 
     // Add widths for summary columns
-    columnWidths.push({ wch: 10 }, { wch: 8 }); // Total GP, GPA
+    columnWidths.push({ wch: 8 }, { wch: 8 }); // Total GP, GPA
 
     worksheet['!cols'] = columnWidths;
 
@@ -236,6 +244,7 @@ export async function generateStudentTemplate(
       [''],
       ['SUBJECT COLUMNS:'],
       ['For each subject, fill in the following columns:'],
+      ['- Base Mark: Raw Exam marks obtained'],
       ['- Exam Mark: Calculated marks obtained'],
       ['- Assignment Mark: Raw marks obtained'],
       ['- Final Mark: Combined marks obtained'],
@@ -256,9 +265,10 @@ export async function generateStudentTemplate(
       ]),
       [''],
       ['GRADE SCALE:'],
-      ['A+ = 4.0 (90-100)', 'A = 3.7 (85-89)', 'B+ = 3.3 (80-84)'],
-      ['B = 3.0 (75-79)', 'C+ = 2.7 (70-74)', 'C = 2.3 (65-69)'],
-      ['D+ = 2.0 (60-64)', 'D = 1.7 (55-59)', 'F = 0.0 (0-54)'],
+      ['A+ = 4.00 (90-100)', 'A = 3.80 (80-89)', 'A- = 3.67 (75-79)'],
+      ['B+ = 3.33 (70-74)', 'B = 3.00 (65-69)', 'B- = 2.67 (60-64)'],
+      ['C+ = 2.33 (55-59)', 'C = 2.00 (50-54)', 'D = 1.00 (40-49)'],
+      ['F = 0.00 (0-39)'],
       [''],
       ['NOTE: Delete sample data before importing real student data']
     ];
@@ -395,9 +405,10 @@ export async function importStudentResults(
     // Expected columns
     const requiredColumns = ['Student Name', 'Admission ID', 'Roll Number'];
     const subjectColumns = classSubjects.flatMap((cs) => [
+      cs.subject.subjectName,
       `${(cs.subject.examWeight * 100).toFixed(0)}%`,
       `${(cs.subject.assignWeight * 100).toFixed(0)}%`,
-      `${cs.subject.id}`,
+      `${cs.subject.id} 100%`,
       'Grade',
       'Score',
       'GP'
@@ -487,33 +498,68 @@ export async function importStudentResults(
 
       // Validate subject grades
       for (const cs of classSubjects) {
-        const subjectId = cs.subject.id.toString();
+        const subjectId = cs.subject.id;
+        const subjectName = cs.subject.subjectName;
+
+        const subjctNameCol = subjectName;
         const examWeightCol = `${(cs.subject.examWeight * 100).toFixed(0)}%`;
         const assignWeightCol = `${(cs.subject.assignWeight * 100).toFixed(0)}%`;
-        const subjectIdCol = subjectId;
+        const subjectIdCol = subjectId + ' 100%';
 
         // Find the index of this subject's columns in headers
         const subjectStartIndex = headers.findIndex(
           (h, i) =>
-            headers[i] === examWeightCol &&
-            headers[i + 1] === assignWeightCol &&
-            headers[i + 2] === subjectIdCol
+            headers[i] === subjctNameCol &&
+            headers[i + 1] === examWeightCol &&
+            headers[i + 2] === assignWeightCol &&
+            headers[i + 3] === subjectIdCol
         );
 
         if (subjectStartIndex !== -1) {
-          const examMarkColumnKey = headers[subjectStartIndex];
-          const assignMarkColumnKey = headers[subjectStartIndex + 1];
-          const finalMarkColumnKey = headers[subjectStartIndex + 2];
-          const gradeColumnKey = headers[subjectStartIndex + 3];
-          const scoreColumnKey = headers[subjectStartIndex + 4];
-          const gpColumnKey = headers[subjectStartIndex + 5];
+          const subjectNameColumnKey = headers[subjectStartIndex];
+          const examMarkColumnKey = headers[subjectStartIndex + 1];
+          const assignMarkColumnKey = headers[subjectStartIndex + 2];
+          const finalMarkColumnKey = headers[subjectStartIndex + 3];
+          const gradeColumnKey = headers[subjectStartIndex + 4];
+          const scoreColumnKey = headers[subjectStartIndex + 5];
+          const gpColumnKey = headers[subjectStartIndex + 6];
 
+          const subjectNameValue = rowData[subjectNameColumnKey];
           const examMarkValue = rowData[examMarkColumnKey];
           const assignMarkValue = rowData[assignMarkColumnKey];
           const finalMarkValue = rowData[finalMarkColumnKey];
           const gradeValue = rowData[gradeColumnKey];
           const scoreValue = rowData[scoreColumnKey];
           const gpValue = rowData[gpColumnKey];
+
+          // Validate Subject Name
+          if (
+            subjectNameValue !== undefined &&
+            subjectNameValue !== null &&
+            subjectNameValue !== ''
+          ) {
+            const baseMark = parseFloat(subjectNameValue.toString());
+            if (isNaN(baseMark) || baseMark < 0 || baseMark > 100) {
+              errors.push({
+                row: rowNumber,
+                column: subjectNameColumnKey,
+                field: 'baseMark',
+                message: `Invalid Base Mark '${subjectNameValue}' for subject ${subjectId}. Must be between 0 and 100`,
+                value: subjectNameValue
+              });
+              hasErrors = true;
+            }
+          } else {
+            errors.push({
+              row: rowNumber,
+              column: subjectNameColumnKey,
+              field: 'subjectName',
+              message: 'Base Mark is required'
+            });
+            hasErrors = true;
+          }
+
+          // console.log(examMarkValue, typeof examMarkValue);
 
           // Validate Exam Mark
           if (
@@ -612,8 +658,6 @@ export async function importStudentResults(
               'B-',
               'C+',
               'C',
-              'C-',
-              'D+',
               'D',
               'F'
             ];
@@ -964,37 +1008,42 @@ export async function importStudentResults(
 
       const gradesData = [];
       for (const cs of classSubjects) {
-        const subjectId = cs.subject.id.toString();
+        const subjctNameCol = cs.subject.subjectName;
         const examWeightCol = `${(cs.subject.examWeight * 100).toFixed(0)}%`;
         const assignWeightCol = `${(cs.subject.assignWeight * 100).toFixed(0)}%`;
+        const subjectIdCol = cs.subject.id.toString() + ' 100%';
 
         const subjectStartIndex = headers.findIndex(
           (h, i) =>
-            headers[i] === examWeightCol &&
-            headers[i + 1] === assignWeightCol &&
-            headers[i + 2] === subjectId
+            headers[i] === subjctNameCol &&
+            headers[i + 1] === examWeightCol &&
+            headers[i + 2] === assignWeightCol &&
+            headers[i + 3] === subjectIdCol
         );
 
         if (subjectStartIndex !== -1) {
           gradesData.push({
             classSubjectId: cs.id,
-            examMark: parseFloat(
+            baseMark: parseFloat(
               String(rowData[headers[subjectStartIndex]] || 0)
             ),
-            assignMark: parseFloat(
-              String(rowData[headers[subjectStartIndex + 1]] || 0)
+            examMark: parseFloat(
+              String(rowData[headers[subjectStartIndex] + 1] || 0)
             ),
-            finalMark: parseFloat(
+            assignMark: parseFloat(
               String(rowData[headers[subjectStartIndex + 2]] || 0)
             ),
-            grade: String(rowData[headers[subjectStartIndex + 3]] || 'F')
+            finalMark: parseFloat(
+              String(rowData[headers[subjectStartIndex + 3]] || 0)
+            ),
+            grade: String(rowData[headers[subjectStartIndex + 4]] || 'F')
               .trim()
               .toUpperCase(),
             score: parseFloat(
-              String(rowData[headers[subjectStartIndex + 4]] || 0)
+              String(rowData[headers[subjectStartIndex + 5]] || 0)
             ),
             gp: parseFloat(
-              String(rowData[headers[subjectStartIndex + 5]] || 0)
+              String(rowData[headers[subjectStartIndex + 6]] || 0)
             ),
             creditHours: cs.subject.creditHours
           });
@@ -1102,6 +1151,7 @@ export async function importStudentResults(
                       }
                     },
                     update: {
+                      baseMark: gradeData.baseMark,
                       examMark: gradeData.examMark,
                       assignMark: gradeData.assignMark,
                       finalMark: gradeData.finalMark,
@@ -1112,6 +1162,7 @@ export async function importStudentResults(
                     create: {
                       enrollmentId: enrollment.id,
                       classSubjectId: gradeData.classSubjectId,
+                      baseMark: gradeData.baseMark,
                       examMark: gradeData.examMark,
                       assignMark: gradeData.assignMark,
                       finalMark: gradeData.finalMark,

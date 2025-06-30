@@ -58,7 +58,7 @@ export function getGradeScaleColumns(): ColumnDef<GradeScale>[] {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Grade Point' />
       ),
-      cell: ({ cell }) => cell.getValue<number>().toFixed(1)
+      cell: ({ cell }) => cell.getValue<number>().toFixed(2)
     },
     {
       id: 'actions',

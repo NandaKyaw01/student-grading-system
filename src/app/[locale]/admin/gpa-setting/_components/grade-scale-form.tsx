@@ -41,10 +41,10 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      minMark: gradeScale?.minMark || 0,
-      maxMark: gradeScale?.maxMark || 100,
+      minMark: gradeScale?.minMark || undefined,
+      maxMark: gradeScale?.maxMark || undefined,
       grade: gradeScale?.grade || '',
-      score: gradeScale?.score || 0
+      score: gradeScale?.score || undefined
     }
   });
 
@@ -98,8 +98,14 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
                     min='0'
                     max='100'
                     {...field}
+                    value={field.value ?? ''}
+                    placeholder='0-100'
                     onChange={(e) =>
-                      field.onChange(parseInt(e.target.value) || 0)
+                      field.onChange(
+                        e.target.value === ''
+                          ? undefined
+                          : parseInt(e.target.value) || 0
+                      )
                     }
                     disabled={loading}
                   />
@@ -120,9 +126,15 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
                     type='number'
                     min='0'
                     max='100'
+                    placeholder='0-100'
                     {...field}
+                    value={field.value ?? ''}
                     onChange={(e) =>
-                      field.onChange(parseInt(e.target.value) || 0)
+                      field.onChange(
+                        e.target.value === ''
+                          ? undefined
+                          : parseInt(e.target.value) || 0
+                      )
                     }
                     disabled={loading}
                   />
@@ -157,16 +169,22 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
             name='score'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Grade Point</FormLabel>
+                <FormLabel>Score</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
-                    step='0.1'
+                    step='0.01'
                     min='0'
-                    max='4.0'
+                    max='4.00'
+                    placeholder='0.00-4.00'
                     {...field}
+                    value={field.value ?? ''}
                     onChange={(e) =>
-                      field.onChange(parseFloat(e.target.value) || 0)
+                      field.onChange(
+                        e.target.value === ''
+                          ? undefined
+                          : parseFloat(e.target.value) || 0
+                      )
                     }
                     disabled={loading}
                   />
