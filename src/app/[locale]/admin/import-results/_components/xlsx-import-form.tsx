@@ -4,6 +4,7 @@ import {
   generateStudentTemplate,
   importStudentResults
 } from '@/actions/import-result';
+import { Combobox } from '@/components/combo-box';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,13 +16,6 @@ import {
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
@@ -55,6 +49,7 @@ import {
   Upload,
   X
 } from 'lucide-react';
+
 import React, { useCallback, useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -157,6 +152,48 @@ const XlsxImportForm = () => {
   const selectedClass = useMemo(
     () => classes.find((cls) => cls.id === selection.classId),
     [classes, selection.classId]
+  );
+
+  const yearKeywordMap: Record<string, number> = useMemo(() => {
+    return {
+      '1st': 1,
+      first: 1,
+      '1': 1,
+      '2nd': 2,
+      second: 2,
+      '2': 2,
+      '3rd': 3,
+      third: 3,
+      '3': 3,
+      '4th': 4,
+      fourth: 4,
+      '4': 4,
+      '5th': 5,
+      fifth: 5,
+      '5': 5
+    };
+  }, []);
+
+  const sortedClasses = useMemo(
+    () =>
+      classes.sort((a, b) => {
+        // Extract the year keyword (case-insensitive)
+        const getYearValue = (str: string) => {
+          const match = str
+            .toLowerCase()
+            .match(/(1st|2nd|3rd|\d+th|first|second|third|fourth|fifth|\d+)/);
+          return match ? yearKeywordMap[match[0].toLowerCase()] : Infinity;
+        };
+
+        // Compare years first
+        const yearCompare =
+          getYearValue(a.className) - getYearValue(b.className);
+        if (yearCompare !== 0) return yearCompare;
+
+        // If same year, sort by department code
+        return a.departmentCode.localeCompare(b.departmentCode);
+      }),
+    [classes, yearKeywordMap]
   );
 
   const canDownloadTemplate = useMemo(
@@ -530,21 +567,17 @@ const XlsxImportForm = () => {
               {loadingYears ? (
                 <Skeleton className='h-10 w-full' />
               ) : (
-                <Select
+                <Combobox
+                  options={academicYears.map((s) => ({
+                    value: s.id.toString(),
+                    label: s.yearRange
+                  }))}
                   value={selection.academicYearId?.toString() || ''}
                   onValueChange={handleAcademicYearChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select academic year' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {academicYears.map((year) => (
-                      <SelectItem key={year.id} value={year.id.toString()}>
-                        {year.yearRange} {year.isCurrent && '(Current)'}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder='Select year...'
+                  searchPlaceholder='Search year...'
+                  disabled={loadingYears}
+                />
               )}
             </div>
 
@@ -559,26 +592,17 @@ const XlsxImportForm = () => {
               {loadingSemesters ? (
                 <Skeleton className='h-10 w-full' />
               ) : (
-                <Select
+                <Combobox
+                  options={semesters.map((s) => ({
+                    value: s.id.toString(),
+                    label: s.semesterName
+                  }))}
                   value={selection.semesterId?.toString() || ''}
                   onValueChange={handleSemesterChange}
-                  disabled={!selection.academicYearId || loadingSemesters}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select semester' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {semesters.map((semester) => (
-                      <SelectItem
-                        key={semester.id}
-                        value={semester.id.toString()}
-                      >
-                        {semester.semesterName}{' '}
-                        {semester.isCurrent && '(Current)'}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder='Select semester...'
+                  searchPlaceholder='Search semester...'
+                  disabled={loadingSemesters}
+                />
               )}
             </div>
 
@@ -593,22 +617,17 @@ const XlsxImportForm = () => {
               {loadingClasses ? (
                 <Skeleton className='h-10 w-full' />
               ) : (
-                <Select
+                <Combobox
+                  options={sortedClasses.map((s) => ({
+                    value: s.id.toString(),
+                    label: `${s.className} (${s.departmentCode})`
+                  }))}
                   value={selection.classId?.toString() || ''}
                   onValueChange={handleClassChange}
-                  disabled={!selection.semesterId || loadingClasses}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select class' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {classes.map((cls) => (
-                      <SelectItem key={cls.id} value={cls.id.toString()}>
-                        {cls.className} ({cls.departmentCode})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder='Select class...'
+                  searchPlaceholder='Search class...'
+                  disabled={loadingClasses}
+                />
               )}
             </div>
           </div>
@@ -819,6 +838,29 @@ const XlsxImportForm = () => {
                           </SheetDescription>
                         </SheetHeader>
                         <div className='mt-6 h-[calc(100vh-200px)] overflow-auto'>
+                          {errorDetails.some(
+                            (err) => !err.row || err.field === 'general'
+                          ) && (
+                            <div className='mx-4 mb-6 p-4 bg-red-50 border border-red-200 rounded-lg'>
+                              <h3 className='font-semibold text-red-800 mb-3'>
+                                General Import Errors
+                              </h3>
+                              <div className='space-y-2'>
+                                {errorDetails
+                                  .filter(
+                                    (err) => !err.row || err.field === 'general'
+                                  )
+                                  .map((error, index) => (
+                                    <div
+                                      key={index}
+                                      className='text-sm text-red-700 bg-white p-2 rounded border'
+                                    >
+                                      {error.message}
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
                           {errorData.length > 0 && (
                             <Table>
                               <TableHeader>
