@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { z, ZodSchema } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -18,14 +18,27 @@ import { createGradeScale, updateGradeScale } from '@/actions/grade-scale';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+const markSchema = (minMark: number, maxMark: number) =>
+  z
+    .union([
+      z
+        .string()
+        .min(1, 'This field is required')
+        .transform((val) => parseFloat(val)),
+      z.number()
+    ])
+    .refine((val) => !isNaN(val), { message: 'Must be a valid number' })
+    .refine((val) => val >= minMark, { message: 'Must be 0 or greater' })
+    .refine((val) => val <= maxMark, { message: `Must be ${maxMark} or less` });
+
 const formSchema = z
   .object({
-    minMark: z.number().min(0).max(100),
-    maxMark: z.number().min(0).max(100),
+    minMark: markSchema(0, 100),
+    maxMark: markSchema(0, 100),
     grade: z.string().min(1, 'Grade is required'),
-    score: z.number().min(0).max(4.0)
+    score: markSchema(0, 4.0)
   })
-  .refine((data) => data.minMark <= data.maxMark, {
+  .refine((data) => Number(data.minMark) <= Number(data.maxMark), {
     message: 'Minimum mark must be less than or equal to maximum mark',
     path: ['minMark']
   });
@@ -35,28 +48,41 @@ interface GradeScaleFormProps {
   onSuccess?: () => void;
 }
 
+type FormValues = {
+  minMark: number;
+  maxMark: number;
+  grade: string;
+  score: number;
+};
+
 export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
   const [loading, setLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema as unknown as ZodSchema<FormValues>),
     defaultValues: {
-      minMark: gradeScale?.minMark || undefined,
-      maxMark: gradeScale?.maxMark || undefined,
-      grade: gradeScale?.grade || '',
-      score: gradeScale?.score || undefined
+      minMark: gradeScale?.minMark ?? undefined,
+      maxMark: gradeScale?.maxMark ?? undefined,
+      grade: gradeScale?.grade ?? '',
+      score: gradeScale?.score ?? undefined
     }
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setLoading(true);
+      const processedValues = {
+        ...values,
+        minMark: Number(values.minMark),
+        maxMark: Number(values.maxMark),
+        score: parseFloat(values.score.toFixed(2))
+      };
 
       let result;
       if (gradeScale) {
-        result = await updateGradeScale(gradeScale.id, values);
+        result = await updateGradeScale(gradeScale.id, processedValues);
       } else {
-        result = await createGradeScale(values);
+        result = await createGradeScale(processedValues);
       }
 
       if (!result.success) {
@@ -69,9 +95,7 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
           : 'Grade scale created successfully'
       });
 
-      if (onSuccess) {
-        onSuccess();
-      }
+      onSuccess?.();
     } catch (error) {
       toast.error('Error', {
         description:
@@ -97,16 +121,9 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
                     type='number'
                     min='0'
                     max='100'
+                    placeholder='0-100'
                     {...field}
                     value={field.value ?? ''}
-                    placeholder='0-100'
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === ''
-                          ? undefined
-                          : parseInt(e.target.value) || 0
-                      )
-                    }
                     disabled={loading}
                   />
                 </FormControl>
@@ -129,13 +146,6 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
                     placeholder='0-100'
                     {...field}
                     value={field.value ?? ''}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === ''
-                          ? undefined
-                          : parseInt(e.target.value) || 0
-                      )
-                    }
                     disabled={loading}
                   />
                 </FormControl>
@@ -179,13 +189,6 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
                     placeholder='0.00-4.00'
                     {...field}
                     value={field.value ?? ''}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === ''
-                          ? undefined
-                          : parseFloat(e.target.value) || 0
-                      )
-                    }
                     disabled={loading}
                   />
                 </FormControl>

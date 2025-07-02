@@ -1,40 +1,55 @@
-import { ContentLayout } from '@/components/admin-panel/content-layout';
-import { Suspense } from 'react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
-import Link from 'next/link';
-import { GradeScaleDataTable } from './_components/grade-scale-data-table';
 import { getAllGradeScales } from '@/actions/grade-scale';
+import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
+import { ContentLayout } from '@/components/admin-panel/content-layout';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Plus } from 'lucide-react';
+import { Suspense } from 'react';
+import { GradeScaleDataTable } from './_components/grade-scale-data-table';
+import { GradeScaleModal } from './_components/grade-scale-modal';
 
 export const metadata = {
   title: 'Grade Scales : Grading System'
 };
 
+type BreadcrumbProps = {
+  name: string;
+  link: string;
+};
+const bredcrumb: BreadcrumbProps[] = [
+  {
+    name: 'Home',
+    link: '/'
+  },
+  {
+    name: 'Grade Scales',
+    link: ''
+  }
+];
+
 export default async function GPASettingPage() {
   const gradeScalesPromise = getAllGradeScales();
 
   return (
-    <ContentLayout title='Grade Scales'>
+    <ContentLayout
+      title='Grade Scales'
+      breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
+    >
       <div className='flex-1 space-y-4'>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href='/'>Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Grade Scales</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <div className='flex items-end justify-between'>
+          <div>
+            <h5 className='text-2xl font-bold tracking-tight'>Grade Scales</h5>
+            <p className='text-muted-foreground text-sm'>
+              Manage grade scales (Server side table functionalities.)
+            </p>
+          </div>
+          <GradeScaleModal>
+            <Button className='text-xs md:text-sm'>
+              <Plus className='mr-2 h-4 w-4' /> New Grade Scale
+            </Button>
+          </GradeScaleModal>
+        </div>
+        <Separator />
         <Suspense fallback={<div>Loading grade scales...</div>}>
           <GradeScaleDataTable promises={gradeScalesPromise} />
         </Suspense>

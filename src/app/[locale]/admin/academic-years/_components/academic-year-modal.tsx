@@ -27,7 +27,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Loader } from 'lucide-react';
-import { useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 import { toast } from 'sonner';
 
 // Schema for form validation
@@ -69,6 +69,15 @@ export function AcademicYearDialog({
     defaultValues
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        yearRange: academicYear?.yearRange || '',
+        isCurrent: academicYear?.isCurrent || false
+      });
+    }
+  }, [isOpen, academicYear, form]);
+
   const onSubmit = (data: AcademicYearFormValues) => {
     startTransition(async () => {
       try {
@@ -94,7 +103,7 @@ export function AcademicYearDialog({
         });
 
         form.reset();
-        setTimeout(onClose, 300);
+        onClose();
       } catch (error) {
         toast.error('Error', {
           description:

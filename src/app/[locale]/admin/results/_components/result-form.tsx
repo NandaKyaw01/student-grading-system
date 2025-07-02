@@ -507,19 +507,22 @@ export default function ResultForm({
       // Calculate final mark
       const finalMark = examMark + assignMark;
 
+      const roundedFinalMark = Math.round(finalMark);
+
       // Find grade from grade scale
       const gradeScale = gradeScales.find(
-        (scale) => finalMark >= scale.minMark && finalMark <= scale.maxMark
+        (scale) =>
+          roundedFinalMark >= scale.minMark && roundedFinalMark <= scale.maxMark
       );
 
       const gp = (gradeScale?.score || 0) * subject.creditHours;
 
       return {
         examMark: examMark.toFixed(2),
-        finalMark: finalMark.toFixed(2),
+        finalMark: roundedFinalMark.toFixed(2),
         grade: gradeScale?.grade || '',
         score: gradeScale?.score || 0,
-        gp: gp // Assuming GP is same as score
+        gp: gp.toFixed(2) // Assuming GP is same as score
       };
     },
     [subjects, form, gradeScales]
@@ -815,7 +818,7 @@ export default function ResultForm({
                                       </span>
                                     </div>
                                   </div>
-                                  <div className='flex gap-1'>
+                                  <div className='flex gap-1 flex-wrap'>
                                     <div>
                                       Grade:{' '}
                                       <span className='font-semibold'>

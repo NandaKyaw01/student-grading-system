@@ -286,7 +286,7 @@ export async function getResultById(enrollmentId: string) {
             );
             return {
               classSubjectId: subject.id,
-              baseMark: existingGrade?.examMark || 0,
+              baseMark: existingGrade?.baseMark || 0,
               assignMark: existingGrade?.assignMark || 0
             };
           })
@@ -666,7 +666,9 @@ export async function createResult(data: CreateResultFormData) {
       const examMark = gradeInput.baseMark * subject.examWeight;
       const finalMark = examMark + gradeInput.assignMark;
 
-      const gradeInfo = calculateGradeDetails(finalMark, gradeScale);
+      const roundedFinalMark = Math.round(finalMark);
+
+      const gradeInfo = calculateGradeDetails(roundedFinalMark, gradeScale);
       const gp = calculateGP(gradeInfo.score, subject.creditHours);
 
       return {
@@ -675,7 +677,7 @@ export async function createResult(data: CreateResultFormData) {
         baseMark: gradeInput.baseMark,
         examMark: examMark,
         assignMark: gradeInput.assignMark,
-        finalMark: finalMark,
+        finalMark: roundedFinalMark,
         grade: gradeInfo.grade,
         score: gradeInfo.score,
         gp,
@@ -843,9 +845,10 @@ export async function updateResult(input: UpdateResultFormData) {
 
       const examMark = gradeInput.baseMark * classSubject.subject.examWeight;
       const finalMark = examMark + gradeInput.assignMark;
+      const roundedFinalMark = Math.round(finalMark);
 
       // Get grade details based on final mark
-      const gradeDetails = calculateGradeDetails(finalMark, gradeScales);
+      const gradeDetails = calculateGradeDetails(roundedFinalMark, gradeScales);
       const gp = calculateGP(
         gradeDetails.score,
         classSubject.subject.creditHours
@@ -856,7 +859,7 @@ export async function updateResult(input: UpdateResultFormData) {
         baseMark: gradeInput.baseMark,
         examMark: examMark,
         assignMark: gradeInput.assignMark,
-        finalMark: finalMark,
+        finalMark: roundedFinalMark,
         grade: gradeDetails.grade,
         score: gradeDetails.score,
         gp,

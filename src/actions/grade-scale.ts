@@ -2,14 +2,23 @@
 
 import { GradeScale } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
-import { revalidatePath } from 'next/cache';
+import { revalidateTag, unstable_cache } from 'next/cache';
 
-export async function getAllGradeScales() {
-  return await prisma.gradeScale.findMany({
-    orderBy: {
-      minMark: 'asc'
-    }
-  });
+export async function getAllGradeScales(useCache?: boolean) {
+  const queryFunction = async () =>
+    await prisma.gradeScale.findMany({
+      orderBy: {
+        minMark: 'asc'
+      }
+    });
+
+  if (useCache !== false) {
+    return await unstable_cache(queryFunction, [`grade-scales`], {
+      tags: ['grade-scales'],
+      revalidate: 3600 // 1 hour cache
+    })();
+  }
+  return await queryFunction();
 }
 
 export async function getGradeScaleById(id: number) {
@@ -48,10 +57,12 @@ export async function createGradeScale(
     const gradeScale = await prisma.gradeScale.create({
       data
     });
-    revalidatePath('/admin/grade-scales');
+
+    revalidateTag('grade-scales');
+
     return { success: true, gradeScale };
   } catch (error) {
-    console.error('Error creating grade scale:', error);
+    // console.error('Error creating grade scale:', error);
     return { success: false, error: 'Failed to create grade scale' };
   }
 }
@@ -89,7 +100,7 @@ export async function updateGradeScale(
       where: { id },
       data
     });
-    revalidatePath('/admin/grade-scales');
+    revalidateTag('grade-scales');
     return { success: true, gradeScale };
   } catch (error) {
     console.error('Error updating grade scale:', error);
@@ -102,7 +113,8 @@ export async function deleteGradeScale(id: number) {
     await prisma.gradeScale.delete({
       where: { id }
     });
-    revalidatePath('/admin/grade-scales');
+
+    revalidateTag('grade-scales');
     return { success: true };
   } catch (error) {
     console.error('Error deleting grade scale:', error);
