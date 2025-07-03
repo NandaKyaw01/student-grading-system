@@ -113,9 +113,6 @@ export function AcademicYearDialog({
     });
   };
 
-  // Don't render anything if not open
-  if (!isOpen) return null;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='sm:max-w-[425px]'>

@@ -15,9 +15,7 @@ export const classSearchParams = {
   search: parseAsString,
   isCurrent: parseAsString,
   academicYearId: parseAsArrayOf(z.coerce.number()).withDefault([]),
-  sort: getSortingStateParser<Semester>().withDefault([
-    { id: 'academicYearId', desc: false }
-  ])
+  sort: getSortingStateParser<Semester>()
 };
 
 export const semesterSearchParamsCache =
