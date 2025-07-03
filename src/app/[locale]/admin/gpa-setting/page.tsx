@@ -1,4 +1,4 @@
-import { getAllGradeScales } from '@/actions/grade-scale';
+import { getGradeScales } from '@/actions/grade-scale';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,15 @@ import { Plus } from 'lucide-react';
 import { Suspense } from 'react';
 import { GradeScaleDataTable } from './_components/grade-scale-data-table';
 import { GradeScaleModal } from './_components/grade-scale-modal';
+import { gradeScaleSearchParamsCache } from '@/lib/search-params/grade-scale';
+import { SearchParams } from 'nuqs';
 
 export const metadata = {
   title: 'Grade Scales : Grading System'
+};
+
+type pageProps = {
+  searchParams: Promise<SearchParams>;
 };
 
 type BreadcrumbProps = {
@@ -27,8 +33,10 @@ const bredcrumb: BreadcrumbProps[] = [
   }
 ];
 
-export default async function GPASettingPage() {
-  const gradeScalesPromise = getAllGradeScales();
+export default async function GPASettingPage(props: pageProps) {
+  const searchParams = await props.searchParams;
+  const search = gradeScaleSearchParamsCache.parse(searchParams);
+  const gradeScalesPromise = getGradeScales(search);
 
   return (
     <ContentLayout

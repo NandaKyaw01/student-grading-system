@@ -1,32 +1,28 @@
 'use client';
 
-import { getAllGradeScales } from '@/actions/grade-scale';
+import { getGradeScales } from '@/actions/grade-scale';
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
-import { Button } from '@/components/ui/button';
 import { useDataTable } from '@/hooks/use-data-table';
-import { exportTableToCSV } from '@/lib/export';
-import { Download, Loader } from 'lucide-react';
 import React from 'react';
 import { GradeScalesTableActionBar } from './grade-scale-action-bar';
 import { getGradeScaleColumns } from './grade-scale-table-column';
 
 interface GradeScalesTableProps {
-  promises: Promise<Awaited<ReturnType<typeof getAllGradeScales>>>;
+  promises: Promise<Awaited<ReturnType<typeof getGradeScales>>>;
 }
 
 export function GradeScaleDataTable({ promises }: GradeScalesTableProps) {
-  const gradeScales = React.use(promises);
-  const [isPending, startTransition] = React.useTransition();
+  const { gradeScales, pageCount } = React.use(promises);
 
   const columns = React.useMemo(() => getGradeScaleColumns(), []);
 
   const { table } = useDataTable({
     data: gradeScales,
     columns,
-    pageCount: 1,
+    pageCount: pageCount,
     initialState: {
-      sorting: [{ id: 'minMark', desc: false }],
+      // sorting: [{ id: 'minMark', desc: false }],
       columnPinning: { right: ['actions'] }
     },
     getRowId: (originalRow) => originalRow.id.toString(),
@@ -34,32 +30,12 @@ export function GradeScaleDataTable({ promises }: GradeScalesTableProps) {
     clearOnDefault: true
   });
 
-  const onGradeScaleExport = React.useCallback(() => {
-    startTransition(() => {
-      exportTableToCSV(table, {
-        excludeColumns: ['select', 'actions'],
-        onlySelected: false
-      });
-    });
-  }, [table]);
-
   return (
     <DataTable
       table={table}
       actionBar={<GradeScalesTableActionBar table={table} />}
     >
-      <DataTableToolbar table={table}>
-        <Button
-          aria-label='Export all grade scales'
-          variant='outline'
-          size='sm'
-          className='h-8'
-          onClick={onGradeScaleExport}
-        >
-          {isPending ? <Loader /> : <Download />}
-          Export All
-        </Button>
-      </DataTableToolbar>
+      <DataTableToolbar table={table} />
     </DataTable>
   );
 }

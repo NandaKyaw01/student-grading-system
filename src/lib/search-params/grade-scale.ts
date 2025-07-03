@@ -12,7 +12,7 @@ import { GradeScale } from '@/generated/prisma';
 export const gradeScaleSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
-  search: parseAsString.withDefault(''),
+  minMark: parseAsString.withDefault(''),
   sort: getSortingStateParser<GradeScale>().withDefault([
     { id: 'minMark', desc: false }
   ])

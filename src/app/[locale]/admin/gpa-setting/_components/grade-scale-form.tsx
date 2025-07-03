@@ -1,8 +1,6 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z, ZodSchema } from 'zod';
+import { createGradeScale, updateGradeScale } from '@/actions/grade-scale';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -14,9 +12,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { GradeScale } from '@/generated/prisma';
-import { createGradeScale, updateGradeScale } from '@/actions/grade-scale';
-import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader } from 'lucide-react';
+import { useTransition } from 'react';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { z, ZodSchema } from 'zod';
 
 const markSchema = (minMark: number, maxMark: number) =>
   z
@@ -56,7 +57,7 @@ type FormValues = {
 };
 
 export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema as unknown as ZodSchema<FormValues>),
@@ -68,43 +69,42 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
     }
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      setLoading(true);
-      const processedValues = {
-        ...values,
-        minMark: Number(values.minMark),
-        maxMark: Number(values.maxMark),
-        score: parseFloat(values.score.toFixed(2))
-      };
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    startTransition(async () => {
+      try {
+        const processedValues = {
+          ...values,
+          minMark: Number(values.minMark),
+          maxMark: Number(values.maxMark),
+          score: parseFloat(values.score.toFixed(2))
+        };
 
-      let result;
-      if (gradeScale) {
-        result = await updateGradeScale(gradeScale.id, processedValues);
-      } else {
-        result = await createGradeScale(processedValues);
+        let result;
+        if (gradeScale) {
+          result = await updateGradeScale(gradeScale.id, processedValues);
+        } else {
+          result = await createGradeScale(processedValues);
+        }
+
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        toast.success('Success', {
+          description: gradeScale
+            ? 'Grade scale updated successfully'
+            : 'Grade scale created successfully'
+        });
+
+        onSuccess?.();
+      } catch (error) {
+        toast.error('Error', {
+          description:
+            error instanceof Error ? error.message : 'Something went wrong'
+        });
       }
-
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-
-      toast.success('Success', {
-        description: gradeScale
-          ? 'Grade scale updated successfully'
-          : 'Grade scale created successfully'
-      });
-
-      onSuccess?.();
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error ? error.message : 'Something went wrong'
-      });
-    } finally {
-      setLoading(false);
-    }
-  }
+    });
+  };
 
   return (
     <Form {...form}>
@@ -124,7 +124,7 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
                     placeholder='0-100'
                     {...field}
                     value={field.value ?? ''}
-                    disabled={loading}
+                    disabled={isPending}
                   />
                 </FormControl>
                 <FormMessage />
@@ -146,7 +146,7 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
                     placeholder='0-100'
                     {...field}
                     value={field.value ?? ''}
-                    disabled={loading}
+                    disabled={isPending}
                   />
                 </FormControl>
                 <FormMessage />
@@ -166,7 +166,7 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
                   <Input
                     placeholder='A, B, C, etc.'
                     {...field}
-                    disabled={loading}
+                    disabled={isPending}
                   />
                 </FormControl>
                 <FormMessage />
@@ -189,7 +189,7 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
                     placeholder='0.00-4.00'
                     {...field}
                     value={field.value ?? ''}
-                    disabled={loading}
+                    disabled={isPending}
                   />
                 </FormControl>
                 <FormMessage />
@@ -199,8 +199,16 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
         </div>
 
         <div className='flex justify-end gap-4'>
-          <Button type='submit' disabled={loading} className='w-full sm:w-auto'>
-            {loading ? 'Saving...' : 'Save'}
+          <Button
+            type='submit'
+            disabled={isPending}
+            className='w-full sm:w-auto'
+          >
+            {isPending && (
+              <Loader className='mr-2 size-4 animate-spin' aria-hidden='true' />
+            )}
+
+            {isPending ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </form>

@@ -1,30 +1,89 @@
 'use server';
 
-import { GradeScale } from '@/generated/prisma';
+import { GradeScale, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
+import { GetGradeScaleSchema } from '@/lib/search-params/grade-scale';
 import { revalidateTag, unstable_cache } from 'next/cache';
 
-export async function getAllGradeScales(useCache?: boolean) {
-  const queryFunction = async () =>
-    await prisma.gradeScale.findMany({
-      orderBy: {
-        minMark: 'asc'
-      }
-    });
+export async function getGradeScales(
+  input?: GetGradeScaleSchema,
+  options?: { useCache?: boolean }
+): Promise<{
+  gradeScales: GradeScale[];
+  pageCount: number;
+}> {
+  const queryFunction = async () => {
+    try {
+      const where: Prisma.GradeScaleWhereInput = {};
+      let paginate = true;
 
-  if (useCache !== false) {
-    return await unstable_cache(queryFunction, [`grade-scales`], {
-      tags: ['grade-scales'],
-      revalidate: 3600 // 1 hour cache
-    })();
+      if (!input || Object.keys(input).length === 0) {
+        paginate = false;
+      } else {
+        if (input.minMark?.trim()) {
+          const searchAsNumber = parseFloat(input.minMark);
+          const isNumericSearch = !isNaN(searchAsNumber);
+
+          where.OR = [
+            { grade: { contains: input.minMark, mode: 'insensitive' } },
+            // Only include numeric searches for minMark/maxMark/score
+            ...(isNumericSearch
+              ? [
+                  { minMark: { equals: searchAsNumber } },
+                  { maxMark: { equals: searchAsNumber } },
+                  { score: { equals: searchAsNumber } }
+                ]
+              : [])
+          ];
+        }
+      }
+
+      const orderBy =
+        input?.sort && input.sort.length > 0
+          ? input.sort.map((item) => ({
+              [item.id]: item.desc ? 'desc' : 'asc'
+            }))
+          : [{ minMark: 'asc' }];
+
+      const page = input?.page ?? 1;
+      const limit = input?.perPage ?? 10;
+      const offset = (page - 1) * limit;
+
+      const [gradeScales, totalCount] = await prisma.$transaction([
+        prisma.gradeScale.findMany({
+          where,
+          orderBy,
+          ...(paginate ? { skip: offset, take: limit } : {})
+        }),
+        prisma.gradeScale.count({ where })
+      ]);
+
+      const pageCount = paginate ? Math.ceil(totalCount / limit) : 1;
+
+      return {
+        gradeScales: gradeScales as GradeScale[],
+        pageCount
+      };
+    } catch (error) {
+      console.error('Error fetching grade scales:', error);
+      return {
+        gradeScales: [] as GradeScale[],
+        pageCount: 0
+      };
+    }
+  };
+
+  if (options?.useCache !== false) {
+    return await unstable_cache(
+      queryFunction,
+      [JSON.stringify(input ?? {}) + JSON.stringify(options ?? {})],
+      {
+        tags: ['grade-scales'],
+        revalidate: 3600 // 1 hour cache
+      }
+    )();
   }
   return await queryFunction();
-}
-
-export async function getGradeScaleById(id: number) {
-  return await prisma.gradeScale.findUnique({
-    where: { id }
-  });
 }
 
 export async function createGradeScale(
@@ -119,5 +178,24 @@ export async function deleteGradeScale(id: number) {
   } catch (error) {
     console.error('Error deleting grade scale:', error);
     return { success: false, error: 'Failed to delete grade scale' };
+  }
+}
+
+export async function deleteGradeScales(ids: number[]) {
+  try {
+    await prisma.gradeScale.deleteMany({
+      where: {
+        id: {
+          in: ids
+        }
+      }
+    });
+
+    revalidateTag('grade-scales');
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error deleting grade scale:', err);
+    return { success: false, error: 'Failed to delete grade scales' };
   }
 }
