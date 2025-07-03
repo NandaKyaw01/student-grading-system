@@ -41,64 +41,77 @@ export type ResultWithDetails = Prisma.ResultGetPayload<{
 export async function deleteResult(enrollmentId: number) {
   try {
     await prisma.$transaction(async (tx) => {
-      // First delete grades
-      await tx.grade.deleteMany({
-        where: { enrollmentId }
-      });
+      // Parallel deletion of grades and result
+      await Promise.all([
+        tx.grade.deleteMany({
+          where: { enrollmentId }
+        }),
+        tx.result.delete({
+          where: { enrollmentId }
+        })
+      ]);
 
-      // Then delete the result
-      await tx.result.delete({
-        where: { enrollmentId }
-      });
-
+      // Update academic year result after deletions
       await updateAcademicYearResult(enrollmentId, tx);
     });
 
+    // Cache invalidation
     revalidateTag('results');
     revalidateTag('academic-year-results');
     revalidateTag(`result-${enrollmentId}`);
 
-    return {
-      data: true,
-      error: null
-    };
+    return { data: true, error: null };
   } catch (err) {
-    return {
-      data: null,
-      error: getErrorMessage(err)
-    };
+    console.error(`Error deleting result for enrollment ${enrollmentId}:`, err);
+    return { data: null, error: getErrorMessage(err) };
   }
 }
 
 export async function deleteResults(enrollmentIds: number[]) {
   try {
-    await prisma.$transaction(async (tx) => {
-      // First delete grades
-      await tx.grade.deleteMany({
-        where: {
-          enrollmentId: {
-            in: enrollmentIds
-          }
-        }
-      });
+    // Early return for empty array
+    if (enrollmentIds.length === 0) {
+      return {
+        data: true,
+        error: null
+      };
+    }
 
-      // Then delete results
-      await tx.result.deleteMany({
-        where: {
-          enrollmentId: {
-            in: enrollmentIds
+    await prisma.$transaction(async (tx) => {
+      // Batch delete operations
+      await Promise.all([
+        tx.grade.deleteMany({
+          where: {
+            enrollmentId: {
+              in: enrollmentIds
+            }
           }
-        }
-      });
+        }),
+        tx.result.deleteMany({
+          where: {
+            enrollmentId: {
+              in: enrollmentIds
+            }
+          }
+        })
+      ]);
+
+      // Process academic year updates concurrently
+      await Promise.all(
+        enrollmentIds.map((id) => updateAcademicYearResult(id, tx))
+      );
     });
 
+    // Revalidate cache
     revalidateTag('results');
+    revalidateTag('academic-year-results');
 
     return {
       data: true,
       error: null
     };
   } catch (err) {
+    console.error('Error deleting results:', err);
     return {
       data: null,
       error: getErrorMessage(err)
@@ -504,7 +517,7 @@ type TransactionClient = Omit<
 >;
 
 // Helper function to update or create AcademicYearResult
-export async function updateAcademicYearResult(
+export async function updateAcademicYearResultV2(
   enrollmentId: number,
   tx: TransactionClient
 ): Promise<number> {
@@ -624,6 +637,150 @@ export async function updateAcademicYearResult(
   return academicYearResult.id;
 }
 
+// Helper function to update or create AcademicYearResult
+export async function updateAcademicYearResult(
+  enrollmentId: number,
+  tx: TransactionClient
+): Promise<number> {
+  // Single query to get all required data
+  const enrollment = await tx.enrollment.findUnique({
+    where: { id: enrollmentId },
+    select: {
+      studentId: true,
+      classId: true,
+      semester: {
+        select: {
+          academicYear: {
+            select: {
+              id: true,
+              _count: {
+                select: { semesters: true }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  if (!enrollment) {
+    throw new Error('Enrollment not found');
+  }
+
+  const { studentId } = enrollment;
+  const { academicYear } = enrollment.semester;
+  const totalSemestersInYear = academicYear._count.semesters;
+
+  // Get aggregated results in a single query
+  const [resultAggregates, semesterCount] = await Promise.all([
+    tx.result.aggregate({
+      where: {
+        enrollment: {
+          studentId,
+          semester: {
+            academicYearId: academicYear.id
+          }
+        }
+      },
+      _sum: {
+        totalCredits: true,
+        totalGp: true
+      }
+    }),
+    tx.result.count({
+      where: {
+        enrollment: {
+          studentId,
+          semester: {
+            academicYearId: academicYear.id
+          }
+        }
+      }
+    })
+  ]);
+
+  // Early return if no results - delete existing record if it exists
+  if (semesterCount === 0) {
+    await tx.academicYearResult.deleteMany({
+      where: {
+        studentId,
+        academicYearId: academicYear.id
+      }
+    });
+    return 0; // Return 0 to indicate no record exists
+  }
+
+  // Calculate values from aggregates
+  const totalCredits = resultAggregates._sum.totalCredits || 0;
+  const totalGp = resultAggregates._sum.totalGp || 0;
+  const overallGpa = totalCredits > 0 ? totalGp / totalCredits : 0;
+  const isComplete = semesterCount === totalSemestersInYear;
+
+  // Determine status efficiently
+  let status: Status = 'INCOMPLETE';
+
+  if (isComplete) {
+    // Check if all semesters passed only when complete
+    const failedCount = await tx.result.count({
+      where: {
+        enrollment: {
+          studentId,
+          semester: {
+            academicYearId: academicYear.id
+          }
+        },
+        status: 'FAIL'
+      }
+    });
+    status = failedCount === 0 ? 'PASS' : 'FAIL';
+  } else {
+    // Check for any failures in current results
+    const hasFailure = await tx.result.findFirst({
+      where: {
+        enrollment: {
+          studentId,
+          semester: {
+            academicYearId: academicYear.id
+          }
+        },
+        status: 'FAIL'
+      },
+      select: { enrollmentId: true }
+    });
+    status = hasFailure ? 'FAIL' : 'INCOMPLETE';
+  }
+
+  // Prepare update data
+  const updateData = {
+    overallGpa: Math.round(overallGpa * 100) / 100, // More efficient than parseFloat(x.toFixed(2))
+    totalCredits: Math.round(totalCredits * 100) / 100,
+    totalGp: Math.round(totalGp * 100) / 100,
+    semesterCount,
+    isComplete,
+    status,
+    updatedAt: new Date()
+  };
+
+  // Update or create AcademicYearResult
+  const academicYearResult = await tx.academicYearResult.upsert({
+    where: {
+      studentId_academicYearId: {
+        studentId,
+        academicYearId: academicYear.id
+      }
+    },
+    update: updateData,
+    create: {
+      studentId,
+      academicYearId: academicYear.id,
+      ...updateData
+    },
+    select: { id: true }
+  });
+
+  return academicYearResult.id;
+}
+
 export async function createResult(data: CreateResultFormData) {
   try {
     // Validate input
@@ -713,7 +870,8 @@ export async function createResult(data: CreateResultFormData) {
       );
 
       // Create result and link it to the AcademicYearResult
-      await tx.result.create({
+      let result;
+      result = await tx.result.create({
         data: {
           enrollmentId: validatedData.enrollmentId,
           gpa: parseFloat(gpa.toFixed(2)),
@@ -731,12 +889,13 @@ export async function createResult(data: CreateResultFormData) {
       );
 
       // Update the result to link it to the AcademicYearResult
-      const updatedResult = await tx.result.update({
-        where: { enrollmentId: validatedData.enrollmentId },
-        data: { academicYearResultId }
-      });
+      if (academicYearResultId !== 0)
+        result = await tx.result.update({
+          where: { enrollmentId: validatedData.enrollmentId },
+          data: { academicYearResultId }
+        });
 
-      return { grades: createdGrades, result: updatedResult };
+      return { grades: createdGrades, result };
     });
 
     revalidateTag('results');
@@ -902,7 +1061,8 @@ export async function updateResult(input: UpdateResultFormData) {
       });
 
       // Update or create result
-      await tx.result.upsert({
+      let result;
+      result = await tx.result.upsert({
         where: { enrollmentId },
         update: {
           gpa: parseFloat(gpa.toFixed(2)),
@@ -928,13 +1088,14 @@ export async function updateResult(input: UpdateResultFormData) {
         tx
       );
 
-      // Update the result to link it to the AcademicYearResult
-      const updatedResult = await tx.result.update({
-        where: { enrollmentId: enrollmentId },
-        data: { academicYearResultId }
-      });
+      if (academicYearResultId !== 0)
+        // Update the result to link it to the AcademicYearResult
+        result = await tx.result.update({
+          where: { enrollmentId: enrollmentId },
+          data: { academicYearResultId }
+        });
 
-      return updatedResult;
+      return result;
     });
 
     // Revalidate relevant paths

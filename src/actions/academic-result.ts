@@ -156,6 +156,29 @@ export async function deleteAcademicResult(id: number) {
     };
   }
 }
+export async function deleteAcademicResults(ids: number[]) {
+  try {
+    await prisma.academicYearResult.deleteMany({
+      where: {
+        id: {
+          in: ids
+        }
+      }
+    });
+
+    revalidateTag('academic-year-results');
+
+    return {
+      data: true,
+      error: null
+    };
+  } catch (err) {
+    return {
+      data: null,
+      error: getErrorMessage(err)
+    };
+  }
+}
 
 const academicYearResultViewWithDetails =
   Prisma.validator<Prisma.AcademicYearResultInclude>()({

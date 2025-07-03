@@ -164,11 +164,8 @@ export function getResultColumns({
       id: 'actions',
       cell: ({ row }) => (
         <div className='flex justify-center gap-2 items-center'>
-          <Link
-            href={`/admin/results/${row.original.enrollmentId}/view`}
-            className={buttonVariants()}
-          >
-            <FileSearch2 className='h-4 w-4' />
+          <Link href={`/admin/results/${row.original.enrollmentId}/view`}>
+            <FileSearch2 className='h-5 w-5 text-primary' />
           </Link>
           <ResultCellAction data={row.original} />
         </div>
