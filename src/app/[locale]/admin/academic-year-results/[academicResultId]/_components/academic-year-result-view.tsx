@@ -81,8 +81,8 @@ export default function AcademicYearResultView({ data }: Props) {
   return (
     <div className='max-w-6xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6'>
       {/* Header */}
-      <div className='text-center space-y-2'>
-        <h1 className='text-2xl sm:text-3xl font-bold text-foreground'>
+      <div className='space-y-2'>
+        <h1 className='text-2xl sm:text-2xl font-bold text-foreground'>
           Academic Year Result
         </h1>
         <p className='text-sm sm:text-base text-muted-foreground'>

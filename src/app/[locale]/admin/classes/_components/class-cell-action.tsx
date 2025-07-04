@@ -1,8 +1,8 @@
-import { Button } from '@/components/ui/button';
-import { ClassDialog } from './class-modal';
-import { Edit, Trash } from 'lucide-react';
-import { DeleteClassDialog } from './delete-class-modal';
 import { ClassWithDetails } from '@/actions/class';
+import { Button } from '@/components/ui/button';
+import { Edit, Trash2 } from 'lucide-react';
+import { ClassDialog } from './class-modal';
+import { DeleteClassDialog } from './delete-class-modal';
 
 interface CellActionProps {
   data: ClassWithDetails;
@@ -22,8 +22,8 @@ export const ClassCellAction = ({ data }: CellActionProps) => {
           className: data.className
         }}
       >
-        <Button variant='destructive' size='sm'>
-          <Trash className='h-4 w-4' />
+        <Button variant='ghost' size='sm'>
+          <Trash2 className='h-4 w-4 text-destructive' />
         </Button>
       </DeleteClassDialog>
     </>

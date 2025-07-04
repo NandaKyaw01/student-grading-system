@@ -3,49 +3,101 @@ import { DataTableColumnHeader } from '@/components/data-table/data-table-column
 import { ColumnDef } from '@tanstack/react-table';
 import { ClassWithDetails } from '@/actions/class';
 import { ClassCellAction } from './class-cell-action';
-export function getClassColumns(): ColumnDef<ClassWithDetails>[] {
+import { CalendarCheck, Text } from 'lucide-react';
+import { AcademicYear, Semester } from '@/generated/prisma';
+
+const Code = ['CS', 'CT', 'CST'];
+
+export function getClassColumns({
+  academicYears,
+  semesters
+}: {
+  academicYears: AcademicYear[];
+  semesters: Semester[];
+}): ColumnDef<ClassWithDetails>[] {
   return [
     {
       id: 'id',
       accessorKey: 'id',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='No.' />
-      ),
-      enableSorting: false
+      header: () => <div className='text-center'>No.</div>,
+      cell: ({ row, table }) => {
+        const pageIndex = table.getState().pagination.pageIndex;
+        const pageSize = table.getState().pagination.pageSize;
+        const rowIndex = row.index;
+        return (
+          <div className='text-center'>
+            {pageIndex * pageSize + rowIndex + 1}
+          </div>
+        );
+      },
+      meta: {
+        label: 'No.'
+      },
+      enableSorting: false,
+      enableColumnFilter: false,
+      size: 40
     },
     {
-      id: 'Class Name',
+      id: 'search',
       accessorKey: 'className',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Class Name' />
-      ),
-      enableSorting: false
+      header: 'Class Name',
+      meta: {
+        label: 'Class Name',
+        placeholder: 'Search Class...',
+        variant: 'text',
+        icon: Text
+      },
+      enableColumnFilter: true
     },
     {
-      id: 'Department Code',
+      id: 'departmentCode',
       accessorKey: 'departmentCode',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Department Code' />
-      ),
-      enableSorting: false
+      header: 'Code',
+      meta: {
+        label: 'Code',
+        variant: 'multiSelect',
+        options: Code.map((c) => ({
+          label: c,
+          value: c
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true,
+      size: 80
     },
     {
-      id: 'Semester',
-      accessorKey: 'semester.semesterName',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Semester' />
-      ),
-      enableSorting: false
+      id: 'academicYearId',
+      accessorFn: (row) => row.semester?.academicYear?.yearRange,
+      header: 'Academic Year',
+      meta: {
+        label: 'Academic Year',
+        variant: 'multiSelect',
+        options: academicYears.map((year) => ({
+          label: `${year.yearRange} ${year.isCurrent ? '(Current)' : ''}`,
+          value: year.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true,
+      size: 100
     },
     {
-      id: 'Academic Year',
-      accessorKey: 'semester.academicYear.yearRange',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Academic Year' />
-      )
+      id: 'semesterId',
+      accessorFn: (row) => row.semester?.semesterName,
+      header: 'Semester',
+      meta: {
+        label: 'Semester',
+        variant: 'multiSelect',
+        options: semesters.map((seme) => ({
+          label: `${seme.semesterName} ${seme.isCurrent ? '(Current)' : ''}`,
+          value: seme.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
     },
     {
-      id: 'Actions',
+      id: 'actions',
       cell: ({ row }) => <ClassCellAction data={row.original} />,
       size: 40
     }

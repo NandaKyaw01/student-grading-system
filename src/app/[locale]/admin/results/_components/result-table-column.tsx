@@ -77,6 +77,7 @@ export function getResultColumns({
         variant: 'text',
         icon: Text
       },
+      size: 100,
       enableColumnFilter: true
     },
     {
