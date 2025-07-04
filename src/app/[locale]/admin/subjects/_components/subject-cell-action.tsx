@@ -1,10 +1,10 @@
-import { SubjectWithDetails } from '@/actions/subject';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash } from 'lucide-react';
+import { Subject } from '@/generated/prisma';
+import { Edit, Trash2 } from 'lucide-react';
 import { DeleteSubjectDialog } from './delete-subject-modal';
 import { SubjectDialog } from './subject-modal';
 
-export const SubjectCellAction = ({ data }: { data: SubjectWithDetails }) => {
+export const SubjectCellAction = ({ data }: { data: Subject }) => {
   return (
     <>
       <SubjectDialog mode='edit' subject={data}>
@@ -18,8 +18,8 @@ export const SubjectCellAction = ({ data }: { data: SubjectWithDetails }) => {
           subjectName: data.subjectName
         }}
       >
-        <Button variant='destructive' size='sm'>
-          <Trash className='h-4 w-4' />
+        <Button variant='ghost' size='sm'>
+          <Trash2 className='h-4 w-4 text-destructive' />
         </Button>
       </DeleteSubjectDialog>
     </>

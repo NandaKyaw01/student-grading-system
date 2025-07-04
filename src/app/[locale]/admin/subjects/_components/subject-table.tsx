@@ -10,7 +10,7 @@ import { getSubjectColumns } from './subject-table-column';
 const SubjectsTable = ({
   subjectProp
 }: {
-  subjectProp: Promise<Awaited<ReturnType<typeof getSubjects<true>>>>;
+  subjectProp: Promise<Awaited<ReturnType<typeof getSubjects>>>;
 }) => {
   const { subjects, pageCount } = use(subjectProp);
 
@@ -20,7 +20,7 @@ const SubjectsTable = ({
     columns,
     pageCount,
     initialState: {
-      sorting: [{ id: 'id', desc: true }],
+      // sorting: [{ id: 'id', desc: true }],
       columnPinning: { right: ['actions'] }
     },
     getRowId: (originalRow) => originalRow.id.toString(),
@@ -29,48 +29,6 @@ const SubjectsTable = ({
   });
 
   return (
-    // <Table>
-    //   <TableHeader>
-    //     <TableRow>
-    //       <TableHead>ID</TableHead>
-    //       <TableHead>Subject Name</TableHead>
-    //       <TableHead>Credit Hours</TableHead>
-    //       <TableHead>Exam Weight</TableHead>
-    //       <TableHead>Assignment Weight</TableHead>
-    //       <TableHead className='text-right'>Actions</TableHead>
-    //     </TableRow>
-    //   </TableHeader>
-    //   <TableBody>
-    //     {subjects.map((subject) => (
-    //       <TableRow key={subject.id}>
-    //         <TableCell className='font-medium'>{subject.id}</TableCell>
-    //         <TableCell>{subject.subjectName}</TableCell>
-    //         <TableCell>{subject.creditHours}</TableCell>
-    //         <TableCell>{subject.examWeight}</TableCell>
-    //         <TableCell>{subject.assignWeight}</TableCell>
-    //         <TableCell className='text-right'>
-    //           <div className='flex justify-end gap-2'>
-    //             <SubjectDialog mode='edit' subject={subject}>
-    //               <Button variant='ghost' size='sm'>
-    //                 <Edit className='h-4 w-4' />
-    //               </Button>
-    //             </SubjectDialog>
-    //             <DeleteSubjectDialog
-    //               subject={{
-    //                 id: subject.id,
-    //                 subjectName: subject.subjectName
-    //               }}
-    //             >
-    //               <Button variant='destructive' size='sm'>
-    //                 <Trash className='h-4 w-4' />
-    //               </Button>
-    //             </DeleteSubjectDialog>
-    //           </div>
-    //         </TableCell>
-    //       </TableRow>
-    //     ))}
-    //   </TableBody>
-    // </Table>
     <DataTable table={table}>
       <DataTableToolbar table={table} />
     </DataTable>

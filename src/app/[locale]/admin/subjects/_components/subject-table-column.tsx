@@ -1,52 +1,78 @@
 'use client';
-import { SubjectWithDetails } from '@/actions/subject';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import { Subject } from '@/generated/prisma';
 import { ColumnDef } from '@tanstack/react-table';
+import { Text } from 'lucide-react';
 import { SubjectCellAction } from './subject-cell-action';
 
-export function getSubjectColumns(): ColumnDef<SubjectWithDetails>[] {
+export function getSubjectColumns(): ColumnDef<Subject>[] {
   return [
     {
-      id: 'ID',
+      id: 'No.',
+      header: () => <div className='text-center'>No.</div>,
+      cell: ({ row, table }) => {
+        const pageIndex = table.getState().pagination.pageIndex;
+        const pageSize = table.getState().pagination.pageSize;
+        const rowIndex = row.index;
+        return (
+          <div className='text-center'>
+            {pageIndex * pageSize + rowIndex + 1}
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableColumnFilter: false,
+      size: 80
+    },
+    {
+      id: 'id',
       accessorKey: 'id',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='ID' />
+        <DataTableColumnHeader column={column} title='Subject Code' />
       ),
-      enableSorting: false
+      meta: {
+        label: 'Subject Code'
+      },
+      enableSorting: true
     },
     {
-      id: 'Subject Name',
+      id: 'search',
       accessorKey: 'subjectName',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Subject Name' />
-      )
+      header: 'Subject Name',
+      meta: {
+        label: 'Subject Name',
+        placeholder: 'Search Subject...',
+        variant: 'text',
+        icon: Text
+      },
+      enableColumnFilter: true
     },
     {
-      id: 'Credit Hours',
+      id: 'creditHours',
       accessorKey: 'creditHours',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Credit Hours' />
-      ),
-      enableSorting: false
+      header: 'Credit Hours',
+      meta: {
+        label: 'Credit Hours'
+      }
     },
     {
-      id: 'Exam Weight',
+      id: 'examWeight',
       accessorKey: 'examWeight',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Exam Weight' />
-      ),
-      enableSorting: false
+      header: 'Exam Weight',
+      meta: {
+        label: 'Exam Weight'
+      }
     },
     {
-      id: 'Assignment Weight',
+      id: 'assignWeight',
       accessorKey: 'assignWeight',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Assignment Weight' />
-      ),
-      enableSorting: false
+      header: 'Assessment Weight',
+      meta: {
+        label: 'Assessment Weight'
+      }
     },
     {
-      id: 'Actions',
+      id: 'actions',
       cell: ({ row }) => <SubjectCellAction data={row.original} />,
       size: 40
     }

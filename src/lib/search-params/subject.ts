@@ -5,17 +5,14 @@ import {
   parseAsString
 } from 'nuqs/server';
 
-import { getSortingStateParser } from '@/lib/parsers';
-import { AcademicYear } from '@/generated/prisma';
 import { Subject } from '@/generated/prisma';
+import { getSortingStateParser } from '@/lib/parsers';
 
 export const subjectSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   search: parseAsString,
-  sort: getSortingStateParser<Subject>().withDefault([
-    { id: 'createdAt', desc: true }
-  ])
+  sort: getSortingStateParser<Subject>()
 };
 
 export const subjectSearchParamsCache =

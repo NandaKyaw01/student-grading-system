@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { GradeScale } from '@/generated/prisma';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
-import { useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z, ZodSchema } from 'zod';
@@ -47,6 +47,7 @@ const formSchema = z
 interface GradeScaleFormProps {
   gradeScale?: GradeScale;
   onSuccess?: () => void;
+  open: boolean;
 }
 
 type FormValues = {
@@ -56,7 +57,11 @@ type FormValues = {
   score: number;
 };
 
-export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
+export function GradeScaleForm({
+  gradeScale,
+  onSuccess,
+  open
+}: GradeScaleFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<FormValues>({
@@ -68,6 +73,17 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
       score: gradeScale?.score ?? undefined
     }
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        minMark: gradeScale?.minMark ?? undefined,
+        maxMark: gradeScale?.maxMark ?? undefined,
+        grade: gradeScale?.grade ?? '',
+        score: gradeScale?.score ?? undefined
+      });
+    }
+  }, [open, gradeScale, form]);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     startTransition(async () => {
@@ -199,6 +215,14 @@ export function GradeScaleForm({ gradeScale, onSuccess }: GradeScaleFormProps) {
         </div>
 
         <div className='flex justify-end gap-4'>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={onSuccess}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
           <Button
             type='submit'
             disabled={isPending}

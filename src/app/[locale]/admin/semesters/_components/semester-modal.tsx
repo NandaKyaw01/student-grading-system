@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
@@ -129,6 +131,7 @@ export function SemesterDialog({
           <DialogTitle>
             {mode === 'new' ? 'Add New Semester' : 'Edit Semester'}
           </DialogTitle>
+          <DialogDescription className='sr-only' />
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
@@ -139,7 +142,7 @@ export function SemesterDialog({
                 <FormItem>
                   <FormLabel>Semester Name</FormLabel>
                   <FormControl>
-                    <Input placeholder='e.g., 1st Semester' {...field} />
+                    <Input placeholder='e.g., First Semester' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -193,19 +196,29 @@ export function SemesterDialog({
               )}
             />
 
-            <Button type='submit' disabled={isPending}>
-              {isPending && (
-                <Loader
-                  className='mr-2 size-4 animate-spin'
-                  aria-hidden='true'
-                />
-              )}
-              {isPending
-                ? 'Saving...'
-                : mode === 'new'
-                  ? 'Create Semester'
-                  : 'Save Changes'}
-            </Button>
+            <DialogFooter>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onClose}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' disabled={isPending}>
+                {isPending && (
+                  <Loader
+                    className='mr-2 size-4 animate-spin'
+                    aria-hidden='true'
+                  />
+                )}
+                {isPending
+                  ? 'Saving...'
+                  : mode === 'new'
+                    ? 'Create Semester'
+                    : 'Save Changes'}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

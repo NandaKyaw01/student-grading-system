@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger
@@ -34,8 +35,13 @@ export function GradeScaleModal({
           <DialogTitle>
             {gradeScale ? `Edit Grade Scale` : 'Create New Grade Scale'}
           </DialogTitle>
+          <DialogDescription className='sr-only' />
         </DialogHeader>
-        <GradeScaleForm gradeScale={gradeScale} onSuccess={handleSuccess} />
+        <GradeScaleForm
+          gradeScale={gradeScale}
+          open={open}
+          onSuccess={handleSuccess}
+        />
       </DialogContent>
     </Dialog>
   );

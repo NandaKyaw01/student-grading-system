@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle
@@ -120,6 +121,7 @@ export function AcademicYearDialog({
           <DialogTitle>
             {mode === 'new' ? 'Add Academic Year' : 'Edit Academic Year'}
           </DialogTitle>
+          <DialogDescription className='sr-only' />
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>

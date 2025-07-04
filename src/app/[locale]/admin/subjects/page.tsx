@@ -1,13 +1,19 @@
+import { getSubjects } from '@/actions/subject';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { Button } from '@/components/ui/button';
-import { getSubjects } from '@/actions/subject';
-import { Separator } from '@radix-ui/react-dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 import { Plus } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
+import { SearchParams } from 'nuqs';
 import { Suspense } from 'react';
 import { SubjectDialog } from './_components/subject-modal';
 import SubjectsTable from './_components/subject-table';
+import { subjectSearchParamsCache } from '@/lib/search-params/subject';
+
+type pageProps = {
+  searchParams: Promise<SearchParams>;
+};
 
 type BreadcrumbProps = {
   name: string;
@@ -24,9 +30,12 @@ const breadcrumb: BreadcrumbProps[] = [
   }
 ];
 
-export default function SubjectsPage() {
-  const subjects = getSubjects<true>(undefined, { includeDetails: true });
-  const t = useTranslations('AdminNavBarTitle');
+export default async function SubjectsPage(props: pageProps) {
+  const searchParams = await props.searchParams;
+  const t = await getTranslations('AdminNavBarTitle');
+
+  const search = subjectSearchParamsCache.parse(searchParams);
+  const subjects = getSubjects(search);
 
   return (
     <ContentLayout
@@ -36,7 +45,7 @@ export default function SubjectsPage() {
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-3xl font-bold tracking-tight'>Subjects</h5>
+            <h5 className='text-2xl font-bold tracking-tight'>Subjects</h5>
             <p className='text-muted-foreground text-sm'>
               Manage subjects (Server side table functionalities.)
             </p>

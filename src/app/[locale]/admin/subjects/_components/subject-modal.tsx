@@ -1,12 +1,16 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import {
+  createSubject,
+  SubjectWithDetails,
+  updateSubject
+} from '@/actions/subject';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger
@@ -20,23 +24,30 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { createSubject, updateSubject } from '@/actions/subject';
-import { toast } from 'sonner';
-import { useState } from 'react';
-import { SubjectWithDetails } from '@/actions/subject';
 import { Subject } from '@/generated/prisma';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader } from 'lucide-react';
+import { useEffect, useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import * as z from 'zod';
 
-const subjectFormSchema = z.object({
-  id: z.string().min(1, {
-    message: 'Subject ID is required'
-  }),
-  subjectName: z.string().min(1, {
-    message: 'Subject name is required'
-  }),
-  creditHours: z.number().min(0.5).max(10),
-  examWeight: z.number().min(0).max(1),
-  assignWeight: z.number().min(0).max(1)
-});
+const subjectFormSchema = z
+  .object({
+    id: z.string().min(1, {
+      message: 'Subject ID is required'
+    }),
+    subjectName: z.string().min(1, {
+      message: 'Subject name is required'
+    }),
+    creditHours: z.number().min(0.5).max(10),
+    examWeight: z.number().min(0).max(1),
+    assignWeight: z.number().min(0).max(1)
+  })
+  .refine((data) => Number(data.examWeight) + Number(data.assignWeight) === 1, {
+    message: 'Combination of exam and assessment must be equal to 1',
+    path: ['examWeight']
+  });
 
 type SubjectFormValues = z.infer<typeof subjectFormSchema>;
 
@@ -54,6 +65,7 @@ export function SubjectDialog({
   children
 }: SubjectDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const defaultValues: Partial<SubjectFormValues> = {
     id: subject?.id || '',
@@ -68,26 +80,48 @@ export function SubjectDialog({
     defaultValues
   });
 
-  async function onSubmit(data: SubjectFormValues) {
-    try {
-      if (mode === 'new') {
-        await createSubject(data);
-      } else if (subject?.id) {
-        await updateSubject(subject.id, data);
-      }
-
-      toast.success('Success', {
-        description: `Subject ${mode === 'new' ? 'created' : 'updated'} successfully.`
-      });
-
-      setOpen(false);
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error ? error.message : 'An error occurred'
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        id: subject?.id || '',
+        subjectName: subject?.subjectName || '',
+        creditHours: subject?.creditHours || 3.0,
+        examWeight: subject?.examWeight || 0.6,
+        assignWeight: subject?.assignWeight || 0.4
       });
     }
+  }, [open, subject, form]);
+
+  function onSubmit(data: SubjectFormValues) {
+    startTransition(async () => {
+      try {
+        let result;
+        if (mode === 'new') {
+          result = await createSubject(data);
+        } else if (subject?.id) {
+          result = await updateSubject(subject.id, data);
+        }
+
+        if (result?.success) {
+          toast.success('Success', {
+            description: `Subject ${mode === 'new' ? 'created' : 'updated'} successfully.`
+          });
+
+          setOpen(false);
+          form.reset();
+          if (onSuccess) onSuccess();
+        } else {
+          toast.error('Error', {
+            description: result?.error ? result.error : 'An error occurred'
+          });
+        }
+      } catch (error) {
+        toast.error('Error', {
+          description:
+            error instanceof Error ? error.message : 'An error occurred'
+        });
+      }
+    });
   }
 
   return (
@@ -104,6 +138,7 @@ export function SubjectDialog({
           <DialogTitle>
             {mode === 'new' ? 'Add New Subject' : 'Edit Subject'}
           </DialogTitle>
+          <DialogDescription className='sr-only' />
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
@@ -164,7 +199,7 @@ export function SubjectDialog({
                 name='examWeight'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Exam Weight</FormLabel>
+                    <FormLabel>Exam</FormLabel>
                     <FormControl>
                       <Input
                         type='number'
@@ -187,7 +222,7 @@ export function SubjectDialog({
                 name='assignWeight'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Assignment Weight</FormLabel>
+                    <FormLabel>Assessment</FormLabel>
                     <FormControl>
                       <Input
                         type='number'
@@ -206,9 +241,21 @@ export function SubjectDialog({
               />
             </div>
 
-            <Button type='submit'>
-              {mode === 'new' ? 'Create Subject' : 'Save Changes'}
-            </Button>
+            <DialogFooter>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => setOpen(false)}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+
+              <Button type='submit' disabled={isPending}>
+                {isPending && <Loader className='mr-2 h-4 w-4 animate-spin' />}
+                {mode === 'new' ? 'Create Subject' : 'Save Changes'}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
