@@ -404,7 +404,15 @@ export async function importStudentResults(
     if (jsonData.length < 2) {
       return {
         success: false,
-        message: 'Excel file must contain at least header and one data row'
+        message: 'Excel file must contain at least header and one data row',
+        errors: [
+          {
+            row: 0,
+            column: '',
+            field: 'general',
+            message: `Excel file must contain at least header and one data row`
+          }
+        ]
       };
     }
 
@@ -488,6 +496,9 @@ export async function importStudentResults(
     // Process each row
     for (let i = 0; i < dataRows.length; i++) {
       const row = dataRows[i];
+
+      console.log(row);
+
       const rowNumber = i + 2; // +2 for header row and 0-indexing
       const rowData: RowData = {};
       let hasErrors = false;

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
   studentSearchParamsCache
@@ -16,6 +16,7 @@ import { getTranslations } from 'next-intl/server';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 import { StudentDataTable } from './_components/student-data-table';
+import { StudentDialog } from './_components/student-modal';
 
 export const metadata = {
   title: 'Admin: Students'
@@ -63,12 +64,12 @@ export default async function StudentsPage(props: pageProps) {
               Manage students (Server side table functionalities.)
             </p>
           </div>
-          <Link
-            href='/admin/students/new'
-            className={cn(buttonVariants(), 'text-xs md:text-sm')}
-          >
-            <Plus className='mr-2 h-4 w-4' /> Add New
-          </Link>
+
+          <StudentDialog mode='new'>
+            <Button className='text-xs md:text-sm'>
+              <Plus className='mr-2 h-4 w-4' /> Add New Student
+            </Button>
+          </StudentDialog>
         </div>
         <Separator />
 

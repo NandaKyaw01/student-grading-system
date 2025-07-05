@@ -39,10 +39,13 @@ export function getStudentColumns(): ColumnDef<Student>[] {
     {
       id: 'id',
       accessorKey: 'id',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='ID' />
-      ),
-      cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
+      header: 'No.',
+      cell: ({ row, table }) => {
+        const pageIndex = table.getState().pagination.pageIndex;
+        const pageSize = table.getState().pagination.pageSize;
+        const rowIndex = row.index;
+        return pageIndex * pageSize + rowIndex + 1;
+      },
       meta: {
         label: 'Search',
         placeholder: 'Search Student...',
@@ -50,7 +53,8 @@ export function getStudentColumns(): ColumnDef<Student>[] {
         icon: Text
       },
       enableSorting: true,
-      enableColumnFilter: true
+      enableColumnFilter: true,
+      size: 40
     },
     {
       id: 'studentName',

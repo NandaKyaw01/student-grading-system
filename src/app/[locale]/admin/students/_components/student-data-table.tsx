@@ -28,7 +28,7 @@ export function StudentDataTable({ promises }: StudentsTableProps) {
     columns,
     pageCount,
     initialState: {
-      sorting: [{ id: 'createdAt', desc: true }],
+      // sorting: [{ id: 'createdAt', desc: true }],
       columnPinning: { right: ['actions'] }
     },
     getRowId: (originalRow) => originalRow.id.toString(),
@@ -44,10 +44,11 @@ export function StudentDataTable({ promises }: StudentsTableProps) {
       });
     });
   }, [table]);
+
   return (
     <DataTable table={table} actionBar={<TasksTableActionBar table={table} />}>
       <DataTableToolbar table={table}>
-        <Button
+        {/* <Button
           aria-label='Export all students'
           variant='outline'
           size='sm'
@@ -56,7 +57,7 @@ export function StudentDataTable({ promises }: StudentsTableProps) {
         >
           {isPending ? <Loader /> : <Download />}
           Export All
-        </Button>
+        </Button> */}
       </DataTableToolbar>
     </DataTable>
   );

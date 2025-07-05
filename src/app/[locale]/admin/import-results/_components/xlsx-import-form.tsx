@@ -570,7 +570,7 @@ const XlsxImportForm = () => {
                 <Combobox
                   options={academicYears.map((s) => ({
                     value: s.id.toString(),
-                    label: s.yearRange
+                    label: `${s.yearRange} ${s.isCurrent ? '(Current)' : ''}`
                   }))}
                   value={selection.academicYearId?.toString() || ''}
                   onValueChange={handleAcademicYearChange}
@@ -595,7 +595,7 @@ const XlsxImportForm = () => {
                 <Combobox
                   options={semesters.map((s) => ({
                     value: s.id.toString(),
-                    label: s.semesterName
+                    label: `${s.semesterName} ${s.isCurrent ? '(Current)' : ''}`
                   }))}
                   value={selection.semesterId?.toString() || ''}
                   onValueChange={handleSemesterChange}

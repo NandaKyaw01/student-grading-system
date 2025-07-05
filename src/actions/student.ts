@@ -29,6 +29,7 @@ export async function createStudent(
     revalidateTag('students');
 
     return {
+      success: true,
       data: student,
       error: null
     };
@@ -56,6 +57,7 @@ export async function updateStudent(
     revalidateTag(`student-${input.id}`);
 
     return {
+      success: true,
       data: student,
       error: null
     };
@@ -69,6 +71,45 @@ export async function updateStudent(
 
 export async function deleteStudent(id: number) {
   try {
+    // First, check if the student exists and has any enrollments or results
+    const student = await prisma.student.findUnique({
+      where: { id },
+      include: {
+        enrollments: {
+          select: { id: true }
+        },
+        academicYearResults: {
+          select: { id: true }
+        }
+      }
+    });
+
+    if (!student) {
+      return {
+        data: null,
+        error: 'Student not found'
+      };
+    }
+
+    // Check if student has any enrollments
+    if (student.enrollments.length > 0) {
+      return {
+        data: null,
+        error:
+          'Cannot delete student with existing enrollments. Please remove all enrollments first.'
+      };
+    }
+
+    // Check if student has any academic year results
+    if (student.academicYearResults.length > 0) {
+      return {
+        data: null,
+        error:
+          'Cannot delete student with existing academic results. Please remove all results first.'
+      };
+    }
+
+    // If no enrollments or results, proceed with deletion
     await prisma.student.delete({
       where: { id }
     });
@@ -89,11 +130,64 @@ export async function deleteStudent(id: number) {
 
 export async function deleteStudents(ids: number[]) {
   try {
+    if (!ids || ids.length === 0) {
+      return {
+        data: null,
+        error: 'No student IDs provided'
+      };
+    }
+
+    // Check which students have enrollments or results
+    const studentsWithRelations = await prisma.student.findMany({
+      where: {
+        id: { in: ids }
+      },
+      select: {
+        id: true,
+        studentName: true,
+        admissionId: true,
+        _count: {
+          select: {
+            enrollments: true,
+            academicYearResults: true
+          }
+        }
+      }
+    });
+
+    // Filter students that cannot be deleted
+    const cannotDelete = studentsWithRelations.filter(
+      (student) =>
+        student._count.enrollments > 0 || student._count.academicYearResults > 0
+    );
+
+    // If any students cannot be deleted, return error
+    if (cannotDelete.length > 0) {
+      const studentNames = cannotDelete
+        .map((s) => `${s.studentName} (${s.admissionId})`)
+        .join(', ');
+
+      return {
+        data: null,
+        error: `Cannot delete ${cannotDelete.length} student(s) with existing enrollments or results: ${studentNames}`
+      };
+    }
+
+    // Check if all requested students exist
+    if (studentsWithRelations.length !== ids.length) {
+      const foundIds = studentsWithRelations.map((s) => s.id);
+      const notFoundIds = ids.filter((id) => !foundIds.includes(id));
+
+      return {
+        data: null,
+        error: `Students with IDs ${notFoundIds.join(', ')} not found`
+      };
+    }
+
+    // If all students can be deleted, proceed
     await prisma.student.deleteMany({
       where: {
-        id: {
-          in: ids
-        }
+        id: { in: ids }
       }
     });
 
@@ -129,7 +223,8 @@ export async function getAllStudents(
           if (input.id?.trim()) {
             where.OR = [
               { id: { equals: parseInt(input.id) || undefined } },
-              { studentName: { contains: input.id, mode: 'insensitive' } }
+              { studentName: { contains: input.id, mode: 'insensitive' } },
+              { admissionId: { contains: input.id, mode: 'insensitive' } }
             ];
           }
           const range = Array.isArray(input.createdAt)
@@ -138,6 +233,7 @@ export async function getAllStudents(
                 input.createdAt.includes(',')
               ? input.createdAt.split(',')
               : null;
+
           if (range?.length === 2) {
             const [from, to] = range.map((ts) => new Date(Number(ts)));
             if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
