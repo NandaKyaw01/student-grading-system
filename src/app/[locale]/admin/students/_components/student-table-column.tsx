@@ -47,7 +47,7 @@ export function getStudentColumns(): ColumnDef<Student>[] {
         return pageIndex * pageSize + rowIndex + 1;
       },
       meta: {
-        label: 'Search',
+        label: 'No.',
         placeholder: 'Search Student...',
         variant: 'text',
         icon: Text
@@ -61,14 +61,20 @@ export function getStudentColumns(): ColumnDef<Student>[] {
       accessorKey: 'studentName',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Name' />
-      )
+      ),
+      meta: {
+        label: 'Name'
+      }
     },
     {
       id: 'admissionId',
       accessorKey: 'admissionId',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Admission ID' />
-      )
+      ),
+      meta: {
+        label: 'Admission ID'
+      }
     },
     {
       id: 'createdAt',

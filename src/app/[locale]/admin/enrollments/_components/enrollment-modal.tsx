@@ -1,19 +1,19 @@
 'use client';
 
+import { EnrollmentWithDetails } from '@/actions/enrollment';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { Enrollment } from '@/generated/prisma';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { EnrollmentForm } from './enrollment-form';
 
 interface EnrollmentModalProps {
-  enrollment?: Enrollment;
+  enrollment?: EnrollmentWithDetails;
   children: React.ReactNode;
 }
 
@@ -22,11 +22,9 @@ export function EnrollmentModal({
   children
 }: EnrollmentModalProps) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
 
   const handleSuccess = () => {
     setOpen(false);
-    router.refresh();
   };
 
   return (
@@ -37,6 +35,7 @@ export function EnrollmentModal({
           <DialogTitle>
             {enrollment ? `Edit Enrollment` : 'Create New Enrollment'}
           </DialogTitle>
+          <DialogDescription className='sr-only' />
         </DialogHeader>
         <EnrollmentForm enrollment={enrollment} onSuccess={handleSuccess} />
       </DialogContent>

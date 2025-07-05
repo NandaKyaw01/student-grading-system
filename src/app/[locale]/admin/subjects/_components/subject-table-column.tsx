@@ -9,6 +9,7 @@ export function getSubjectColumns(): ColumnDef<Subject>[] {
   return [
     {
       id: 'No.',
+      accessorKey: 'id',
       header: () => <div className='text-center'>No.</div>,
       cell: ({ row, table }) => {
         const pageIndex = table.getState().pagination.pageIndex;
@@ -19,6 +20,9 @@ export function getSubjectColumns(): ColumnDef<Subject>[] {
             {pageIndex * pageSize + rowIndex + 1}
           </div>
         );
+      },
+      meta: {
+        label: 'No.'
       },
       enableSorting: false,
       enableColumnFilter: false,

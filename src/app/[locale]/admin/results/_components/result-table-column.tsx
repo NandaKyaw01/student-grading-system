@@ -85,7 +85,6 @@ export function getResultColumns({
       accessorFn: (row) => `${row.enrollment?.rollNumber}`,
       header: 'Roll No.'
     },
-
     {
       id: 'academicYearId',
       accessorFn: (row) =>

@@ -285,26 +285,6 @@ export async function getAllStudents(
   )();
 }
 
-export async function getStudentById(id: string) {
-  return await unstable_cache(
-    async () => {
-      try {
-        return await prisma.student.findUnique({
-          where: { id: parseInt(id) }
-        });
-      } catch (error) {
-        console.error(`❌ Error fetching student with ID ${id}:`, error);
-        return null;
-      }
-    },
-    [`student-${id}`],
-    {
-      revalidate: 1,
-      tags: ['student', `student-${id}`]
-    }
-  )();
-}
-
 export async function getStudentsForSelect() {
   return await prisma.student.findMany({
     select: {

@@ -4,14 +4,24 @@ import CopyableIdCell from '@/components/copyable-id-cell';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Enrollment } from '@/generated/prisma';
+import { AcademicYear, Class, Enrollment, Semester } from '@/generated/prisma';
 import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
-import { CalendarIcon, Text } from 'lucide-react';
+import { CalendarCheck, CalendarIcon, Text } from 'lucide-react';
 import { EnrollmentCellAction } from './enrollment-cell-action';
 import { EnrollmentWithDetails } from '@/actions/enrollment';
 
-export function getEnrollmentColumns(): ColumnDef<EnrollmentWithDetails>[] {
+const Code = ['CS', 'CT', 'CST'];
+
+export function getEnrollmentColumns({
+  academicYears,
+  semesters,
+  classes
+}: {
+  academicYears: AcademicYear[];
+  semesters: Semester[];
+  classes: Class[];
+}): ColumnDef<EnrollmentWithDetails>[] {
   return [
     {
       id: 'select',
@@ -41,26 +51,32 @@ export function getEnrollmentColumns(): ColumnDef<EnrollmentWithDetails>[] {
     {
       id: 'id',
       accessorKey: 'id',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='ID' />
-      ),
-      cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
-      enableSorting: true,
-      enableColumnFilter: true
+      header: 'No.',
+      cell: ({ row, table }) => {
+        const pageIndex = table.getState().pagination.pageIndex;
+        const pageSize = table.getState().pagination.pageSize;
+        const rowIndex = row.index;
+        return pageIndex * pageSize + rowIndex + 1;
+      },
+      meta: {
+        label: 'No.'
+      },
+      size: 40
     },
     {
       id: 'rollNumber',
       accessorKey: 'rollNumber',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Roll Number' />
-      )
+      header: 'Roll Number',
+      meta: {
+        label: 'Roll Number'
+      }
     },
     {
       id: 'search',
       accessorFn: (row) => row.student?.studentName,
-      header: 'Student',
+      header: 'Student Name',
       meta: {
-        label: 'Search',
+        label: 'Student Name',
         placeholder: 'Search ...',
         variant: 'text',
         icon: Text
@@ -68,32 +84,79 @@ export function getEnrollmentColumns(): ColumnDef<EnrollmentWithDetails>[] {
       enableColumnFilter: true
     },
     {
-      id: 'className',
+      id: 'academicYearId',
+      accessorFn: (row) => `${row.semester?.academicYear?.yearRange}`,
+      header: 'Academic Year',
+      meta: {
+        label: 'Academic Year',
+        variant: 'multiSelect',
+        options: academicYears.map((year) => ({
+          label: `${year.yearRange} ${year.isCurrent ? '(Current)' : ''}`,
+          value: year.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
+    },
+    {
+      id: 'semesterId',
+      accessorFn: (row) => `${row.semester?.semesterName}`,
+      header: 'Semester',
+      meta: {
+        label: 'Semester',
+        variant: 'multiSelect',
+        options: semesters.map((seme) => ({
+          label: `${seme.semesterName} ${seme.isCurrent ? '(Current)' : ''}`,
+          value: seme.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
+    },
+    {
+      id: 'classId',
       accessorFn: (row) => row.class.className,
-      header: 'Class'
+      header: 'Class',
+      meta: {
+        label: 'Class',
+        variant: 'multiSelect',
+        options: classes.map((cls) => ({
+          label: `${cls.className} (${cls.departmentCode})`,
+          value: cls.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
     },
     {
-      id: 'semester',
-      accessorFn: (row) =>
-        `${row.semester?.semesterName} (${row.semester?.academicYear?.yearRange})`,
-      header: 'Semester'
+      id: 'departmentCode',
+      accessorFn: (row) => row.class?.departmentCode,
+      header: 'Code',
+      meta: {
+        label: 'Code',
+        variant: 'multiSelect',
+        options: Code.map((c) => ({
+          label: c,
+          value: c
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true,
+      size: 80
     },
-    {
-      id: 'isActive',
-      accessorKey: 'isActive',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Status' />
-      ),
-      cell: ({ cell }) => (
-        <Badge variant={cell.getValue() ? 'default' : 'destructive'}>
-          {cell.getValue() ? 'Active' : 'Inactive'}
-        </Badge>
-      ),
-      filterFn: (row, id, value) => {
-        if (value === 'all') return true;
-        return row.getValue(id) === (value === 'active');
-      }
-    },
+    // {
+    //   id: 'isActive',
+    //   accessorKey: 'isActive',
+    //   header: 'Status',
+    //   cell: ({ cell }) => (
+    //     <Badge variant={cell.getValue() ? 'default' : 'destructive'}>
+    //       {cell.getValue() ? 'Active' : 'Inactive'}
+    //     </Badge>
+    //   ),
+    //   meta: {
+    //     label: 'Status'
+    //   }
+    // },
     {
       id: 'createdAt',
       accessorKey: 'createdAt',

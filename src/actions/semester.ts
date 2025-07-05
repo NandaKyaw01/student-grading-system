@@ -237,24 +237,3 @@ export async function getSemesters<T extends boolean = false>(
   // Execute directly without cache
   return await queryFunction();
 }
-
-export const getSemesterById = async (id: number) => {
-  return await unstable_cache(
-    async () => {
-      try {
-        return await prisma.semester.findUnique({
-          where: { id },
-          include: semesterWithDetails
-        });
-      } catch (error) {
-        console.error(`Error fetching semester ${id}:`, error);
-        return null;
-      }
-    },
-    [`semester-${id}`],
-    {
-      tags: [`semester-${id}`],
-      revalidate: 3600 // 1 hour cache
-    }
-  )();
-};
