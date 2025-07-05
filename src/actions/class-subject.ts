@@ -2,7 +2,7 @@
 
 import { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 
 const classSubjectWithDetails = Prisma.validator<Prisma.ClassSubjectInclude>()({
   class: true,
@@ -45,6 +45,35 @@ export async function removeSubjectFromClass(data: {
   subjectId: string;
 }) {
   try {
+    // First check if the ClassSubject exists
+    const classSubject = await prisma.classSubject.findUnique({
+      where: {
+        classId_subjectId: {
+          classId: data.classId,
+          subjectId: data.subjectId
+        }
+      },
+      include: {
+        grades: true
+      }
+    });
+
+    if (!classSubject) {
+      return {
+        success: false,
+        error: 'Subject is not assigned to this class'
+      };
+    }
+
+    // Check if there are any grades associated with this class-subject combination
+    if (classSubject.grades.length > 0) {
+      return {
+        success: false,
+        error: `Cannot remove subject from class. There are ${classSubject.grades.length} grade(s) associated with this subject in the class. Please remove all grades first.`
+      };
+    }
+
+    // If no grades exist, proceed with deletion
     await prisma.classSubject.delete({
       where: {
         classId_subjectId: {

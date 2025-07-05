@@ -1,12 +1,10 @@
 'use server';
 
-import { z } from 'zod';
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/db';
 import bcrypt from 'bcrypt';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { prisma } from '@/lib/db';
+import { z } from 'zod';
 
 // Schemas for validation
 const updateProfileSchema = z.object({
@@ -70,9 +68,6 @@ export async function updateProfile(
       }
     });
 
-    // Revalidate the page
-    revalidatePath('/account');
-
     return { success: true, user: updatedUser };
   } catch (error) {
     console.error('Error updating profile:', error);
@@ -125,9 +120,6 @@ export async function updatePassword(
         updatedAt: new Date()
       }
     });
-
-    // Revalidate the page
-    revalidatePath('/account');
 
     return { success: true };
   } catch (error) {
@@ -214,9 +206,6 @@ export async function uploadAvatar(formData: FormData) {
         console.error('Error deleting old avatar:', error);
       }
     }
-
-    // Revalidate the page
-    revalidatePath('/account');
 
     return { success: true, imageUrl };
   } catch (error) {
