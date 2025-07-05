@@ -20,11 +20,48 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
 export function UserNav() {
   const t = useTranslations('UserNav');
+  const { data: session, status } = useSession();
+
+  // Get user info from session
+  const userName = session?.user?.name || 'User';
+  const userEmail = session?.user?.email || '';
+  const userImage = session?.user?.image;
+
+  // Create fallback initials from name
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((word) => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Show loading state while session is being fetched
+  if (status === 'loading') {
+    return (
+      <Button
+        variant='outline'
+        className='relative h-8 w-8 rounded-full'
+        disabled
+      >
+        <Avatar className='h-8 w-8'>
+          <AvatarFallback className='bg-transparent'>...</AvatarFallback>
+        </Avatar>
+      </Button>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (status === 'unauthenticated') {
+    return null;
+  }
+
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -36,8 +73,10 @@ export function UserNav() {
                 className='relative h-8 w-8 rounded-full'
               >
                 <Avatar className='h-8 w-8'>
-                  <AvatarImage src='#' alt='Avatar' />
-                  <AvatarFallback className='bg-transparent'>JD</AvatarFallback>
+                  <AvatarImage src={userImage || '#'} alt='Avatar' />
+                  <AvatarFallback className='bg-transparent'>
+                    {getInitials(userName)}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -49,22 +88,24 @@ export function UserNav() {
       <DropdownMenuContent className='w-56' align='end' forceMount>
         <DropdownMenuLabel className='font-normal'>
           <div className='flex flex-col space-y-1'>
-            <p className='text-sm font-medium leading-none'>John Doe</p>
-            <p className='text-xs leading-none text-muted-foreground'>
-              johndoe@example.com
-            </p>
+            <p className='text-sm font-medium leading-none'>{userName}</p>
+            {userEmail && (
+              <p className='text-xs leading-none text-muted-foreground'>
+                {userEmail}
+              </p>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem className='hover:cursor-pointer' asChild>
-            <Link href='/dashboard' className='flex items-center'>
+            <Link href='/admin/dashboard' className='flex items-center'>
               <LayoutGrid className='w-4 h-4 mr-3 text-muted-foreground' />
               {t('dashboard')}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className='hover:cursor-pointer' asChild>
-            <Link href='/account' className='flex items-center'>
+            <Link href='/admin/account' className='flex items-center'>
               <User className='w-4 h-4 mr-3 text-muted-foreground' />
               {t('account')}
             </Link>
