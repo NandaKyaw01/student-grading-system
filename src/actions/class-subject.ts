@@ -26,9 +26,7 @@ export async function assignSubjectToClass(data: {
       }
     });
 
-    revalidateTag(`class-subjects-${data.classId}`);
-    revalidateTag(`available-subjects-${data.classId}`);
-    revalidateTag(`classes`);
+    // revalidateTag(`classes`);
 
     return { success: true, data: classSubject };
   } catch (error) {
@@ -55,9 +53,8 @@ export async function removeSubjectFromClass(data: {
         }
       }
     });
-    revalidateTag(`class-subjects-${data.classId}`);
-    revalidateTag(`available-subjects-${data.classId}`);
-    revalidateTag(`classes`);
+
+    // revalidateTag(`classes`);
 
     return { success: true };
   } catch (error) {
@@ -72,28 +69,31 @@ export async function removeSubjectFromClass(data: {
 }
 
 export async function getClassSubjects(classId: number) {
-  // return await unstable_cache(
-  //   async () => {
   try {
-    return await prisma.classSubject.findMany({
+    const result = await prisma.classSubject.findMany({
       where: { classId },
       include: classSubjectWithDetails
     });
+
+    return {
+      success: true,
+      data: result,
+      error: null
+    };
   } catch (error) {
     console.error('Error fetching class subjects:', error);
-    return [];
+    return {
+      success: false,
+      data: [],
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to remove subject from class'
+    };
   }
-  //   },
-  //   [`class-subjects-${classId}`],
-  //   {
-  //     tags: [`class-subjects-${classId}`]
-  //   }
-  // )();
 }
 
 export const getAvailableSubjectsForClass = async (classId: number) => {
-  // return await unstable_cache(
-  //   async () => {
   try {
     const assignedSubjects = await prisma.classSubject.findMany({
       where: { classId },
@@ -102,21 +102,32 @@ export const getAvailableSubjectsForClass = async (classId: number) => {
 
     const assignedSubjectIds = assignedSubjects.map((s) => s.subjectId);
 
-    return await prisma.subject.findMany({
+    const result = await prisma.subject.findMany({
       where: {
         id: {
           notIn: assignedSubjectIds
         }
       }
     });
+
+    return {
+      success: true,
+      data: result,
+      error: null
+    };
   } catch (error) {
     console.error('Error fetching available subjects:', error);
-    return [];
+    return {
+      success: false,
+      data: [],
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to remove subject from class'
+    };
   }
-  //   },
-  //   [`available-subjects-${classId}`],
-  //   {
-  //     tags: [`available-subjects-${classId}`]
-  //   }
-  // )();
 };
+
+export async function revalidateClassSubjects() {
+  revalidateTag('classes');
+}

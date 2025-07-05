@@ -10,6 +10,7 @@ import { Suspense } from 'react';
 import { SubjectDialog } from './_components/subject-modal';
 import SubjectsTable from './_components/subject-table';
 import { subjectSearchParamsCache } from '@/lib/search-params/subject';
+import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
@@ -57,7 +58,11 @@ export default async function SubjectsPage(props: pageProps) {
           </SubjectDialog>
         </div>
         <Separator />
-        <Suspense fallback='loading...'>
+        <Suspense
+          fallback={
+            <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
+          }
+        >
           <SubjectsTable subjectProp={subjects} />
         </Suspense>
       </div>

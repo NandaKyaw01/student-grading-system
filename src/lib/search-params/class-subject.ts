@@ -10,7 +10,7 @@ import { Class } from '@/generated/prisma';
 import { getSortingStateParser } from '@/lib/parsers';
 import { z } from 'zod';
 
-export const classSearchParams = {
+export const classSubjectSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   search: parseAsString,
@@ -20,10 +20,11 @@ export const classSearchParams = {
   sort: getSortingStateParser<Class>()
 };
 
-export const classSearchParamsCache =
-  createSearchParamsCache(classSearchParams);
-export const classSerialize = createSerializer(classSearchParams);
+export const classSubjectSearchParamsCache = createSearchParamsCache(
+  classSubjectSearchParams
+);
+export const classSerialize = createSerializer(classSubjectSearchParams);
 
 export type GetClassSchema = Awaited<
-  ReturnType<typeof classSearchParamsCache.parse>
+  ReturnType<typeof classSubjectSearchParamsCache.parse>
 >;

@@ -40,16 +40,56 @@ const subjectFormSchema = z
     subjectName: z.string().min(1, {
       message: 'Subject name is required'
     }),
-    creditHours: z.number().min(0.5).max(10),
-    examWeight: z.number().min(0).max(1),
-    assignWeight: z.number().min(0).max(1)
+    creditHours: z
+      .union([z.string(), z.number()])
+      .transform((val) => {
+        const parsed = typeof val === 'string' ? parseFloat(val) : val;
+        return isNaN(parsed) ? 0 : parsed;
+      })
+      .refine((val) => val >= 0.5, {
+        message: 'Credit hours must be at least 0.5'
+      }),
+    examWeight: z
+      .union([z.string(), z.number()])
+      .transform((val) => {
+        const parsed = typeof val === 'string' ? parseFloat(val) : val;
+        return isNaN(parsed) ? 0 : parsed;
+      })
+      .refine((val) => val >= 0 && val <= 1, {
+        message: 'Exam weight must be between 0 and 1'
+      }),
+    assignWeight: z
+      .union([z.string(), z.number()])
+      .transform((val) => {
+        const parsed = typeof val === 'string' ? parseFloat(val) : val;
+        return isNaN(parsed) ? 0 : parsed;
+      })
+      .refine((val) => val >= 0 && val <= 1, {
+        message: 'Assignment weight must be between 0 and 1'
+      })
   })
-  .refine((data) => Number(data.examWeight) + Number(data.assignWeight) === 1, {
-    message: 'Combination of exam and assessment must be equal to 1',
-    path: ['examWeight']
-  });
+  .refine(
+    (data) => {
+      const total = Number(data.examWeight) + Number(data.assignWeight);
+      return Math.abs(total - 1) < 0.001; // Allow for floating point precision
+    },
+    {
+      message: 'Exam and assessment weights must sum to 1',
+      path: ['examWeight']
+    }
+  );
 
-type SubjectFormValues = z.infer<typeof subjectFormSchema>;
+// Define the form input type (what the form receives)
+type SubjectFormInput = {
+  id: string;
+  subjectName: string;
+  creditHours: string | number;
+  examWeight: string | number;
+  assignWeight: string | number;
+};
+
+// Define the form output type (what gets processed)
+// type SubjectFormValues = z.infer<typeof subjectFormSchema>;
 
 interface SubjectDialogProps {
   mode?: 'new' | 'edit';
@@ -67,39 +107,51 @@ export function SubjectDialog({
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const defaultValues: Partial<SubjectFormValues> = {
-    id: subject?.id || '',
-    subjectName: subject?.subjectName || '',
-    creditHours: subject?.creditHours || 3.0,
-    examWeight: subject?.examWeight || 0.6,
-    assignWeight: subject?.assignWeight || 0.4
-  };
-
-  const form = useForm<SubjectFormValues>({
+  const form = useForm<SubjectFormInput>({
     resolver: zodResolver(subjectFormSchema),
-    defaultValues
+    defaultValues: {
+      id: '',
+      subjectName: '',
+      creditHours: 3.0,
+      examWeight: 0.6,
+      assignWeight: 0.4
+    }
   });
 
   useEffect(() => {
-    if (open) {
+    if (open && subject) {
       form.reset({
-        id: subject?.id || '',
-        subjectName: subject?.subjectName || '',
-        creditHours: subject?.creditHours || 3.0,
-        examWeight: subject?.examWeight || 0.6,
-        assignWeight: subject?.assignWeight || 0.4
+        id: subject.id || '',
+        subjectName: subject.subjectName || '',
+        creditHours: subject.creditHours || 3.0,
+        examWeight: subject.examWeight || 0.6,
+        assignWeight: subject.assignWeight || 0.4
+      });
+    } else if (open && !subject) {
+      // Reset to default values for new subject
+      form.reset({
+        id: '',
+        subjectName: '',
+        creditHours: 3.0,
+        examWeight: 0.6,
+        assignWeight: 0.4
       });
     }
   }, [open, subject, form]);
 
-  function onSubmit(data: SubjectFormValues) {
+  function onSubmit(data: SubjectFormInput) {
     startTransition(async () => {
       try {
+        // Validate and transform the data using the schema
+        const validatedData = subjectFormSchema.parse(data);
+
         let result;
         if (mode === 'new') {
-          result = await createSubject(data);
+          result = await createSubject(validatedData);
         } else if (subject?.id) {
-          result = await updateSubject(subject.id, data);
+          result = await updateSubject(subject.id, validatedData);
+        } else {
+          throw new Error('Subject ID is required for updates');
         }
 
         if (result?.success) {
@@ -109,13 +161,14 @@ export function SubjectDialog({
 
           setOpen(false);
           form.reset();
-          if (onSuccess) onSuccess();
+          onSuccess?.();
         } else {
           toast.error('Error', {
-            description: result?.error ? result.error : 'An error occurred'
+            description: result?.error || 'An error occurred'
           });
         }
       } catch (error) {
+        console.error('Subject operation error:', error);
         toast.error('Error', {
           description:
             error instanceof Error ? error.message : 'An error occurred'
@@ -138,7 +191,9 @@ export function SubjectDialog({
           <DialogTitle>
             {mode === 'new' ? 'Add New Subject' : 'Edit Subject'}
           </DialogTitle>
-          <DialogDescription className='sr-only' />
+          <DialogDescription className='sr-only'>
+            {mode === 'new' ? 'Create a new subject' : 'Edit subject details'}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
@@ -149,7 +204,11 @@ export function SubjectDialog({
                 <FormItem>
                   <FormLabel>Subject ID</FormLabel>
                   <FormControl>
-                    <Input placeholder='e.g., M-101' {...field} />
+                    <Input
+                      placeholder='e.g., M-101'
+                      {...field}
+                      disabled={mode === 'edit'} // Prevent ID changes in edit mode
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -180,20 +239,29 @@ export function SubjectDialog({
                     <FormControl>
                       <Input
                         type='number'
-                        step='0.5'
+                        step='0.01'
                         min='0.5'
-                        max='10'
+                        // max=''
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value))
+                        value={
+                          field.value === '' ||
+                          field.value === null ||
+                          field.value === undefined
+                            ? ''
+                            : field.value
                         }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const numValue =
+                            value === '' ? '' : parseFloat(value);
+                          field.onChange(numValue);
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name='examWeight'
@@ -207,16 +275,34 @@ export function SubjectDialog({
                         min='0'
                         max='1'
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value))
+                        value={
+                          field.value === '' ||
+                          field.value === null ||
+                          field.value === undefined
+                            ? ''
+                            : field.value
                         }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const numValue =
+                            value === '' ? '' : parseFloat(value);
+                          field.onChange(numValue);
+                          // Auto-adjust assignment weight
+                          if (value !== '' && !isNaN(parseFloat(value))) {
+                            const assignWeight = 1 - parseFloat(value);
+                            form.setValue(
+                              'assignWeight',
+                              // Math.max(0, assignWeight)
+                              Math.round(assignWeight * 100) / 100
+                            );
+                          }
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name='assignWeight'
@@ -230,9 +316,28 @@ export function SubjectDialog({
                         min='0'
                         max='1'
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value))
+                        value={
+                          field.value === '' ||
+                          field.value === null ||
+                          field.value === undefined
+                            ? ''
+                            : field.value
                         }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const numValue =
+                            value === '' ? '' : parseFloat(value);
+                          field.onChange(numValue);
+                          // Auto-adjust exam weight
+                          if (value !== '' && !isNaN(parseFloat(value))) {
+                            const examWeight = 1 - parseFloat(value);
+                            form.setValue(
+                              'examWeight',
+                              // Math.max(0, examWeight)
+                              Math.round(examWeight * 100) / 100
+                            );
+                          }
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
