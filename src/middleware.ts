@@ -3,7 +3,7 @@ import { withAuth } from 'next-auth/middleware';
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 
-const publicPages = ['/', '/auth/login', '/api/register'];
+const publicPages = ['/', '/auth/login', '/api/register', '/uploads/avatars'];
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -34,5 +34,5 @@ export default function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|trpc|_next|_vercel|.*\\..*).*)']
+  matcher: ['/((?!api|trpc|_next|_vercel|uploads|.*\\..*).*)']
 };

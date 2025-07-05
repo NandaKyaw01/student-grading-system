@@ -28,6 +28,7 @@ import { getResultById, type ResultData } from '@/actions/result-view';
 import { ResultDownloadButton } from '../../_components/result-download-button';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
+import { Separator } from '@/components/ui/separator';
 
 const getGradeColor = (grade: string) => {
   switch (grade) {
@@ -87,6 +88,28 @@ export default async function ViewResultPage({ params }: PageProps) {
     notFound();
   }
 
+  const SUBJECT_PRIORITY: Record<string, number> = {
+    Myanmar: 1,
+    English: 2,
+    Physics: 3
+    // Add other subjects with lower priority (default)
+  };
+
+  const sortedGrades = resultData.grades.sort((a, b) => {
+    // First, sort by subject name priority
+    const priorityA = SUBJECT_PRIORITY[a.subject.name] || Infinity;
+    const priorityB = SUBJECT_PRIORITY[b.subject.name] || Infinity;
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB; // Myanmar (1) comes before English (2), etc.
+    }
+
+    // If same priority, sort by subject ID (numeric part)
+    const numA = parseInt(a.subject.id.match(/\d+/)?.[0] || '0');
+    const numB = parseInt(b.subject.id.match(/\d+/)?.[0] || '0');
+    return numA - numB;
+  });
+
   return (
     <ContentLayout
       title='Results'
@@ -111,13 +134,14 @@ export default async function ViewResultPage({ params }: PageProps) {
     >
       <div className='max-w-6xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6'>
         {/* Header */}
-        <div className='text-center space-y-2'>
-          <h1 className='text-2xl sm:text-3xl font-bold text-foreground'>
-            Exam Result
+        <div className='space-y-2'>
+          <h1 className='text-2xl sm:text-2xl font-bold text-foreground'>
+            Semester Result
           </h1>
           <p className='text-sm sm:text-base text-muted-foreground'>
             View academic performance and semester results
           </p>
+          <Separator />
         </div>
 
         {/* Result Display */}
@@ -276,7 +300,7 @@ export default async function ViewResultPage({ params }: PageProps) {
 
           {/* Grades Table */}
           <Card className='shadow-lg border-0 bg-card/80 backdrop-blur'>
-            <CardHeader className='p-4 sm:p-6'>
+            <CardHeader className='p-4 sm:p-6 pb-0 sm:pb-2'>
               <CardTitle className='text-lg sm:text-xl text-foreground'>
                 Subject-wise Results
               </CardTitle>
@@ -284,7 +308,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                 Detailed breakdown of marks and grades for each subject
               </CardDescription>
             </CardHeader>
-            <CardContent className='p-4 sm:p-6 pt-0'>
+            <CardContent className='p-4 sm:p-6 pt-0 sm:pt-2'>
               {/* Mobile View - Card Layout */}
               <div className='block sm:hidden space-y-4'>
                 {resultData.grades.map((grade, index) => (
@@ -307,13 +331,21 @@ export default async function ViewResultPage({ params }: PageProps) {
                           </Badge>
                         </div>
 
-                        <div className='grid grid-cols-2 gap-2 text-xs'>
+                        <div className='grid grid-cols-3 gap-2 text-xs'>
                           <div>
                             <span className='text-muted-foreground'>
                               Credits:{' '}
                             </span>
                             <span className='font-medium text-foreground'>
                               {grade.subject.creditHours}
+                            </span>
+                          </div>
+                          <div>
+                            <span className='text-muted-foreground'>
+                              Score:{' '}
+                            </span>
+                            <span className='font-medium text-foreground'>
+                              {grade.score}
                             </span>
                           </div>
                           <div>
@@ -327,15 +359,15 @@ export default async function ViewResultPage({ params }: PageProps) {
                               Exam:{' '}
                             </span>
                             <span className='font-medium text-foreground'>
-                              {Number(grade.examMark)}
+                              {grade.examMark}
                             </span>
                           </div>
-                          <div>
+                          <div className='col-span-2'>
                             <span className='text-muted-foreground'>
-                              Assignment:{' '}
+                              Assessment:{' '}
                             </span>
                             <span className='font-medium text-foreground'>
-                              {Number(grade.assignMark)}
+                              {grade.assignMark}
                             </span>
                           </div>
                         </div>
@@ -345,7 +377,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                             Final Mark:{' '}
                           </span>
                           <span className='font-bold text-foreground'>
-                            {Number(grade.finalMark)}
+                            {grade.finalMark}
                           </span>
                         </div>
                       </div>
@@ -362,7 +394,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                       <TableHead className='text-foreground min-w-[100px]'>
                         Subject Code
                       </TableHead>
-                      <TableHead className='text-foreground min-w-[200px]'>
+                      <TableHead className='text-foreground min-w-[100px]'>
                         Subject Name
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[80px]'>
@@ -372,7 +404,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                         Exam Mark
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[120px]'>
-                        Assignment Mark
+                        Assessment Mark
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[100px]'>
                         Final Mark
@@ -380,13 +412,16 @@ export default async function ViewResultPage({ params }: PageProps) {
                       <TableHead className='text-center text-foreground min-w-[80px]'>
                         Grade
                       </TableHead>
+                      <TableHead className='text-center text-foreground min-w-[80px]'>
+                        Score
+                      </TableHead>
                       <TableHead className='text-center text-foreground min-w-[100px]'>
                         Grade Points
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {resultData.grades.map((grade, index) => (
+                    {sortedGrades.map((grade, index) => (
                       <TableRow key={index} className='hover:bg-muted/50'>
                         <TableCell className='font-medium text-foreground'>
                           {grade.subject.id}
@@ -398,18 +433,21 @@ export default async function ViewResultPage({ params }: PageProps) {
                           {grade.subject.creditHours}
                         </TableCell>
                         <TableCell className='text-center text-foreground'>
-                          {Number(grade.examMark)}
+                          {grade.examMark}
                         </TableCell>
                         <TableCell className='text-center text-foreground'>
-                          {Number(grade.assignMark)}
+                          {grade.assignMark}
                         </TableCell>
                         <TableCell className='text-center font-medium text-foreground'>
-                          {Number(grade.finalMark)}
+                          {grade.finalMark}
                         </TableCell>
                         <TableCell className='text-center'>
                           <Badge className={getGradeColor(grade.grade)}>
                             {grade.grade}
                           </Badge>
+                        </TableCell>
+                        <TableCell className='text-center'>
+                          {grade.score}
                         </TableCell>
                         <TableCell className='text-center font-medium text-foreground'>
                           {grade.gp}

@@ -13,6 +13,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Student } from '@/generated/prisma';
 import { exportTableToCSV } from '@/lib/export';
+import { AlertModal } from '@/components/modal/alert-modal';
 // import { exportTableToCSV } from "@/lib/export";
 // import { deleteTasks, updateTasks } from "../_lib/actions";
 
@@ -33,6 +34,7 @@ export function TasksTableActionBar({ table }: TasksTableActionBarProps) {
   const rows = table.getFilteredSelectedRowModel().rows;
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<Action | null>(null);
+  const [open, setOpen] = React.useState(false);
 
   const getIsActionPending = React.useCallback(
     (action: Action) => isPending && currentAction === action,
@@ -64,30 +66,38 @@ export function TasksTableActionBar({ table }: TasksTableActionBarProps) {
   }, [rows, table]);
 
   return (
-    <DataTableActionBar table={table} visible={rows.length > 0}>
-      <DataTableActionBarSelection table={table} />
-      <Separator
-        orientation='vertical'
-        className='hidden data-[orientation=vertical]:h-5 sm:block'
+    <>
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={onStudentDelete}
+        loading={getIsActionPending('delete')}
       />
-      <div className='flex items-center gap-1.5'>
-        <DataTableActionBarAction
+      <DataTableActionBar table={table} visible={rows.length > 0}>
+        <DataTableActionBarSelection table={table} />
+        <Separator
+          orientation='vertical'
+          className='hidden data-[orientation=vertical]:h-5 sm:block'
+        />
+        <div className='flex items-center gap-1.5'>
+          {/* <DataTableActionBarAction
           size='icon'
           tooltip='Export tasks'
           isPending={getIsActionPending('export')}
           onClick={onStudentExport}
         >
           <Download />
-        </DataTableActionBarAction>
-        <DataTableActionBarAction
-          size='icon'
-          tooltip='Delete tasks'
-          isPending={getIsActionPending('delete')}
-          onClick={onStudentDelete}
-        >
-          <Trash2 />
-        </DataTableActionBarAction>
-      </div>
-    </DataTableActionBar>
+        </DataTableActionBarAction> */}
+          <DataTableActionBarAction
+            size='icon'
+            tooltip='Delete tasks'
+            // isPending={getIsActionPending('delete')}
+            onClick={() => setOpen(true)}
+          >
+            <Trash2 />
+          </DataTableActionBarAction>
+        </div>
+      </DataTableActionBar>
+    </>
   );
 }

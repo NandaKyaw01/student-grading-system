@@ -39,32 +39,42 @@ export function getStudentColumns(): ColumnDef<Student>[] {
     {
       id: 'id',
       accessorKey: 'id',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='ID' />
-      ),
-      cell: ({ cell }) => <CopyableIdCell value={cell.getValue<string>()} />,
+      header: 'No.',
+      cell: ({ row, table }) => {
+        const pageIndex = table.getState().pagination.pageIndex;
+        const pageSize = table.getState().pagination.pageSize;
+        const rowIndex = row.index;
+        return pageIndex * pageSize + rowIndex + 1;
+      },
       meta: {
-        label: 'Search',
+        label: 'No.',
         placeholder: 'Search Student...',
         variant: 'text',
         icon: Text
       },
       enableSorting: true,
-      enableColumnFilter: true
+      enableColumnFilter: true,
+      size: 40
     },
     {
       id: 'studentName',
       accessorKey: 'studentName',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Name' />
-      )
+      ),
+      meta: {
+        label: 'Name'
+      }
     },
     {
       id: 'admissionId',
       accessorKey: 'admissionId',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Admission ID' />
-      )
+      ),
+      meta: {
+        label: 'Admission ID'
+      }
     },
     {
       id: 'createdAt',

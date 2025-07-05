@@ -5,10 +5,13 @@ import {
   SemesterWithDetails,
   updateSemester
 } from '@/actions/semester';
+import { Combobox } from '@/components/combo-box';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
@@ -32,7 +35,7 @@ import { Switch } from '@/components/ui/switch';
 import { AcademicYear } from '@/generated/prisma';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
-import { useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
@@ -77,6 +80,16 @@ export function SemesterDialog({
     defaultValues
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        semesterName: semester?.semesterName || '',
+        academicYearId: semester?.academicYearId.toString() || '',
+        isCurrent: semester?.isCurrent || false
+      });
+    }
+  }, [isOpen, semester, form]);
+
   const onSubmit = (data: SemesterFormValues) => {
     startTransition(async () => {
       try {
@@ -101,7 +114,7 @@ export function SemesterDialog({
           description: `Semester ${mode === 'new' ? 'created' : 'updated'} successfully.`
         });
         form.reset();
-        setTimeout(onClose, 300);
+        onClose();
       } catch (error) {
         toast.error('Error', {
           description:
@@ -111,8 +124,6 @@ export function SemesterDialog({
     });
   };
 
-  if (!isOpen) return null;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='sm:max-w-[425px]'>
@@ -120,6 +131,7 @@ export function SemesterDialog({
           <DialogTitle>
             {mode === 'new' ? 'Add New Semester' : 'Edit Semester'}
           </DialogTitle>
+          <DialogDescription className='sr-only' />
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
@@ -130,7 +142,7 @@ export function SemesterDialog({
                 <FormItem>
                   <FormLabel>Semester Name</FormLabel>
                   <FormControl>
-                    <Input placeholder='e.g., 1st Semester' {...field} />
+                    <Input placeholder='e.g., First Semester' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,28 +155,18 @@ export function SemesterDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Academic Year</FormLabel>
-                  <Select
+
+                  <Combobox
+                    options={academicYear.map((s) => ({
+                      value: s.id.toString(),
+                      label: `${s.yearRange} ${s.isCurrent ? '(Current)' : ''}`
+                    }))}
+                    value={field.value?.toString() || ''}
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    placeholder='Select year...'
+                    searchPlaceholder='Search year...'
                     disabled={isPending}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={
-                            isPending ? 'Loading...' : 'Select academic year'
-                          }
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {academicYear.map((year) => (
-                        <SelectItem key={year.id} value={year.id.toString()}>
-                          {year.yearRange}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -176,7 +178,7 @@ export function SemesterDialog({
               render={({ field }) => (
                 <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
                   <div className='space-y-0.5'>
-                    <FormLabel className='text-base'>
+                    <FormLabel className='text-base' htmlFor='current-semester'>
                       Current Semester
                     </FormLabel>
                     <p className='text-sm text-muted-foreground'>
@@ -185,6 +187,7 @@ export function SemesterDialog({
                   </div>
                   <FormControl>
                     <Switch
+                      id='current-semester'
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
@@ -193,19 +196,29 @@ export function SemesterDialog({
               )}
             />
 
-            <Button type='submit' disabled={isPending}>
-              {isPending && (
-                <Loader
-                  className='mr-2 size-4 animate-spin'
-                  aria-hidden='true'
-                />
-              )}
-              {isPending
-                ? 'Saving...'
-                : mode === 'new'
-                  ? 'Create Semester'
-                  : 'Save Changes'}
-            </Button>
+            <DialogFooter>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onClose}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' disabled={isPending}>
+                {isPending && (
+                  <Loader
+                    className='mr-2 size-4 animate-spin'
+                    aria-hidden='true'
+                  />
+                )}
+                {isPending
+                  ? 'Saving...'
+                  : mode === 'new'
+                    ? 'Create Semester'
+                    : 'Save Changes'}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

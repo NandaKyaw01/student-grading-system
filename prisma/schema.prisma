@@ -138,6 +138,7 @@ model Grade {
   id             Int    @id @default(autoincrement())
   enrollmentId   Int
   classSubjectId Int
+  baseMark       Float
   examMark       Float
   assignMark     Float
   finalMark      Float
@@ -148,7 +149,7 @@ model Grade {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  enrollment   Enrollment   @relation(fields: [enrollmentId], references: [id])
+  enrollment   Enrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   classSubject ClassSubject @relation(fields: [classSubjectId], references: [id])
 
   @@unique([enrollmentId, classSubjectId])

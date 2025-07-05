@@ -1,23 +1,18 @@
-import { ContentLayout } from '@/components/admin-panel/content-layout';
-import { Suspense } from 'react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from '@/components/ui/breadcrumb';
-import Link from 'next/link';
 import { getAllEnrollments } from '@/actions/enrollment';
-import { EnrollmentDataTable } from './_components/enrollment-data-table';
-import { SearchParams } from 'nuqs';
-import { enrollmentSearchParamsCache } from '@/lib/search-params/enrollment';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
-import { EnrollmentModal } from './_components/enrollment-modal';
+import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { enrollmentSearchParamsCache } from '@/lib/search-params/enrollment';
+import { Plus } from 'lucide-react';
+import { SearchParams } from 'nuqs';
+import { Suspense } from 'react';
+import { EnrollmentDataTable } from './_components/enrollment-data-table';
+import { EnrollmentModal } from './_components/enrollment-modal';
+import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
+import { getAcademicYears } from '@/actions/academic-year';
+import { getSemesters } from '@/actions/semester';
+import { getClasses } from '@/actions/class';
 
 export const metadata = {
   title: 'Enrollments : Enrollment Management'
@@ -47,9 +42,20 @@ export default async function Page(props: pageProps) {
   const search = enrollmentSearchParamsCache.parse(searchParams);
   // const key = studentSerialize({ ...searchParams });
 
-  const enrollmentsPromise = getAllEnrollments(search, {
-    includeDetails: true
-  });
+  const promises = Promise.all([
+    getAllEnrollments(search, {
+      includeDetails: true
+    }),
+    getAcademicYears(),
+    getSemesters(undefined, {
+      academicYearId: search.academicYearId
+    }),
+    getClasses(undefined, {
+      semesterId: search.semesterId
+    })
+  ]);
+
+  const suspenseKey = `results-${search.academicYearId || 'all'}-${search.semesterId || 'all'}`;
 
   return (
     <ContentLayout
@@ -71,8 +77,13 @@ export default async function Page(props: pageProps) {
           </EnrollmentModal>
         </div>
         <Separator />
-        <Suspense fallback={<div>Loading enrollments...</div>}>
-          <EnrollmentDataTable promises={enrollmentsPromise} />
+        <Suspense
+          key={suspenseKey}
+          fallback={
+            <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
+          }
+        >
+          <EnrollmentDataTable promises={promises} />
         </Suspense>
       </div>
     </ContentLayout>

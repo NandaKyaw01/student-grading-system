@@ -1,16 +1,15 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { GradeScale } from '@/generated/prisma';
+import { useState } from 'react';
 import { GradeScaleForm } from './grade-scale-form';
 
 interface GradeScaleModalProps {
@@ -23,11 +22,9 @@ export function GradeScaleModal({
   children
 }: GradeScaleModalProps) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
 
   const handleSuccess = () => {
     setOpen(false);
-    router.refresh();
   };
 
   return (
@@ -38,8 +35,13 @@ export function GradeScaleModal({
           <DialogTitle>
             {gradeScale ? `Edit Grade Scale` : 'Create New Grade Scale'}
           </DialogTitle>
+          <DialogDescription className='sr-only' />
         </DialogHeader>
-        <GradeScaleForm gradeScale={gradeScale} onSuccess={handleSuccess} />
+        <GradeScaleForm
+          gradeScale={gradeScale}
+          open={open}
+          onSuccess={handleSuccess}
+        />
       </DialogContent>
     </Dialog>
   );

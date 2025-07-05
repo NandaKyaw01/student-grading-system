@@ -12,8 +12,9 @@ import {
 } from '@/components/ui/dialog';
 import { deleteClass } from '@/actions/class';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { Loader } from 'lucide-react';
 
 interface DeleteClassDialogProps {
   classData: {
@@ -28,32 +29,31 @@ export function DeleteClassDialog({
   children
 }: DeleteClassDialogProps) {
   const [open, setOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleting, startTransition] = useTransition();
   const router = useRouter();
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      const result = await deleteClass(classData.id);
+  const handleDelete = () => {
+    startTransition(async () => {
+      try {
+        const result = await deleteClass(classData.id);
 
-      if (!result.success) {
-        throw new Error(result.error);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        toast.success('Success', {
+          description: `Class "${classData.className}" deleted successfully.`
+        });
+
+        setOpen(false);
+        router.refresh();
+      } catch (error) {
+        toast.error('Error', {
+          description:
+            error instanceof Error ? error.message : 'Failed to delete class'
+        });
       }
-
-      toast.success('Success', {
-        description: `Class "${classData.className}" deleted successfully.`
-      });
-
-      setOpen(false);
-      router.refresh();
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error ? error.message : 'Failed to delete class'
-      });
-    } finally {
-      setIsDeleting(false);
-    }
+    });
   };
 
   return (
@@ -82,6 +82,7 @@ export function DeleteClassDialog({
             onClick={handleDelete}
             disabled={isDeleting}
           >
+            {isDeleting && <Loader className='mr-2 h-4 w-4 animate-spin' />}
             {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>

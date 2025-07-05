@@ -1,28 +1,24 @@
-// app/(admin)/class-subjects/_components/class-subject-manager.tsx
 'use client';
 
 import {
   assignSubjectToClass,
+  ClassSubjectWithDetails,
   getAvailableSubjectsForClass,
   getClassSubjects,
-  removeSubjectFromClass
+  removeSubjectFromClass,
+  revalidateClassSubjects
 } from '@/actions/class-subject';
+import { Combobox } from '@/components/combo-box';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -32,14 +28,26 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Subject } from '@/generated/prisma';
-import { ClassSubjectWithDetails } from '@/actions/class-subject';
-import { BookOpen, Trash } from 'lucide-react';
-import { useEffect, useState, useTransition } from 'react';
+import { BookOpen, Loader, Trash } from 'lucide-react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition
+} from 'react';
 import { toast } from 'sonner';
 
 interface ClassSubjectManagerProps {
   classId: number;
   className: string;
+}
+
+interface DataState {
+  classSubjects: ClassSubjectWithDetails[];
+  availableSubjects: Subject[];
+  isLoading: boolean;
+  error: string | null;
 }
 
 export function ClassSubjectManager({
@@ -48,72 +56,198 @@ export function ClassSubjectManager({
 }: ClassSubjectManagerProps) {
   const [open, setOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
+  const [isAddPending, startAddTransition] = useTransition();
+  const [isDeletePending, startDeleteTransition] = useTransition();
+  const [deleteSubjectId, setDeletingSubjectId] = useState<string | null>(null);
 
-  const [classSubjects, setClassSubjects] = useState<ClassSubjectWithDetails[]>(
-    []
+  // Consolidated data state
+  const [dataState, setDataState] = useState<DataState>({
+    classSubjects: [],
+    availableSubjects: [],
+    isLoading: false,
+    error: null
+  });
+
+  // Memoized combobox options
+  const comboboxOptions = useMemo(
+    () =>
+      dataState.availableSubjects.map((subject) => ({
+        value: subject.id.toString(),
+        label: `${subject.subjectName} (${subject.id})`
+      })),
+    [dataState.availableSubjects]
   );
-  const [availableSubjects, setAvailableSubjects] = useState<Subject[]>([]);
-  const [isPending, startTransition] = useTransition();
 
+  // Optimized data fetching
+  const fetchData = useCallback(async () => {
+    if (!classId) return;
+
+    setDataState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+    try {
+      const [classSubjectsResult, availableSubjectsResult] = await Promise.all([
+        getClassSubjects(classId),
+        getAvailableSubjectsForClass(classId)
+      ]);
+
+      if (classSubjectsResult.success && availableSubjectsResult.success) {
+        setDataState({
+          classSubjects: classSubjectsResult.data,
+          availableSubjects: availableSubjectsResult.data,
+          isLoading: false,
+          error: null
+        });
+      } else {
+        const error =
+          classSubjectsResult.error ||
+          availableSubjectsResult.error ||
+          'Failed to load data';
+        setDataState((prev) => ({ ...prev, isLoading: false, error }));
+        toast.error('Failed to load data', { description: error });
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unexpected error occurred';
+      setDataState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage
+      }));
+      toast.error('Failed to load data', { description: errorMessage });
+    }
+  }, [classId]);
+
+  // Fetch data when dialog opens
   useEffect(() => {
     if (open && classId) {
-      startTransition(() => {
-        fetchSubjects(classId);
-      });
+      fetchData();
     }
-  }, [open, classId]);
+  }, [open, classId, fetchData]);
 
-  const fetchSubjects = async (classId: number) => {
-    const [classSubject, availableSubject] = await Promise.all([
-      getClassSubjects(classId),
-      getAvailableSubjectsForClass(classId)
-    ]);
-    setClassSubjects(classSubject);
-    setAvailableSubjects(availableSubject);
-  };
+  // Handle modal close with revalidation
+  const handleModalClose = useCallback(async (isOpen: boolean) => {
+    if (!isOpen) {
+      try {
+        await revalidateClassSubjects();
+      } catch (error) {
+        console.error('Error revalidating tags:', error);
+      }
+    }
+    setOpen(isOpen);
+  }, []);
 
-  const handleAssignSubject = async () => {
+  // Optimized assign subject handler
+  const handleAssignSubject = useCallback(async () => {
     if (!selectedSubjectId) return;
 
-    const assignedSubject = availableSubjects.find(
+    const assignedSubject = dataState.availableSubjects.find(
       (s) => s.id === selectedSubjectId
     );
     if (!assignedSubject) return;
 
-    const result = await assignSubjectToClass({
-      classId,
-      subjectId: selectedSubjectId
+    startAddTransition(async () => {
+      try {
+        const result = await assignSubjectToClass({
+          classId,
+          subjectId: selectedSubjectId
+        });
+
+        if (result.success) {
+          toast.success('Subject assigned successfully');
+          setSelectedSubjectId('');
+          await fetchData();
+        } else {
+          toast.error('Failed to assign subject', {
+            description: result.error
+          });
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred';
+        toast.error('Failed to assign subject', { description: errorMessage });
+      }
     });
+  }, [selectedSubjectId, dataState.availableSubjects, classId, fetchData]);
 
-    if (result.success) {
-      toast.success('Subject assigned successfully');
-      setSelectedSubjectId('');
-      await fetchSubjects(classId);
-    } else {
-      toast.error('Failed to assign subject', {
-        description: result.error
+  // Optimized remove subject handler
+  const handleRemoveSubject = useCallback(
+    async (subjectId: string) => {
+      setDeletingSubjectId(subjectId);
+      startDeleteTransition(async () => {
+        try {
+          const result = await removeSubjectFromClass({ classId, subjectId });
+
+          if (result.success) {
+            toast.success('Subject removed successfully');
+            await fetchData();
+          } else {
+            toast.error('Failed to remove subject', {
+              description: result.error
+            });
+          }
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : 'An unexpected error occurred';
+          toast.error('Failed to remove subject', {
+            description: errorMessage
+          });
+        } finally {
+          setDeletingSubjectId(null);
+        }
       });
-    }
-  };
+    },
+    [classId, fetchData]
+  );
 
-  const handleRemoveSubject = async (subjectId: string) => {
-    const result = await removeSubjectFromClass({
-      classId,
-      subjectId
-    });
-
-    if (result.success) {
-      toast.success('Subject removed successfully');
-      await fetchSubjects(classId);
-    } else {
-      toast.error('Failed to remove subject', {
-        description: result.error
-      });
+  // Memoized table rows
+  const tableRows = useMemo(() => {
+    if (dataState.classSubjects.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={4} className='text-center h-24'>
+            No subjects assigned
+          </TableCell>
+        </TableRow>
+      );
     }
-  };
+
+    return dataState.classSubjects.map((cs) => (
+      <TableRow key={`${cs.classId}-${cs.subjectId}`}>
+        <TableCell>{cs.subject.id}</TableCell>
+        <TableCell>{cs.subject.subjectName}</TableCell>
+        <TableCell>{cs.subject.creditHours}</TableCell>
+        <TableCell className='text-right'>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => handleRemoveSubject(cs.subjectId)}
+            disabled={isDeletePending}
+          >
+            {deleteSubjectId === cs.subject.id && isDeletePending ? (
+              <Loader className='h-4 w-4 animate-spin' />
+            ) : (
+              <Trash className='h-4 w-4 text-destructive' />
+            )}
+          </Button>
+        </TableCell>
+      </TableRow>
+    ));
+  }, [
+    dataState.classSubjects,
+    deleteSubjectId,
+    isDeletePending,
+    handleRemoveSubject
+  ]);
+
+  const isPending = isAddPending || isDeletePending;
+  const isDisabled = dataState.isLoading || isPending;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleModalClose}>
       <DialogTrigger asChild>
         <Button variant='outline' size='sm'>
           <BookOpen className='mr-2 h-4 w-4' />
@@ -124,34 +258,40 @@ export function ClassSubjectManager({
         <DialogHeader>
           <DialogTitle>Manage Subjects for {className}</DialogTitle>
         </DialogHeader>
+        <DialogDescription className='sr-only' />
+
+        {dataState.error && (
+          <div className='text-sm text-destructive p-2 bg-destructive/10 rounded'>
+            {dataState.error}
+          </div>
+        )}
 
         <div className='space-y-4'>
           <div className='flex gap-2'>
-            <Select
-              value={selectedSubjectId}
-              onValueChange={setSelectedSubjectId}
+            <div className='flex-1'>
+              <Combobox
+                options={comboboxOptions}
+                value={selectedSubjectId}
+                onValueChange={setSelectedSubjectId}
+                placeholder='Select subject to add'
+                searchPlaceholder='Search subject...'
+                disabled={isDisabled}
+              />
+            </div>
+            <Button
+              onClick={handleAssignSubject}
+              disabled={!selectedSubjectId || isDisabled}
             >
-              <SelectTrigger className='w-[300px]'>
-                <SelectValue placeholder='Select subject to add' />
-              </SelectTrigger>
-              <SelectContent>
-                {availableSubjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.subjectName} ({subject.id})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={handleAssignSubject} disabled={!selectedSubjectId}>
-              Add Subject
+              {isAddPending && <Loader className='mr-2 h-4 w-4 animate-spin' />}
+              {isAddPending ? 'Adding...' : 'Add Subject'}
             </Button>
           </div>
 
           <div className='rounded-md border'>
-            {isPending ? (
+            {dataState.isLoading ? (
               <DataTableSkeleton
                 columnCount={4}
-                rowCount={3}
+                rowCount={1}
                 shrinkZero={true}
                 withPagination={false}
               />
@@ -165,32 +305,7 @@ export function ClassSubjectManager({
                     <TableHead className='text-right'>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  {classSubjects.length > 0 ? (
-                    classSubjects.map((cs) => (
-                      <TableRow key={`${cs.classId}-${cs.subjectId}`}>
-                        <TableCell>{cs.subject.id}</TableCell>
-                        <TableCell>{cs.subject.subjectName}</TableCell>
-                        <TableCell>{cs.subject.creditHours}</TableCell>
-                        <TableCell className='text-right'>
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            onClick={() => handleRemoveSubject(cs.subjectId)}
-                          >
-                            <Trash className='h-4 w-4 text-destructive' />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className='text-center h-24'>
-                        No subjects assigned
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
+                <TableBody>{tableRows}</TableBody>
               </Table>
             )}
           </div>

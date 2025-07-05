@@ -4,8 +4,10 @@ import { Download, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
-import { AcademicYearResultWithDetails } from '@/actions/academic-result';
-import { deleteResults } from '@/actions/result';
+import {
+  AcademicYearResultWithDetails,
+  deleteAcademicResults
+} from '@/actions/academic-result';
 import {
   DataTableActionBar,
   DataTableActionBarAction,
@@ -13,6 +15,7 @@ import {
 } from '@/components/data-table/data-table-action-bar';
 import { Separator } from '@/components/ui/separator';
 import { exportTableToCSV } from '@/lib/export';
+import { AlertModal } from '@/components/modal/alert-modal';
 
 const actions = ['export', 'delete'] as const;
 
@@ -28,6 +31,7 @@ export function AcademicResultsTableActionBar({
   const rows = table.getFilteredSelectedRowModel().rows;
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<Action | null>(null);
+  const [open, setOpen] = React.useState(false);
 
   const getIsActionPending = React.useCallback(
     (action: Action) => isPending && currentAction === action,
@@ -48,7 +52,7 @@ export function AcademicResultsTableActionBar({
     setCurrentAction('delete');
     startTransition(async () => {
       const ids = rows.map((row) => row.original.id);
-      const { error } = await deleteResults(ids);
+      const { error } = await deleteAcademicResults(ids);
 
       if (error) {
         toast.error(error);
@@ -59,30 +63,38 @@ export function AcademicResultsTableActionBar({
   }, [rows, table]);
 
   return (
-    <DataTableActionBar table={table} visible={rows.length > 0}>
-      <DataTableActionBarSelection table={table} />
-      <Separator
-        orientation='vertical'
-        className='hidden data-[orientation=vertical]:h-5 sm:block'
+    <>
+      <AlertModal
+        isOpen={open}
+        loading={getIsActionPending('delete')}
+        onClose={() => setOpen(false)}
+        onConfirm={onResultDelete}
       />
-      <div className='flex items-center gap-1.5'>
-        <DataTableActionBarAction
-          size='icon'
-          tooltip='Export results'
-          isPending={getIsActionPending('export')}
-          onClick={onResultExport}
-        >
-          <Download />
-        </DataTableActionBarAction>
-        <DataTableActionBarAction
-          size='icon'
-          tooltip='Delete results'
-          isPending={getIsActionPending('delete')}
-          onClick={onResultDelete}
-        >
-          <Trash2 />
-        </DataTableActionBarAction>
-      </div>
-    </DataTableActionBar>
+      <DataTableActionBar table={table} visible={rows.length > 0}>
+        <DataTableActionBarSelection table={table} />
+        <Separator
+          orientation='vertical'
+          className='hidden data-[orientation=vertical]:h-5 sm:block'
+        />
+        <div className='flex items-center gap-1.5'>
+          <DataTableActionBarAction
+            size='icon'
+            tooltip='Export results'
+            isPending={getIsActionPending('export')}
+            onClick={onResultExport}
+          >
+            <Download />
+          </DataTableActionBarAction>
+          <DataTableActionBarAction
+            size='icon'
+            tooltip='Delete results'
+            isPending={getIsActionPending('delete')}
+            onClick={() => setOpen(true)}
+          >
+            <Trash2 />
+          </DataTableActionBarAction>
+        </div>
+      </DataTableActionBar>
+    </>
   );
 }

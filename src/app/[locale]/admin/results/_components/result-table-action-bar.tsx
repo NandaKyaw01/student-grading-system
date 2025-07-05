@@ -13,6 +13,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Result } from '@/generated/prisma';
 import { exportTableToCSV } from '@/lib/export';
+import { AlertModal } from '@/components/modal/alert-modal';
 
 const actions = ['export', 'delete'] as const;
 
@@ -26,6 +27,7 @@ export function ResultsTableActionBar({ table }: ResultsTableActionBarProps) {
   const rows = table.getFilteredSelectedRowModel().rows;
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<Action | null>(null);
+  const [open, setOpen] = React.useState(false);
 
   const getIsActionPending = React.useCallback(
     (action: Action) => isPending && currentAction === action,
@@ -57,30 +59,38 @@ export function ResultsTableActionBar({ table }: ResultsTableActionBarProps) {
   }, [rows, table]);
 
   return (
-    <DataTableActionBar table={table} visible={rows.length > 0}>
-      <DataTableActionBarSelection table={table} />
-      <Separator
-        orientation='vertical'
-        className='hidden data-[orientation=vertical]:h-5 sm:block'
+    <>
+      <AlertModal
+        isOpen={open}
+        loading={getIsActionPending('delete')}
+        onClose={() => setOpen(false)}
+        onConfirm={onResultDelete}
       />
-      <div className='flex items-center gap-1.5'>
-        <DataTableActionBarAction
-          size='icon'
-          tooltip='Export results'
-          isPending={getIsActionPending('export')}
-          onClick={onResultExport}
-        >
-          <Download />
-        </DataTableActionBarAction>
-        <DataTableActionBarAction
-          size='icon'
-          tooltip='Delete results'
-          isPending={getIsActionPending('delete')}
-          onClick={onResultDelete}
-        >
-          <Trash2 />
-        </DataTableActionBarAction>
-      </div>
-    </DataTableActionBar>
+      <DataTableActionBar table={table} visible={rows.length > 0}>
+        <DataTableActionBarSelection table={table} />
+        <Separator
+          orientation='vertical'
+          className='hidden data-[orientation=vertical]:h-5 sm:block'
+        />
+        <div className='flex items-center gap-1.5'>
+          <DataTableActionBarAction
+            size='icon'
+            tooltip='Export results'
+            isPending={getIsActionPending('export')}
+            onClick={onResultExport}
+          >
+            <Download />
+          </DataTableActionBarAction>
+          <DataTableActionBarAction
+            size='icon'
+            tooltip='Delete results'
+            isPending={getIsActionPending('delete')}
+            onClick={() => setOpen(true)}
+          >
+            <Trash2 />
+          </DataTableActionBarAction>
+        </div>
+      </DataTableActionBar>
+    </>
   );
 }

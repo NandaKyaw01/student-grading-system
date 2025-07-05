@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { GradeScale } from '@/generated/prisma';
 import { ColumnDef } from '@tanstack/react-table';
 import { GradeScaleCellAction } from './grade-scale-table-cell-action';
+import { Text } from 'lucide-react';
 
 export function getGradeScaleColumns(): ColumnDef<GradeScale>[] {
   return [
@@ -34,23 +35,35 @@ export function getGradeScaleColumns(): ColumnDef<GradeScale>[] {
       size: 40
     },
     {
-      id: 'markRange',
+      id: 'minMark',
       accessorFn: (row) => `${row.minMark} - ${row.maxMark}`,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Mark Range' />
       ),
       cell: ({ row }) => (
         <span>
-          {row.original.minMark} - {row.original.maxMark}
+          {row.original.minMark} — {row.original.maxMark}
         </span>
-      )
+      ),
+      meta: {
+        label: 'Mark Range',
+        placeholder: 'Search Grade Scale...',
+        variant: 'text',
+        icon: Text
+      },
+      enableColumnFilter: true,
+      size: 120
     },
     {
       id: 'grade',
       accessorKey: 'grade',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Grade' />
-      )
+      ),
+      meta: {
+        label: 'Grade'
+      },
+      size: 80
     },
     {
       id: 'score',
@@ -58,7 +71,11 @@ export function getGradeScaleColumns(): ColumnDef<GradeScale>[] {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Grade Point' />
       ),
-      cell: ({ cell }) => cell.getValue<number>().toFixed(1)
+      cell: ({ cell }) => cell.getValue<number>().toFixed(2),
+      meta: {
+        label: 'Score'
+      },
+      size: 80
     },
     {
       id: 'actions',

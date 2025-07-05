@@ -1,51 +1,61 @@
-// app/(admin)/class-subjects/_components/class-subject-table.tsx
-import { ClassWithDetails } from '@/actions/class';
+'use client';
 import { getClasses } from '@/actions/class';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { use } from 'react';
-import { ClassSubjectManager } from './class-subject-manager';
+import { DataTable } from '@/components/data-table/data-table';
+import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
+import { useDataTable } from '@/hooks/use-data-table';
+import React, { use, useCallback, useTransition } from 'react';
+import { getClassSubjectColumns } from './class-subject-table-column';
+import { getAcademicYears } from '@/actions/academic-year';
+import { getSemesters } from '@/actions/semester';
+import { Loader, RefreshCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { revalidateClassSubjects } from '@/actions/class-subject';
 
 interface ClassTableProps {
-  classProp: Promise<Awaited<ReturnType<typeof getClasses<true>>>>;
+  promises: Promise<
+    [
+      Awaited<ReturnType<typeof getClasses<true>>>,
+      Awaited<ReturnType<typeof getAcademicYears>>,
+      Awaited<ReturnType<typeof getSemesters>>
+    ]
+  >;
 }
 
-const ClassSubjectsTable = ({ classProp }: ClassTableProps) => {
-  const { classes, pageCount } = use(classProp);
+const ClassSubjectsTable = ({ promises }: ClassTableProps) => {
+  const [{ classes, pageCount }, { years }, { semesters }] = use(promises);
+  const [isPending, startTransition] = useTransition();
+
+  const columns = React.useMemo(
+    () => getClassSubjectColumns({ academicYears: years, semesters }),
+    [years, semesters]
+  );
+  const { table } = useDataTable({
+    data: classes,
+    columns,
+    pageCount,
+    initialState: {
+      // sorting: [{ id: 'id', desc: true }],
+      columnPinning: { right: ['actions'] }
+    },
+    getRowId: (originalRow) => originalRow.id.toString(),
+    shallow: false,
+    clearOnDefault: true
+  });
+
+  const handleRefresh = useCallback(() => {
+    startTransition(async () => {
+      await revalidateClassSubjects();
+    });
+  }, []);
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Class Name</TableHead>
-          <TableHead>Department</TableHead>
-          <TableHead>Semester</TableHead>
-          <TableHead>Academic Year</TableHead>
-          <TableHead>Assigned Subjects</TableHead>
-          <TableHead className='text-right'>Manage</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {classes.map((cls) => (
-          <TableRow key={cls.id}>
-            <TableCell className='font-medium'>{cls.className}</TableCell>
-            <TableCell>{cls.departmentCode}</TableCell>
-            <TableCell>{cls.semester?.semesterName}</TableCell>
-            <TableCell>{cls.semester?.academicYear?.yearRange}</TableCell>
-            <TableCell>{cls.subjects?.length || 0} subjects</TableCell>
-            <TableCell className='text-right'>
-              <ClassSubjectManager classId={cls.id} className={cls.className} />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <DataTable table={table}>
+      <DataTableToolbar table={table}>
+        <Button size='sm' variant='outline' onClick={handleRefresh}>
+          {isPending ? <Loader className='animate-spin' /> : <RefreshCcw />}
+        </Button>
+      </DataTableToolbar>
+    </DataTable>
   );
 };
 

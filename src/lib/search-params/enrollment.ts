@@ -1,6 +1,7 @@
 import {
   createSearchParamsCache,
   createSerializer,
+  parseAsArrayOf,
   parseAsBoolean,
   parseAsInteger,
   parseAsString
@@ -8,16 +9,19 @@ import {
 
 import { getSortingStateParser } from '@/lib/parsers';
 import { Enrollment } from '@/generated/prisma';
+import { z } from 'zod';
 
 export const enrollmentSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
-  search: parseAsString.withDefault(''),
+  search: parseAsString,
   isActive: parseAsBoolean,
-  createdAt: parseAsString.withDefault(''),
-  sort: getSortingStateParser<Enrollment>().withDefault([
-    { id: 'createdAt', desc: true }
-  ])
+  academicYearId: parseAsArrayOf(z.coerce.number()).withDefault([]),
+  semesterId: parseAsArrayOf(z.coerce.number()).withDefault([]),
+  classId: parseAsArrayOf(z.coerce.number()).withDefault([]),
+  departmentCode: parseAsArrayOf(z.string()).withDefault([]),
+  createdAt: parseAsString,
+  sort: getSortingStateParser<Enrollment>()
 };
 
 export const enrollmentSearchParamsCache = createSearchParamsCache(

@@ -5,18 +5,16 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 
 import { useDataTable } from '@/hooks/use-data-table';
 
-import { getResultColumns } from './result-table-column';
-import React, { useEffect, useRef, useState } from 'react';
-import { ResultsTableActionBar } from './result-table-action-bar';
-import { getAllResults } from '@/actions/result';
-import { Button } from '@/components/ui/button';
-import { Download, Loader } from 'lucide-react';
-import { exportTableToCSV } from '@/lib/export';
 import { getAcademicYears } from '@/actions/academic-year';
-import { getSemesters } from '@/actions/semester';
 import { getClasses } from '@/actions/class';
-import { resultSearchParamsCache } from '@/lib/search-params/result';
-import { Semester } from '@/generated/prisma';
+import { getAllResults } from '@/actions/result';
+import { getSemesters } from '@/actions/semester';
+import { Button } from '@/components/ui/button';
+import { exportTableToCSV } from '@/lib/export';
+import { Download, Loader } from 'lucide-react';
+import React from 'react';
+import { ResultsTableActionBar } from './result-table-action-bar';
+import { getResultColumns } from './result-table-column';
 
 interface ResultsTableProps {
   promises: Promise<

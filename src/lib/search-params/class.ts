@@ -1,20 +1,23 @@
 import {
   createSearchParamsCache,
   createSerializer,
+  parseAsArrayOf,
   parseAsInteger,
   parseAsString
 } from 'nuqs/server';
 
+import { Class } from '@/generated/prisma';
 import { getSortingStateParser } from '@/lib/parsers';
-import { AcademicYear } from '@/generated/prisma';
+import { z } from 'zod';
 
 export const classSearchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   search: parseAsString,
-  sort: getSortingStateParser<AcademicYear>().withDefault([
-    { id: 'createdAt', desc: true }
-  ])
+  departmentCode: parseAsArrayOf(z.string()).withDefault([]),
+  academicYearId: parseAsArrayOf(z.coerce.number()).withDefault([]),
+  semesterId: parseAsArrayOf(z.coerce.number()).withDefault([]),
+  sort: getSortingStateParser<Class>()
 };
 
 export const classSearchParamsCache =

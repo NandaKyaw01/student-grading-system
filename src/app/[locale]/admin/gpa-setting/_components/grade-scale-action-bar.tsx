@@ -1,73 +1,83 @@
 'use client';
-
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
-import { Table } from '@tanstack/react-table';
-import { GradeScale } from '@/generated/prisma';
-import { deleteGradeScale } from '@/actions/grade-scale';
-import { useRouter } from 'next/navigation';
+import type { Table } from '@tanstack/react-table';
+import { Trash2 } from 'lucide-react';
+import * as React from 'react';
 import { toast } from 'sonner';
 
-interface GradeScalesTableActionBarProps {
+import { deleteGradeScales } from '@/actions/grade-scale';
+import {
+  DataTableActionBar,
+  DataTableActionBarAction,
+  DataTableActionBarSelection
+} from '@/components/data-table/data-table-action-bar';
+import { Separator } from '@/components/ui/separator';
+import { GradeScale } from '@/generated/prisma';
+import { DeleteGradeScaleDialog } from './grade-scale-delete-modal';
+
+const actions = ['export', 'delete'] as const;
+
+type Action = (typeof actions)[number];
+
+interface ResultsTableActionBarProps {
   table: Table<GradeScale>;
 }
 
 export function GradeScalesTableActionBar({
   table
-}: GradeScalesTableActionBarProps) {
-  const router = useRouter();
-  const selectedRows = table.getSelectedRowModel().rows;
+}: ResultsTableActionBarProps) {
+  const rows = table.getFilteredSelectedRowModel().rows;
+  const [isPending, startTransition] = React.useTransition();
+  const [currentAction, setCurrentAction] = React.useState<Action | null>(null);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const handleBulkDelete = async () => {
-    try {
-      const ids = selectedRows.map((row) => row.original.id);
-      const result = await Promise.all(ids.map((id) => deleteGradeScale(id)));
+  const getIsActionPending = React.useCallback(
+    (action: Action) => isPending && currentAction === action,
+    [isPending, currentAction]
+  );
 
-      if (result.some((r) => !r.success)) {
-        throw new Error('Failed to delete some grade scales');
+  const onDelete = React.useCallback(() => {
+    setCurrentAction('delete');
+    startTransition(async () => {
+      const ids = rows.map((row) => row.original.id);
+      const { error } = await deleteGradeScales(ids);
+
+      if (error) {
+        toast.error(error);
+        return;
       }
-
       toast.success('Success', {
-        description: 'Selected grade scales deleted successfully'
+        description: 'Grade scales deleted successfully'
       });
-
-      router.refresh();
-    } catch (error) {
-      toast.error('Error', {
-        description:
-          error instanceof Error
-            ? error.message
-            : 'Failed to delete grade scales'
-      });
-    }
-  };
+      table.toggleAllRowsSelected(false);
+    });
+  }, [rows, table]);
 
   return (
-    <div className='flex items-center gap-2'>
-      {selectedRows.length > 0 && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='outline' size='sm' className='h-8'>
-              <MoreHorizontal className='mr-2 h-4 w-4' />
-              Bulk Actions
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem
-              className='text-destructive'
-              onClick={handleBulkDelete}
-            >
-              Delete Selected
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-    </div>
+    <>
+      <DeleteGradeScaleDialog
+        isDeleting={getIsActionPending('delete')}
+        handleDelete={onDelete}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+
+      <DataTableActionBar table={table} visible={rows.length > 0}>
+        <DataTableActionBarSelection table={table} />
+        <Separator
+          orientation='vertical'
+          className='hidden data-[orientation=vertical]:h-5 sm:block'
+        />
+        <div className='flex items-center gap-1.5'>
+          <DataTableActionBarAction
+            size='icon'
+            tooltip='Delete results'
+            isPending={getIsActionPending('delete')}
+            onClick={() => setIsModalOpen(true)}
+          >
+            <Trash2 />
+          </DataTableActionBarAction>
+        </div>
+      </DataTableActionBar>
+    </>
   );
 }

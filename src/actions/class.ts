@@ -1,7 +1,7 @@
 'use server';
 
 import { Input } from '@/components/ui/input';
-import { Class, Prisma } from '@/generated/prisma';
+import { Class, Code, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetClassSchema } from '@/lib/search-params/class';
 import { revalidateTag, unstable_cache } from 'next/cache';
@@ -122,7 +122,47 @@ export async function getClasses<T extends boolean = false>(
         paginate = false;
       } else {
         if (input.search?.trim()) {
-          where.OR = [{ id: { equals: parseInt(input.search) || undefined } }];
+          where.OR = [
+            { id: { equals: parseInt(input.search) || undefined } },
+            { className: { contains: input.search, mode: 'insensitive' } },
+            {
+              semester: {
+                academicYear: {
+                  yearRange: {
+                    contains: input.search,
+                    mode: 'insensitive'
+                  }
+                }
+              }
+            },
+            {
+              semester: {
+                semesterName: {
+                  contains: input.search,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          ];
+        }
+
+        if (input?.academicYearId && input?.academicYearId?.length > 0) {
+          where.semester = {
+            academicYearId: {
+              in: input.academicYearId
+            }
+          };
+        }
+
+        if (input?.semesterId && input?.semesterId?.length > 0) {
+          where.semesterId = {
+            in: input.semesterId
+          };
+        }
+        if (input?.departmentCode && input?.departmentCode?.length > 0) {
+          where.departmentCode = {
+            in: input.departmentCode as Code[]
+          };
         }
       }
 
@@ -135,7 +175,7 @@ export async function getClasses<T extends boolean = false>(
           ? input.sort.map((item) => ({
               [item.id]: item.desc ? 'desc' : 'asc'
             }))
-          : [{ createdAt: 'desc' }];
+          : [{ id: 'asc' }];
 
       const page = input?.page ?? 1;
       const limit = input?.perPage ?? 10;
@@ -178,23 +218,3 @@ export async function getClasses<T extends boolean = false>(
   }
   return await queryFunction();
 }
-
-export const getClassById = async (id: number) => {
-  return await unstable_cache(
-    async () => {
-      try {
-        return await prisma.class.findUnique({
-          where: { id },
-          include: classWithDetails
-        });
-      } catch (error) {
-        console.error(`Error fetching class ${id}:`, error);
-        return null;
-      }
-    },
-    ['class'],
-    {
-      tags: [`class-${id}`]
-    }
-  )();
-};

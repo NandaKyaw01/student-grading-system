@@ -165,20 +165,26 @@ export async function getSemesters<T extends boolean = false>(
         where.academicYearId = { in: options?.academicYearId };
       }
 
-      const orderBy: Prisma.SemesterOrderByWithRelationInput[] =
-        input?.sort && input.sort.length > 0
-          ? input.sort.map((item) => ({
-              academicYear: {
-                yearRange: item.desc ? 'desc' : 'asc'
+      const orderBy: Prisma.SemesterOrderByWithRelationInput[] = [
+        ...(input?.sort && input.sort.length > 0
+          ? [
+              {
+                academicYear: {
+                  yearRange: (input.sort[0].desc
+                    ? 'desc'
+                    : 'asc') as Prisma.SortOrder
+                }
               }
-            }))
+            ]
           : [
               {
                 academicYear: {
-                  yearRange: 'asc'
+                  yearRange: 'asc' as Prisma.SortOrder
                 }
               }
-            ];
+            ]),
+        { id: 'asc' }
+      ];
 
       const page = input?.page ?? 1;
       const limit = input?.perPage ?? 10;
@@ -231,24 +237,3 @@ export async function getSemesters<T extends boolean = false>(
   // Execute directly without cache
   return await queryFunction();
 }
-
-export const getSemesterById = async (id: number) => {
-  return await unstable_cache(
-    async () => {
-      try {
-        return await prisma.semester.findUnique({
-          where: { id },
-          include: semesterWithDetails
-        });
-      } catch (error) {
-        console.error(`Error fetching semester ${id}:`, error);
-        return null;
-      }
-    },
-    [`semester-${id}`],
-    {
-      tags: [`semester-${id}`],
-      revalidate: 3600 // 1 hour cache
-    }
-  )();
-};

@@ -3,7 +3,6 @@
 import { AcademicYearResultWithDetails } from '@/actions/academic-result';
 import { AcademicYearWithDetails } from '@/actions/academic-year';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
-import { buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Status } from '@/generated/prisma';
 import { formatDate } from '@/lib/format';
@@ -102,17 +101,17 @@ export function getAcademicResultColumns({
       },
       enableSorting: true
     },
-    {
-      id: 'totalCredits',
-      accessorKey: 'totalCredits',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Total Credits' />
-      ),
-      meta: {
-        label: 'Total Credits'
-      },
-      enableSorting: true
-    },
+    // {
+    //   id: 'totalCredits',
+    //   accessorKey: 'totalCredits',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title='Total Credits' />
+    //   ),
+    //   meta: {
+    //     label: 'Total Credits'
+    //   },
+    //   enableSorting: true
+    // },
     {
       id: 'overallGpa',
       accessorKey: 'overallGpa',
@@ -166,11 +165,8 @@ export function getAcademicResultColumns({
       id: 'actions',
       cell: ({ row }) => (
         <div className='flex justify-center gap-2 items-center'>
-          <Link
-            href={`/admin/academic-year-results/${row.original.id}`}
-            className={buttonVariants()}
-          >
-            <FileSearch2 className='h-4 w-4' />
+          <Link href={`/admin/academic-year-results/${row.original.id}`}>
+            <FileSearch2 className='h-5 w-5 text-primary' />
           </Link>
           <AcademicResultCellAction data={row.original} />
         </div>

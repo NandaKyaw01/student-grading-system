@@ -42,5 +42,46 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt'
+  },
+  callbacks: {
+    jwt: async ({ token, user, trigger }) => {
+      // If this is a new sign in, save the user id
+      if (user) {
+        token.id = user.id;
+      }
+
+      // If the session is being updated, fetch fresh user data
+      if (trigger === 'update' && token.id) {
+        const freshUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            image: true
+          }
+        });
+
+        if (freshUser) {
+          token.email = freshUser.email;
+          token.name = freshUser.name;
+          token.picture = freshUser.image;
+        }
+      }
+
+      return token;
+    },
+    session: async ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id as string,
+          email: token.email as string,
+          name: token.name as string,
+          image: token.picture as string
+        }
+      };
+    }
   }
 };

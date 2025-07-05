@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle
@@ -27,7 +28,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Loader } from 'lucide-react';
-import { useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 import { toast } from 'sonner';
 
 // Schema for form validation
@@ -69,6 +70,15 @@ export function AcademicYearDialog({
     defaultValues
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        yearRange: academicYear?.yearRange || '',
+        isCurrent: academicYear?.isCurrent || false
+      });
+    }
+  }, [isOpen, academicYear, form]);
+
   const onSubmit = (data: AcademicYearFormValues) => {
     startTransition(async () => {
       try {
@@ -94,7 +104,7 @@ export function AcademicYearDialog({
         });
 
         form.reset();
-        setTimeout(onClose, 300);
+        onClose();
       } catch (error) {
         toast.error('Error', {
           description:
@@ -104,9 +114,6 @@ export function AcademicYearDialog({
     });
   };
 
-  // Don't render anything if not open
-  if (!isOpen) return null;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='sm:max-w-[425px]'>
@@ -114,6 +121,7 @@ export function AcademicYearDialog({
           <DialogTitle>
             {mode === 'new' ? 'Add Academic Year' : 'Edit Academic Year'}
           </DialogTitle>
+          <DialogDescription className='sr-only' />
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>

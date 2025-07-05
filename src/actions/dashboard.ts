@@ -81,13 +81,19 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     ] = await Promise.all([
       prisma.enrollment.count({
         where: {
-          isActive: true
+          semester: {
+            academicYear: {
+              isCurrent: true
+            }
+          }
         }
       }),
       prisma.class.count({
         where: {
           semester: {
-            isCurrent: true
+            academicYear: {
+              isCurrent: true
+            }
           }
         }
       }),
@@ -95,7 +101,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         where: {
           class: {
             semester: {
-              isCurrent: true
+              academicYear: {
+                isCurrent: true
+              }
             }
           }
         }

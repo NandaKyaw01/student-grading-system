@@ -14,9 +14,10 @@ export const academicYearSearchParams = {
   perPage: parseAsInteger.withDefault(10),
   yearRange: parseAsString,
   isCurrent: parseAsString,
-  sort: getSortingStateParser<AcademicYear>().withDefault([
-    { id: 'yearRange', desc: false }
-  ])
+  sort: getSortingStateParser<AcademicYear>()
+  // .withDefault([
+  //   { id: 'yearRange', desc: false }
+  // ])
 };
 
 export const academicYearSearchParamsCache = createSearchParamsCache(
