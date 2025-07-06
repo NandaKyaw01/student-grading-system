@@ -51,10 +51,10 @@ interface GradeScaleFormProps {
 }
 
 type FormValues = {
-  minMark: number;
-  maxMark: number;
+  minMark: number | string;
+  maxMark: number | string;
   grade: string;
-  score: number;
+  score: number | string;
 };
 
 export function GradeScaleForm({
@@ -65,7 +65,7 @@ export function GradeScaleForm({
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema as unknown as ZodSchema<FormValues>),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       minMark: gradeScale?.minMark ?? undefined,
       maxMark: gradeScale?.maxMark ?? undefined,
@@ -85,14 +85,15 @@ export function GradeScaleForm({
     }
   }, [open, gradeScale, form]);
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
+        const validatedData = formSchema.parse(values);
         const processedValues = {
           ...values,
-          minMark: Number(values.minMark),
-          maxMark: Number(values.maxMark),
-          score: parseFloat(values.score.toFixed(2))
+          minMark: Number(validatedData.minMark),
+          maxMark: Number(validatedData.maxMark),
+          score: parseFloat(validatedData.score.toFixed(2))
         };
 
         let result;
