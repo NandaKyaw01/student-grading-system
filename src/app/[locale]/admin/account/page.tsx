@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -45,6 +45,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Zod schemas
 const profileSchema = z.object({
@@ -94,10 +95,100 @@ const breadcrumb: BreadcrumbProps[] = [
   }
 ];
 
+// Loading skeleton component
+const AccountPageSkeleton = () => (
+  <div className='space-y-6'>
+    {/* Header Skeleton */}
+    <div className='space-y-2'>
+      <Skeleton className='h-8 w-64' />
+      <Skeleton className='h-4 w-96' />
+    </div>
+
+    <Separator />
+
+    {/* Avatar Section Skeleton */}
+    <Card>
+      <CardHeader>
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-5 w-5' />
+          <Skeleton className='h-6 w-32' />
+        </div>
+        <Skeleton className='h-4 w-80' />
+      </CardHeader>
+      <CardContent>
+        <div className='flex items-center gap-6'>
+          <Skeleton className='h-24 w-24 rounded-full' />
+          <div className='flex flex-col gap-2'>
+            <Skeleton className='h-10 w-32' />
+            <Skeleton className='h-4 w-48' />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    {/* Profile Section Skeleton */}
+    <Card>
+      <CardHeader>
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-5 w-5' />
+          <Skeleton className='h-6 w-40' />
+        </div>
+        <Skeleton className='h-4 w-72' />
+      </CardHeader>
+      <CardContent className='space-y-6'>
+        <div className='space-y-4'>
+          <div className='space-y-2'>
+            <Skeleton className='h-4 w-12' />
+            <Skeleton className='h-10 w-full' />
+          </div>
+          <div className='space-y-2'>
+            <Skeleton className='h-4 w-24' />
+            <Skeleton className='h-10 w-full' />
+          </div>
+          <Skeleton className='h-10 w-32' />
+        </div>
+      </CardContent>
+    </Card>
+
+    {/* Password Section Skeleton */}
+    <Card>
+      <CardHeader>
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-5 w-5' />
+          <Skeleton className='h-6 w-36' />
+        </div>
+        <Skeleton className='h-4 w-64' />
+      </CardHeader>
+      <CardContent className='space-y-6'>
+        <div className='space-y-4'>
+          <div className='space-y-2'>
+            <Skeleton className='h-4 w-32' />
+            <Skeleton className='h-10 w-full' />
+          </div>
+          <div className='space-y-2'>
+            <Skeleton className='h-4 w-24' />
+            <Skeleton className='h-10 w-full' />
+          </div>
+          <div className='space-y-2'>
+            <Skeleton className='h-4 w-40' />
+            <Skeleton className='h-10 w-full' />
+          </div>
+          <Skeleton className='h-10 w-36' />
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+);
+
 export default function AccountPage() {
   const t = useTranslations('AdminNavBarTitle');
   const { data: session, status, update } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // useTransition hooks for different actions
+  const [isProfilePending, startProfileTransition] = useTransition();
+  const [isPasswordPending, startPasswordTransition] = useTransition();
+  const [isAvatarPending, startAvatarTransition] = useTransition();
 
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -105,7 +196,6 @@ export default function AccountPage() {
     confirm: false
   });
 
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   // Profile form
@@ -143,9 +233,7 @@ export default function AccountPage() {
         title={t('account')}
         breadcrumb={<ActiveBreadcrumb path={breadcrumb} />}
       >
-        <div className='flex items-center justify-center min-h-[400px]'>
-          <Loader2 className='h-8 w-8 animate-spin' />
-        </div>
+        <AccountPageSkeleton />
       </ContentLayout>
     );
   }
@@ -196,35 +284,34 @@ export default function AccountPage() {
     const previewUrl = URL.createObjectURL(file);
     setAvatarPreview(previewUrl);
 
-    setIsUploadingAvatar(true);
+    startAvatarTransition(async () => {
+      try {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        formData.append('userId', user.id);
 
-    try {
-      const formData = new FormData();
-      formData.append('avatar', file);
-      formData.append('userId', user.id);
+        const result = await uploadAvatar(formData);
 
-      const result = await uploadAvatar(formData);
-
-      if (result.success) {
-        toast.success('Avatar updated successfully!');
-        await update(); // Refresh session
+        if (result.success) {
+          toast.success('Avatar updated successfully!');
+          await update(); // Refresh session
+          setAvatarPreview(null);
+          URL.revokeObjectURL(previewUrl);
+        } else {
+          toast.error(result.error || 'Failed to update avatar');
+          setAvatarPreview(null);
+          URL.revokeObjectURL(previewUrl);
+        }
+      } catch (error) {
+        toast.error('An unexpected error occurred');
         setAvatarPreview(null);
         URL.revokeObjectURL(previewUrl);
-      } else {
-        toast.error(result.error || 'Failed to update avatar');
-        setAvatarPreview(null);
-        URL.revokeObjectURL(previewUrl);
+      } finally {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
-    } catch (error) {
-      toast.error('An unexpected error occurred');
-      setAvatarPreview(null);
-      URL.revokeObjectURL(previewUrl);
-    } finally {
-      setIsUploadingAvatar(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
+    });
   };
 
   const cancelAvatarPreview = () => {
@@ -237,48 +324,53 @@ export default function AccountPage() {
     }
   };
 
-  // Other handlers
+  // Profile submit handler with useTransition
   const handleProfileSubmit = async (data: ProfileFormData) => {
     if (!user.id) {
       toast.error('User ID not found');
       return;
     }
 
-    try {
-      const result = await updateProfile(user.id, data);
+    startProfileTransition(async () => {
+      try {
+        const result = await updateProfile(user.id, data);
 
-      if (result.success) {
-        toast.success('Profile updated successfully!');
-        await update();
-      } else {
-        toast.error(result.error || 'Failed to update profile');
+        if (result.success) {
+          toast.success('Profile updated successfully!');
+          await update();
+        } else {
+          toast.error(result.error || 'Failed to update profile');
+        }
+      } catch (error) {
+        toast.error('An unexpected error occurred');
       }
-    } catch (error) {
-      toast.error('An unexpected error occurred');
-    }
+    });
   };
 
+  // Password submit handler with useTransition
   const handlePasswordSubmit = async (data: PasswordFormData) => {
     if (!user.id) {
       toast.error('User ID not found');
       return;
     }
 
-    try {
-      const result = await updatePassword(user.id, {
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword
-      });
+    startPasswordTransition(async () => {
+      try {
+        const result = await updatePassword(user.id, {
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword
+        });
 
-      if (result.success) {
-        toast.success('Password updated successfully!');
-        passwordForm.reset();
-      } else {
-        toast.error(result.error || 'Failed to update password');
+        if (result.success) {
+          toast.success('Password updated successfully!');
+          passwordForm.reset();
+        } else {
+          toast.error(result.error || 'Failed to update password');
+        }
+      } catch (error) {
+        toast.error('An unexpected error occurred');
       }
-    } catch (error) {
-      toast.error('An unexpected error occurred');
-    }
+    });
   };
 
   const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
@@ -339,7 +431,7 @@ export default function AccountPage() {
                     {user.name ? getInitials(user.name) : 'U'}
                   </AvatarFallback>
                 </Avatar>
-                {isUploadingAvatar && (
+                {isAvatarPending && (
                   <div className='absolute inset-0 flex items-center justify-center bg-black/50 rounded-full'>
                     <Loader2 className='h-6 w-6 animate-spin text-white' />
                   </div>
@@ -351,10 +443,10 @@ export default function AccountPage() {
                     type='button'
                     variant='outline'
                     onClick={handleAvatarClick}
-                    disabled={isUploadingAvatar}
+                    disabled={isAvatarPending}
                   >
                     <Upload className='h-4 w-4 mr-2' />
-                    Change Avatar
+                    {isAvatarPending ? 'Uploading...' : 'Change Avatar'}
                   </Button>
                   {avatarPreview && (
                     <Button
@@ -362,6 +454,7 @@ export default function AccountPage() {
                       variant='ghost'
                       size='sm'
                       onClick={cancelAvatarPreview}
+                      disabled={isAvatarPending}
                     >
                       <X className='h-4 w-4' />
                     </Button>
@@ -378,6 +471,7 @@ export default function AccountPage() {
               accept='image/*'
               onChange={handleAvatarChange}
               className='hidden'
+              disabled={isAvatarPending}
             />
           </CardContent>
         </Card>
@@ -406,7 +500,11 @@ export default function AccountPage() {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder='Enter your name' {...field} />
+                        <Input
+                          placeholder='Enter your name'
+                          disabled={isProfilePending}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -426,6 +524,7 @@ export default function AccountPage() {
                             type='email'
                             placeholder='Enter your email'
                             className='pl-10'
+                            disabled={isProfilePending}
                             {...field}
                           />
                         </div>
@@ -437,12 +536,12 @@ export default function AccountPage() {
 
                 <Button
                   type='submit'
-                  disabled={profileForm.formState.isSubmitting}
+                  disabled={isProfilePending}
                   className='w-full md:w-auto'
                 >
-                  {profileForm.formState.isSubmitting ? (
+                  {isProfilePending ? (
                     <>
-                      <Loader className='h-4 w-4 mr-2 animate-spin' />
+                      <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                       Saving...
                     </>
                   ) : (
@@ -486,6 +585,7 @@ export default function AccountPage() {
                             type={showPasswords.current ? 'text' : 'password'}
                             placeholder='Enter your current password'
                             className='pr-10'
+                            disabled={isPasswordPending}
                             {...field}
                           />
                           <Button
@@ -494,6 +594,7 @@ export default function AccountPage() {
                             size='sm'
                             className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
                             onClick={() => togglePasswordVisibility('current')}
+                            disabled={isPasswordPending}
                           >
                             {showPasswords.current ? (
                               <EyeOff className='h-4 w-4' />
@@ -520,6 +621,7 @@ export default function AccountPage() {
                             type={showPasswords.new ? 'text' : 'password'}
                             placeholder='Enter your new password'
                             className='pr-10'
+                            disabled={isPasswordPending}
                             {...field}
                           />
                           <Button
@@ -528,6 +630,7 @@ export default function AccountPage() {
                             size='sm'
                             className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
                             onClick={() => togglePasswordVisibility('new')}
+                            disabled={isPasswordPending}
                           >
                             {showPasswords.new ? (
                               <EyeOff className='h-4 w-4' />
@@ -554,6 +657,7 @@ export default function AccountPage() {
                             type={showPasswords.confirm ? 'text' : 'password'}
                             placeholder='Confirm your new password'
                             className='pr-10'
+                            disabled={isPasswordPending}
                             {...field}
                           />
                           <Button
@@ -562,6 +666,7 @@ export default function AccountPage() {
                             size='sm'
                             className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
                             onClick={() => togglePasswordVisibility('confirm')}
+                            disabled={isPasswordPending}
                           >
                             {showPasswords.confirm ? (
                               <EyeOff className='h-4 w-4' />
@@ -578,12 +683,12 @@ export default function AccountPage() {
 
                 <Button
                   type='submit'
-                  disabled={passwordForm.formState.isSubmitting}
+                  disabled={isPasswordPending}
                   className='w-full md:w-auto'
                 >
-                  {passwordForm.formState.isSubmitting ? (
+                  {isPasswordPending ? (
                     <>
-                      <Loader className='h-4 w-4 mr-2 animate-spin' />
+                      <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                       Updating...
                     </>
                   ) : (
