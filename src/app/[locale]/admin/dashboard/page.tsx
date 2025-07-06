@@ -221,9 +221,9 @@ async function RecentEnrollmentsCard() {
                   {enrollment.class.departmentCode})
                 </p>
               </div>
-              <Badge variant={enrollment.isActive ? 'default' : 'secondary'}>
+              {/* <Badge variant={enrollment.isActive ? 'default' : 'secondary'}>
                 {enrollment.isActive ? 'Active' : 'Inactive'}
-              </Badge>
+              </Badge> */}
             </div>
           ))}
         </div>
