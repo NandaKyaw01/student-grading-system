@@ -134,6 +134,87 @@ export async function updatePassword(
 }
 
 // Upload avatar
+// export async function uploadAvatar(formData: FormData) {
+//   try {
+//     const file = formData.get('avatar') as File;
+//     const userId = formData.get('userId') as string;
+
+//     if (!file || !userId) {
+//       return { success: false, error: 'Missing file or user ID' };
+//     }
+
+//     // Check if user exists
+//     const existingUser = await prisma.user.findUnique({
+//       where: { id: userId }
+//     });
+
+//     if (!existingUser) {
+//       return { success: false, error: 'User not found' };
+//     }
+
+//     // Validate file type
+//     if (!file.type.startsWith('image/')) {
+//       return { success: false, error: 'File must be an image' };
+//     }
+
+//     // Validate file size (max 5MB)
+//     if (file.size > 5 * 1024 * 1024) {
+//       return { success: false, error: 'File size must be less than 5MB' };
+//     }
+
+//     // Create upload directory if it doesn't exist
+//     const uploadDir = path.join(process.cwd(), 'public/uploads/avatars');
+//     try {
+//       await fs.access(uploadDir);
+//     } catch {
+//       await fs.mkdir(uploadDir, { recursive: true });
+//     }
+
+//     // Generate unique filename
+//     const fileExtension = path.extname(file.name);
+//     const fileName = `${userId}-${Date.now()}${fileExtension}`;
+//     const filePath = path.join(uploadDir, fileName);
+
+//     // Save file
+//     const bytes = await file.arrayBuffer();
+//     const buffer = Buffer.from(bytes);
+//     await fs.writeFile(filePath, buffer);
+
+//     // Update user with new image path
+//     const imageUrl = `/uploads/avatars/${fileName}`;
+//     await prisma.user.update({
+//       where: { id: userId },
+//       data: {
+//         image: imageUrl,
+//         updatedAt: new Date()
+//       }
+//     });
+
+//     // Delete old avatar if it exists
+//     if (
+//       existingUser.image &&
+//       existingUser.image.startsWith('/uploads/avatars/')
+//     ) {
+//       const oldImagePath = path.join(
+//         process.cwd(),
+//         'public',
+//         existingUser.image
+//       );
+//       try {
+//         await fs.unlink(oldImagePath);
+//       } catch (error) {
+//         console.error('Error deleting old avatar:', error);
+//       }
+//     }
+
+//     return { success: true, imageUrl };
+//   } catch (error) {
+//     console.error('Error uploading avatar:', error);
+//     return { success: false, error: 'Failed to upload avatar' };
+//   }
+// }
+
+// Upload avatar
 export async function uploadAvatar(formData: FormData) {
   try {
     const file = formData.get('avatar') as File;
@@ -158,16 +239,17 @@ export async function uploadAvatar(formData: FormData) {
     }
 
     // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return { success: false, error: 'File size must be less than 5MB' };
+    if (file.size > 1 * 1024 * 1024) {
+      return { success: false, error: 'File size must be less than 1MB' };
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'public/uploads/avatars');
+    // Create upload directory in tmp folder
+    const uploadDir = path.join('/tmp', 'avatars');
     try {
-      await fs.access(uploadDir);
-    } catch {
       await fs.mkdir(uploadDir, { recursive: true });
+    } catch (error) {
+      console.error('Error creating tmp directory:', error);
+      return { success: false, error: 'Unable to create upload directory' };
     }
 
     // Generate unique filename
@@ -175,13 +257,15 @@ export async function uploadAvatar(formData: FormData) {
     const fileName = `${userId}-${Date.now()}${fileExtension}`;
     const filePath = path.join(uploadDir, fileName);
 
-    // Save file
+    // Save file to tmp folder
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     await fs.writeFile(filePath, buffer);
 
+    // Set image URL to API route
+    const imageUrl = `/api/avatars/${fileName}`;
+
     // Update user with new image path
-    const imageUrl = `/uploads/avatars/${fileName}`;
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -191,26 +275,32 @@ export async function uploadAvatar(formData: FormData) {
     });
 
     // Delete old avatar if it exists
-    if (
-      existingUser.image &&
-      existingUser.image.startsWith('/uploads/avatars/')
-    ) {
-      const oldImagePath = path.join(
-        process.cwd(),
-        'public',
-        existingUser.image
-      );
-      try {
-        await fs.unlink(oldImagePath);
-      } catch (error) {
-        console.error('Error deleting old avatar:', error);
-      }
+    if (existingUser.image) {
+      await deleteOldAvatar(existingUser.image);
     }
 
+    console.log('Avatar uploaded successfully to tmp folder:', imageUrl);
     return { success: true, imageUrl };
   } catch (error) {
     console.error('Error uploading avatar:', error);
     return { success: false, error: 'Failed to upload avatar' };
+  }
+}
+
+// Helper function to delete old avatar from tmp folder
+async function deleteOldAvatar(oldImagePath: string) {
+  try {
+    if (oldImagePath.startsWith('/api/avatars/')) {
+      const fileName = oldImagePath.split('/').pop();
+      if (fileName) {
+        const oldFilePath = path.join('/tmp', 'avatars', fileName);
+        await fs.unlink(oldFilePath);
+        console.log('Old avatar deleted:', oldImagePath);
+      }
+    }
+  } catch (error) {
+    console.error('Error deleting old avatar:', error);
+    // Don't throw error, just log it
   }
 }
 

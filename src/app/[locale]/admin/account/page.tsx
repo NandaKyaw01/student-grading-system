@@ -190,6 +190,9 @@ export default function AccountPage() {
   const [isPasswordPending, startPasswordTransition] = useTransition();
   const [isAvatarPending, startAvatarTransition] = useTransition();
 
+  const [isImageLoading, setIsImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
@@ -275,14 +278,16 @@ export default function AccountPage() {
     }
 
     // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File size must be less than 5MB');
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error('File size must be less than 1MB');
       return;
     }
 
     // Create preview
     const previewUrl = URL.createObjectURL(file);
     setAvatarPreview(previewUrl);
+    setIsImageLoading(true); // Reset loading state
+    setImageError(false); // Reset error state
 
     startAvatarTransition(async () => {
       try {
@@ -296,15 +301,19 @@ export default function AccountPage() {
           toast.success('Avatar updated successfully!');
           await update(); // Refresh session
           setAvatarPreview(null);
+          setIsImageLoading(true); // Reset for new image
+          setImageError(false);
           URL.revokeObjectURL(previewUrl);
         } else {
           toast.error(result.error || 'Failed to update avatar');
           setAvatarPreview(null);
+          setImageError(true);
           URL.revokeObjectURL(previewUrl);
         }
       } catch (error) {
         toast.error('An unexpected error occurred');
         setAvatarPreview(null);
+        setImageError(true);
         URL.revokeObjectURL(previewUrl);
       } finally {
         if (fileInputRef.current) {
@@ -423,12 +432,27 @@ export default function AccountPage() {
             <div className='flex items-center gap-6'>
               <div className='relative'>
                 <Avatar className='h-24 w-24'>
-                  <AvatarImage
-                    src={avatarPreview || user.image || ''}
-                    alt={user.name || 'User avatar'}
-                  />
+                  {!imageError && (user.image || avatarPreview) && (
+                    <AvatarImage
+                      src={avatarPreview || user.image || ''}
+                      alt={user.name || 'User avatar'}
+                      onLoad={() => setIsImageLoading(false)}
+                      onError={() => {
+                        setIsImageLoading(false);
+                        setImageError(true);
+                      }}
+                    />
+                  )}
                   <AvatarFallback className='text-lg'>
-                    {user.name ? getInitials(user.name) : 'U'}
+                    {isImageLoading &&
+                    (user.image || avatarPreview) &&
+                    !imageError ? (
+                      <Loader2 className='h-6 w-6 animate-spin' />
+                    ) : user.name ? (
+                      getInitials(user.name)
+                    ) : (
+                      'U'
+                    )}
                   </AvatarFallback>
                 </Avatar>
                 {isAvatarPending && (
