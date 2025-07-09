@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutGrid, LogOut, User } from 'lucide-react';
+import { LayoutGrid, LogOut, User, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,11 +27,24 @@ import { useTranslations } from 'next-intl';
 export function UserNav() {
   const t = useTranslations('UserNav');
   const { data: session, status } = useSession();
+  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   // Get user info from session
   const userName = session?.user?.name || 'User';
   const userEmail = session?.user?.email || '';
   const userImage = session?.user?.image;
+
+  // Reset loading state when userImage changes
+  useEffect(() => {
+    if (userImage) {
+      setIsImageLoading(true);
+      setImageError(false);
+    } else {
+      setIsImageLoading(false);
+      setImageError(false);
+    }
+  }, [userImage]);
 
   // Create fallback initials from name
   const getInitials = (name: string) => {
@@ -73,9 +87,23 @@ export function UserNav() {
                 className='relative h-8 w-8 rounded-full'
               >
                 <Avatar className='h-8 w-8'>
-                  <AvatarImage src={userImage || '#'} alt='Avatar' />
+                  {!imageError && userImage && (
+                    <AvatarImage
+                      src={userImage || '#'}
+                      alt='Avatar'
+                      onLoad={() => setIsImageLoading(false)}
+                      onError={() => {
+                        setIsImageLoading(false);
+                        setImageError(true);
+                      }}
+                    />
+                  )}
                   <AvatarFallback className='bg-transparent'>
-                    {getInitials(userName)}
+                    {isImageLoading && userImage && !imageError ? (
+                      <Loader2 className='h-4 w-4 animate-spin' />
+                    ) : (
+                      getInitials(userName)
+                    )}
                   </AvatarFallback>
                 </Avatar>
               </Button>
