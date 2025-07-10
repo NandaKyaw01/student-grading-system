@@ -192,6 +192,7 @@ export default function AccountPage() {
 
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false); // Track if page has loaded initially
 
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -226,11 +227,15 @@ export default function AccountPage() {
         name: session.user.name || '',
         email: session.user.email || ''
       });
+      setHasInitiallyLoaded(true); // Mark as initially loaded when session is available
     }
   }, [session, profileForm]);
 
-  // Loading state
-  if (status === 'loading') {
+  // Only show skeleton on initial load, not during updates
+  const shouldShowSkeleton = status === 'loading' && !hasInitiallyLoaded;
+
+  // Loading state - only show skeleton on initial load
+  if (shouldShowSkeleton) {
     return (
       <ContentLayout
         title={t('account')}
@@ -425,7 +430,7 @@ export default function AccountPage() {
             </CardTitle>
             <CardDescription>
               Update your profile picture. Supported formats: JPG, PNG, GIF. Max
-              size: 5MB.
+              size: 1MB.
             </CardDescription>
           </CardHeader>
           <CardContent>
