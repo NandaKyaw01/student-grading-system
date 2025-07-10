@@ -44,6 +44,7 @@ export async function createSemester(
     });
 
     revalidateTag('semesters');
+    revalidateTag('academic-years');
 
     return { success: true, data: newSemester };
   } catch (error) {
@@ -75,6 +76,8 @@ export async function updateSemester(
 
     revalidateTag('semesters');
     revalidateTag(`semester-${id}`);
+    revalidateTag('academic-years');
+
     return { success: true, data: updatedSemester };
   } catch (error) {
     return {
@@ -109,6 +112,8 @@ export async function deleteSemester(id: number) {
 
     revalidateTag('semesters');
     revalidateTag(`semester-${id}`);
+    revalidateTag('academic-years');
+
     return { success: true };
   } catch (error) {
     return {

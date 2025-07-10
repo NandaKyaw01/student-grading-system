@@ -97,7 +97,7 @@ type TemplateData = {
   academicYear: string;
   semester: string;
   class: string;
-  classCode: 'CS' | 'CT' | 'CST';
+  classCode: string;
   subjects: Array<{
     id: string;
     name: string;
@@ -165,27 +165,27 @@ export async function generateStudentTemplate(
     headers.push('Total GP', 'GPA');
 
     // Create sample data rows for demonstration
-    const sampleRows = [];
+    // const sampleRows = [];
 
-    // Add 5 sample rows to show the format
-    for (let i = 1; i <= 5; i++) {
-      const row = [
-        `${String(i).padStart(6, '0')}`,
-        `${templateData.classCode || 'CS'}`, // Class part
-        `${i}`, // Number part
-        `Sample Student ${i}` // Name
-      ];
+    // // Add 5 sample rows to show the format
+    // for (let i = 1; i <= 5; i++) {
+    //   const row = [
+    //     `${String(i).padStart(6, '0')}`,
+    //     `${templateData.classCode || 'CS'}`, // Class part
+    //     `${i}`, // Number part
+    //     `Sample Student ${i}` // Name
+    //   ];
 
-      // Add empty cells for each subject's columns
-      classSubjects.forEach(() => {
-        row.push('', '', '', '', '', '', '');
-      });
+    //   // Add empty cells for each subject's columns
+    //   classSubjects.forEach(() => {
+    //     row.push('', '', '', '', '', '', '');
+    //   });
 
-      // Add empty cells for summary columns
-      row.push('', ''); // Total GP, GPA
+    //   // Add empty cells for summary columns
+    //   row.push('', ''); // Total GP, GPA
 
-      sampleRows.push(row);
-    }
+    //   sampleRows.push(row);
+    // }
 
     // Create worksheet data
     // const worksheetData = [headers, ...sampleRows];

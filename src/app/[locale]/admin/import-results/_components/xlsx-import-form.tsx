@@ -66,41 +66,6 @@ interface SelectionState {
   classId: number | null;
 }
 
-export interface AcademicYear {
-  id: number;
-  yearRange: string;
-  isCurrent: boolean;
-}
-
-export interface Semester {
-  id: number;
-  semesterName: string;
-  academicYearId: number;
-  isCurrent: boolean;
-}
-
-export interface Class {
-  id: number;
-  className: string;
-  departmentCode: 'CS' | 'CT' | 'CST';
-  semesterId: number;
-}
-
-export interface Subject {
-  id: string;
-  subjectName: string;
-  creditHours: number;
-  examWeight: number;
-  assignWeight: number;
-}
-
-export interface ClassSubject {
-  id: number;
-  classId: number;
-  subjectId: string;
-  subject: Subject;
-}
-
 // Update UploadError interface to include column info
 interface UploadError {
   row: number;

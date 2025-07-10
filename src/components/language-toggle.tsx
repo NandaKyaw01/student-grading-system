@@ -76,7 +76,7 @@ const LanguageToggle = () => {
         </div>
 
         <TooltipContent>
-          <p>Switch Language.</p>
+          <p>Switch Language</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

@@ -18,9 +18,9 @@ interface EnrollmentsTableProps {
   promises: Promise<
     [
       Awaited<ReturnType<typeof getAllEnrollments<true>>>,
-      Awaited<ReturnType<typeof getAcademicYears>>,
-      Awaited<ReturnType<typeof getSemesters>>,
-      Awaited<ReturnType<typeof getClasses>>
+      Awaited<ReturnType<typeof getAcademicYears<false>>>,
+      Awaited<ReturnType<typeof getSemesters<false>>>,
+      Awaited<ReturnType<typeof getClasses<false>>>
     ]
   >;
 }

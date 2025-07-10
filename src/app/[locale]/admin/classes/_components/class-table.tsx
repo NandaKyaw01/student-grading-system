@@ -13,17 +13,28 @@ interface ClassTableProps {
   promises: Promise<
     [
       Awaited<ReturnType<typeof getClasses<true>>>,
-      Awaited<ReturnType<typeof getAcademicYears>>,
-      Awaited<ReturnType<typeof getSemesters>>
+      Awaited<ReturnType<typeof getAcademicYears<false>>>,
+      Awaited<ReturnType<typeof getSemesters<false>>>,
+      Awaited<ReturnType<typeof getClasses<false>>>
     ]
   >;
 }
 
 const ClassesTable = ({ promises }: ClassTableProps) => {
-  const [{ classes, pageCount }, { years }, { semesters }] = use(promises);
+  const [
+    { classes, pageCount },
+    { years },
+    { semesters },
+    { classes: classForSelect }
+  ] = use(promises);
   const columns = React.useMemo(
-    () => getClassColumns({ academicYears: years, semesters }),
-    [years, semesters]
+    () =>
+      getClassColumns({
+        academicYears: years,
+        semesters,
+        classes: classForSelect
+      }),
+    [years, semesters, classForSelect]
   );
   const { table } = useDataTable({
     data: classes,

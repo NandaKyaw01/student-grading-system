@@ -1,11 +1,11 @@
 import { getAllAcademicYearResults } from '@/actions/academic-result';
 import { getAcademicYears } from '@/actions/academic-year';
+import { getClasses } from '@/actions/class';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { Separator } from '@/components/ui/separator';
 import { academicResultSearchParamsCache } from '@/lib/search-params/academic-result';
-import { resultSerialize } from '@/lib/search-params/result';
 import { getTranslations } from 'next-intl/server';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
@@ -37,7 +37,6 @@ export default async function AcademicYearResultsPage(props: pageProps) {
   const t = await getTranslations('AdminNavBarTitle');
   const searchParams = await props.searchParams;
   const search = academicResultSearchParamsCache.parse(searchParams);
-  const key = resultSerialize(search);
 
   const promises = Promise.all([
     getAllAcademicYearResults(search, {
@@ -45,8 +44,13 @@ export default async function AcademicYearResultsPage(props: pageProps) {
     }),
     getAcademicYears(undefined, {
       includeDetails: true
+    }),
+    getClasses(undefined, {
+      academicYearId: search.academicYearId
     })
   ]);
+
+  const suspenseKey = `results-${search.academicYearId || 'all'}`;
 
   return (
     <ContentLayout
@@ -67,7 +71,7 @@ export default async function AcademicYearResultsPage(props: pageProps) {
         <Separator />
 
         <Suspense
-          // key={key}
+          key={suspenseKey}
           fallback={
             <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
           }

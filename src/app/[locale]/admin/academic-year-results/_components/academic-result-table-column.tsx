@@ -4,7 +4,7 @@ import { AcademicYearResultWithDetails } from '@/actions/academic-result';
 import { AcademicYearWithDetails } from '@/actions/academic-year';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Status } from '@/generated/prisma';
+import { Class, Status } from '@/generated/prisma';
 import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
 import { CalendarCheck, CalendarIcon, FileSearch2, Text } from 'lucide-react';
@@ -12,9 +12,11 @@ import Link from 'next/link';
 import { AcademicResultCellAction } from './academic-result-cell-action';
 
 export function getAcademicResultColumns({
-  academicYears
+  academicYears,
+  classes
 }: {
   academicYears: AcademicYearWithDetails[];
+  classes: Class[];
 }): ColumnDef<AcademicYearResultWithDetails>[] {
   return [
     {
@@ -124,7 +126,7 @@ export function getAcademicResultColumns({
       enableSorting: true
     },
     {
-      id: 'semester',
+      id: 'classId',
       accessorKey: 'semesterCount',
       header: 'Semester',
       cell: ({ cell }) => (
@@ -138,11 +140,18 @@ export function getAcademicResultColumns({
         </div>
       ),
       meta: {
-        label: 'Semester'
-      }
+        label: 'Class',
+        variant: 'multiSelect',
+        options: classes.map((cls) => ({
+          label: `${cls.className} (${cls.departmentCode})`,
+          value: cls.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
     },
     {
-      id: 'status',
+      id: 'Status',
       accessorKey: 'status',
       header: 'Status',
       cell: ({ cell }) => cell.getValue<Status>()
