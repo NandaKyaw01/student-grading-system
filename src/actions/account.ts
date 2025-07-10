@@ -197,7 +197,6 @@ export async function uploadAvatar(formData: FormData) {
       await deleteOldAvatar(existingUser.image);
     }
 
-    console.log('Avatar uploaded successfully to tmp folder:', imageUrl);
     return { success: true, imageUrl };
   } catch (error) {
     console.error('Error uploading avatar:', error);

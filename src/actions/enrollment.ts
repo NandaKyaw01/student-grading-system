@@ -160,6 +160,23 @@ export async function createEnrollment(
   data: Omit<Enrollment, 'id' | 'createdAt' | 'updatedAt'>
 ) {
   try {
+    // Check if enrollment already exists
+    const existingEnrollment = await prisma.enrollment.findFirst({
+      where: {
+        studentId: data.studentId,
+        classId: data.classId,
+        semesterId: data.semesterId
+      }
+    });
+
+    if (existingEnrollment) {
+      return {
+        success: false,
+        error:
+          'This student is already enrolled in this class for the selected semester'
+      };
+    }
+
     const enrollment = await prisma.enrollment.create({
       data
     });
