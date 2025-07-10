@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  { params }: { params: Promise<{ filename: string }> }
 ) {
   try {
-    const filename = params.filename;
+    const { filename } = await params;
 
     // Validate filename to prevent directory traversal
     if (!filename || filename.includes('..') || filename.includes('/')) {
@@ -41,7 +41,7 @@ export async function GET(
     return new Response(file, {
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000', // Cache for 1 hour
+        'Cache-Control': 'public, max-age=31536000', // Cache for 1 year
         'Content-Length': file.length.toString()
       }
     });
