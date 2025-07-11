@@ -1,8 +1,7 @@
-import { ModeToggle } from '@/components/mode-toggle';
-import { UserNav } from '@/components/admin-panel/user-nav';
 import { SheetMenu } from '@/components/admin-panel/sheet-menu';
+import { UserNav } from '@/components/admin-panel/user-nav';
+import { ModeToggle } from '@/components/mode-toggle';
 import LanguageToggle from '../language-toggle';
-import RefreshButton from '../refresh-button';
 
 interface NavbarProps {
   title: string;
@@ -21,7 +20,6 @@ export function Navbar({ title, breadcrumb }: NavbarProps) {
           {breadcrumb ? breadcrumb : <h1 className='font-bold'>{title}</h1>}
         </div>
         <div className='flex flex-1 items-center justify-end gap-2'>
-          <RefreshButton />
           <LanguageToggle />
           <ModeToggle />
           <UserNav />

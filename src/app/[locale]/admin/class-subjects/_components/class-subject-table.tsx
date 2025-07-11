@@ -1,15 +1,13 @@
 'use client';
+import { getAcademicYears } from '@/actions/academic-year';
 import { getClasses } from '@/actions/class';
+import { revalidateClassSubjects } from '@/actions/class-subject';
+import { getSemesters } from '@/actions/semester';
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
-import React, { use, useCallback, useTransition } from 'react';
+import React, { use, useEffect, useTransition } from 'react';
 import { getClassSubjectColumns } from './class-subject-table-column';
-import { getAcademicYears } from '@/actions/academic-year';
-import { getSemesters } from '@/actions/semester';
-import { Loader, RefreshCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { revalidateClassSubjects } from '@/actions/class-subject';
 
 interface ClassTableProps {
   promises: Promise<
@@ -53,7 +51,7 @@ const ClassSubjectsTable = ({ promises }: ClassTableProps) => {
     clearOnDefault: true
   });
 
-  const handleRefresh = useCallback(() => {
+  useEffect(() => {
     startTransition(async () => {
       await revalidateClassSubjects();
     });
@@ -61,11 +59,7 @@ const ClassSubjectsTable = ({ promises }: ClassTableProps) => {
 
   return (
     <DataTable table={table}>
-      <DataTableToolbar table={table}>
-        <Button size='sm' variant='outline' onClick={handleRefresh}>
-          {isPending ? <Loader className='animate-spin' /> : <RefreshCcw />}
-        </Button>
-      </DataTableToolbar>
+      <DataTableToolbar table={table} />
     </DataTable>
   );
 };
