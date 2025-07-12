@@ -76,6 +76,12 @@ export async function getAllAcademicYearResults<T extends boolean = false>(
           };
         }
 
+        if (input?.status && input?.status?.length > 0) {
+          where.status = {
+            in: input.status
+          };
+        }
+
         // Date range filter
         const range = Array.isArray(input.createdAt)
           ? input.createdAt

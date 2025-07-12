@@ -77,30 +77,47 @@ export async function deleteResults(enrollmentIds: number[]) {
       };
     }
 
-    await prisma.$transaction(async (tx) => {
-      // Batch delete operations
-      await Promise.all([
-        tx.grade.deleteMany({
-          where: {
-            enrollmentId: {
-              in: enrollmentIds
-            }
-          }
-        }),
-        tx.result.deleteMany({
-          where: {
-            enrollmentId: {
-              in: enrollmentIds
-            }
-          }
-        })
-      ]);
+    const BATCH_SIZE = 10;
 
-      // Process academic year updates concurrently
-      await Promise.all(
-        enrollmentIds.map((id) => updateAcademicYearResult(id, tx))
-      );
-    });
+    for (let i = 0; i < enrollmentIds.length; i += BATCH_SIZE) {
+      const batch = enrollmentIds.slice(i, i + BATCH_SIZE);
+
+      try {
+        await prisma.$transaction(
+          async (tx) => {
+            // Batch delete operations for current batch
+            await Promise.all([
+              tx.grade.deleteMany({
+                where: {
+                  enrollmentId: {
+                    in: batch
+                  }
+                }
+              }),
+              tx.result.deleteMany({
+                where: {
+                  enrollmentId: {
+                    in: batch
+                  }
+                }
+              })
+            ]);
+
+            // Process academic year updates concurrently for current batch
+            await Promise.all(
+              batch.map((id) => updateAcademicYearResult(id, tx))
+            );
+          },
+          {
+            maxWait: 10000, // Increased to 10 seconds
+            timeout: 60000 // Increased to 60 seconds
+          }
+        );
+      } catch (error) {
+        console.error(`Error processing batch starting at index ${i}:`, error);
+        // Continue with next batch instead of failing completely
+      }
+    }
 
     // Revalidate cache
     revalidateTag('results');
@@ -176,6 +193,12 @@ export async function getAllResults<T extends boolean = false>(
             semesterId: {
               in: input.semesterId
             }
+          };
+        }
+
+        if (input?.status && input?.status?.length > 0) {
+          where.status = {
+            in: input.status
           };
         }
 

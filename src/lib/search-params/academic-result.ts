@@ -7,7 +7,7 @@ import {
 } from 'nuqs/server';
 
 import { getSortingStateParser } from '@/lib/parsers';
-import { Result } from '@/generated/prisma';
+import { Result, Status } from '@/generated/prisma';
 import { z } from 'zod';
 
 export const academicResultSearchParams = {
@@ -17,6 +17,7 @@ export const academicResultSearchParams = {
   academicYearId: parseAsArrayOf(z.coerce.number()).withDefault([]),
   semesterId: parseAsArrayOf(z.coerce.number()).withDefault([]),
   classId: parseAsArrayOf(z.coerce.number()).withDefault([]),
+  status: parseAsArrayOf(z.nativeEnum(Status)).withDefault([]),
   createdAt: parseAsString,
   sort: getSortingStateParser<Result>()
 };

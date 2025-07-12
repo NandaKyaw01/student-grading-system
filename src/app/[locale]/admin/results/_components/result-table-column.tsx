@@ -10,6 +10,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { CalendarCheck, CalendarIcon, FileSearch2, Text } from 'lucide-react';
 import Link from 'next/link';
 import { ResultCellAction } from './result-cell-action';
+import { Badge } from '@/components/ui/badge';
 
 export function getResultColumns({
   academicYears,
@@ -83,7 +84,10 @@ export function getResultColumns({
     {
       id: 'rollnumber',
       accessorFn: (row) => `${row.enrollment?.rollNumber}`,
-      header: 'Roll No.'
+      header: 'Roll No.',
+      meta: {
+        label: 'Roll No.'
+      }
     },
     {
       id: 'academicYearId',
@@ -138,13 +142,35 @@ export function getResultColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='GPA' />
       ),
-      cell: ({ cell }) => cell.getValue<number>().toFixed(2)
+      cell: ({ cell }) => cell.getValue<number>().toFixed(2),
+      meta: {
+        label: 'GPA'
+      }
     },
     {
       id: 'status',
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ cell }) => cell.getValue<Status>()
+      cell: ({ cell }) => (
+        <>
+          {cell.getValue<Status>() === Status.PASS ? (
+            <Badge>{cell.getValue<Status>()}</Badge>
+          ) : (
+            <Badge className='bg-destructive'>{cell.getValue<Status>()}</Badge>
+          )}
+        </>
+      ),
+      meta: {
+        label: 'Status',
+        variant: 'multiSelect',
+        options: [
+          { label: 'Pass', value: Status.PASS },
+          { label: 'Fail', value: Status.FAIL }
+          // { label: 'Incomplete', value: Status.INCOMPLETE }
+        ],
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
     },
     {
       id: 'createdAt',

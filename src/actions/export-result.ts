@@ -1,228 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
 import { prisma } from '@/lib/db';
 import * as XLSX from 'xlsx-js-style';
-
-// export async function exportTableToExcel(enrollmentIds?: number[]) {
-//   try {
-//     // Fetch enrollment data with all related information
-//     const enrollments = await prisma.enrollment.findMany({
-//       where: enrollmentIds
-//         ? {
-//             id: {
-//               in: enrollmentIds
-//             }
-//           }
-//         : undefined,
-//       include: {
-//         student: true,
-//         class: {
-//           include: {
-//             semester: {
-//               include: {
-//                 academicYear: true
-//               }
-//             }
-//           }
-//         },
-//         grades: {
-//           include: {
-//             classSubject: {
-//               include: {
-//                 subject: true
-//               }
-//             }
-//           }
-//         },
-//         result: true
-//       }
-//     });
-
-//     if (enrollments.length === 0) {
-//       throw new Error('No enrollments found');
-//     }
-
-//     // Group enrollments by academic year
-//     const enrollmentsByYear = enrollments.reduce(
-//       (acc, enrollment) => {
-//         const yearRange = enrollment.class.semester.academicYear.yearRange;
-//         if (!acc[yearRange]) {
-//           acc[yearRange] = [];
-//         }
-//         acc[yearRange].push(enrollment);
-//         return acc;
-//       },
-//       {} as Record<string, typeof enrollments>
-//     );
-
-//     // Create workbook
-//     const workbook = XLSX.utils.book_new();
-
-//     // Process each academic year
-//     for (const [yearRange, yearEnrollments] of Object.entries(
-//       enrollmentsByYear
-//     )) {
-//       // Group by class within the year
-//       const enrollmentsByClass = yearEnrollments.reduce(
-//         (acc, enrollment) => {
-//           const className = enrollment.class.className;
-//           if (!acc[className]) {
-//             acc[className] = [];
-//           }
-//           acc[className].push(enrollment);
-//           return acc;
-//         },
-//         {} as Record<string, typeof enrollments>
-//       );
-
-//       // Create worksheet data for this year
-//       const worksheetData: Array<Array<string | number>> = [];
-
-//       for (const [className, classEnrollments] of Object.entries(
-//         enrollmentsByClass
-//       )) {
-//         // Add class header
-//         worksheetData.push([`Class: ${className}`]);
-//         worksheetData.push([]); // Empty row
-
-//         // Get all unique subjects for this class
-//         const allSubjects = new Set<string>();
-//         classEnrollments.forEach((enrollment) => {
-//           enrollment.grades.forEach((grade) => {
-//             allSubjects.add(grade.classSubject.subject.id);
-//           });
-//         });
-
-//         const uniqueSubjects = Array.from(allSubjects).sort();
-
-//         // Create headers
-//         const headers = ['Admission ID', 'Roll Number', 'Student Name'];
-
-//         // Add subject headers
-//         uniqueSubjects.forEach((subjectId) => {
-//           const subject = classEnrollments[0].grades.find(
-//             (g) => g.classSubject.subject.id === subjectId
-//           )?.classSubject.subject;
-//           const subjectName = subject?.subjectName || subjectId;
-
-//           headers.push(
-//             `${subjectName}`,
-//             `${subjectId} (${subject?.examWeight ?? 0 * 100}%)`,
-//             `${subjectId} (${subject?.assignWeight ?? 0 * 100}%)`,
-//             `${subjectId} (100%)`,
-//             `${subjectId} (Grade)`,
-//             `${subjectId} (Score)`,
-//             `${subjectId} (GP)`
-//           );
-//         });
-
-//         headers.push('Total GP', 'Total Credits', 'GPA', 'Status');
-//         worksheetData.push(headers);
-
-//         // Add student data
-//         classEnrollments.forEach((enrollment) => {
-//           const row = [
-//             enrollment.student.admissionId,
-//             enrollment.rollNumber,
-//             enrollment.student.studentName
-//           ];
-
-//           // Create grade map for quick lookup
-//           const gradeMap = new Map<
-//             string,
-//             (typeof enrollment.grades)[number]
-//           >();
-//           enrollment.grades.forEach((grade) => {
-//             gradeMap.set(grade.classSubject.subject.id, grade);
-//           });
-
-//           // Add grade data for each subject
-//           uniqueSubjects.forEach((subjectId) => {
-//             const grade = gradeMap.get(subjectId);
-//             if (grade) {
-//               row.push(
-//                 grade.baseMark.toString(),
-//                 grade.examMark.toString(),
-//                 grade.assignMark.toString(),
-//                 grade.finalMark.toString(),
-//                 grade.grade,
-//                 grade.score.toString(),
-//                 grade.gp.toString()
-//               );
-//             } else {
-//               // Subject not taken - add empty cells
-//               row.push('', '', '', '', '', '', '');
-//             }
-//           });
-
-//           // Add result data
-//           row.push(
-//             (enrollment.result?.totalGp ?? 0).toString(),
-//             (enrollment.result?.totalCredits ?? 0).toString(),
-//             (enrollment.result?.gpa ?? 0).toString(),
-//             enrollment.result?.status || 'INCOMPLETE'
-//           );
-
-//           worksheetData.push(row);
-//         });
-
-//         // Add empty rows between classes
-//         worksheetData.push([]);
-//         worksheetData.push([]);
-//       }
-
-//       // Create worksheet
-//       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-//       // Auto-size columns
-//       const colWidths = [];
-//       if (worksheetData.length > 0) {
-//         const maxCols = Math.max(...worksheetData.map((row) => row.length));
-//         for (let i = 0; i < maxCols; i++) {
-//           const maxLength = Math.max(
-//             ...worksheetData.map((row) =>
-//               row[i] ? row[i].toString().length : 0
-//             )
-//           );
-//           colWidths.push({ width: Math.min(Math.max(maxLength + 2, 10), 30) });
-//         }
-//       }
-//       worksheet['!cols'] = colWidths;
-
-//       // Add worksheet to workbook
-//       const sheetName =
-//         Object.keys(enrollmentsByYear).length > 1
-//           ? `Results ${yearRange}`
-//           : 'Results';
-//       XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-//     }
-
-//     // Generate Excel file
-//     const excelBuffer = XLSX.write(workbook, {
-//       bookType: 'xlsx',
-//       type: 'buffer'
-//     });
-
-//     // Convert to base64 for download
-//     const base64 = Buffer.from(excelBuffer).toString('base64');
-//     const fileName = `student_results_${new Date().toISOString().split('T')[0]}.xlsx`;
-
-//     return {
-//       success: true,
-//       data: base64,
-//       fileName: fileName,
-//       contentType:
-//         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-//     };
-//   } catch (error) {
-//     console.error('Export error:', error);
-//     return {
-//       success: false,
-//       error: error instanceof Error ? error.message : 'Unknown error occurred'
-//     };
-//   }
-// }
 
 export async function exportTableToExcel(enrollmentIds?: number[]) {
   try {
@@ -330,7 +109,12 @@ export async function exportTableToExcel(enrollmentIds?: number[]) {
     };
 
     // Helper function to create styled cell
-    function createStyledCell(value: any, styleConfig: any) {
+    type StyleConfig = {
+      fill: { fgColor: { rgb: string }; bgColor: { rgb: string } };
+      font: { color: { rgb: string } };
+    };
+
+    function createStyledCell(value: unknown, styleConfig: StyleConfig) {
       const isHeaderStyle =
         styleConfig === colors.yearHeader ||
         styleConfig === colors.semesterHeader ||
@@ -391,6 +175,7 @@ export async function exportTableToExcel(enrollmentIds?: number[]) {
       enrollmentsByYear
     )) {
       // Create worksheet data for this year
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const worksheetData: Array<Array<any>> = [];
 
       // Add year header with icon
@@ -607,7 +392,7 @@ export async function exportTableToExcel(enrollmentIds?: number[]) {
       worksheet['!rows'] = rowHeights;
 
       // Merge cells for headers
-      const merges: any = [];
+      const merges: XLSX.Range[] = [];
       worksheetData.forEach((row, rowIndex) => {
         if (row.length > 0) {
           const firstCell = row[0];
