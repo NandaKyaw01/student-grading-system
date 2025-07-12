@@ -33,16 +33,6 @@ export function ResultsTableActionBar({ table }: ResultsTableActionBarProps) {
     [isPending, currentAction]
   );
 
-  // const onResultExport = React.useCallback(() => {
-  //   setCurrentAction('export');
-  //   startTransition(() => {
-  //     exportTableToCSV(table, {
-  //       excludeColumns: ['select', 'actions'],
-  //       onlySelected: true
-  //     });
-  //   });
-  // }, [table]);
-
   const onResultExport = React.useCallback(async () => {
     setCurrentAction('export');
     const ids = rows.map((row) => row.original.enrollmentId);

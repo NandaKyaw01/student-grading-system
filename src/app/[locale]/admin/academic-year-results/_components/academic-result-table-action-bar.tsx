@@ -16,6 +16,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { exportTableToCSV } from '@/lib/export';
 import { AlertModal } from '@/components/modal/alert-modal';
+import { exportAcademicYearResultsToExcel } from '@/actions/export-result';
 
 const actions = ['export', 'delete'] as const;
 
@@ -38,15 +39,35 @@ export function AcademicResultsTableActionBar({
     [isPending, currentAction]
   );
 
-  const onResultExport = React.useCallback(() => {
+  const onResultExport = React.useCallback(async () => {
     setCurrentAction('export');
-    startTransition(() => {
-      exportTableToCSV(table, {
-        excludeColumns: ['select', 'actions'],
-        onlySelected: true
-      });
+    const ids = rows.map((row) => row.original.id);
+
+    startTransition(async () => {
+      try {
+        const result = await exportAcademicYearResultsToExcel(ids);
+
+        if (result.success) {
+          // Create download link
+          const link = document.createElement('a');
+          link.href = `data:${result.contentType};base64,${result.data}`;
+          link.download = result.fileName ?? 'results.xlsx';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          toast.success('Excel file downloaded successfully!');
+        } else {
+          toast.error(`Export failed: ${result.error}`);
+        }
+      } catch (error) {
+        console.error('Export error:', error);
+        toast.error('Export failed. Please try again.');
+      } finally {
+        setCurrentAction(null);
+      }
     });
-  }, [table]);
+  }, [rows, startTransition]);
 
   const onResultDelete = React.useCallback(() => {
     setCurrentAction('delete');

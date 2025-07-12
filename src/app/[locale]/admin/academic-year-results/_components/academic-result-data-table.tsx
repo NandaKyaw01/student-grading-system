@@ -14,6 +14,8 @@ import React from 'react';
 import { AcademicResultsTableActionBar } from './academic-result-table-action-bar';
 import { getAcademicResultColumns } from './academic-result-table-column';
 import { getClasses } from '@/actions/class';
+import { exportAcademicYearResultsToExcel } from '@/actions/export-result';
+import { toast } from 'sonner';
 
 interface ResultsTableProps {
   promises: Promise<
@@ -51,14 +53,30 @@ export function AcademicResultDataTable({ promises }: ResultsTableProps) {
     clearOnDefault: true
   });
 
-  const onResultExport = React.useCallback(() => {
-    startTransition(() => {
-      exportTableToCSV(table, {
-        excludeColumns: ['select', 'actions'],
-        onlySelected: false
-      });
+  const onResultExport = React.useCallback(async () => {
+    startTransition(async () => {
+      try {
+        const result = await exportAcademicYearResultsToExcel();
+
+        if (result.success) {
+          // Create download link
+          const link = document.createElement('a');
+          link.href = `data:${result.contentType};base64,${result.data}`;
+          link.download = result.fileName ?? 'results.xlsx';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          toast.success('Excel file downloaded successfully!');
+        } else {
+          toast.error(`Export failed: ${result.error}`);
+        }
+      } catch (error) {
+        console.error('Export error:', error);
+        toast.error('Export failed. Please try again.');
+      }
     });
-  }, [table]);
+  }, [startTransition]);
 
   return (
     <DataTable
@@ -73,7 +91,7 @@ export function AcademicResultDataTable({ promises }: ResultsTableProps) {
           className='h-8'
           onClick={onResultExport}
         >
-          {isPending ? <Loader /> : <Download />}
+          {isPending ? <Loader className='animate-spin' /> : <Download />}
           Export All
         </Button>
       </DataTableToolbar>
