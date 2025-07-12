@@ -10,8 +10,9 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useMemo, useTransition } from 'react';
+import { useEffect, useMemo, useTransition, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -34,7 +35,14 @@ const formSchema = z.object({
   classId: z.string().min(1, 'Class is required'),
   semesterId: z.string().min(1, 'Semester is required'),
   academicYearId: z.string().min(1, 'Academic year is required'),
-  rollNumber: z.string().min(1, 'Roll number is required'),
+  rollNumberPrefix: z.string().min(1, 'Roll number prefix is required'),
+  rollNumberSuffix: z
+    .string()
+    .min(1, 'Roll number is required')
+    .regex(
+      /^[1-9]\d*$/,
+      'Roll number must be a positive number and cannot start with 0'
+    ),
   isActive: z.boolean()
 });
 
@@ -43,8 +51,40 @@ interface EnrollmentFormProps {
   onSuccess?: () => void;
 }
 
+// Roll number prefix options
+const rollNumberPrefixes = [
+  { value: '1CST', label: '1CST' },
+  { value: '2CS', label: '2CS' },
+  { value: '2CT', label: '2CT' },
+  { value: '3CS', label: '3CS' },
+  { value: '3CT', label: '3CT' },
+  { value: '4CS', label: '4CS' },
+  { value: '4CT', label: '4CT' },
+  { value: '5CS', label: '5CS' },
+  { value: '5CT', label: '5CT' }
+];
+
 export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
   const [loading, startTransition] = useTransition();
+  const [autoSelectCurrentYear, setAutoSelectCurrentYear] = useState(false);
+  const [autoSelectCurrentSemester, setAutoSelectCurrentSemester] =
+    useState(false);
+  const [isAutoSelecting, setIsAutoSelecting] = useState(false);
+
+  // Parse existing roll number if in edit mode
+  const parseRollNumber = (rollNumber?: string) => {
+    if (!rollNumber) return { prefix: '', suffix: '' };
+
+    const match = rollNumber.match(/^(.+)-(\d+)$/);
+    if (match) {
+      return { prefix: match[1], suffix: match[2] };
+    }
+    return { prefix: '', suffix: '' };
+  };
+
+  const { prefix: initialPrefix, suffix: initialSuffix } = parseRollNumber(
+    enrollment?.rollNumber
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,7 +93,8 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
       classId: enrollment?.classId?.toString() || '',
       semesterId: enrollment?.semesterId?.toString() || '',
       academicYearId: enrollment?.semester?.academicYearId?.toString() || '',
-      rollNumber: enrollment?.rollNumber || '',
+      rollNumberPrefix: initialPrefix,
+      rollNumberSuffix: initialSuffix,
       isActive: enrollment?.isActive || false
     }
   });
@@ -121,22 +162,65 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
     [classesData, selectedSemesterId]
   );
 
+  // Auto-select current academic year
+  useEffect(() => {
+    if (autoSelectCurrentYear && academicYearsData) {
+      const currentYear = academicYearsData.find((year) => year.isCurrent);
+      if (currentYear) {
+        setIsAutoSelecting(true);
+        form.setValue('academicYearId', currentYear.id.toString());
+        setIsAutoSelecting(false);
+      }
+    }
+  }, [autoSelectCurrentYear, academicYearsData, form]);
+
+  // Auto-select current semester
+  useEffect(() => {
+    if (autoSelectCurrentSemester && filteredSemesters.length > 0) {
+      const currentSemester = filteredSemesters.find(
+        (semester) => semester.isCurrent
+      );
+      if (currentSemester) {
+        setIsAutoSelecting(true);
+        form.setValue('semesterId', currentSemester.id.toString());
+        setIsAutoSelecting(false);
+      }
+    }
+  }, [autoSelectCurrentSemester, filteredSemesters, form]);
+
+  // Handle academic year change - uncheck auto-select if manually changed
+  const handleAcademicYearChange = (value: string) => {
+    if (!isAutoSelecting && autoSelectCurrentYear) {
+      setAutoSelectCurrentYear(false);
+    }
+    form.setValue('academicYearId', value);
+  };
+
+  // Handle semester change - uncheck auto-select if manually changed
+  const handleSemesterChange = (value: string) => {
+    if (!isAutoSelecting && autoSelectCurrentSemester) {
+      setAutoSelectCurrentSemester(false);
+    }
+    form.setValue('semesterId', value);
+  };
+
   useEffect(() => {
     if (enrollment) {
+      const { prefix, suffix } = parseRollNumber(enrollment.rollNumber);
       form.reset({
         studentId: enrollment.studentId?.toString() || '',
         classId: enrollment.classId?.toString() || '',
         semesterId: enrollment.semesterId?.toString() || '',
         academicYearId: enrollment.semester?.academicYearId?.toString() || '',
-        rollNumber: enrollment.rollNumber || '',
+        rollNumberPrefix: prefix,
+        rollNumberSuffix: suffix,
         isActive: enrollment.isActive || false
       });
     }
   }, [enrollment, form]);
 
   useEffect(() => {
-    if (selectedAcademicYearId && !enrollment) {
-      // Only clear if NOT in edit mode
+    if (selectedAcademicYearId) {
       const currentSemester = form.getValues('semesterId');
       const isCurrentSemesterValid = filteredSemesters.some(
         (s) => s.id === Number(currentSemester)
@@ -147,11 +231,10 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
         form.setValue('classId', '');
       }
     }
-  }, [selectedAcademicYearId, filteredSemesters, form, enrollment]);
+  }, [selectedAcademicYearId, filteredSemesters, form]);
 
   useEffect(() => {
-    if (selectedSemesterId && !enrollment) {
-      // Only clear if NOT in edit mode
+    if (selectedSemesterId) {
       const currentClass = form.getValues('classId');
       const isCurrentClassValid = filteredClasses.some(
         (c) => c.id === Number(currentClass)
@@ -161,7 +244,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
         form.setValue('classId', '');
       }
     }
-  }, [selectedSemesterId, filteredClasses, form, enrollment]);
+  }, [selectedSemesterId, filteredClasses, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
@@ -170,7 +253,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           studentId: Number(values.studentId),
           classId: Number(values.classId),
           semesterId: Number(values.semesterId),
-          rollNumber: values.rollNumber,
+          rollNumber: `${values.rollNumberPrefix}-${values.rollNumberSuffix}`,
           isActive: values.isActive
         };
 
@@ -244,7 +327,26 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           name='academicYearId'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Academic Year</FormLabel>
+              <div className='flex items-center gap-2'>
+                <FormLabel>Academic Year</FormLabel>
+                <div className='flex items-center space-x-2'>
+                  <Checkbox
+                    id='auto-select-year'
+                    checked={autoSelectCurrentYear}
+                    onCheckedChange={(checked) =>
+                      setAutoSelectCurrentYear(checked as boolean)
+                    }
+                    disabled={loading || academicYearsLoading}
+                  />
+                  <label
+                    htmlFor='auto-select-year'
+                    className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed
+                      peer-disabled:opacity-70'
+                  >
+                    Current
+                  </label>
+                </div>
+              </div>
               <Combobox
                 options={
                   academicYearsData?.map((year) => ({
@@ -253,7 +355,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                   })) || []
                 }
                 value={field.value}
-                onValueChange={(value) => field.onChange(value)}
+                onValueChange={handleAcademicYearChange}
                 placeholder='Select academic year...'
                 searchPlaceholder='Search academic year...'
                 disabled={loading || academicYearsLoading}
@@ -268,14 +370,35 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           name='semesterId'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Semester</FormLabel>
+              <div className='flex items-center gap-2'>
+                <FormLabel>Semester</FormLabel>
+                <div className='flex items-center space-x-2'>
+                  <Checkbox
+                    id='auto-select-semester'
+                    checked={autoSelectCurrentSemester}
+                    onCheckedChange={(checked) =>
+                      setAutoSelectCurrentSemester(checked as boolean)
+                    }
+                    disabled={
+                      loading || semestersLoading || !selectedAcademicYearId
+                    }
+                  />
+                  <label
+                    htmlFor='auto-select-semester'
+                    className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed
+                      peer-disabled:opacity-70'
+                  >
+                    Current
+                  </label>
+                </div>
+              </div>
               <Combobox
                 options={filteredSemesters.map((semester) => ({
                   value: semester.id.toString(),
                   label: `${semester.semesterName} ${semester.isCurrent ? '(Current)' : ''}`
                 }))}
                 value={field.value}
-                onValueChange={(value) => field.onChange(value)}
+                onValueChange={handleSemesterChange}
                 placeholder={
                   selectedAcademicYearId
                     ? 'Select a semester...'
@@ -306,11 +429,18 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                 onValueChange={(value) => field.onChange(value)}
                 placeholder={
                   selectedSemesterId
-                    ? 'Select a class...'
+                    ? filteredClasses.length > 0
+                      ? 'Select a class...'
+                      : 'No classes available'
                     : 'Select semester first'
                 }
                 searchPlaceholder='Search class...'
-                disabled={loading || classesLoading || !selectedSemesterId}
+                disabled={
+                  loading ||
+                  classesLoading ||
+                  !selectedSemesterId ||
+                  filteredClasses.length === 0
+                }
               />
               <FormMessage />
             </FormItem>
@@ -319,15 +449,47 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
 
         <FormField
           control={form.control}
-          name='rollNumber'
+          name='rollNumberPrefix'
           render={({ field }) => (
-            <FormItem className='col-span-2'>
+            <FormItem>
+              <FormLabel>Roll Number Prefix</FormLabel>
+              <Combobox
+                options={rollNumberPrefixes}
+                value={field.value}
+                onValueChange={(value) => field.onChange(value)}
+                placeholder='Select prefix...'
+                searchPlaceholder='Search prefix...'
+                disabled={loading}
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='rollNumberSuffix'
+          render={({ field }) => (
+            <FormItem>
               <FormLabel>Roll Number</FormLabel>
               <FormControl>
                 <Input
-                  placeholder='Enter roll number'
+                  type='number'
+                  placeholder='Enter number'
                   {...field}
                   disabled={loading}
+                  min='1'
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    // Remove leading zeros
+                    if (
+                      target.value.startsWith('0') &&
+                      target.value.length > 1
+                    ) {
+                      target.value = target.value.replace(/^0+/, '');
+                      field.onChange(target.value);
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -338,11 +500,11 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
         <div className='col-span-2 flex justify-end gap-4'>
           <Button
             type='submit'
-            disabled={loading || isDataLoading}
+            disabled={loading || isDataLoading || !form.watch('classId')}
             className='w-full sm:w-auto'
           >
             {loading && <Loader className='h-4 w-4 animate-spin' />}
-            {loading ? 'Saving Erollment...' : 'Save Enrollment'}
+            {loading ? 'Saving Enrollment...' : 'Save Enrollment'}
           </Button>
         </div>
       </form>

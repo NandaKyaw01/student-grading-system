@@ -1,19 +1,18 @@
 'use client';
 import { ClassWithDetails } from '@/actions/class';
 import { ColumnDef } from '@tanstack/react-table';
-// import { ClassCellAction } from './class-cell-action';
 import { CalendarCheck, Text } from 'lucide-react';
 import { ClassSubjectManager } from './class-subject-manager';
-import { AcademicYear, Semester } from '@/generated/prisma';
-
-const Code = ['CS', 'CT', 'CST'];
+import { AcademicYear, Class, Semester } from '@/generated/prisma';
 
 export function getClassSubjectColumns({
   academicYears,
-  semesters
+  semesters,
+  classes
 }: {
   academicYears: AcademicYear[];
   semesters: Semester[];
+  classes: Class[];
 }): ColumnDef<ClassWithDetails>[] {
   return [
     {
@@ -49,21 +48,7 @@ export function getClassSubjectColumns({
       },
       enableColumnFilter: true
     },
-    {
-      id: 'departmentCode',
-      accessorKey: 'departmentCode',
-      header: 'Code',
-      meta: {
-        label: 'Code',
-        variant: 'multiSelect',
-        options: Code.map((c) => ({
-          label: c,
-          value: c
-        })),
-        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
-      },
-      enableColumnFilter: true
-    },
+
     {
       id: 'academicYearId',
       accessorFn: (row) => row.semester?.academicYear?.yearRange,
@@ -89,6 +74,21 @@ export function getClassSubjectColumns({
         options: semesters.map((seme) => ({
           label: `${seme.semesterName} ${seme.isCurrent ? '(Current)' : ''}`,
           value: seme.id.toString()
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true
+    },
+    {
+      id: 'departmentCode',
+      accessorKey: 'departmentCode',
+      header: 'Class Code',
+      meta: {
+        label: 'Class Code',
+        variant: 'multiSelect',
+        options: classes.map((c) => ({
+          label: c.departmentCode,
+          value: c.departmentCode
         })),
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
       },

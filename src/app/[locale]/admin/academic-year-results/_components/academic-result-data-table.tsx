@@ -13,26 +13,29 @@ import { Download, Loader } from 'lucide-react';
 import React from 'react';
 import { AcademicResultsTableActionBar } from './academic-result-table-action-bar';
 import { getAcademicResultColumns } from './academic-result-table-column';
+import { getClasses } from '@/actions/class';
 
 interface ResultsTableProps {
   promises: Promise<
     [
       Awaited<ReturnType<typeof getAllAcademicYearResults<true>>>,
-      Awaited<ReturnType<typeof getAcademicYears<true>>>
+      Awaited<ReturnType<typeof getAcademicYears<true>>>,
+      Awaited<ReturnType<typeof getClasses<false>>>
     ]
   >;
 }
 
 export function AcademicResultDataTable({ promises }: ResultsTableProps) {
-  const [{ results, pageCount }, { years }] = React.use(promises);
+  const [{ results, pageCount }, { years }, { classes }] = React.use(promises);
   const [isPending, startTransition] = React.useTransition();
 
   const columns = React.useMemo(
     () =>
       getAcademicResultColumns({
-        academicYears: years
+        academicYears: years,
+        classes
       }),
-    [years]
+    [years, classes]
   );
 
   const { table } = useDataTable({

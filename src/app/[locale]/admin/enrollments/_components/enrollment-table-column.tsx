@@ -1,17 +1,13 @@
 'use client';
 
-import CopyableIdCell from '@/components/copyable-id-cell';
+import { EnrollmentWithDetails } from '@/actions/enrollment';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { AcademicYear, Class, Enrollment, Semester } from '@/generated/prisma';
+import { AcademicYear, Class, Semester } from '@/generated/prisma';
 import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
 import { CalendarCheck, CalendarIcon, Text } from 'lucide-react';
 import { EnrollmentCellAction } from './enrollment-cell-action';
-import { EnrollmentWithDetails } from '@/actions/enrollment';
-
-const Code = ['CS', 'CT', 'CST'];
 
 export function getEnrollmentColumns({
   academicYears,
@@ -116,9 +112,9 @@ export function getEnrollmentColumns({
     {
       id: 'classId',
       accessorFn: (row) => row.class.className,
-      header: 'Class',
+      header: 'Class Name',
       meta: {
-        label: 'Class',
+        label: 'Class Name',
         variant: 'multiSelect',
         options: classes.map((cls) => ({
           label: `${cls.className} (${cls.departmentCode})`,
@@ -131,15 +127,9 @@ export function getEnrollmentColumns({
     {
       id: 'departmentCode',
       accessorFn: (row) => row.class?.departmentCode,
-      header: 'Code',
+      header: 'Class Code',
       meta: {
-        label: 'Code',
-        variant: 'multiSelect',
-        options: Code.map((c) => ({
-          label: c,
-          value: c
-        })),
-        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+        label: 'Class Code'
       },
       enableColumnFilter: true,
       size: 80

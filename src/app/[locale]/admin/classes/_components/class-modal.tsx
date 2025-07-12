@@ -32,19 +32,12 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
-// Define the enum values for TypeScript
-enum DepartmentCode {
-  CS = 'CS',
-  CT = 'CT',
-  CST = 'CST'
-}
-
 const classFormSchema = z.object({
   className: z.string().min(1, {
     message: 'Class name is required'
   }),
-  departmentCode: z.nativeEnum(DepartmentCode, {
-    required_error: 'Department code is required'
+  departmentCode: z.string().min(1, {
+    message: 'Class Code is required'
   }),
   semesterId: z.string().min(1, {
     message: 'Semester is required'
@@ -114,7 +107,7 @@ export function ClassDialog({
 
   const defaultValues: Partial<ClassFormValues> = {
     className: classData?.className || '',
-    departmentCode: (classData?.departmentCode as DepartmentCode) || undefined,
+    departmentCode: classData?.departmentCode || '',
     semesterId: classData?.semesterId.toString() || ''
   };
 
@@ -127,8 +120,7 @@ export function ClassDialog({
     if (open) {
       form.reset({
         className: classData?.className || '',
-        departmentCode:
-          (classData?.departmentCode as DepartmentCode) || undefined,
+        departmentCode: classData?.departmentCode || '',
         semesterId: classData?.semesterId.toString() || ''
       });
     }
@@ -217,18 +209,8 @@ export function ClassDialog({
               name='departmentCode'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Department Code</FormLabel>
-                  <Combobox
-                    options={Object.values(DepartmentCode).map((code) => ({
-                      value: code,
-                      label: code
-                    }))}
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    placeholder='Select department'
-                    searchPlaceholder='Search department...'
-                    // disabled={isLoadingAcademicYears}
-                  />
+                  <FormLabel>Class Code</FormLabel>
+                  <Input placeholder='e.g., 1121 CS' {...field} />
                   <FormMessage />
                 </FormItem>
               )}

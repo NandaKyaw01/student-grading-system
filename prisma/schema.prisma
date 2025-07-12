@@ -45,16 +45,10 @@ model Semester {
   @@index([isCurrent])
 }
 
-enum Code {
-  CS
-  CT
-  CST
-}
-
 model Class {
   id             Int            @id @default(autoincrement())
   className      String
-  departmentCode Code
+  departmentCode String
   semesterId     Int
   enrollments    Enrollment[]
   subjects       ClassSubject[]

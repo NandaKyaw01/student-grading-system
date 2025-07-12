@@ -1,19 +1,18 @@
 'use client';
-import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
-import { ColumnDef } from '@tanstack/react-table';
 import { ClassWithDetails } from '@/actions/class';
-import { ClassCellAction } from './class-cell-action';
+import { AcademicYear, Class, Semester } from '@/generated/prisma';
+import { ColumnDef } from '@tanstack/react-table';
 import { CalendarCheck, Text } from 'lucide-react';
-import { AcademicYear, Semester } from '@/generated/prisma';
-
-const Code = ['CS', 'CT', 'CST'];
+import { ClassCellAction } from './class-cell-action';
 
 export function getClassColumns({
   academicYears,
-  semesters
+  semesters,
+  classes
 }: {
   academicYears: AcademicYear[];
   semesters: Semester[];
+  classes: Class[];
 }): ColumnDef<ClassWithDetails>[] {
   return [
     {
@@ -50,22 +49,6 @@ export function getClassColumns({
       enableColumnFilter: true
     },
     {
-      id: 'departmentCode',
-      accessorKey: 'departmentCode',
-      header: 'Code',
-      meta: {
-        label: 'Code',
-        variant: 'multiSelect',
-        options: Code.map((c) => ({
-          label: c,
-          value: c
-        })),
-        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
-      },
-      enableColumnFilter: true,
-      size: 80
-    },
-    {
       id: 'academicYearId',
       accessorFn: (row) => row.semester?.academicYear?.yearRange,
       header: 'Academic Year',
@@ -95,6 +78,22 @@ export function getClassColumns({
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
       },
       enableColumnFilter: true
+    },
+    {
+      id: 'departmentCode',
+      accessorKey: 'departmentCode',
+      header: 'Class Code',
+      meta: {
+        label: 'Class Code',
+        variant: 'multiSelect',
+        options: classes.map((c) => ({
+          label: c.departmentCode,
+          value: c.departmentCode
+        })),
+        icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
+      },
+      enableColumnFilter: true,
+      size: 80
     },
     {
       id: 'actions',

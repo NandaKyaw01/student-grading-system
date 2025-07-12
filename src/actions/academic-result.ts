@@ -58,6 +58,24 @@ export async function getAllAcademicYearResults<T extends boolean = false>(
           };
         }
 
+        if (input?.classId && input?.classId?.length > 0) {
+          where.student = {
+            enrollments: {
+              some: {
+                classId: {
+                  in: input.classId
+                },
+                // Optional: You might also want to ensure the enrollment is in the same academic year
+                semester: {
+                  academicYearId: {
+                    in: input.academicYearId || [] // Use the same academic year filter
+                  }
+                }
+              }
+            }
+          };
+        }
+
         // Date range filter
         const range = Array.isArray(input.createdAt)
           ? input.createdAt
@@ -156,6 +174,7 @@ export async function deleteAcademicResult(id: number) {
     };
   }
 }
+
 export async function deleteAcademicResults(ids: number[]) {
   try {
     await prisma.academicYearResult.deleteMany({

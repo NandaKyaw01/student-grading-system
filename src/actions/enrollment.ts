@@ -1,5 +1,5 @@
 'use server';
-import { Code, Enrollment, Prisma } from '@/generated/prisma';
+import { Enrollment, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetEnrollmentSchema } from '@/lib/search-params/enrollment';
 import { revalidateTag, unstable_cache } from 'next/cache';
@@ -70,7 +70,7 @@ export async function getAllEnrollments<T extends boolean = false>(
         if (input?.departmentCode && input?.departmentCode?.length > 0) {
           where.class = {
             departmentCode: {
-              in: input.departmentCode as Code[]
+              in: input.departmentCode
             }
           };
         }
@@ -160,6 +160,23 @@ export async function createEnrollment(
   data: Omit<Enrollment, 'id' | 'createdAt' | 'updatedAt'>
 ) {
   try {
+    // Check if enrollment already exists
+    const existingEnrollment = await prisma.enrollment.findFirst({
+      where: {
+        studentId: data.studentId,
+        classId: data.classId,
+        semesterId: data.semesterId
+      }
+    });
+
+    if (existingEnrollment) {
+      return {
+        success: false,
+        error:
+          'This student is already enrolled in this class for the selected semester'
+      };
+    }
+
     const enrollment = await prisma.enrollment.create({
       data
     });

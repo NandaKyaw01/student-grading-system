@@ -40,10 +40,11 @@ export default async function ClassSubjectsPage(props: pageProps) {
     getAcademicYears(),
     getSemesters(undefined, {
       academicYearId: search.academicYearId
-    })
+    }),
+    getClasses(undefined, { semesterId: search.semesterId })
   ]);
 
-  const suspenseKey = `results-${search.academicYearId || 'all'}`;
+  const suspenseKey = `results-${search.academicYearId || 'all'}-${search.semesterId || 'all'}`;
 
   return (
     <ContentLayout

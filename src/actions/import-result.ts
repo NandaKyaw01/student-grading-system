@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { getErrorMessage } from '@/lib/handle-error';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import { updateAcademicYearResult } from './result';
 import { revalidateTag } from 'next/cache';
 
@@ -97,7 +97,7 @@ type TemplateData = {
   academicYear: string;
   semester: string;
   class: string;
-  classCode: 'CS' | 'CT' | 'CST';
+  classCode: string;
   subjects: Array<{
     id: string;
     name: string;
@@ -115,13 +115,6 @@ export async function generateStudentTemplate(
     if (!classId) {
       throw new Error('Class ID is required');
     }
-
-    // Fetch class subjects with subject details
-    // const classSubjects = templateData.subjects.sort((a, b) => {
-    //   const numA = parseInt(a.id.match(/\d+/)?.[0] || '0');
-    //   const numB = parseInt(b.id.match(/\d+/)?.[0] || '0');
-    //   return numA - numB;
-    // });
 
     const SUBJECT_PRIORITY: Record<string, number> = {
       Myanmar: 1,
@@ -153,7 +146,7 @@ export async function generateStudentTemplate(
     const workbook = XLSX.utils.book_new();
 
     // Generate headers
-    const headers = ['Admission ID', 'Roll Number', 'Student Name'];
+    const headers = ['Admission ID', 'Roll Number', '', 'Student Name'];
 
     // Add subject-specific columns
     classSubjects.forEach((cs) => {
@@ -172,48 +165,51 @@ export async function generateStudentTemplate(
     headers.push('Total GP', 'GPA');
 
     // Create sample data rows for demonstration
-    const sampleRows = [];
+    // const sampleRows = [];
 
-    // Add 5 sample rows to show the format
-    for (let i = 1; i <= 5; i++) {
-      const row = [
-        `${String(i).padStart(6, '0')}`,
-        `${templateData.classCode || 'CS'}-${i}`,
-        `Sample Student ${i}` // Name
-      ];
+    // // Add 5 sample rows to show the format
+    // for (let i = 1; i <= 5; i++) {
+    //   const row = [
+    //     `${String(i).padStart(6, '0')}`,
+    //     `${templateData.classCode || 'CS'}`, // Class part
+    //     `${i}`, // Number part
+    //     `Sample Student ${i}` // Name
+    //   ];
 
-      // Add empty cells for each subject's columns
-      classSubjects.forEach(() => {
-        row.push('', '', '', '', '', '', '');
-      });
+    //   // Add empty cells for each subject's columns
+    //   classSubjects.forEach(() => {
+    //     row.push('', '', '', '', '', '', '');
+    //   });
 
-      // Add empty cells for summary columns
-      row.push('', ''); // Total GP, GPA
+    //   // Add empty cells for summary columns
+    //   row.push('', ''); // Total GP, GPA
 
-      sampleRows.push(row);
-    }
+    //   sampleRows.push(row);
+    // }
 
     // Create worksheet data
+    // const worksheetData = [headers, ...sampleRows];
     const worksheetData = [headers];
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
     // Set column widths
     const columnWidths = [
       { wch: 12 }, // Admission ID
-      { wch: 10 }, // Roll Number
-      { wch: 15 } // Name
+      { wch: 8 }, // Roll Number - Class
+      { wch: 8 }, // Roll Number - Number
+      { wch: 15 } // Student Name
     ];
 
     // Add widths for subject columns
     classSubjects.forEach(() => {
       columnWidths.push(
         { wch: 10 }, // real
-        { wch: 12 }, // exam
-        { wch: 12 }, // assign
-        { wch: 12 }, // Subject Name
-        { wch: 12 }, // Grade
-        { wch: 12 }, // Score
-        { wch: 12 } // GP
+        { wch: 10 }, // exam
+        { wch: 10 }, // assign
+        { wch: 10 }, // Subject Name
+        { wch: 10 }, // Grade
+        { wch: 10 }, // Score
+        { wch: 10 } // GP
       );
     });
 
@@ -222,19 +218,49 @@ export async function generateStudentTemplate(
 
     worksheet['!cols'] = columnWidths;
 
-    // Style the header row - Fixed null check
+    // Create merged cells for "Roll Number" header
+    const merges = [
+      { s: { r: 0, c: 1 }, e: { r: 0, c: 2 } } // Roll Number spans columns B and C
+    ];
+
+    worksheet['!merges'] = merges;
+
+    const SUBJECT_COLORS = [
+      'CCE5FF', // More visible blue
+      'FFE4B5', // More visible orange
+      'D4EDDA', // More visible green
+      'E1BEE7', // More visible purple
+      'B8E6B8', // More visible mint
+      'FFF2CC', // More visible yellow
+      'D1C4E9', // More visible lavender
+      'FFCCCB' // More visible pink
+    ];
+
     if (worksheet['!ref']) {
       const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
+
       for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
         const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
         if (!worksheet[cellAddress]) continue;
 
+        // Determine subject color based on column
+        let subjectColor = 'FFFFFF'; // Default white
+        if (col >= 4) {
+          // Subject columns start from column 4
+          const subjectColumnIndex = col - 4;
+          const subjectIndex = Math.floor(subjectColumnIndex / 7); // 7 columns per subject
+          subjectColor = SUBJECT_COLORS[subjectIndex % SUBJECT_COLORS.length];
+        }
+
         worksheet[cellAddress].s = {
-          font: { bold: true, color: { rgb: 'FFFFFF' } },
-          fill: { fgColor: { rgb: '366092' } },
+          font: { bold: true },
           alignment: {
             horizontal: 'center',
-            vertical: 'center'
+            vertical: 'center',
+            wrapText: true
+          },
+          fill: {
+            fgColor: { rgb: subjectColor }
           },
           border: {
             top: { style: 'thin', color: { rgb: '000000' } },
@@ -243,6 +269,53 @@ export async function generateStudentTemplate(
             right: { style: 'thin', color: { rgb: '000000' } }
           }
         };
+      }
+    }
+
+    if (worksheet['!ref']) {
+      const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
+
+      // Extend range to include more rows for styling
+      const extendedRange = {
+        s: { c: 0, r: 0 },
+        e: { c: headerRange.e.c, r: Math.max(headerRange.e.r, 200) }
+      };
+      worksheet['!ref'] = XLSX.utils.encode_range(extendedRange);
+
+      // Style data rows
+      for (let row = 1; row <= 200; row++) {
+        for (let col = 0; col <= headerRange.e.c; col++) {
+          const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+
+          if (!worksheet[cellAddress]) {
+            worksheet[cellAddress] = { t: 's', v: '' };
+          }
+
+          // Determine subject color based on column
+          let subjectColor = 'FFFFFF'; // Default white
+          if (col >= 4) {
+            // Subject columns start from column 4
+            const subjectColumnIndex = col - 4;
+            const subjectIndex = Math.floor(subjectColumnIndex / 7); // 7 columns per subject
+            subjectColor = SUBJECT_COLORS[subjectIndex % SUBJECT_COLORS.length];
+          }
+
+          worksheet[cellAddress].s = {
+            alignment: {
+              horizontal: col === 3 ? 'left' : 'center', // Student name left, others center
+              vertical: 'center'
+            },
+            fill: {
+              fgColor: { rgb: subjectColor }
+            },
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } }
+            }
+          };
+        }
       }
     }
 
@@ -260,9 +333,10 @@ export async function generateStudentTemplate(
       [''],
       ['INSTRUCTIONS:'],
       ['1. Fill in student information in the main sheet'],
-      // ['2. No. column: Sequential number (1, 2, 3, ...)'],
       ['2. Admission ID column: Admission ID number (e.g., 000001)'],
-      ['3. Roll Number: Student roll number (e.g., CS-1)'],
+      ['3. Roll Number columns: Split the roll number into two parts'],
+      ['   - First column: Class code part (e.g., 2CS, 3IT, 1EE)'],
+      ['   - Second column: Number part (e.g., 34, 15, 02)'],
       ['4. Name: Full student name'],
       [''],
       ['SUBJECT COLUMNS:'],
@@ -392,16 +466,40 @@ export async function importStudentResults(
 
     // Read Excel file
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array' });
+    const workbook = XLSX.read(buffer, {
+      type: 'array',
+      cellStyles: false, // Ignore cell styles
+      cellHTML: false, // Don't parse HTML
+      cellFormula: false, // Don't parse formulas
+      cellDates: false, // Handle dates as strings for consistency
+      dense: false // Use standard format
+    });
+
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
+
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+
     const jsonData = XLSX.utils.sheet_to_json(worksheet, {
       header: 1,
-      raw: true,
-      defval: ''
+      raw: false,
+      defval: '',
+      blankrows: false, // Skip completely blank rows
+      range: range // Use the actual range
     }) as (string | number | boolean | null)[][];
 
-    if (jsonData.length < 2) {
+    const cleanedData = jsonData
+      .filter((row) =>
+        row.some((cell) => cell && cell.toString().trim() !== '')
+      )
+      .map((row) =>
+        row.map((cell) => {
+          if (cell === null || cell === undefined) return '';
+          return cell.toString().trim();
+        })
+      );
+
+    if (cleanedData.length < 2) {
       return {
         success: false,
         message: 'Excel file must contain at least header and one data row',
@@ -416,8 +514,8 @@ export async function importStudentResults(
       };
     }
 
-    const headers = jsonData[0] as string[];
-    const dataRows = jsonData.slice(1);
+    const headers = cleanedData[0].map((header) => header.trim());
+    const dataRows = cleanedData.slice(1);
 
     // Get class subjects for validation
     const classSubjects = await prisma.classSubject.findMany({
@@ -433,8 +531,8 @@ export async function importStudentResults(
     const validData: StudentResultRow[] = [];
     const errorRowsData: RowData[] = [];
 
-    // Expected columns
-    const requiredColumns = ['Student Name', 'Admission ID', 'Roll Number'];
+    // Expected columns - Updated to use separate roll number columns
+    const requiredColumns = ['Student Name', 'Admission ID', 'Roll Number', '']; // Roll Number and empty column for number part
     const subjectColumns = classSubjects.flatMap((cs) => [
       cs.subject.subjectName,
       `${cs.subject.id} ${(cs.subject.examWeight * 100).toFixed(0)}%`,
@@ -463,7 +561,7 @@ export async function importStudentResults(
         headers,
         errors: [
           {
-            row: 0, // No specific row for general errors
+            row: 0,
             column: '',
             field: 'general',
             message: `Missing required columns: ${missingColumns.join(', ')}`
@@ -493,11 +591,41 @@ export async function importStudentResults(
       return !isNaN(num) && num >= min && num <= max;
     }
 
+    // Validation function for roll number class code
+    function isValidClassCode(code: string): boolean {
+      const validCodes = [
+        '1CST',
+        '2CS',
+        '2CT',
+        '3CS',
+        '3CT',
+        '4CS',
+        '4CT',
+        '5CS',
+        '5CT'
+      ];
+      return validCodes.includes(code.toUpperCase());
+    }
+
+    // Function to get roll number column indices
+    function getRollNumberColumnIndices(headers: string[]): {
+      classIndex: number;
+      numberIndex: number;
+    } {
+      const rollNumberIndex = headers.findIndex((h) => h === 'Roll Number');
+      if (rollNumberIndex === -1) {
+        return { classIndex: -1, numberIndex: -1 };
+      }
+
+      // The number column should be the next column after Roll Number
+      const numberIndex = rollNumberIndex + 1;
+
+      return { classIndex: rollNumberIndex, numberIndex };
+    }
+
     // Process each row
     for (let i = 0; i < dataRows.length; i++) {
       const row = dataRows[i];
-
-      console.log(row);
 
       const rowNumber = i + 2; // +2 for header row and 0-indexing
       const rowData: RowData = {};
@@ -530,12 +658,68 @@ export async function importStudentResults(
         hasErrors = true;
       }
 
-      if (isEmptyValue(rowData['Roll Number'])) {
+      // Validate roll number parts
+      const { classIndex, numberIndex } = getRollNumberColumnIndices(headers);
+      let combinedRollNumber = '';
+
+      if (classIndex !== -1 && numberIndex !== -1) {
+        const classCode = row[classIndex]?.toString().trim() || '';
+        const numberPart = row[numberIndex]?.toString().trim() || '';
+
+        // Validate class code
+        if (isEmptyValue(classCode)) {
+          errors.push({
+            row: rowNumber,
+            column: 'Roll Number',
+            field: 'rollNumberClass',
+            message: 'Roll number class code is required'
+          });
+          hasErrors = true;
+        } else if (!isValidClassCode(classCode)) {
+          errors.push({
+            row: rowNumber,
+            column: 'Roll Number',
+            field: 'rollNumberClass',
+            message: `Invalid class code '${classCode}'. Valid codes: 1CST, 2CS, 2CT, 3CS, 3CT, 4CS, 4CT, 5CS, 5CT`
+          });
+          hasErrors = true;
+        }
+
+        // Validate number part
+        if (isEmptyValue(numberPart)) {
+          errors.push({
+            row: rowNumber,
+            column: headers[numberIndex] || '',
+            field: 'rollNumberNumber',
+            message: 'Roll number (number part) is required'
+          });
+          hasErrors = true;
+        } else if (isNaN(parseInt(numberPart))) {
+          errors.push({
+            row: rowNumber,
+            column: headers[numberIndex] || '',
+            field: 'rollNumberNumber',
+            message: `Invalid roll number '${numberPart}'. Must be a valid number`
+          });
+          hasErrors = true;
+        }
+
+        // Combine roll number if both parts are valid
+        if (
+          !hasErrors ||
+          (classCode &&
+            numberPart &&
+            isValidClassCode(classCode) &&
+            !isNaN(parseInt(numberPart)))
+        ) {
+          combinedRollNumber = `${classCode.toUpperCase()}-${numberPart}`;
+        }
+      } else {
         errors.push({
           row: rowNumber,
           column: 'Roll Number',
           field: 'rollNumber',
-          message: 'Roll number is required'
+          message: 'Roll number columns not found'
         });
         hasErrors = true;
       }
@@ -564,8 +748,6 @@ export async function importStudentResults(
             headers[i + 5] === scoreCol &&
             headers[i + 6] === gpCol
         );
-
-        // Find the index of this subject's columns in headers
 
         if (subjectStartIndex !== -1) {
           const subjectNameColumnKey = headers[subjectStartIndex]; // Subject Name (Base Mark)
@@ -789,7 +971,10 @@ export async function importStudentResults(
       if (hasErrors) {
         errorRowsData.push(rowData);
       } else {
-        validData.push(rowData as StudentResultRow);
+        // Add the combined roll number to the valid data
+        const validRowData = { ...rowData } as StudentResultRow;
+        validRowData['Roll Number'] = combinedRollNumber;
+        validData.push(validRowData);
       }
     }
 
@@ -876,7 +1061,7 @@ export async function importStudentResults(
 
       preparedData.push({
         student: studentData,
-        rollNumber: rowData['Roll Number'].toString().trim(),
+        rollNumber: rowData['Roll Number'].toString().trim(), // This is now the combined roll number
         grades: gradesData,
         gpa: parseFloat(String(rowData['GPA'])),
         totalGp: parseFloat(String(rowData['Total GP']))

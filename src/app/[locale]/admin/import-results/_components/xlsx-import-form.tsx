@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
@@ -50,48 +51,19 @@ import {
   X
 } from 'lucide-react';
 
-import React, { useCallback, useMemo, useState, useTransition } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition
+} from 'react';
 import { toast } from 'sonner';
 
 interface SelectionState {
   academicYearId: number | null;
   semesterId: number | null;
   classId: number | null;
-}
-
-export interface AcademicYear {
-  id: number;
-  yearRange: string;
-  isCurrent: boolean;
-}
-
-export interface Semester {
-  id: number;
-  semesterName: string;
-  academicYearId: number;
-  isCurrent: boolean;
-}
-
-export interface Class {
-  id: number;
-  className: string;
-  departmentCode: 'CS' | 'CT' | 'CST';
-  semesterId: number;
-}
-
-export interface Subject {
-  id: string;
-  subjectName: string;
-  creditHours: number;
-  examWeight: number;
-  assignWeight: number;
-}
-
-export interface ClassSubject {
-  id: number;
-  classId: number;
-  subjectId: string;
-  subject: Subject;
 }
 
 // Update UploadError interface to include column info
@@ -125,6 +97,9 @@ const XlsxImportForm = () => {
   const [showErrorSheet, setShowErrorSheet] = useState(false);
   const [errorData, setErrorData] = useState<Record<string, unknown>[]>([]);
   const [errorHeaders, setErrorHeaders] = useState<string[]>([]);
+
+  const [autoSelectYear, setAutoSelectYear] = useState(false);
+  const [autoSelectSemester, setAutoSelectSemester] = useState(false);
 
   // Queries with proper dependency chain
   const { data: academicYears = [], isLoading: loadingYears } =
@@ -225,7 +200,37 @@ const XlsxImportForm = () => {
     setFileError(null);
   }, []);
 
-  // Optimized selection handlers to prevent unnecessary re-renders
+  // Auto-select current academic year when checkbox is checked
+  useEffect(() => {
+    if (autoSelectYear && academicYears.length > 0) {
+      const currentYear = academicYears.find((year) => year.isCurrent);
+      if (currentYear && currentYear.id !== selection.academicYearId) {
+        setSelection((prev) => ({
+          ...prev,
+          academicYearId: currentYear.id,
+          semesterId: null,
+          classId: null
+        }));
+        clearErrors();
+      }
+    }
+  }, [autoSelectYear, academicYears, selection.academicYearId, clearErrors]);
+
+  // Auto-select current semester when checkbox is checked
+  useEffect(() => {
+    if (autoSelectSemester && semesters.length > 0) {
+      const currentSemester = semesters.find((semester) => semester.isCurrent);
+      if (currentSemester && currentSemester.id !== selection.semesterId) {
+        setSelection((prev) => ({
+          ...prev,
+          semesterId: currentSemester.id,
+          classId: null
+        }));
+        clearErrors();
+      }
+    }
+  }, [autoSelectSemester, semesters, selection.semesterId, clearErrors]);
+
   const handleAcademicYearChange = useCallback(
     (value: string) => {
       const academicYearId = parseInt(value);
@@ -234,6 +239,7 @@ const XlsxImportForm = () => {
         semesterId: null,
         classId: null
       }));
+      setAutoSelectYear(false);
       clearErrors();
     },
     [clearErrors]
@@ -247,6 +253,7 @@ const XlsxImportForm = () => {
         semesterId,
         classId: null
       }));
+      setAutoSelectSemester(false);
       clearErrors();
     },
     [clearErrors]
@@ -558,12 +565,30 @@ const XlsxImportForm = () => {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             {/* Academic Year Selection */}
             <div className='space-y-3'>
-              <Label htmlFor='academic-year'>
-                Academic Year
-                {loadingYears && (
-                  <Loader className='ml-2 size-4 animate-spin' />
-                )}
-              </Label>
+              <div className='flex items-center gap-3 mb-2'>
+                <Label htmlFor='academic-year' className='flex items-center'>
+                  Academic Year
+                  {loadingYears && (
+                    <Loader className='ml-2 size-4 animate-spin' />
+                  )}
+                </Label>
+                <div className='flex items-center space-x-2'>
+                  <Checkbox
+                    id='auto-select-year'
+                    checked={autoSelectYear}
+                    onCheckedChange={(checked) =>
+                      setAutoSelectYear(checked as boolean)
+                    }
+                    className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                  />
+                  <Label
+                    htmlFor='auto-select-year'
+                    className='text-sm text-gray-600'
+                  >
+                    Current
+                  </Label>
+                </div>
+              </div>
               {loadingYears ? (
                 <Skeleton className='h-10 w-full' />
               ) : (
@@ -583,12 +608,31 @@ const XlsxImportForm = () => {
 
             {/* Semester Selection */}
             <div className='space-y-3'>
-              <Label htmlFor='semester'>
-                Semester
-                {loadingSemesters && (
-                  <Loader className='ml-2 size-4 animate-spin' />
-                )}
-              </Label>
+              <div className='flex items-center gap-3 mb-2'>
+                <Label htmlFor='semester' className='flex items-center'>
+                  Semester
+                  {loadingSemesters && (
+                    <Loader className='ml-2 size-4 animate-spin' />
+                  )}
+                </Label>
+                <div className='flex items-center space-x-2'>
+                  <Checkbox
+                    id='auto-select-semester'
+                    checked={autoSelectSemester}
+                    onCheckedChange={(checked) =>
+                      setAutoSelectSemester(checked as boolean)
+                    }
+                    className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                    disabled={!selection.academicYearId}
+                  />
+                  <Label
+                    htmlFor='auto-select-semester'
+                    className='text-sm text-gray-600'
+                  >
+                    Current
+                  </Label>
+                </div>
+              </div>
               {loadingSemesters ? (
                 <Skeleton className='h-10 w-full' />
               ) : (
@@ -608,7 +652,7 @@ const XlsxImportForm = () => {
 
             {/* Class Selection */}
             <div className='space-y-3'>
-              <Label htmlFor='class'>
+              <Label htmlFor='class' className='mb-[0.9rem]'>
                 Class
                 {loadingClasses && (
                   <Loader className='ml-2 size-4 animate-spin' />

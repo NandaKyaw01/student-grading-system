@@ -110,28 +110,6 @@ export async function deleteAcademicYear(id: number) {
   }
 }
 
-export async function setCurrentAcademicYear(id: number) {
-  try {
-    await prisma.$transaction([
-      prisma.academicYear.updateMany({
-        where: { isCurrent: true },
-        data: { isCurrent: false }
-      }),
-      prisma.academicYear.update({
-        where: { id },
-        data: { isCurrent: true }
-      })
-    ]);
-
-    revalidateTag('academic-years');
-    revalidateTag(`academic-year-${id}`);
-    return true;
-  } catch (error) {
-    console.error('Error setting current academic year:', error);
-    return false;
-  }
-}
-
 const academicYearWithDetails = Prisma.validator<Prisma.AcademicYearInclude>()({
   semesters: true,
   academicYearResults: true
@@ -222,22 +200,13 @@ export async function getAcademicYears<T extends boolean = false>(
   return await queryFunction();
 }
 
-export const getAcademicYearById = async (id: number) => {
-  return await unstable_cache(
-    async () => {
-      try {
-        return await prisma.academicYear.findUnique({
-          where: { id }
-        });
-      } catch (error) {
-        console.error(`Error fetching academic year ${id}:`, error);
-        return null;
-      }
-    },
-    [`{academic-year-${id}}`],
-    {
-      tags: [`academic-year-${id}`],
-      revalidate: 3600
-    }
-  )();
-};
+export async function refreshAll() {
+  revalidateTag('academic-years');
+  revalidateTag('classes');
+  revalidateTag('subjects');
+  revalidateTag('grade-scales');
+  revalidateTag('academic-year-results');
+  revalidateTag('results');
+  revalidateTag('students');
+  revalidateTag('enrollments');
+}

@@ -1,7 +1,6 @@
 'use server';
 
-import { Input } from '@/components/ui/input';
-import { Class, Code, Prisma } from '@/generated/prisma';
+import { Class, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetClassSchema } from '@/lib/search-params/class';
 import { revalidateTag, unstable_cache } from 'next/cache';
@@ -107,6 +106,7 @@ export async function getClasses<T extends boolean = false>(
   input?: GetClassSchema,
   options?: {
     semesterId?: number[];
+    academicYearId?: number[];
     includeDetails?: boolean;
     useCache?: boolean;
   }
@@ -142,7 +142,8 @@ export async function getClasses<T extends boolean = false>(
                   mode: 'insensitive'
                 }
               }
-            }
+            },
+            { departmentCode: { contains: input.search, mode: 'insensitive' } }
           ];
         }
 
@@ -159,15 +160,24 @@ export async function getClasses<T extends boolean = false>(
             in: input.semesterId
           };
         }
+
         if (input?.departmentCode && input?.departmentCode?.length > 0) {
           where.departmentCode = {
-            in: input.departmentCode as Code[]
+            in: input.departmentCode
           };
         }
       }
 
       if (options?.semesterId && options?.semesterId?.length > 0) {
         where.semesterId = { in: options?.semesterId };
+      }
+
+      if (options?.academicYearId && options?.academicYearId?.length > 0) {
+        where.semester = {
+          academicYearId: {
+            in: options?.academicYearId
+          }
+        };
       }
 
       const orderBy =
