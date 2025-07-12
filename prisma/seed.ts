@@ -20,6 +20,10 @@ async function main() {
       {
         yearRange: '2024-2025',
         isCurrent: true
+      },
+      {
+        yearRange: '2025-2026',
+        isCurrent: false
       }
     ]
   });
@@ -37,6 +41,16 @@ async function main() {
       {
         semesterName: 'Second Semester',
         academicYearId: 1,
+        isCurrent: true
+      },
+      {
+        semesterName: 'First Semester',
+        academicYearId: 2,
+        isCurrent: false
+      },
+      {
+        semesterName: 'Second Semester',
+        academicYearId: 2,
         isCurrent: false
       }
     ]
@@ -136,6 +150,96 @@ async function main() {
         className: 'Fifth Year',
         departmentCode: '1209 CT',
         semesterId: 2
+      },
+      {
+        className: 'First Year',
+        departmentCode: '1301 CST',
+        semesterId: 3
+      },
+      {
+        className: 'Second Year',
+        departmentCode: '1302 CS',
+        semesterId: 3
+      },
+      {
+        className: 'Second Year',
+        departmentCode: '1303 CT',
+        semesterId: 3
+      },
+      {
+        className: 'Third Year',
+        departmentCode: '1304 CS',
+        semesterId: 3
+      },
+      {
+        className: 'Third Year',
+        departmentCode: '1305 CT',
+        semesterId: 3
+      },
+      {
+        className: 'Fourth Year',
+        departmentCode: '1306 CS',
+        semesterId: 3
+      },
+      {
+        className: 'Fourth Year',
+        departmentCode: '1307 CT',
+        semesterId: 3
+      },
+      {
+        className: 'Fifth Year',
+        departmentCode: '1308 CS',
+        semesterId: 3
+      },
+      {
+        className: 'Fifth Year',
+        departmentCode: '1309 CT',
+        semesterId: 3
+      },
+      {
+        className: 'First Year',
+        departmentCode: '1401 CST',
+        semesterId: 4
+      },
+      {
+        className: 'Second Year',
+        departmentCode: '1402 CS',
+        semesterId: 4
+      },
+      {
+        className: 'Second Year',
+        departmentCode: '1403 CT',
+        semesterId: 4
+      },
+      {
+        className: 'Third Year',
+        departmentCode: '1404 CS',
+        semesterId: 4
+      },
+      {
+        className: 'Third Year',
+        departmentCode: '1405 CT',
+        semesterId: 4
+      },
+      {
+        className: 'Fourth Year',
+        departmentCode: '1406 CS',
+        semesterId: 4
+      },
+      {
+        className: 'Fourth Year',
+        departmentCode: '1407 CT',
+        semesterId: 4
+      },
+      {
+        className: 'Fifth Year',
+        departmentCode: '1408 CS',
+        semesterId: 4
+      },
+      {
+        className: 'Fifth Year',
+        departmentCode: '1409 CT',
+        semesterId: 4
       }
     ]
   });

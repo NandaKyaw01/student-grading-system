@@ -4,16 +4,15 @@ import { Download, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
+import { exportTableToExcel } from '@/actions/export-result';
 import { deleteResults, ResultWithDetails } from '@/actions/result';
 import {
   DataTableActionBar,
   DataTableActionBarAction,
   DataTableActionBarSelection
 } from '@/components/data-table/data-table-action-bar';
-import { Separator } from '@/components/ui/separator';
-import { Result } from '@/generated/prisma';
-import { exportTableToCSV } from '@/lib/export';
 import { AlertModal } from '@/components/modal/alert-modal';
+import { Separator } from '@/components/ui/separator';
 
 const actions = ['export', 'delete'] as const;
 
@@ -34,15 +33,45 @@ export function ResultsTableActionBar({ table }: ResultsTableActionBarProps) {
     [isPending, currentAction]
   );
 
-  const onResultExport = React.useCallback(() => {
+  // const onResultExport = React.useCallback(() => {
+  //   setCurrentAction('export');
+  //   startTransition(() => {
+  //     exportTableToCSV(table, {
+  //       excludeColumns: ['select', 'actions'],
+  //       onlySelected: true
+  //     });
+  //   });
+  // }, [table]);
+
+  const onResultExport = React.useCallback(async () => {
     setCurrentAction('export');
-    startTransition(() => {
-      exportTableToCSV(table, {
-        excludeColumns: ['select', 'actions'],
-        onlySelected: true
-      });
+    const ids = rows.map((row) => row.original.enrollmentId);
+
+    startTransition(async () => {
+      try {
+        const result = await exportTableToExcel(ids);
+
+        if (result.success) {
+          // Create download link
+          const link = document.createElement('a');
+          link.href = `data:${result.contentType};base64,${result.data}`;
+          link.download = result.fileName ?? 'results.xlsx';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          toast.success('Excel file downloaded successfully!');
+        } else {
+          toast.error(`Export failed: ${result.error}`);
+        }
+      } catch (error) {
+        console.error('Export error:', error);
+        toast.error('Export failed. Please try again.');
+      } finally {
+        setCurrentAction(null);
+      }
     });
-  }, [table]);
+  }, [rows, startTransition]);
 
   const onResultDelete = React.useCallback(() => {
     setCurrentAction('delete');

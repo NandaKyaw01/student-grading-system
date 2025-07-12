@@ -9,6 +9,7 @@ import { GradeScaleDataTable } from './_components/grade-scale-data-table';
 import { GradeScaleModal } from './_components/grade-scale-modal';
 import { gradeScaleSearchParamsCache } from '@/lib/search-params/grade-scale';
 import { SearchParams } from 'nuqs';
+import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 
 export const metadata = {
   title: 'Grade Scales : Grading System'
@@ -58,7 +59,11 @@ export default async function GPASettingPage(props: pageProps) {
           </GradeScaleModal>
         </div>
         <Separator />
-        <Suspense fallback={<div>Loading grade scales...</div>}>
+        <Suspense
+          fallback={
+            <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
+          }
+        >
           <GradeScaleDataTable promises={gradeScalesPromise} />
         </Suspense>
       </div>

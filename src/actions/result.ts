@@ -683,6 +683,7 @@ export async function updateAcademicYearResult(
         }
       },
       _sum: {
+        gpa: true,
         totalCredits: true,
         totalGp: true
       }
@@ -713,7 +714,10 @@ export async function updateAcademicYearResult(
   // Calculate values from aggregates
   const totalCredits = resultAggregates._sum.totalCredits || 0;
   const totalGp = resultAggregates._sum.totalGp || 0;
-  const overallGpa = totalCredits > 0 ? totalGp / totalCredits : 0;
+  // const overallGpa = totalCredits > 0 ? totalGp / totalCredits : 0;
+  const overallGpa = resultAggregates._sum.gpa
+    ? resultAggregates._sum.gpa / semesterCount
+    : 0;
   const isComplete = semesterCount === totalSemestersInYear;
 
   // Determine status efficiently
