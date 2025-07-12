@@ -2,196 +2,221 @@ import { prisma } from '@/lib/db';
 import bcrypt from 'bcrypt';
 
 async function main() {
-  // Seed AcademicYears
-  // await prisma.academicYear.createMany({
-  //   data: [
-  //     {
-  //       id: 1,
-  //       yearRange: '2024-2025',
-  //       isCurrent: true
-  //     }
-  //   ],
-  //   skipDuplicates: true
-  // });
+  console.log('🌱 Starting database seeding...');
 
-  // // Seed Semesters
-  // await prisma.semester.createMany({
-  //   data: [
-  //     {
-  //       id: 1,
-  //       semesterName: 'First Semester',
-  //       academicYearId: 1,
-  //       isCurrent: false
-  //     },
-  //     {
-  //       id: 2,
-  //       semesterName: 'Second Semester',
-  //       academicYearId: 1,
-  //       isCurrent: false
-  //     }
-  //   ],
-  //   skipDuplicates: true
-  // });
+  // Clear existing data (optional - uncomment if needed)
+  // await prisma.user.deleteMany();
+  // await prisma.classSubject.deleteMany();
+  // await prisma.gradeScale.deleteMany();
+  // await prisma.subject.deleteMany();
+  // await prisma.class.deleteMany();
+  // await prisma.semester.deleteMany();
+  // await prisma.academicYear.deleteMany();
 
-  // // Seed Classes
-  // await prisma.class.createMany({
-  //   data: [
-  //     {
-  //       id: 1,
-  //       className: 'First Year',
-  //       departmentCode: 'CST',
-  //       semesterId: 1
-  //     },
-  //     {
-  //       id: 2,
-  //       className: 'Second Year',
-  //       departmentCode: 'CS',
-  //       semesterId: 1
-  //     },
-  //     {
-  //       id: 3,
-  //       className: 'Second Year',
-  //       departmentCode: 'CT',
-  //       semesterId: 1
-  //     },
-  //     {
-  //       id: 4,
-  //       className: 'Third Year',
-  //       departmentCode: 'CS',
-  //       semesterId: 1
-  //     },
-  //     {
-  //       id: 5,
-  //       className: 'Third Year',
-  //       departmentCode: 'CT',
-  //       semesterId: 1
-  //     },
-  //     {
-  //       id: 6,
-  //       className: 'Fourth Year',
-  //       departmentCode: 'CS',
-  //       semesterId: 1
-  //     },
-  //     {
-  //       id: 7,
-  //       className: 'Fourth Year',
-  //       departmentCode: 'CT',
-  //       semesterId: 1
-  //     },
-  //     {
-  //       id: 8,
-  //       className: 'Fifth Year',
-  //       departmentCode: 'CS',
-  //       semesterId: 1
-  //     },
-  //     {
-  //       id: 9,
-  //       className: 'Fifth Year',
-  //       departmentCode: 'CT',
-  //       semesterId: 1
-  //     }
-  //   ],
-  //   skipDuplicates: true
-  // });
+  // Seed AcademicYear
+  console.log('📚 Seeding Academic Years...');
+  const academicYears = await prisma.academicYear.createMany({
+    data: [
+      {
+        yearRange: '2024-2025',
+        isCurrent: true
+      }
+    ]
+  });
+  console.log(`✅ Created ${academicYears.count} academic year(s)`);
 
-  // // Seed Subjects
-  // await prisma.subject.createMany({
-  //   data: [
-  //     {
-  //       id: 'M-1201',
-  //       subjectName: 'Myanmar',
-  //       creditHours: 3.0,
-  //       examWeight: 0.6,
-  //       assignWeight: 0.4
-  //     },
-  //     {
-  //       id: 'E-1201',
-  //       subjectName: 'English',
-  //       creditHours: 3.0,
-  //       examWeight: 0.6,
-  //       assignWeight: 0.4
-  //     },
-  //     {
-  //       id: 'P-1201',
-  //       subjectName: 'Physics',
-  //       creditHours: 3.0,
-  //       examWeight: 0.6,
-  //       assignWeight: 0.4
-  //     },
-  //     {
-  //       id: 'CST-1211',
-  //       subjectName: 'C++',
-  //       creditHours: 3.0,
-  //       examWeight: 0.5,
-  //       assignWeight: 0.5
-  //     },
-  //     {
-  //       id: 'CST-1242',
-  //       subjectName: 'Maths',
-  //       creditHours: 3.0,
-  //       examWeight: 0.6,
-  //       assignWeight: 0.4
-  //     }
-  //   ],
-  //   skipDuplicates: true
-  // });
+  // Seed Semester
+  console.log('📅 Seeding Semesters...');
+  const semesters = await prisma.semester.createMany({
+    data: [
+      {
+        semesterName: 'First Semester',
+        academicYearId: 1,
+        isCurrent: false
+      },
+      {
+        semesterName: 'Second Semester',
+        academicYearId: 1,
+        isCurrent: false
+      }
+    ]
+  });
+  console.log(`✅ Created ${semesters.count} semester(s)`);
 
-  // // Seed ClassSubjects
-  // await prisma.classSubject.createMany({
-  //   data: [
-  //     {
-  //       id: 1,
-  //       classId: 1,
-  //       subjectId: 'M-1201'
-  //     },
-  //     {
-  //       id: 2,
-  //       classId: 1,
-  //       subjectId: 'E-1201'
-  //     },
-  //     {
-  //       id: 3,
-  //       classId: 1,
-  //       subjectId: 'P-1201'
-  //     },
-  //     {
-  //       id: 4,
-  //       classId: 1,
-  //       subjectId: 'CST-1211'
-  //     },
-  //     {
-  //       id: 5,
-  //       classId: 1,
-  //       subjectId: 'CST-1242'
-  //     }
-  //   ],
-  //   skipDuplicates: true
-  // });
+  // Seed Class
+  console.log('🏫 Seeding Classes...');
+  const classes = await prisma.class.createMany({
+    data: [
+      {
+        className: 'First Year',
+        departmentCode: '1101 CST',
+        semesterId: 1
+      },
+      {
+        className: 'Second Year',
+        departmentCode: '1102 CS',
+        semesterId: 1
+      },
+      {
+        className: 'Second Year',
+        departmentCode: '1103 CT',
+        semesterId: 1
+      },
+      {
+        className: 'Third Year',
+        departmentCode: '1104 CS',
+        semesterId: 1
+      },
+      {
+        className: 'Third Year',
+        departmentCode: '1105 CT',
+        semesterId: 1
+      },
+      {
+        className: 'Fourth Year',
+        departmentCode: '1106 CS',
+        semesterId: 1
+      },
+      {
+        className: 'Fourth Year',
+        departmentCode: '1107 CT',
+        semesterId: 1
+      },
+      {
+        className: 'Fifth Year',
+        departmentCode: '1108 CS',
+        semesterId: 1
+      },
+      {
+        className: 'Fifth Year',
+        departmentCode: '1109 CT',
+        semesterId: 1
+      },
+      {
+        className: 'First Year',
+        departmentCode: '1201 CST',
+        semesterId: 2
+      },
+      {
+        className: 'Second Year',
+        departmentCode: '1202 CS',
+        semesterId: 2
+      },
+      {
+        className: 'Second Year',
+        departmentCode: '1203 CT',
+        semesterId: 2
+      },
+      {
+        className: 'Third Year',
+        departmentCode: '1204 CS',
+        semesterId: 2
+      },
+      {
+        className: 'Third Year',
+        departmentCode: '1205 CT',
+        semesterId: 2
+      },
+      {
+        className: 'Fourth Year',
+        departmentCode: '1206 CS',
+        semesterId: 2
+      },
+      {
+        className: 'Fourth Year',
+        departmentCode: '1207 CT',
+        semesterId: 2
+      },
+      {
+        className: 'Fifth Year',
+        departmentCode: '1208 CS',
+        semesterId: 2
+      },
+      {
+        className: 'Fifth Year',
+        departmentCode: '1209 CT',
+        semesterId: 2
+      }
+    ]
+  });
+  console.log(`✅ Created ${classes.count} class(es)`);
 
-  // // Seed Students
-  // await prisma.student.createMany({
-  //   data: [
-  //     {
-  //       id: 1,
-  //       studentName: 'John Doe',
-  //       admissionId: '202201'
-  //     },
-  //     {
-  //       id: 2,
-  //       studentName: 'Jane Smith',
-  //       admissionId: '202202'
-  //     },
-  //     {
-  //       id: 3,
-  //       studentName: 'Robert Johnson',
-  //       admissionId: '202203'
-  //     }
-  //   ],
-  //   skipDuplicates: true
-  // });
+  // Seed Subject
+  console.log('📖 Seeding Subjects...');
+  const subjects = await prisma.subject.createMany({
+    data: [
+      {
+        id: 'M-1201',
+        subjectName: 'Myanmar',
+        creditHours: 3.0,
+        examWeight: 0.6,
+        assignWeight: 0.4
+      },
+      {
+        id: 'E-1201',
+        subjectName: 'English',
+        creditHours: 3.0,
+        examWeight: 0.6,
+        assignWeight: 0.4
+      },
+      {
+        id: 'P-1201',
+        subjectName: 'Physics',
+        creditHours: 3.0,
+        examWeight: 0.6,
+        assignWeight: 0.4
+      },
+      {
+        id: 'CST-1211',
+        subjectName: 'C++',
+        creditHours: 3.0,
+        examWeight: 0.5,
+        assignWeight: 0.5
+      },
+      {
+        id: 'CST-1242',
+        subjectName: 'Maths',
+        creditHours: 3.0,
+        examWeight: 0.6,
+        assignWeight: 0.4
+      }
+    ]
+  });
+  console.log(`✅ Created ${subjects.count} subject(s)`);
 
-  // Seed GradeScales
-  await prisma.gradeScale.createMany({
+  // Seed ClassSubject
+  console.log('🔗 Seeding Class-Subject relationships...');
+  const classSubjects = await prisma.classSubject.createMany({
+    data: [
+      {
+        classId: 1,
+        subjectId: 'M-1201'
+      },
+      {
+        classId: 1,
+        subjectId: 'E-1201'
+      },
+      {
+        classId: 1,
+        subjectId: 'P-1201'
+      },
+      {
+        classId: 1,
+        subjectId: 'CST-1211'
+      },
+      {
+        classId: 1,
+        subjectId: 'CST-1242'
+      }
+    ]
+  });
+  console.log(
+    `✅ Created ${classSubjects.count} class-subject relationship(s)`
+  );
+
+  // Seed GradeScale
+  console.log('📊 Seeding Grade Scales...');
+  const gradeScales = await prisma.gradeScale.createMany({
     data: [
       {
         minMark: 0,
@@ -253,26 +278,27 @@ async function main() {
         grade: 'A+',
         score: 4
       }
-    ],
-    skipDuplicates: true
+    ]
   });
+  console.log(`✅ Created ${gradeScales.count} grade scale(s)`);
 
-  // const hashedPassword = await bcrypt.hash('admin123', 10);
-  // await prisma.user.create({
-  //   data: {
-  //     name: 'Admin',
-  //     email: 'admin@ucsh.edu.mm',
-  //     hashedPassword,
-  //     emailVerified: new Date()
-  //   }
-  // });
+  // Seed User with bcrypt hashed password
+  console.log('👤 Seeding Users...');
+  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const user = await prisma.user.create({
+    data: {
+      email: 'admin@ucsh.edu.mm',
+      hashedPassword: hashedPassword
+    }
+  });
+  console.log(`✅ Created user: ${user.email}`);
 
-  console.log('Seeding completed successfully!');
+  console.log('🎉 Database seeding completed successfully!');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Error during seeding:', e);
     process.exit(1);
   })
   .finally(async () => {

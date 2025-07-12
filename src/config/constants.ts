@@ -1,24 +1,19 @@
 // Sample data for AcademicYear
 const academicYears = [
   {
-    id: 1,
     yearRange: '2024-2025',
-    isCurrent: true,
-    createdAt: new Date('2024-12-01'),
-    updatedAt: new Date('2025-06-15')
+    isCurrent: true
   }
 ];
 
 // Sample data for Semester
 const semesters = [
   {
-    id: 1,
     semesterName: 'First Semester',
     academicYearId: 1,
     isCurrent: false
   },
   {
-    id: 2,
     semesterName: 'Second Semester',
     academicYearId: 1,
     isCurrent: false
@@ -28,58 +23,94 @@ const semesters = [
 // Sample data for Class
 const classes = [
   {
-    id: 1,
     className: 'First Year',
-    departmentCode: 'CST',
+    departmentCode: '1101 CST',
     semesterId: 1
   },
   {
-    id: 2,
     className: 'Second Year',
-    departmentCode: 'CS',
+    departmentCode: '1102 CS',
     semesterId: 1
   },
   {
-    id: 3,
     className: 'Second Year',
-    departmentCode: 'CT',
+    departmentCode: '1103 CT',
     semesterId: 1
   },
   {
-    id: 4,
     className: 'Third Year',
-    departmentCode: 'CS',
+    departmentCode: '1104 CS',
     semesterId: 1
   },
   {
-    id: 5,
     className: 'Third Year',
-    departmentCode: 'CT',
+    departmentCode: '1105 CT',
     semesterId: 1
   },
   {
-    id: 6,
     className: 'Fourth Year',
-    departmentCode: 'CS',
+    departmentCode: '1106 CS',
     semesterId: 1
   },
   {
-    id: 7,
     className: 'Fourth Year',
-    departmentCode: 'CT',
+    departmentCode: '1107 CT',
     semesterId: 1
   },
   {
-    id: 8,
     className: 'Fifth Year',
-    departmentCode: 'CS',
+    departmentCode: '1108 CS',
     semesterId: 1
   },
   {
-    id: 9,
     className: 'Fifth Year',
-    departmentCode: 'CT',
+    departmentCode: '1109 CT',
     semesterId: 1
+  },
+  {
+    className: 'First Year',
+    departmentCode: '1201 CST',
+    semesterId: 2
+  },
+  {
+    className: 'Second Year',
+    departmentCode: '1202 CS',
+    semesterId: 2
+  },
+  {
+    className: 'Second Year',
+    departmentCode: '1203 CT',
+    semesterId: 2
+  },
+  {
+    className: 'Third Year',
+    departmentCode: '1204 CS',
+    semesterId: 2
+  },
+  {
+    className: 'Third Year',
+    departmentCode: '1205 CT',
+    semesterId: 2
+  },
+  {
+    className: 'Fourth Year',
+    departmentCode: '1206 CS',
+    semesterId: 2
+  },
+  {
+    className: 'Fourth Year',
+    departmentCode: '1207 CT',
+    semesterId: 2
+  },
+  {
+    className: 'Fifth Year',
+    departmentCode: '1208 CS',
+    semesterId: 2
+  },
+  {
+    className: 'Fifth Year',
+    departmentCode: '1209 CT',
+    semesterId: 2
   }
 ];
 
@@ -125,54 +156,24 @@ const subjects = [
 // Sample data for ClassSubject
 const classSubjects = [
   {
-    id: 1,
     classId: 1,
     subjectId: 'M-1201'
   },
   {
-    id: 2,
     classId: 1,
     subjectId: 'E-1201'
   },
   {
-    id: 3,
     classId: 1,
     subjectId: 'P-1201'
   },
   {
-    id: 4,
     classId: 1,
     subjectId: 'CST-1211'
   },
   {
-    id: 5,
     classId: 1,
     subjectId: 'CST-1242'
-  }
-];
-
-// Sample data for Student
-const students = [
-  {
-    id: 1,
-    studentName: 'John Doe',
-    admissionId: '202201',
-    createdAt: new Date('2022-06-01'),
-    updatedAt: new Date('2022-06-01')
-  },
-  {
-    id: 2,
-    studentName: 'Jane Smith',
-    admissionId: '202202',
-    createdAt: new Date('2022-06-01'),
-    updatedAt: new Date('2022-06-01')
-  },
-  {
-    id: 3,
-    studentName: 'Robert Johnson',
-    admissionId: '202203',
-    createdAt: new Date('2023-06-01'),
-    updatedAt: new Date('2023-06-01')
   }
 ];
 
@@ -183,90 +184,70 @@ const gradeScales = [
     minMark: 0,
     maxMark: 39,
     grade: 'F',
-    score: 0,
-    createdAt: '2025-06-30T08:27:42.966Z',
-    updatedAt: '2025-06-30T08:27:42.966Z'
+    score: 0
   },
   {
     id: 2,
     minMark: 40,
     maxMark: 49,
     grade: 'D',
-    score: 1,
-    createdAt: '2025-06-30T08:28:15.779Z',
-    updatedAt: '2025-06-30T08:28:15.779Z'
+    score: 1
   },
   {
     id: 3,
     minMark: 50,
     maxMark: 54,
     grade: 'C',
-    score: 2,
-    createdAt: '2025-06-30T08:28:43.209Z',
-    updatedAt: '2025-06-30T08:40:21.211Z'
+    score: 2
   },
   {
     id: 4,
     minMark: 55,
     maxMark: 59,
     grade: 'C+',
-    score: 2.33,
-    createdAt: '2025-06-30T08:54:11.877Z',
-    updatedAt: '2025-06-30T08:54:11.877Z'
+    score: 2.33
   },
   {
     id: 5,
     minMark: 60,
     maxMark: 64,
     grade: 'B-',
-    score: 2.67,
-    createdAt: '2025-06-30T09:01:17.380Z',
-    updatedAt: '2025-06-30T09:01:17.380Z'
+    score: 2.67
   },
   {
     id: 6,
     minMark: 65,
     maxMark: 69,
     grade: 'B',
-    score: 3,
-    createdAt: '2025-06-30T09:02:10.516Z',
-    updatedAt: '2025-06-30T09:02:10.516Z'
+    score: 3
   },
   {
     id: 7,
     minMark: 70,
     maxMark: 74,
     grade: 'B+',
-    score: 3.33,
-    createdAt: '2025-06-30T09:02:45.542Z',
-    updatedAt: '2025-06-30T09:02:45.542Z'
+    score: 3.33
   },
   {
     id: 8,
     minMark: 75,
     maxMark: 79,
     grade: 'A-',
-    score: 3.67,
-    createdAt: '2025-06-30T09:03:56.216Z',
-    updatedAt: '2025-06-30T09:04:46.701Z'
+    score: 3.67
   },
   {
     id: 9,
     minMark: 80,
     maxMark: 89,
     grade: 'A',
-    score: 3.8,
-    createdAt: '2025-06-30T09:04:37.954Z',
-    updatedAt: '2025-06-30T09:04:37.954Z'
+    score: 3.8
   },
   {
     id: 10,
     minMark: 90,
     maxMark: 100,
     grade: 'A+',
-    score: 4,
-    createdAt: '2025-06-30T09:05:17.605Z',
-    updatedAt: '2025-06-30T09:05:17.605Z'
+    score: 4
   }
 ];
 
