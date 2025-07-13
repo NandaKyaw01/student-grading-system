@@ -12,7 +12,6 @@ import { routing } from '@/i18n/routing';
 import { hasLocale, Locale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { Toaster } from 'sonner';
 import '../globals.css';
 import '../theme.css';
 
@@ -79,6 +78,9 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children, params }: Props) {
   const { locale } = await params;
+  const cookieStore = await cookies();
+  const activeThemeValue = cookieStore.get('active_theme')?.value;
+  const isScaled = activeThemeValue?.endsWith('-scaled');
 
   if (!hasLocale(routing.locales, locale)) {
     notFound();
@@ -86,10 +88,6 @@ export default async function RootLayout({ children, params }: Props) {
 
   // Enable static rendering
   setRequestLocale(locale);
-
-  const cookieStore = await cookies();
-  const activeThemeValue = cookieStore.get('active_theme')?.value;
-  const isScaled = activeThemeValue?.endsWith('-scaled');
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -113,7 +111,6 @@ export default async function RootLayout({ children, params }: Props) {
               <AuthProvider>{children}</AuthProvider>
             </ThemeProvider>
           </NuqsAdapter>
-          <Toaster />
         </NextIntlClientProvider>
       </body>
     </html>

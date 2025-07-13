@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { getCommonPinningStyles } from '@/lib/data-table';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface DataTableProps<TData> extends React.ComponentProps<'div'> {
   table: TanstackTable<TData>;
@@ -25,6 +26,7 @@ export function DataTable<TData>({
   className,
   ...props
 }: DataTableProps<TData>) {
+  const t = useTranslations('DataTable');
   return (
     <div
       className={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}
@@ -83,7 +85,7 @@ export function DataTable<TData>({
                   colSpan={table.getAllColumns().length}
                   className='h-24 text-center'
                 >
-                  No results.
+                  {t('no_result')}
                 </TableCell>
               </TableRow>
             )}

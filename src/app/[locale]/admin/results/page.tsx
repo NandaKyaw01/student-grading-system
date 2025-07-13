@@ -1,25 +1,21 @@
 import Link from 'next/link';
 
+import { getAcademicYears } from '@/actions/academic-year';
+import { getClasses } from '@/actions/class';
+import { getAllResults } from '@/actions/result';
+import { getSemesters } from '@/actions/semester';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import {
-  resultSearchParamsCache,
-  resultSerialize
-} from '@/lib/search-params/result';
+import { resultSearchParamsCache } from '@/lib/search-params/result';
 import { cn } from '@/lib/utils';
-import { getAllResults } from '@/actions/result';
 import { Plus } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 import { ResultDataTable } from './_components/result-data-table';
-import { getAcademicYears } from '@/actions/academic-year';
-import { getSemesters } from '@/actions/semester';
-import { getClasses } from '@/actions/class';
-import { semesterSearchParamsCache } from '@/lib/search-params/semester';
 
 export const metadata = {
   title: 'Admin: Results'
@@ -29,25 +25,10 @@ type pageProps = {
   searchParams: Promise<SearchParams>;
 };
 
-type BreadcrumbProps = {
-  name: string;
-  link: string;
-};
-const bredcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Results',
-    link: ''
-  }
-];
 export default async function ResultsPage(props: pageProps) {
-  const t = await getTranslations('AdminNavBarTitle');
+  const t = await getTranslations('ResultsBySemester');
   const searchParams = await props.searchParams;
   const search = resultSearchParamsCache.parse(searchParams);
-  const key = resultSerialize(search);
 
   const promises = Promise.all([
     getAllResults(search, {
@@ -66,24 +47,34 @@ export default async function ResultsPage(props: pageProps) {
 
   return (
     <ContentLayout
-      title={'Results'}
-      breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
+      title={t('title')}
+      breadcrumb={
+        <ActiveBreadcrumb
+          path={[
+            {
+              name: t('home'),
+              link: '/'
+            },
+            {
+              name: t('title'),
+              link: ''
+            }
+          ]}
+        />
+      }
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-2xl font-bold tracking-tight'>
-              Semester Results
-            </h5>
-            <p className='text-muted-foreground text-sm'>
-              Manage student results (Server side table functionalities.)
-            </p>
+            <h5 className='text-2xl font-bold tracking-tight'>{t('title')}</h5>
+            <p className='text-muted-foreground text-sm'>{t('subtitle')}</p>
           </div>
           <Link
             href='/admin/results/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
-            <Plus className='mr-2 h-4 w-4' /> Add New Result
+            <Plus className='h-4 w-4' />
+            {t('add_result')}
           </Link>
         </div>
         <Separator />

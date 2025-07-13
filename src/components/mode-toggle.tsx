@@ -11,9 +11,11 @@ import {
   TooltipTrigger,
   TooltipProvider
 } from '@/components/ui/tooltip';
+import { useTranslations } from 'next-intl';
 
 export function ModeToggle() {
   const { setTheme, theme } = useTheme();
+  const t = useTranslations('NavBar');
 
   return (
     <TooltipProvider disableHoverableContent>
@@ -36,7 +38,9 @@ export function ModeToggle() {
             <span className='sr-only'>Switch Theme</span>
           </Button>
         </TooltipTrigger>
-        <TooltipContent side='bottom'>Switch Theme</TooltipContent>
+        <TooltipContent side='bottom'>
+          {t('switch_theme_tooltip')}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

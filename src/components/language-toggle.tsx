@@ -25,6 +25,7 @@ const LanguageToggle = () => {
   const pathname = usePathname();
   const params = useParams();
   const t = useTranslations('LocaleSwitcher');
+  const tForTooltip = useTranslations('NavBar');
   const locale = useLocale();
 
   function onSelectChange(cur: Locale) {
@@ -76,7 +77,7 @@ const LanguageToggle = () => {
         </div>
 
         <TooltipContent>
-          <p>Switch Language</p>
+          <p>{tForTooltip('switch_locale_tooltip')}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

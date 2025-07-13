@@ -12,11 +12,12 @@ import { getSemesters } from '@/actions/semester';
 import { Button } from '@/components/ui/button';
 import { exportTableToCSV } from '@/lib/export';
 import { Download, Loader } from 'lucide-react';
-import React from 'react';
+import React, { use } from 'react';
 import { ResultsTableActionBar } from './result-table-action-bar';
 import { getResultColumns } from './result-table-column';
 import { exportTableToExcel } from '@/actions/export-result';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface ResultsTableProps {
   promises: Promise<
@@ -33,15 +34,17 @@ export function ResultDataTable({ promises }: ResultsTableProps) {
   const [{ results, pageCount }, { years }, { semesters }, { classes }] =
     React.use(promises);
   const [isPending, startTransition] = React.useTransition();
+  const t = useTranslations('ResultsBySemester');
 
   const columns = React.useMemo(
     () =>
       getResultColumns({
         academicYears: years,
         semesters,
-        classes
+        classes,
+        t
       }),
-    [years, semesters, classes]
+    [years, semesters, classes, t]
   );
 
   const { table } = useDataTable({
@@ -71,16 +74,16 @@ export function ResultDataTable({ promises }: ResultsTableProps) {
           link.click();
           document.body.removeChild(link);
 
-          toast.success('Excel file downloaded successfully!');
+          toast.success(t('export.success'));
         } else {
-          toast.error(`Export failed: ${result.error}`);
+          toast.error(t('export.error', { message: result.error ?? '' }));
         }
       } catch (error) {
         console.error('Export error:', error);
-        toast.error('Export failed. Please try again.');
+        toast.error(t('export.generic_error'));
       }
     });
-  }, [startTransition]);
+  }, [startTransition, t]);
 
   return (
     <DataTable
@@ -96,7 +99,7 @@ export function ResultDataTable({ promises }: ResultsTableProps) {
           onClick={onResultExport}
         >
           {isPending ? <Loader className='animate-spin' /> : <Download />}
-          Export All
+          {t('export_all')}
         </Button>
       </DataTableToolbar>
     </DataTable>

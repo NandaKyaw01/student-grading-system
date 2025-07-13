@@ -29,6 +29,7 @@ export function UserNav() {
   const { data: session, status } = useSession();
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const tForTooltip = useTranslations('NavBar');
 
   // Get user info from session
   const userName = session?.user?.name || 'User';
@@ -109,7 +110,9 @@ export function UserNav() {
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent side='bottom'>Profile</TooltipContent>
+          <TooltipContent side='bottom'>
+            {tForTooltip('profile_tooltip')}
+          </TooltipContent>
         </Tooltip>
       </TooltipProvider>
 

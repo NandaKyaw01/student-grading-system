@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useTransition } from 'react';
+import React, { use, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Loader } from 'lucide-react';
 import { type ResultData } from '@/actions/result-view';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 interface ResultDownloadButtonProps {
   resultData: ResultData;
@@ -13,6 +15,10 @@ export function ResultDownloadButton({
   resultData
 }: ResultDownloadButtonProps) {
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations(
+    'ResultsBySemester.ResultView.result_download_button'
+  );
+
   const generateWordFromTemplate = () => {
     startTransition(async () => {
       try {
@@ -85,9 +91,7 @@ export function ResultDownloadButton({
         URL.revokeObjectURL(url);
       } catch (error) {
         console.error('Error generating document from template:', error);
-        alert(
-          'Failed to generate document. Please ensure template file exists.'
-        );
+        toast.error(t('errors.generation_error'));
       }
     });
   };
@@ -104,7 +108,7 @@ export function ResultDownloadButton({
       ) : (
         <Download className='h-4 w-4 mr-2' />
       )}
-      {isPending ? 'Exporting...' : 'Export DOCX'}
+      {isPending ? t('button.exporting') : t('button.export')}
     </Button>
   );
 }

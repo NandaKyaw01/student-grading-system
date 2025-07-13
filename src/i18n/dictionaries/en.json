@@ -12,23 +12,262 @@
     "subtitle": "SmartGrade UCSH is an intuitive and secure grading system designed for the University of Computer Studies, Hinthada. It streamlines grade entry, management, and reporting for faculty while offering students real-time access to their academic performance. Built for accuracy, efficiency, and transparency, SmartGrade UCSH empowers both educators and learners with a smarter way to handle results.",
     "search": "Search",
     "dashboard": "Dashboard",
-    "footer": "© 2025 UCSH. All rights reserved. The source code is available on"
+    "footer": "© 2025 UCSH. All rights reserved. The source code is available on {link}"
   },
   "SideBar": {
     "dashboard": "Dashboard",
-    "grades": "Grades",
+    "results": "Results",
+    "sub_results": {
+      "results_by_semester": "By Semester",
+      "results_by_year": "By Year"
+    },
     "students": "Students",
-    "academic": "Academic",
-    "SubAcademic": {
-      "academic_year": "Academic Years",
+    "sub_students": {
+      "students": "Students",
+      "enrollments": "Enrollments"
+    },
+    "configurations": "Configurations",
+    "sub_configurations": {
+      "academic_years": "Academic Years",
+      "semesters": "Semesters",
       "classes": "Classes",
       "subjects": "Subjects",
       "class_subjects": "Class-Subjects"
     },
-    "GPAsetting": "GPA Setting",
+    "settings": "Settings",
+    "import_results": "Import Results",
+    "gpa_setting": "GPA Setting",
     "account": "Account",
     "setting": "Setting",
     "sign_out": "Sign Out"
+  },
+  "UserNav": {
+    "dashboard": "Dashboard",
+    "account": "Account",
+    "sign_out": "Sign Out"
+  },
+  "NavBar": {
+    "refresh_tooltip": "Refresh All",
+    "switch_locale_tooltip": "Switch Language",
+    "switch_theme_tooltip": "Switch Theme",
+    "profile_tooltip": "Profile"
+  },
+  "LoginForm": {
+    "title": "University of Computer Studies, Hinthada",
+    "subtitle": "Login to your account",
+    "description": "Enter your credentials below to login to your account",
+    "email": "Email",
+    "password": "Password",
+    "logging_in": "Logging in...",
+    "login": "Login"
+  },
+  "DataTablePagination": {
+    "rows_selected": "{count} of {total} row(s) selected.",
+    "showing_results": "Showing {from} to {to} of {total} results",
+    "total_rows": "{count} row(s) total.",
+    "rows_per_page": "Rows per page",
+    "page_info": "Page {current} of {total}"
+  },
+  "DataTable": {
+    "no_result": "No results.",
+    "view": "View",
+    "reset": "Reset",
+    "no_columns": "No columns found.",
+    "search_placeholder": "Search columns...",
+    "selected": "{count} selected",
+    "clear_selection": "Clear selection",
+    "escape": "Escape"
+  },
+  "AlertModal": {
+    "title": "Are you sure?",
+    "description": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "ResultsBySemester": {
+    "home": "Home",
+    "title": "Results by Semester",
+    "subtitle": "Manage and view student grading records by semester",
+    "search_placeholder": "Search results...",
+    "add_result": "Add New Result",
+    "export_all": "Export All",
+    "export_selected": "Export Selected",
+    "delete_selected": "Delete Selected",
+    "export": {
+      "success": "Excel file downloaded successfully!",
+      "error": "Export failed: {message}",
+      "generic_error": "Export failed. Please try again."
+    },
+    "delete": {
+      "success": "Result deleted successfully",
+      "error": "Failed to delete result: {message}"
+    },
+    "table": {
+      "no": "No.",
+      "student_name": "Student Name",
+      "roll_no": "Roll No.",
+      "academic_year": "Academic Year",
+      "semester": "Semester",
+      "class": "Class",
+      "gpa": "GPA",
+      "status": "Status",
+      "created_at": "Created At",
+      "current": "Current",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "ResultPage": {
+      "title": "Results",
+      "create_title": "Create New Result",
+      "edit_title": "Edit Result",
+      "breadcrumbs": {
+        "home": "Home",
+        "results": "Results by Semester",
+        "new": "new"
+      }
+    },
+    "ResultForm": {
+      "fields": {
+        "student": {
+          "label": "Student",
+          "placeholder": "Select a student...",
+          "search": "Search students..."
+        },
+        "academic_year": {
+          "label": "Academic Year",
+          "placeholder": "Select academic year...",
+          "search": "Search academic years...",
+          "current": "Current"
+        },
+        "semester": {
+          "label": "Semester",
+          "placeholder": "Select semester...",
+          "search": "Search semesters...",
+          "current": "Current"
+        },
+        "enrollment": {
+          "label": "Enrollment (Class and Roll Number)",
+          "placeholder": "Select enrollment...",
+          "search": "Search enrollments..."
+        }
+      },
+      "subjects": {
+        "title": "Subject Marks",
+        "credits": "Credits: {count}",
+        "exam_weight": "Exam: {weight}%",
+        "assign_weight": "Assignment: {weight}%",
+        "base_mark": {
+          "label": "Base Mark *",
+          "placeholder": "0-100"
+        },
+        "assign_mark": {
+          "label": "Assessment Mark *",
+          "placeholder": "0-{max}"
+        },
+        "grade_info": {
+          "exam": "Exam: {mark}",
+          "final": "Final: {mark}",
+          "grade": "Grade: {value}",
+          "score": "Score: {value}",
+          "gp": "GP: {value}"
+        }
+      },
+      "actions": {
+        "create": "Create Result",
+        "update": "Update Result"
+      },
+      "messages": {
+        "create_success": "Result created successfully!",
+        "update_success": "Result updated successfully!",
+        "create_error": "Failed to create result",
+        "update_error": "Failed to update result: {error}",
+        "generic_error": "An unexpected error occurred"
+      },
+      "ExistingResultDialog": {
+        "title": "Result Already Exists",
+        "description": "A result has already been created for this enrollment. You cannot create duplicate results.",
+        "fields": {
+          "student": "Student",
+          "class": "Class",
+          "roll_number": "Roll Number",
+          "created": "Created"
+        },
+        "actions": {
+          "cancel": "Cancel",
+          "edit": "Edit Existing Result"
+        }
+      }
+    },
+    "ResultView": {
+      "breadcrumbs": {
+        "home": "Home",
+        "results": "Results by Semester"
+      },
+      "header": {
+        "title": "Semester Result",
+        "description": "View academic performance and semester results"
+      },
+      "student": {
+        "roll_number": "Roll Number: {number}"
+      },
+      "enrollment": {
+        "class": "Class",
+        "class_format": "{name} ({code})",
+        "semester": "Semester",
+        "academic_year": "Academic Year"
+      },
+      "summary": {
+        "current_gpa": "Current GPA",
+        "total_credits": "Total Credits",
+        "total_gp": "Total GP",
+        "class_rank": "Class Rank",
+        "rank_display": "#{rank}"
+      },
+      "grades": {
+        "title": "Subject-wise Results",
+        "description": "Detailed breakdown of marks and grades for each subject",
+        "table": {
+          "subject_code": "Subject Code",
+          "subject_name": "Subject Name",
+          "credits": "Credits",
+          "exam_mark": "Exam Mark",
+          "assessment_mark": "Assessment Mark",
+          "final_mark": "Final Mark",
+          "grade": "Grade",
+          "score": "Score",
+          "grade_points": "Grade Points"
+        },
+        "mobile": {
+          "credits": "Credits: ",
+          "score": "Score: ",
+          "gp": "GP: ",
+          "exam": "Exam: ",
+          "assessment": "Assessment: ",
+          "final_mark": "Final Mark: "
+        }
+      },
+      "summary_footer": {
+        "title": "Overall Summary:",
+        "total_gp": "Total GP: ",
+        "total_credits": "Total Credits: ",
+        "gpa": "GPA: "
+      },
+      "result_download_button": {
+        "button": {
+          "export": "Export DOCX",
+          "exporting": "Exporting..."
+        },
+        "errors": {
+          "generation_error": "Failed to generate document."
+        }
+      }
+    }
+  },
+  "ResultsByYear": {
+    "title": "Results by Year",
+    "subtitle": "Manage and view student grading records by year",
+    "search_placeholder": "Search results..."
   },
   "AdminNavBarTitle": {
     "dashboard": "Dashboard",
@@ -41,18 +280,5 @@
     "GPAsetting": "GPA Setting",
     "account": "Account",
     "setting": "Setting"
-  },
-  "UserNav": {
-    "dashboard": "Dashboard",
-    "account": "Account",
-    "sign_out": "Sign Out"
-  },
-  "LoginForm": {
-    "title": "University of Computer Studies, Hinthada",
-    "subtitle": "Login to your account",
-    "description": "Enter your credentials below to login to your account",
-    "email": "Email",
-    "password": "Password",
-    "login": "Login"
   }
 }

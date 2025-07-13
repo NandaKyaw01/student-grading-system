@@ -1,11 +1,11 @@
 'use client';
 
-import * as React from 'react';
 import {
   ThemeProvider as NextThemesProvider,
   type ThemeProviderProps
 } from 'next-themes';
 import { ActiveThemeProvider } from '../active-theme';
+import { Toaster } from '../ui/sonner';
 
 type ThemeProps = ThemeProviderProps & {
   className?: string;
@@ -22,6 +22,10 @@ export function ThemeProvider({
       <ActiveThemeProvider initialTheme={activeThemeValue}>
         {children}
       </ActiveThemeProvider>
+      <Toaster
+        theme={activeThemeValue === 'dark' ? 'dark' : 'light'}
+        closeButton
+      />
     </NextThemesProvider>
   );
 }

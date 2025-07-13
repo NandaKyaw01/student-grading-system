@@ -1,14 +1,13 @@
 import {
-  User,
-  Settings,
+  BookOpenCheck,
+  FileCog,
+  GraduationCap,
+  Import,
   LayoutGrid,
   LucideIcon,
-  Users,
-  BookOpenCheck,
-  GraduationCap,
-  FileCog,
-  Library,
-  Import
+  Settings,
+  User,
+  Users
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -17,6 +16,7 @@ type Submenu = {
   label: string;
   active?: boolean;
 };
+
 type SideBarKeys = ReturnType<typeof useTranslations<'SideBar'>>;
 
 type Menu = {
@@ -50,16 +50,16 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
       menus: [
         {
           href: '',
-          label: 'Results',
+          label: t('results'),
           icon: BookOpenCheck,
           submenus: [
             {
               href: `/admin/results`,
-              label: 'By Semester'
+              label: t('sub_results.results_by_semester')
             },
             {
               href: `/admin/academic-year-results`,
-              label: 'By Year'
+              label: t('sub_results.results_by_year')
             }
           ]
         }
@@ -75,11 +75,11 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
           submenus: [
             {
               href: '/admin/students',
-              label: t('students')
+              label: t('sub_students.students')
             },
             {
               href: '/admin/enrollments',
-              label: 'Enrollments'
+              label: t('sub_students.enrollments')
             }
           ]
         }
@@ -90,28 +90,28 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
       menus: [
         {
           href: '',
-          label: 'Configurations',
+          label: t('configurations'),
           icon: GraduationCap,
           submenus: [
             {
               href: '/admin/academic-years',
-              label: t('SubAcademic.academic_year')
+              label: t('sub_configurations.academic_years')
             },
             {
               href: '/admin/semesters',
-              label: 'Semesters'
+              label: t('sub_configurations.semesters')
             },
             {
               href: '/admin/classes',
-              label: t('SubAcademic.classes')
+              label: t('sub_configurations.classes')
             },
             {
               href: '/admin/subjects',
-              label: t('SubAcademic.subjects')
+              label: t('sub_configurations.subjects')
             },
             {
               href: '/admin/class-subjects',
-              label: t('SubAcademic.class_subjects')
+              label: t('sub_configurations.class_subjects')
             }
           ]
         }
@@ -121,24 +121,18 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
       groupLabel: '',
       menus: [
         {
-          href: '',
-          label: 'Imports',
-          icon: Import,
-          submenus: [
-            {
-              href: '/admin/import-results',
-              label: 'Import results'
-            }
-          ]
+          href: '/admin/import-results',
+          label: t('import_results'),
+          icon: Import
         }
       ]
     },
     {
-      groupLabel: 'Settings',
+      groupLabel: t('settings'),
       menus: [
         {
           href: '/admin/gpa-setting',
-          label: t('GPAsetting'),
+          label: t('gpa_setting'),
           icon: FileCog
         },
         {
@@ -155,62 +149,3 @@ export function getMenuList(pathname: string, t: SideBarKeys): Group[] {
     }
   ];
 }
-
-// return [
-//   {
-//     groupLabel: '',
-//     menus: [
-//       {
-//         href: `/admin/dashboard`,
-//         label: 'Dashboard',
-//         icon: LayoutGrid,
-//         submenus: []
-//       }
-//     ]
-//   },
-//   {
-//     groupLabel: 'Contents',
-//     menus: [
-//       {
-//         href: '',
-//         label: 'Posts',
-//         icon: SquarePen,
-//         submenus: [
-//           {
-//             href: '/admin/posts',
-//             label: 'All Posts'
-//           },
-//           {
-//             href: '/admin/posts/new',
-//             label: 'New Post'
-//           }
-//         ]
-//       },
-//       {
-//         href: '/admin/categories',
-//         label: 'Categories',
-//         icon: Bookmark
-//       },
-//       {
-//         href: '/admin/tags',
-//         label: 'Tags',
-//         icon: Tag
-//       }
-//     ]
-//   },
-//   {
-//     groupLabel: 'Settings',
-//     menus: [
-//       {
-//         href: '/admin/users',
-//         label: 'Users',
-//         icon: Users
-//       },
-//       {
-//         href: '/admin/setting',
-//         label: 'Setting',
-//         icon: Settings
-//       }
-//     ]
-//   }
-// ];

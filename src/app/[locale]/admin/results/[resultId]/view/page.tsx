@@ -29,6 +29,7 @@ import { ResultDownloadButton } from '../../_components/result-download-button';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { Separator } from '@/components/ui/separator';
+import { getTranslations } from 'next-intl/server';
 
 const getGradeColor = (grade: string) => {
   switch (grade) {
@@ -74,6 +75,7 @@ type PageProps = {
 
 export default async function ViewResultPage({ params }: PageProps) {
   const { resultId } = await params;
+  const t = await getTranslations('ResultsBySemester.ResultView');
 
   let resultData: ResultData | null;
 
@@ -117,11 +119,11 @@ export default async function ViewResultPage({ params }: PageProps) {
         <ActiveBreadcrumb
           path={[
             {
-              name: 'Home',
+              name: t('breadcrumbs.home'),
               link: '/'
             },
             {
-              name: 'Results',
+              name: t('breadcrumbs.results'),
               link: '/admin/results'
             },
             {
@@ -136,10 +138,10 @@ export default async function ViewResultPage({ params }: PageProps) {
         {/* Header */}
         <div className='space-y-2'>
           <h1 className='text-2xl sm:text-2xl font-bold text-foreground'>
-            Semester Result
+            {t('header.title')}
           </h1>
           <p className='text-sm sm:text-base text-muted-foreground'>
-            View academic performance and semester results
+            {t('header.description')}
           </p>
           <Separator />
         </div>
@@ -156,7 +158,9 @@ export default async function ViewResultPage({ params }: PageProps) {
                     <span className='truncate'>{resultData.student.name}</span>
                   </CardTitle>
                   <CardDescription className='text-primary-foreground/80 text-sm sm:text-base'>
-                    Roll Number: {resultData.student.rollNumber}
+                    {t('student.roll_number', {
+                      number: resultData.student.rollNumber
+                    })}
                   </CardDescription>
                 </div>
                 <div className='flex-shrink-0'>
@@ -169,18 +173,23 @@ export default async function ViewResultPage({ params }: PageProps) {
                 <div className='flex items-center gap-3'>
                   <GraduationCap className='h-5 w-5 text-primary flex-shrink-0' />
                   <div className='min-w-0 flex-1'>
-                    <p className='text-sm text-muted-foreground'>Class</p>
+                    <p className='text-sm text-muted-foreground'>
+                      {t('enrollment.class')}
+                    </p>
                     <p className='font-medium text-foreground truncate'>
-                      {`${resultData.enrollment.class} (${
-                        resultData.enrollment.departmentCode
-                      })`}
+                      {t('enrollment.class_format', {
+                        name: resultData.enrollment.class,
+                        code: resultData.enrollment.departmentCode
+                      })}
                     </p>
                   </div>
                 </div>
                 <div className='flex items-center gap-3'>
                   <Calendar className='h-5 w-5 text-primary flex-shrink-0' />
                   <div className='min-w-0 flex-1'>
-                    <p className='text-sm text-muted-foreground'>Semester</p>
+                    <p className='text-sm text-muted-foreground'>
+                      {t('enrollment.semester')}
+                    </p>
                     <p className='font-medium text-foreground'>
                       {resultData.enrollment.semester}
                     </p>
@@ -190,7 +199,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                   <BookOpen className='h-5 w-5 text-primary flex-shrink-0' />
                   <div className='min-w-0 flex-1'>
                     <p className='text-sm text-muted-foreground'>
-                      Academic Year
+                      {t('enrollment.academic_year')}
                     </p>
                     <p className='font-medium text-foreground'>
                       {resultData.enrollment.academicYear}
@@ -211,7 +220,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
                   <div className='min-w-0 flex-1'>
                     <p className='text-xs sm:text-sm text-muted-foreground'>
-                      Current GPA
+                      C{t('summary.current_gpa')}
                     </p>
                     <p
                       className={`text-3xl sm:text-3xl font-bold ${getGpaColor(resultData.result.gpa)}`}
@@ -234,7 +243,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
                   <div className='min-w-0 flex-1'>
                     <p className='text-xs sm:text-sm text-muted-foreground'>
-                      Total Credits
+                      {t('summary.total_credits')}
                     </p>
                     <p className='text-3xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400'>
                       {resultData.result.totalCredits}
@@ -255,7 +264,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
                   <div className='min-w-0 flex-1'>
                     <p className='text-xs sm:text-sm text-muted-foreground'>
-                      Total GP
+                      {t('summary.total_gp')}
                     </p>
                     <p className='text-3xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400'>
                       {resultData.result.totalGp}
@@ -270,42 +279,16 @@ export default async function ViewResultPage({ params }: PageProps) {
                 </div>
               </CardContent>
             </Card>
-
-            {/* <Card
-              className='shadow-lg border-0 bg-gradient-to-br from-purple-50 to-pink-50
-                dark:from-purple-950/50 dark:to-pink-950/50'
-            >
-              <CardContent className='pt-4 sm:pt-6 p-3 sm:p-6'>
-                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
-                  <div className='min-w-0 flex-1'>
-                    <p className='text-xs sm:text-sm text-muted-foreground'>
-                      Class Rank
-                    </p>
-                    <p className='text-xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400'>
-                      {resultData.result.rank
-                        ? `#${resultData.result.rank}`
-                        : 'N/A'}
-                    </p>
-                  </div>
-                  <div
-                    className='p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/50 rounded-full self-end
-                      sm:self-auto'
-                  >
-                    <Trophy className='h-4 w-4 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400' />
-                  </div>
-                </div>
-              </CardContent>
-            </Card> */}
           </div>
 
           {/* Grades Table */}
           <Card className='shadow-lg border-0 bg-card/80 backdrop-blur'>
             <CardHeader className='p-4 sm:p-6 pb-0 sm:pb-2'>
               <CardTitle className='text-lg sm:text-xl text-foreground'>
-                Subject-wise Results
+                {t('grades.title')}
               </CardTitle>
               <CardDescription className='text-sm sm:text-base text-muted-foreground'>
-                Detailed breakdown of marks and grades for each subject
+                {t('grades.description')}
               </CardDescription>
             </CardHeader>
             <CardContent className='p-4 sm:p-6 pt-0 sm:pt-2'>
@@ -334,7 +317,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                         <div className='grid grid-cols-3 gap-2 text-xs'>
                           <div>
                             <span className='text-muted-foreground'>
-                              Credits:{' '}
+                              {t('grades.mobile.credits')}
                             </span>
                             <span className='font-medium text-foreground'>
                               {grade.subject.creditHours}
@@ -342,21 +325,23 @@ export default async function ViewResultPage({ params }: PageProps) {
                           </div>
                           <div>
                             <span className='text-muted-foreground'>
-                              Score:{' '}
+                              {t('grades.mobile.score')}
                             </span>
                             <span className='font-medium text-foreground'>
                               {grade.score}
                             </span>
                           </div>
                           <div>
-                            <span className='text-muted-foreground'>GP: </span>
+                            <span className='text-muted-foreground'>
+                              {t('grades.mobile.gp')}
+                            </span>
                             <span className='font-medium text-foreground'>
                               {grade.gp}
                             </span>
                           </div>
                           <div>
                             <span className='text-muted-foreground'>
-                              Exam:{' '}
+                              {t('grades.mobile.exam')}
                             </span>
                             <span className='font-medium text-foreground'>
                               {grade.examMark}
@@ -364,7 +349,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                           </div>
                           <div className='col-span-2'>
                             <span className='text-muted-foreground'>
-                              Assessment:{' '}
+                              {t('grades.mobile.assessment')}
                             </span>
                             <span className='font-medium text-foreground'>
                               {grade.assignMark}
@@ -374,7 +359,7 @@ export default async function ViewResultPage({ params }: PageProps) {
 
                         <div className='pt-2 border-t border-border/50'>
                           <span className='text-muted-foreground text-xs'>
-                            Final Mark:{' '}
+                            {t('grades.mobile.final_mark')}
                           </span>
                           <span className='font-bold text-foreground'>
                             {grade.finalMark}
@@ -392,31 +377,31 @@ export default async function ViewResultPage({ params }: PageProps) {
                   <TableHeader>
                     <TableRow>
                       <TableHead className='text-foreground min-w-[100px]'>
-                        Subject Code
+                        {t('grades.table.subject_code')}
                       </TableHead>
                       <TableHead className='text-foreground min-w-[100px]'>
-                        Subject Name
+                        {t('grades.table.subject_name')}
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[80px]'>
-                        Credits
+                        {t('grades.table.credits')}
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[100px]'>
-                        Exam Mark
+                        {t('grades.table.exam_mark')}
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[120px]'>
-                        Assessment Mark
+                        {t('grades.table.assessment_mark')}
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[100px]'>
-                        Final Mark
+                        {t('grades.table.final_mark')}
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[80px]'>
-                        Grade
+                        {t('grades.table.grade')}
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[80px]'>
-                        Score
+                        {t('grades.table.score')}
                       </TableHead>
                       <TableHead className='text-center text-foreground min-w-[100px]'>
-                        Grade Points
+                        {t('grades.table.grade_points')}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -462,37 +447,29 @@ export default async function ViewResultPage({ params }: PageProps) {
               <div className='mt-4 sm:mt-6 pt-4 border-t border-border'>
                 <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4'>
                   <div className='text-base sm:text-lg font-semibold text-foreground'>
-                    Overall Summary:
+                    {t('summary_footer.title')}
                   </div>
                   <div className='grid grid-cols-2 sm:flex sm:gap-8 gap-2 text-xs sm:text-sm'>
                     <span className='text-muted-foreground'>
-                      Total GP:{' '}
+                      {t('summary_footer.total_gp')}
                       <span className='font-bold text-foreground'>
                         {resultData.result.totalGp}
                       </span>
                     </span>
                     <span className='text-muted-foreground'>
-                      Total Credits:{' '}
+                      {t('summary_footer.total_credits')}
                       <span className='font-bold text-foreground'>
                         {resultData.result.totalCredits}
                       </span>
                     </span>
                     <span className='text-muted-foreground'>
-                      GPA:{' '}
+                      {t('summary_footer.gpa')}
                       <span
                         className={`font-bold ${getGpaColor(resultData.result.gpa)}`}
                       >
                         {resultData.result.gpa}
                       </span>
                     </span>
-                    {/* <span className='text-muted-foreground'>
-                      Rank:{' '}
-                      <span className='font-bold text-foreground'>
-                        {resultData.result.rank
-                          ? `#${resultData.result.rank}`
-                          : 'N/A'}
-                      </span>
-                    </span> */}
                   </div>
                 </div>
               </div>

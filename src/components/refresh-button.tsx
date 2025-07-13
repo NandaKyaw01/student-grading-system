@@ -10,9 +10,11 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from './ui/tooltip';
+import { useTranslations } from 'next-intl';
 
 const RefreshButton = () => {
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('NavBar');
 
   const handleRefresh = useCallback(() => {
     startTransition(async () => {
@@ -34,7 +36,7 @@ const RefreshButton = () => {
             {isPending ? <Loader className='animate-spin' /> : <RefreshCcw />}
           </Button>
         </TooltipTrigger>
-        <TooltipContent side='bottom'>Refresh All</TooltipContent>
+        <TooltipContent side='bottom'>{t('refresh_tooltip')}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

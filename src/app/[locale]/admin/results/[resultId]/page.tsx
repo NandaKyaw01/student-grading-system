@@ -4,8 +4,10 @@ import { ContentLayout } from '@/components/admin-panel/content-layout';
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import { Separator } from '@/components/ui/separator';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
 import ResultForm from '../_components/result-form';
+import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata = {
   title: 'Results : Result View'
@@ -19,9 +21,10 @@ type PageProps = {
 export default async function Page(props: PageProps) {
   const params = await props.params;
   const searchParams = await props.searchParams;
+  const t = await getTranslations('ResultsBySemester.ResultPage');
 
   let result = null;
-  let pageTitle = 'Create New Result';
+  let pageTitle = t('create_title');
   let initialFormData = null;
 
   if (params.resultId !== 'new') {
@@ -30,7 +33,7 @@ export default async function Page(props: PageProps) {
     if (!result) {
       notFound();
     }
-    pageTitle = `Edit Result ( ID - ${params.resultId} )`;
+    pageTitle = t('edit_title');
   } else {
     // This is create mode - check for query parameters
     const { semesterId, studentId, academicYearId } = searchParams;
@@ -55,15 +58,18 @@ export default async function Page(props: PageProps) {
         <ActiveBreadcrumb
           path={[
             {
-              name: 'Home',
+              name: t('breadcrumbs.home'),
               link: '/'
             },
             {
-              name: 'Results',
+              name: t('breadcrumbs.results'),
               link: '/admin/results'
             },
             {
-              name: params.resultId !== 'new' ? params.resultId : 'new',
+              name:
+                params.resultId !== 'new'
+                  ? params.resultId
+                  : t('breadcrumbs.new'),
               link: ''
             }
           ]}

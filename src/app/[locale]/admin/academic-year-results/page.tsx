@@ -34,7 +34,7 @@ const bredcrumb: BreadcrumbProps[] = [
   }
 ];
 export default async function AcademicYearResultsPage(props: pageProps) {
-  const t = await getTranslations('AdminNavBarTitle');
+  // const t = await getTranslations('');
   const searchParams = await props.searchParams;
   const search = academicResultSearchParamsCache.parse(searchParams);
 

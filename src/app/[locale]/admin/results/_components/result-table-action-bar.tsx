@@ -13,6 +13,7 @@ import {
 } from '@/components/data-table/data-table-action-bar';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Separator } from '@/components/ui/separator';
+import { useTranslations } from 'next-intl';
 
 const actions = ['export', 'delete'] as const;
 
@@ -27,6 +28,7 @@ export function ResultsTableActionBar({ table }: ResultsTableActionBarProps) {
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<Action | null>(null);
   const [open, setOpen] = React.useState(false);
+  const t = useTranslations('ResultsBySemester');
 
   const getIsActionPending = React.useCallback(
     (action: Action) => isPending && currentAction === action,
@@ -50,18 +52,18 @@ export function ResultsTableActionBar({ table }: ResultsTableActionBarProps) {
           link.click();
           document.body.removeChild(link);
 
-          toast.success('Excel file downloaded successfully!');
+          toast.success(t('export.success'));
         } else {
-          toast.error(`Export failed: ${result.error}`);
+          toast.error(t('export.error', { message: result.error ?? '' }));
         }
       } catch (error) {
         console.error('Export error:', error);
-        toast.error('Export failed. Please try again.');
+        toast.error(t('export.generic_error'));
       } finally {
         setCurrentAction(null);
       }
     });
-  }, [rows, startTransition]);
+  }, [rows, startTransition, t]);
 
   const onResultDelete = React.useCallback(() => {
     setCurrentAction('delete');
@@ -70,12 +72,14 @@ export function ResultsTableActionBar({ table }: ResultsTableActionBarProps) {
       const { error } = await deleteResults(ids);
 
       if (error) {
-        toast.error(error);
+        toast.error(t('delete.error', { message: error }));
         return;
       }
+
+      toast.success(t('delete.success'));
       table.toggleAllRowsSelected(false);
     });
-  }, [rows, table]);
+  }, [rows, table, t]);
 
   return (
     <>
@@ -94,7 +98,7 @@ export function ResultsTableActionBar({ table }: ResultsTableActionBarProps) {
         <div className='flex items-center gap-1.5'>
           <DataTableActionBarAction
             size='icon'
-            tooltip='Export results'
+            tooltip={t('export_selected')}
             isPending={getIsActionPending('export')}
             onClick={onResultExport}
           >
@@ -102,7 +106,7 @@ export function ResultsTableActionBar({ table }: ResultsTableActionBarProps) {
           </DataTableActionBarAction>
           <DataTableActionBarAction
             size='icon'
-            tooltip='Delete results'
+            tooltip={t('delete_selected')}
             isPending={getIsActionPending('delete')}
             onClick={() => setOpen(true)}
           >

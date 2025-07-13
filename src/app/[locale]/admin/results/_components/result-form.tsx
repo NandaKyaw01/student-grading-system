@@ -35,6 +35,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -98,6 +99,7 @@ export default function ResultForm({
   onSuccess
 }: ResultFormProps) {
   const router = useRouter();
+  const t = useTranslations('ResultsBySemester.ResultForm');
 
   // Check if this is edit mode by looking for enrollmentId in initialData
   const isEditMode = !!(
@@ -365,15 +367,14 @@ export default function ResultForm({
       if (result.success) {
         toast.success(
           isEditMode
-            ? 'Result updated successfully!'
-            : 'Result created successfully!'
+            ? t('messages.update_success')
+            : t('messages.create_success')
         );
 
         if (!isEditMode) {
           form.reset();
           setAutoSelectCurrentYear(false);
           setAutoSelectCurrentSemester(false);
-          // Reset processed flags
           currentYearProcessed.current = false;
           currentSemesterProcessed.current = false;
           subjectsProcessed.current = false;
@@ -383,12 +384,14 @@ export default function ResultForm({
         onSuccess?.();
       } else {
         toast.error(
-          result.error || `Failed to ${isEditMode ? 'update' : 'create'} result`
+          isEditMode
+            ? t('messages.update_error', { error: result.error ?? '' })
+            : toast.error(t('messages.create_error'))
         );
       }
     },
     onError: () => {
-      toast.error('An unexpected error occurred');
+      toast.error(t('messages.generic_error'));
     }
   });
 
@@ -555,7 +558,7 @@ export default function ResultForm({
             name='studentId'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Student</FormLabel>
+                <FormLabel>{t('fields.student.label')}</FormLabel>
                 <FormControl>
                   {studentsLoading ? (
                     <ComboboxSkeleton />
@@ -567,8 +570,8 @@ export default function ResultForm({
                       }))}
                       value={field.value > 0 ? field.value.toString() : ''}
                       onValueChange={handleFieldChange('studentId')}
-                      placeholder='Select a student...'
-                      searchPlaceholder='Search students...'
+                      placeholder={t('fields.student.placeholder')}
+                      searchPlaceholder={t('fields.student.search')}
                       disabled={studentsLoading || isEditMode}
                     />
                   )}
@@ -585,7 +588,7 @@ export default function ResultForm({
             render={({ field }) => (
               <FormItem>
                 <div className='flex items-center space-x-2'>
-                  <FormLabel>Academic Year</FormLabel>
+                  <FormLabel>{t('fields.academic_year.label')}</FormLabel>
                   {!isEditMode && (
                     <div className='flex items-center space-x-2'>
                       <Checkbox
@@ -596,7 +599,9 @@ export default function ResultForm({
                         }
                         disabled={!studentId}
                       />
-                      <Label htmlFor='auto-year'>Current</Label>
+                      <Label htmlFor='auto-year'>
+                        {t('fields.academic_year.current')}
+                      </Label>
                     </div>
                   )}
                 </div>
@@ -607,11 +612,12 @@ export default function ResultForm({
                     <Combobox
                       options={academicYears.map((ay) => ({
                         value: ay.id.toString(),
-                        label: `${ay.yearRange} ${ay.isCurrent ? '(Current)' : ''}`
+                        label: `${ay.yearRange} ${ay.isCurrent ? `(${t('fields.academic_year.current')})` : ''}`
                       }))}
                       value={field.value > 0 ? field.value.toString() : ''}
                       onValueChange={handleFieldChange('academicYearId')}
-                      placeholder='Select academic year...'
+                      placeholder={t('fields.academic_year.placeholder')}
+                      searchPlaceholder={t('fields.academic_year.search')}
                       disabled={
                         academicYearsLoading ||
                         (!studentId && !isEditMode) ||
@@ -632,7 +638,7 @@ export default function ResultForm({
             render={({ field }) => (
               <FormItem>
                 <div className='flex items-center space-x-2'>
-                  <FormLabel>Semester</FormLabel>
+                  <FormLabel>{t('fields.semester.label')}</FormLabel>
                   {!isEditMode && (
                     <div className='flex items-center space-x-2'>
                       <Checkbox
@@ -643,7 +649,9 @@ export default function ResultForm({
                         }
                         disabled={!academicYearId}
                       />
-                      <Label htmlFor='auto-semester'>Current</Label>
+                      <Label htmlFor='auto-semester'>
+                        {t('fields.semester.current')}
+                      </Label>
                     </div>
                   )}
                 </div>
@@ -654,11 +662,12 @@ export default function ResultForm({
                     <Combobox
                       options={semesters.map((s) => ({
                         value: s.id.toString(),
-                        label: `${s.semesterName} ${s.isCurrent ? '(Current)' : ''}`
+                        label: `${s.semesterName} ${s.isCurrent ? `(${t('fields.semester.current')})` : ''}`
                       }))}
                       value={field.value > 0 ? field.value.toString() : ''}
                       onValueChange={handleFieldChange('semesterId')}
-                      placeholder='Select semester...'
+                      placeholder={t('fields.semester.placeholder')}
+                      searchPlaceholder={t('fields.semester.search')}
                       disabled={
                         semestersLoading ||
                         (!academicYearId && !isEditMode) ||
@@ -678,7 +687,7 @@ export default function ResultForm({
             name='enrollmentId'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Enrollment (Class + Roll Number)</FormLabel>
+                <FormLabel>{t('fields.enrollment.label')}</FormLabel>
                 <FormControl>
                   {enrollmentsLoading && studentId && semesterId ? (
                     <ComboboxSkeleton />
@@ -690,7 +699,8 @@ export default function ResultForm({
                       }))}
                       value={field.value > 0 ? field.value.toString() : ''}
                       onValueChange={handleFieldChange('enrollmentId')}
-                      placeholder='Select enrollment...'
+                      placeholder={t('fields.enrollment.placeholder')}
+                      searchPlaceholder={t('fields.enrollment.search')}
                       disabled={
                         enrollmentsLoading ||
                         (!semesterId && !isEditMode) ||
@@ -715,7 +725,7 @@ export default function ResultForm({
             ) : subjects.length > 0 ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Subject Marks</CardTitle>
+                  <CardTitle>{t('subjects.title')}</CardTitle>
                 </CardHeader>
                 <CardContent className='space-y-4'>
                   {fields.map((field, index) => {
@@ -731,12 +741,25 @@ export default function ResultForm({
                           <Label className='font-medium'>
                             {subject.subjectName}
                           </Label>
-                          <p className='text-sm text-muted-foreground'>
-                            Credits: {subject.creditHours} | Exam:{' '}
-                            {(subject.examWeight * 100).toFixed(0)}% |
-                            Assignment:{' '}
-                            {(subject.assignWeight * 100).toFixed(0)}%
-                          </p>
+                          <div className='text-sm text-muted-foreground flex flex-row gap-1 flex-wrap'>
+                            <div>
+                              {t('subjects.credits', {
+                                count: subject.creditHours
+                              })}
+                            </div>
+                            <div>|</div>
+                            <div>
+                              {t('subjects.exam_weight', {
+                                weight: (subject.examWeight * 100).toFixed(0)
+                              })}
+                            </div>
+                            <div>|</div>
+                            <div>
+                              {t('subjects.assign_weight', {
+                                weight: (subject.assignWeight * 100).toFixed(0)
+                              })}
+                            </div>
+                          </div>
                         </div>
 
                         <FormField
@@ -744,14 +767,18 @@ export default function ResultForm({
                           name={`grades.${index}.baseMark`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Base Mark *</FormLabel>
+                              <FormLabel>
+                                {t('subjects.base_mark.label')}
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   type='number'
                                   min='0'
                                   max='100'
                                   step='0.01'
-                                  placeholder='0-100'
+                                  placeholder={t(
+                                    'subjects.base_mark.placeholder'
+                                  )}
                                   {...field}
                                   onChange={(e) =>
                                     field.onChange(e.target.value)
@@ -773,14 +800,21 @@ export default function ResultForm({
                           name={`grades.${index}.assignMark`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Assignment Mark *</FormLabel>
+                              <FormLabel>
+                                {t('subjects.assign_mark.label')}
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   type='number'
                                   min='0'
                                   max={subject.assignWeight * 100}
                                   step='0.01'
-                                  placeholder={`0-${subject.assignWeight * 100}`}
+                                  placeholder={t(
+                                    'subjects.assign_mark.placeholder',
+                                    {
+                                      max: subject.assignWeight * 100
+                                    }
+                                  )}
                                   {...field}
                                   onChange={(e) =>
                                     field.onChange(e.target.value)
@@ -805,39 +839,35 @@ export default function ResultForm({
                                 <>
                                   <div className='flex gap-1'>
                                     <div>
-                                      Exam:{' '}
-                                      <span className='font-semibold'>
-                                        {gradeInfo.examMark}
-                                      </span>{' '}
-                                      |
+                                      {t('subjects.grade_info.exam', {
+                                        mark: gradeInfo.examMark
+                                      })}
                                     </div>
+                                    <div>|</div>
                                     <div>
-                                      Final:{' '}
-                                      <span className='font-semibold'>
-                                        {gradeInfo.finalMark}
-                                      </span>
+                                      {t('subjects.grade_info.final', {
+                                        mark: gradeInfo.examMark
+                                      })}
                                     </div>
+                                    <div>|</div>
                                   </div>
-                                  <div className='flex gap-1 flex-wrap'>
+                                  <div className='flex gap-1 flex-wrap h-5'>
                                     <div>
-                                      Grade:{' '}
-                                      <span className='font-semibold'>
-                                        {gradeInfo.grade}
-                                      </span>{' '}
-                                      |
+                                      {t('subjects.grade_info.grade', {
+                                        value: gradeInfo.grade
+                                      })}
                                     </div>
+                                    <div>|</div>
                                     <div>
-                                      Score:{' '}
-                                      <span className='font-semibold'>
-                                        {gradeInfo.score}
-                                      </span>{' '}
-                                      |
+                                      {t('subjects.grade_info.score', {
+                                        value: gradeInfo.score
+                                      })}
                                     </div>
+                                    <div>|</div>
                                     <div>
-                                      GP:{' '}
-                                      <span className='font-semibold'>
-                                        {gradeInfo.gp}
-                                      </span>
+                                      {t('subjects.grade_info.gp', {
+                                        value: gradeInfo.gp
+                                      })}
                                     </div>
                                   </div>
                                 </>
@@ -859,7 +889,7 @@ export default function ResultForm({
           {resultMutation.isPending && (
             <Loader className='mr-2 h-4 w-4 animate-spin' />
           )}
-          {isEditMode ? 'Update Result' : 'Create Result'}
+          {t(`actions.${isEditMode ? 'update' : 'create'}`)}
         </Button>
 
         {/* Existing Result Dialog */}

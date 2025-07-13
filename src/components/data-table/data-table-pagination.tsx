@@ -15,6 +15,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface DataTablePaginationProps<TData> extends React.ComponentProps<'div'> {
   table: Table<TData>;
@@ -29,6 +30,7 @@ export function DataTablePagination<TData>({
   className,
   ...props
 }: DataTablePaginationProps<TData>) {
+  const t = useTranslations('DataTablePagination');
   return (
     <div
       className={cn(
@@ -41,18 +43,32 @@ export function DataTablePagination<TData>({
       <div className='flex-1 whitespace-nowrap text-muted-foreground text-sm'>
         {table.getFilteredSelectedRowModel().rows.length > 0 ? (
           <>
-            {table.getFilteredSelectedRowModel().rows.length} of{' '}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {t('rows_selected', {
+              count: table.getFilteredSelectedRowModel().rows.length,
+              total: table.getFilteredRowModel().rows.length
+            })}{' '}
           </>
         ) : totalItems > 0 ? (
-          <>{`Showing 1 to ${table.getFilteredRowModel().rows.length} of ${totalItems} results`}</>
+          <>
+            {t('showing_results', {
+              from: 1,
+              to: table.getFilteredRowModel().rows.length,
+              total: totalItems
+            })}
+          </>
         ) : (
-          <>{table.getFilteredRowModel().rows.length} row(s) total.</>
+          <>
+            {t('total_rows', {
+              count: table.getFilteredRowModel().rows.length
+            })}
+          </>
         )}
       </div>
       <div className='flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8'>
         <div className='flex items-center space-x-2'>
-          <p className='whitespace-nowrap font-medium text-sm'>Rows per page</p>
+          <p className='whitespace-nowrap font-medium text-sm'>
+            {t('rows_per_page')}
+          </p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
@@ -72,8 +88,10 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
         <div className='flex items-center justify-center font-medium text-sm'>
-          Page {table.getState().pagination.pageIndex + 1} of{' '}
-          {table.getPageCount()}
+          {t('page_info', {
+            current: table.getState().pagination.pageIndex + 1,
+            total: table.getPageCount()
+          })}
         </div>
         <div className='flex items-center space-x-2'>
           <Button

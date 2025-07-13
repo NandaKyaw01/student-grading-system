@@ -56,7 +56,7 @@ export function Sidebar() {
                   : 'translate-x-0 opacity-100'
               )}
             >
-              {t('title')}
+              {'Smart Grade UCSH'}
             </h1>
           </Link>
         </Button>

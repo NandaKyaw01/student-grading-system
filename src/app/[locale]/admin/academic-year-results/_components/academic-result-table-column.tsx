@@ -159,6 +159,8 @@ export function getAcademicResultColumns({
         <>
           {cell.getValue<Status>() === Status.PASS ? (
             <Badge>{cell.getValue<Status>()}</Badge>
+          ) : cell.getValue<Status>() === Status.INCOMPLETE ? (
+            <Badge className='bg-chart-4'>{cell.getValue<Status>()}</Badge>
           ) : (
             <Badge className='bg-destructive'>{cell.getValue<Status>()}</Badge>
           )}

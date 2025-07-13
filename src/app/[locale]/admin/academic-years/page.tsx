@@ -35,11 +35,11 @@ export default async function AcademicYearsPage(props: pageProps) {
   const academicYears = getAcademicYears(search, {
     includeDetails: true
   });
-  const t = await getTranslations('AdminNavBarTitle');
+  // const t = await getTranslations('');
 
   return (
     <ContentLayout
-      title={t('academic_year')}
+      title={'academic_year'}
       breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>

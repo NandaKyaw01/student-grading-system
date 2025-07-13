@@ -11,41 +11,46 @@
     "title": "ဟင်္သာတ ကွန်ပျူတာတက္ကသိုလ်ရှိ ကျောင်းသားအဆင့်သတ်မှတ်ခြင်းနှင့် အကဲဖြတ်ခြင်းစနစ်ကို ရိုးရှင်းစေခြင်း",
     "subtitle": "SmartGrade UCSH သည် ဟင်္သာတ ကွန်ပျူတာတက္ကသိုလ်အတွက် ဒီဇိုင်းထုတ်ထားသော အလိုလိုသိနိုင်ပြီး လုံခြုံစိတ်ချရသော အဆင့်သတ်မှတ်ခြင်းစနစ်တစ်ခုဖြစ်သည်။ ၎င်းသည် ဆရာ၊ ဆရာမများအတွက် အမှတ်ထည့်သွင်းခြင်း၊ စီမံခန့်ခွဲခြင်းနှင့် အစီရင်ခံခြင်းလုပ်ငန်းစဉ်များကို လွယ်ကူချောမွေ့စေပြီး ကျောင်းသားများအား ၎င်းတို့၏ ပညာရေးဆိုင်ရာ စွမ်းဆောင်ရည်ကို အချိန်နှင့်တပြေးညီ ဝင်ရောက်ကြည့်ရှုနိုင်စေပါသည်။ တိကျမှု၊ ထိရောက်မှုနှင့် ပွင့်လင်းမြင်သာမှုတို့အတွက် တည်ဆောက်ထားသော SmartGrade UCSH သည် ပညာပေးသူများနှင့် သင်ယူသူများ နှစ်ဦးစလုံးကို ရလဒ်များကို ပိုမိုကောင်းမွန်စွာ ကိုင်တွယ်နိုင်ရန် စွမ်းဆောင်ပေးပါသည်။",
     "search": "ရှာဖွေမည်",
-    "dashboard": "ဒတ်ရှ်ဘုဒ်",
-    "footer": "© 2025 UCSH. All rights reserved. The source code is available on"
+    "dashboard": "Dashboard",
+    "footer": "© 2025 UCSH. All rights reserved. Source code is available on {link}"
   },
   "SideBar": {
-    "dashboard": "ဒတ်ရှ်ဘုဒ်",
-    "grades": "အဆင့်",
-    "students": "ကျောင်းသားစာရင်း",
-    "academic": "ပညာရေး",
-    "SubAcademic": {
-      "academic_year": "စာသင်နှစ်",
-      "classes": "အတန်း",
-      "subjects": "ဘာသာရပ်",
-      "class_subjects": "အတန်းအလိုက်ဘာသာရပ်"
+    "dashboard": "Dashboard",
+    "results": "ရလဒ်များ",
+    "sub_results": {
+      "results_by_semester": "စာသင်နှစ်ဝက်အလိုက်",
+      "results_by_year": "နှစ်အလိုက်"
     },
-    "GPAsetting": "ဂျီပီအေ စက်တင်",
-    "account": "အကောင့်",
-    "setting": "စက်တင်",
-    "sign_out": "ထွက်မည်"
-  },
-  "AdminNavBarTitle": {
-    "dashboard": "ဒတ်ရှ်ဘုဒ်",
-    "grades": "အဆင့်",
-    "students": "ကျောင်းသားစာရင်း",
-    "academic_year": "စာသင်နှစ်",
-    "classes": "အတန်း",
-    "subjects": "ဘာသာရပ်",
-    "class_subjects": "အတန်းအလိုက်ဘာသာရပ်",
-    "GPAsetting": "ဂျီပီအေ စက်တင်",
-    "account": "အကောင့်",
-    "setting": "စက်တင်"
+    "students": "ကျောင်းသားများ",
+    "sub_students": {
+      "students": "ကျောင်းသားများ",
+      "enrollments": "ကျောင်းအပ်နှံမှုများ"
+    },
+    "configurations": "ပြင်ဆင်သတ်မှတ်ချက်များ",
+    "sub_configurations": {
+      "academic_years": "ပညာသင်နှစ်များ",
+      "semesters": "စာသင်နှစ်ဝက်များ",
+      "classes": "အတန်းများ",
+      "subjects": "ဘာသာရပ်များ",
+      "class_subjects": "အတန်းနှင့်ဘာသာရပ်များ"
+    },
+    "settings": "ချိန်ညှိမှုများ",
+    "import_results": "ရလဒ်များထည့်သွင်းရန်",
+    "gpa_setting": "GPA သတ်မှတ်ချက်",
+    "account": "အကောင့်",
+    "setting": "ချိန်ညှိမှုများ",
+    "sign_out": "အကောင့်ထွက်မည်"
   },
   "UserNav": {
-    "dashboard": "ဒတ်ရှ်ဘုဒ်",
+    "dashboard": "Dashboard",
     "account": "အကောင့်",
-    "sign_out": "ထွက်မည်"
+    "sign_out": "အကောင့်ထွက်မည်"
+  },
+  "NavBar": {
+    "refresh_tooltip": "Refresh လုပ်မည်",
+    "switch_locale_tooltip": "ဘာသာစကားပြောင်းမည်",
+    "switch_theme_tooltip": "အလင်း/အမှောင်ပြောင်းမည်",
+    "profile_tooltip": "ကိုယ်ရေးအချက်အလက်"
   },
   "LoginForm": {
     "title": "ကွန်ပျူတာတက္ကသိုလ်(ဟင်္သာတ)",
@@ -53,6 +58,222 @@
     "description": "အကောင့်ဝင်ရန်အချက်အလက်များ ဖြည့်သွင်းပါ",
     "email": "အီးမေးလ်",
     "password": "စကားဝှက်",
-    "login": "ဝင်မည်"
+    "logging_in": "အကောင့်ဝင်နေသည်...",
+    "login": "အကောင့်ဝင်မည်"
+  },
+  "DataTablePagination": {
+    "rows_selected": "စုစုပေါင်း {total} ခုမှ {count} ခု ရွေးချယ်ထားသည်",
+    "showing_results": "စုစုပေါင်း {total} ခုမှ {from} မှ {to} အထိ ပြသနေသည်",
+    "total_rows": "စုစုပေါင်း {count} ခု",
+    "rows_per_page": "တစ်မျက်နှာပါ အရေအတွက်",
+    "page_info": "စာမျက်နှာ {current}/{total}"
+  },
+  "DataTable": {
+    "no_result": "ရလဒ်မရှိပါ။",
+    "view": "ကြည့်ရှုမည်",
+    "reset": "ရှင်းလင်းမည်",
+    "no_columns": "columns များမရှိပါ။",
+    "search_placeholder": "columns များရှာဖွေပါ...",
+    "selected": "{count} ရွေးချယ်ထားသည်",
+    "clear_selection": "ရွေးချယ်မှုများရှင်းလင်းမည်",
+    "escape": "Escape"
+  },
+  "AlertModal": {
+    "title": "သေချာပါသလား?",
+    "description": "ဤလုပ်ဆောင်ချက်သည် ပြန်လည်မပြုလုပ်နိုင်ပါ။",
+    "cancel": "မလုပ်ပါ",
+    "delete": "ဖျက်မည်"
+  },
+  "ResultsBySemester": {
+    "home": "မူလစာမျက်နှာ",
+    "title": "စာသင်နှစ်ဝက် ရလဒ်များ",
+    "subtitle": "ကျောင်းသားအဆင့်သတ်မှတ်မှုများကို စီမံခန့်ခွဲခြင်းနှင့် ကြည့်ရှုခြင်း",
+    "search_placeholder": "ရလဒ်များရှာဖွေပါ...",
+    "add_result": "ရလဒ်အသစ်ထည့်မည်",
+    "export_all": "Export ထုတ်မည်",
+    "export_selected": "ရွေးချယ်ထားသည်များကို ထုတ်ယူမည်",
+    "delete_selected": "ရွေးချယ်ထားသည်များကို ဖျက်မည်",
+    "export": {
+      "success": "Excel ဖိုင်ကို အောင်မြင်စွာ ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ!",
+      "error": "Export မအောင်မြင်ပါ: {message}",
+      "generic_error": "Export မအောင်မြင်ပါ။ ပြန်လည်ကြိုးစားပါ။"
+    },
+    "delete": {
+      "success": "ရလဒ်ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ",
+      "error": "ရလဒ်ဖျက်ရန် မအောင်မြင်ပါ: {message}"
+    },
+    "table": {
+      "no": "စဉ်",
+      "student_name": "ကျောင်းသားအမည်",
+      "roll_no": "ခုံအမှတ်",
+      "academic_year": "ပညာသင်နှစ်",
+      "semester": "စာသင်နှစ်ဝက်",
+      "class": "အတန်း",
+      "gpa": "GPA",
+      "status": "အခြေအနေ",
+      "current": "လက်ရှိ",
+      "created_at": "ထည့်သွင်းသည့်ရက်စွဲ",
+      "actions": "လုပ်ဆောင်ချက်များ",
+      "edit": "ပြင်ဆင်မည်",
+      "delete": "ဖျက်မည်"
+    },
+    "ResultPage": {
+      "title": "ရလဒ်များ",
+      "create_title": "ရလဒ်အသစ်ထည့်မည်",
+      "edit_title": "ရလဒ်ပြင်ဆင်မည်",
+      "breadcrumbs": {
+        "home": "မူလစာမျက်နှာ",
+        "results": "စာသင်နှစ်ဝက် ရလဒ်များ",
+        "new": "အသစ်"
+      }
+    },
+    "ResultForm": {
+      "fields": {
+        "student": {
+          "label": "ကျောင်းသား",
+          "placeholder": "ကျောင်းသားရွေးချယ်ပါ...",
+          "search": "ကျောင်းသားရှာဖွေပါ..."
+        },
+        "academic_year": {
+          "label": "ပညာသင်နှစ်",
+          "placeholder": "ပညာသင်နှစ်ရွေးချယ်ပါ...",
+          "search": "ပညာသင်နှစ်ရှာဖွေပါ...",
+          "current": "လက်ရှိ"
+        },
+        "semester": {
+          "label": "စာသင်နှစ်ဝက်",
+          "placeholder": "စာသင်နှစ်ဝက်ရွေးချယ်ပါ...",
+          "search": "စာသင်နှစ်ဝက်ရှာဖွေပါ...",
+          "current": "လက်ရှိ"
+        },
+        "enrollment": {
+          "label": "ကျောင်းအပ်နှံမှု (အတန်း နှင့် ခုံနံပါတ်)",
+          "placeholder": "ကျောင်းအပ်နှံမှုရွေးချယ်ပါ...",
+          "search": "ကျောင်းအပ်နှံမှုရှာဖွေပါ..."
+        }
+      },
+      "subjects": {
+        "title": "ဘာသာရပ်အမှတ်များ",
+        "credits": "ယူနစ်: {count}",
+        "exam_weight": "စာမေးပွဲ: {weight}%",
+        "assign_weight": "စစ်ဆေးခြင်း: {weight}%",
+        "base_mark": {
+          "label": "စာမေးပွဲရမှတ် *",
+          "placeholder": "0-100"
+        },
+        "assign_mark": {
+          "label": "စစ်ဆေးခြင်းအမှတ် *",
+          "placeholder": "0-{max}"
+        },
+        "grade_info": {
+          "exam": "စာမေးပွဲ: {mark}",
+          "final": "နောက်ဆုံး: {mark}",
+          "grade": "အဆင့်: {value}",
+          "score": "ရမှတ်: {value}",
+          "gp": "GP: {value}"
+        }
+      },
+      "actions": {
+        "create": "ရလဒ်အသစ်ထည့်မည်",
+        "update": "ရလဒ်ပြင်ဆင်မည်"
+      },
+      "messages": {
+        "create_success": "ရလဒ်ကို အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ!",
+        "update_success": "ရလဒ်ကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ!",
+        "create_error": "ရလဒ်ထည့်သွင်းရန် မအောင်မြင်ပါ",
+        "update_error": "ရလဒ်ပြင်ဆင်ရန် မအောင်မြင်ပါ: {error}",
+        "generic_error": "မမျှော်လင့်ထားသော အမှားတစ်ခု ဖြစ်ပေါ်ခဲ့သည်"
+      },
+      "ExistingResultDialog": {
+        "title": "ရလဒ်ရှိပြီးသားဖြစ်သည်",
+        "description": "ဤကျောင်းအပ်နှံမှုအတွက် ရလဒ်တစ်ခု ထည့်သွင်းပြီးဖြစ်သည်။ ရလဒ်ထပ်တူများ ထည့်သွင်း၍မရပါ။",
+        "fields": {
+          "student": "ကျောင်းသား",
+          "class": "အတန်း",
+          "roll_number": "ခုံအမှတ်",
+          "created": "ထည့်သွင်းသည့်ရက်စွဲ"
+        },
+        "actions": {
+          "cancel": "မလုပ်ပါ",
+          "edit": "ရှိပြီးသားရလဒ်ကို ပြင်ဆင်မည်"
+        }
+      }
+    },
+    "ResultView": {
+      "breadcrumbs": {
+        "home": "မူလစာမျက်နှာ",
+        "results": "စာသင်နှစ်ဝက် ရလဒ်များ"
+      },
+      "header": {
+        "title": "စာသင်နှစ်ဝက် ရလဒ်",
+        "description": "ပညာရေးဆိုင်ရာ စွမ်းဆောင်ရည်နှင့် စာသင်နှစ်ဝက် ရလဒ်များကို ကြည့်ရှုပါ"
+      },
+      "student": {
+        "roll_number": "ခုံအမှတ်: {number}"
+      },
+      "enrollment": {
+        "class": "အတန်း",
+        "class_format": "{name} ({code})",
+        "semester": "စာသင်နှစ်ဝက်",
+        "academic_year": "ပညာသင်နှစ်"
+      },
+      "summary": {
+        "current_gpa": "လက်ရှိ GPA",
+        "total_credits": "စုစုပေါင်းယူနစ်",
+        "total_gp": "စုစုပေါင်း GP",
+        "class_rank": "အတန်းအဆင့်",
+        "rank_display": "အဆင့် #{rank}"
+      },
+      "grades": {
+        "title": "ဘာသာရပ်အလိုက် ရလဒ်များ",
+        "description": "ဘာသာရပ်တစ်ခုချင်းစီအတွက် အမှတ်များနှင့် အဆင့်များ အသေးစိတ်ဖော်ပြချက်",
+        "table": {
+          "subject_code": "ဘာသာရပ်ကုဒ်",
+          "subject_name": "ဘာသာရပ်အမည်",
+          "credits": "ယူနစ်",
+          "exam_mark": "စာမေးပွဲအမှတ်",
+          "assessment_mark": "စစ်ဆေးခြင်းအမှတ်",
+          "final_mark": "နောက်ဆုံးအမှတ်",
+          "grade": "အဆင့်",
+          "score": "ရမှတ်",
+          "grade_points": "GP"
+        },
+        "mobile": {
+          "credits": "ယူနစ်: ",
+          "score": "ရမှတ်: ",
+          "gp": "GP: ",
+          "exam": "စာမေးပွဲ: ",
+          "assessment": "စစ်ဆေးခြင်း: ",
+          "final_mark": "နောက်ဆုံးရမှတ်: "
+        }
+      },
+      "summary_footer": {
+        "title": "အကျဉ်းချုပ်:",
+        "total_gp": "စုစုပေါင်း GP: ",
+        "total_credits": "စုစုပေါင်းယူနစ်: ",
+        "gpa": "GPA: "
+      },
+      "result_download_button": {
+        "button": {
+          "export": "Export ထုတ်မည်",
+          "exporting": "ထုတ်ယူနေသည်..."
+        },
+        "errors": {
+          "generation_error": "စာရွက်စာတမ်း ဖန်တီးရန် မအောင်မြင်ပါ။"
+        }
+      }
+    }
+  },
+  "AdminNavBarTitle": {
+    "dashboard": "Dashboard",
+    "grades": "Grades",
+    "students": "Students",
+    "academic_year": "Academic Years",
+    "classes": "Classes",
+    "subjects": "Subjects",
+    "class_subjects": "Class Subjects",
+    "GPAsetting": "GPA Setting",
+    "account": "Account",
+    "setting": "Setting"
   }
 }

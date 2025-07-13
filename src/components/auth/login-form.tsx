@@ -133,7 +133,7 @@ export function LoginForm({
         <Button type='submit' className='w-full' disabled={isPending}>
           {isPending ? (
             <>
-              <LoadingSpinner2 /> {'Logging in...'}
+              <LoadingSpinner2 /> {t('logging_in')}
             </>
           ) : (
             t('login')
