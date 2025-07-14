@@ -47,55 +47,40 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Zod schemas
-const profileSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Name is required')
-    .max(100, 'Name must be less than 100 characters'),
-  email: z.string().email('Please enter a valid email address')
-});
+type accoutPageKey = ReturnType<typeof useTranslations<'AccountPage'>>;
 
-const passwordSchema = z
-  .object({
-    currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .regex(/\d/, 'Password must contain at least one number')
-      .regex(
-        /[!@#$%^&*(),.?":{}|<>]/,
-        'Password must contain at least one special character'
-      ),
-    confirmPassword: z.string()
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword']
+const profileSchema = (t: accoutPageKey) =>
+  z.object({
+    name: z.string().min(1, t('name_required')).max(100, t('name_max_length')),
+    email: z.string().email(t('invalid_email'))
   });
 
-type ProfileFormData = z.infer<typeof profileSchema>;
-type PasswordFormData = z.infer<typeof passwordSchema>;
+const passwordSchema = (t: accoutPageKey) =>
+  z
+    .object({
+      currentPassword: z.string().min(1, t('current_password_required')),
+      newPassword: z
+        .string()
+        .min(8, t('password_min_length'))
+        .regex(/[A-Z]/, t('password_uppercase'))
+        .regex(/[a-z]/, t('password_lowercase'))
+        .regex(/\d/, t('password_number'))
+        .regex(/[!@#$%^&*(),.?":{}|<>]/, t('password_special_char')),
+      confirmPassword: z.string()
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t('passwords_no_match'),
+      path: ['confirmPassword']
+    });
+
+type ProfileFormData = z.infer<ReturnType<typeof profileSchema>>;
+type PasswordFormData = z.infer<ReturnType<typeof passwordSchema>>;
 
 type BreadcrumbProps = {
   name: string;
   link: string;
 };
 
-const breadcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Account',
-    link: ''
-  }
-];
-
-// Loading skeleton component
 const AccountPageSkeleton = () => (
   <div className='space-y-6'>
     {/* Header Skeleton */}
@@ -181,18 +166,28 @@ const AccountPageSkeleton = () => (
 );
 
 export default function AccountPage() {
-  const t = useTranslations('AdminNavBarTitle');
+  const t = useTranslations('AccountPage');
   const { data: session, status, update } = useSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // useTransition hooks for different actions
   const [isProfilePending, startProfileTransition] = useTransition();
   const [isPasswordPending, startPasswordTransition] = useTransition();
   const [isAvatarPending, startAvatarTransition] = useTransition();
 
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false); // Track if page has loaded initially
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+
+  const breadcrumb: BreadcrumbProps[] = [
+    {
+      name: t('home'),
+      link: '/'
+    },
+    {
+      name: t('account'),
+      link: ''
+    }
+  ];
 
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -202,18 +197,16 @@ export default function AccountPage() {
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  // Profile form
   const profileForm = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(profileSchema(t)),
     defaultValues: {
       name: '',
       email: ''
     }
   });
 
-  // Password form
   const passwordForm = useForm<PasswordFormData>({
-    resolver: zodResolver(passwordSchema),
+    resolver: zodResolver(passwordSchema(t)),
     defaultValues: {
       currentPassword: '',
       newPassword: '',
@@ -227,14 +220,12 @@ export default function AccountPage() {
         name: session.user.name || '',
         email: session.user.email || ''
       });
-      setHasInitiallyLoaded(true); // Mark as initially loaded when session is available
+      setHasInitiallyLoaded(true);
     }
   }, [session, profileForm]);
 
-  // Only show skeleton on initial load, not during updates
   const shouldShowSkeleton = status === 'loading' && !hasInitiallyLoaded;
 
-  // Loading state - only show skeleton on initial load
   if (shouldShowSkeleton) {
     return (
       <ContentLayout
@@ -246,7 +237,6 @@ export default function AccountPage() {
     );
   }
 
-  // Unauthenticated state
   if (status === 'unauthenticated' || !session?.user) {
     return (
       <ContentLayout
@@ -255,9 +245,7 @@ export default function AccountPage() {
       >
         <Alert>
           <AlertCircle className='h-4 w-4' />
-          <AlertDescription>
-            You need to be signed in to access account settings.
-          </AlertDescription>
+          <AlertDescription>{t('sign_in_required')}</AlertDescription>
         </Alert>
       </ContentLayout>
     );
@@ -265,7 +253,6 @@ export default function AccountPage() {
 
   const user = session.user;
 
-  // Avatar handlers
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
@@ -276,24 +263,20 @@ export default function AccountPage() {
     const file = event.target.files?.[0];
     if (!file || !user.id) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+      toast.error(t('select_image_file'));
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 1 * 1024 * 1024) {
-      toast.error('File size must be less than 1MB');
+      toast.error(t('file_size_limit'));
       return;
     }
 
-    // Create preview
     const previewUrl = URL.createObjectURL(file);
     setAvatarPreview(previewUrl);
-    setIsImageLoading(true); // Reset loading state
-    setImageError(false); // Reset error state
-
+    setIsImageLoading(true);
+    setImageError(false);
     startAvatarTransition(async () => {
       try {
         const formData = new FormData();
@@ -303,20 +286,20 @@ export default function AccountPage() {
         const result = await uploadAvatar(formData);
 
         if (result.success) {
-          toast.success('Avatar updated successfully!');
-          await update(); // Refresh session
+          toast.success(t('avatar_update_success'));
+          await update();
           setAvatarPreview(null);
-          setIsImageLoading(true); // Reset for new image
+          setIsImageLoading(true);
           setImageError(false);
           URL.revokeObjectURL(previewUrl);
         } else {
-          toast.error(result.error || 'Failed to update avatar');
+          toast.error(result.error || t('avatar_update_faliure'));
           setAvatarPreview(null);
           setImageError(true);
           URL.revokeObjectURL(previewUrl);
         }
       } catch (error) {
-        toast.error('An unexpected error occurred');
+        toast.error(t('unexpected_error'));
         setAvatarPreview(null);
         setImageError(true);
         URL.revokeObjectURL(previewUrl);
@@ -338,10 +321,9 @@ export default function AccountPage() {
     }
   };
 
-  // Profile submit handler with useTransition
   const handleProfileSubmit = async (data: ProfileFormData) => {
     if (!user.id) {
-      toast.error('User ID not found');
+      toast.error(t('user_id_not_found'));
       return;
     }
 
@@ -350,21 +332,20 @@ export default function AccountPage() {
         const result = await updateProfile(user.id, data);
 
         if (result.success) {
-          toast.success('Profile updated successfully!');
+          toast.success(t('profile_update_success'));
           await update();
         } else {
-          toast.error(result.error || 'Failed to update profile');
+          toast.error(result.error || t('profile_update_failure'));
         }
       } catch (error) {
-        toast.error('An unexpected error occurred');
+        toast.error(t('unexpected_error'));
       }
     });
   };
 
-  // Password submit handler with useTransition
   const handlePasswordSubmit = async (data: PasswordFormData) => {
     if (!user.id) {
-      toast.error('User ID not found');
+      toast.error(t('user_id_not_found'));
       return;
     }
 
@@ -376,13 +357,13 @@ export default function AccountPage() {
         });
 
         if (result.success) {
-          toast.success('Password updated successfully!');
+          toast.success(t('password_update_success'));
           passwordForm.reset();
         } else {
-          toast.error(result.error || 'Failed to update password');
+          toast.error(result.error || t('password_update_failure'));
         }
       } catch (error) {
-        toast.error('An unexpected error occurred');
+        toast.error(t('unexpected_error'));
       }
     });
   };
@@ -412,11 +393,9 @@ export default function AccountPage() {
         {/* Header */}
         <div className='space-y-2'>
           <h1 className='text-2xl font-bold tracking-tight'>
-            Account Settings
+            {t('account_settings')}
           </h1>
-          <p className='text-muted-foreground'>
-            Manage your account information and security settings.
-          </p>
+          <p className='text-muted-foreground'>{t('manage_account')}</p>
         </div>
 
         <Separator />
@@ -426,12 +405,9 @@ export default function AccountPage() {
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Camera className='h-5 w-5' />
-              Profile Picture
+              {t('profile_picture')}
             </CardTitle>
-            <CardDescription>
-              Update your profile picture. Supported formats: JPG, PNG, GIF. Max
-              size: 1MB.
-            </CardDescription>
+            <CardDescription>{t('update_profile_picture')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className='flex items-center gap-6'>
@@ -475,7 +451,7 @@ export default function AccountPage() {
                     disabled={isAvatarPending}
                   >
                     <Upload className='h-4 w-4 mr-2' />
-                    {isAvatarPending ? 'Uploading...' : 'Change Avatar'}
+                    {isAvatarPending ? t('uploading') : t('change_avatar')}
                   </Button>
                   {avatarPreview && (
                     <Button
@@ -490,7 +466,7 @@ export default function AccountPage() {
                   )}
                 </div>
                 <p className='text-sm text-muted-foreground'>
-                  Click to upload a new profile picture
+                  {t('click_to_upload')}
                 </p>
               </div>
             </div>
@@ -510,11 +486,9 @@ export default function AccountPage() {
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <User className='h-5 w-5' />
-              Profile Information
+              {t('profile_information')}
             </CardTitle>
-            <CardDescription>
-              Update your personal information and profile details.
-            </CardDescription>
+            <CardDescription>{t('update_profile_info')}</CardDescription>
           </CardHeader>
           <CardContent className='space-y-6'>
             <Form {...profileForm}>
@@ -527,10 +501,10 @@ export default function AccountPage() {
                   name='name'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t('name')}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder='Enter your name'
+                          placeholder={t('enter_name')}
                           disabled={isProfilePending}
                           {...field}
                         />
@@ -545,13 +519,13 @@ export default function AccountPage() {
                   name='email'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel>{t('email_address')}</FormLabel>
                       <FormControl>
                         <div className='relative'>
                           <Mail className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
                           <Input
                             type='email'
-                            placeholder='Enter your email'
+                            placeholder={t('enter_email')}
                             className='pl-10'
                             disabled={isProfilePending}
                             {...field}
@@ -571,12 +545,12 @@ export default function AccountPage() {
                   {isProfilePending ? (
                     <>
                       <Loader2 className='h-4 w-4 mr-2 animate-spin' />
-                      Saving...
+                      {t('saving')}...
                     </>
                   ) : (
                     <>
                       <Save className='h-4 w-4 mr-2' />
-                      Save Changes
+                      {t('save_changes')}
                     </>
                   )}
                 </Button>
@@ -590,11 +564,9 @@ export default function AccountPage() {
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Lock className='h-5 w-5' />
-              Change Password
+              {t('change_password')}
             </CardTitle>
-            <CardDescription>
-              Update your password to keep your account secure.
-            </CardDescription>
+            <CardDescription>{t('update_password_to_secure')}</CardDescription>
           </CardHeader>
           <CardContent className='space-y-6'>
             <Form {...passwordForm}>
@@ -607,12 +579,12 @@ export default function AccountPage() {
                   name='currentPassword'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Current Password</FormLabel>
+                      <FormLabel>{t('current_password')}</FormLabel>
                       <FormControl>
                         <div className='relative'>
                           <Input
                             type={showPasswords.current ? 'text' : 'password'}
-                            placeholder='Enter your current password'
+                            placeholder={t('enter_current_password')}
                             className='pr-10'
                             disabled={isPasswordPending}
                             {...field}
@@ -643,12 +615,12 @@ export default function AccountPage() {
                   name='newPassword'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>New Password</FormLabel>
+                      <FormLabel>{t('new_password')}</FormLabel>
                       <FormControl>
                         <div className='relative'>
                           <Input
                             type={showPasswords.new ? 'text' : 'password'}
-                            placeholder='Enter your new password'
+                            placeholder={t('enter_new_password')}
                             className='pr-10'
                             disabled={isPasswordPending}
                             {...field}
@@ -679,12 +651,12 @@ export default function AccountPage() {
                   name='confirmPassword'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm New Password</FormLabel>
+                      <FormLabel>{t('confirm_new_password')}</FormLabel>
                       <FormControl>
                         <div className='relative'>
                           <Input
                             type={showPasswords.confirm ? 'text' : 'password'}
-                            placeholder='Confirm your new password'
+                            placeholder={t('confirm_your_new_password')}
                             className='pr-10'
                             disabled={isPasswordPending}
                             {...field}
@@ -718,12 +690,12 @@ export default function AccountPage() {
                   {isPasswordPending ? (
                     <>
                       <Loader2 className='h-4 w-4 mr-2 animate-spin' />
-                      Updating...
+                      {t('updating')}...
                     </>
                   ) : (
                     <>
                       <Lock className='h-4 w-4 mr-2' />
-                      Update Password
+                      {t('update_password')}
                     </>
                   )}
                 </Button>

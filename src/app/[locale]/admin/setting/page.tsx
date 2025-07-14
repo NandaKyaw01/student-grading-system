@@ -1,8 +1,9 @@
 'use client';
-import Link from 'next/link';
-import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
+import { ContentLayout } from '@/components/admin-panel/content-layout';
+import { ThemeSelector } from '@/components/theme-selector';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import {
   Tooltip,
@@ -12,48 +13,49 @@ import {
 } from '@/components/ui/tooltip';
 import { useSidebar } from '@/hooks/use-sidebar';
 import { useStore } from '@/hooks/use-store';
-import { Separator } from '@/components/ui/separator';
-import { ThemeSelector } from '@/components/theme-selector';
 import { useTranslations } from 'next-intl';
 
 type BreadcrumbProps = {
   name: string;
   link: string;
 };
-const bredcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Setting',
-    link: ''
-  }
-];
+
 export default function SettingPage() {
-  const t = useTranslations('AdminNavBarTitle');
+  const t = useTranslations('SettingPage');
   const sidebar = useStore(useSidebar, (x) => x);
+
+  const bredcrumb: BreadcrumbProps[] = [
+    {
+      name: t('breadcrumb_home'),
+      link: '/'
+    },
+    {
+      name: t('breadcrumb_setting'),
+      link: ''
+    }
+  ];
+
   if (!sidebar) return null;
   const { settings, setSettings } = sidebar;
   return (
     <ContentLayout
-      title={t('setting')}
+      title={t('breadcrumb_setting')}
       breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
     >
       <div className='space-y-6'>
         <div>
-          <h5 className='text-md font-medium'>Theme</h5>
+          <h5 className='text-md font-medium'>{t('theme_title')}</h5>
           <p className='text-sm text-muted-foreground'>
-            Select theme to control what&apos;s displayed in the app.
+            {t('theme_description')}
           </p>
         </div>
         <ThemeSelector />
 
         <Separator />
         <div>
-          <h5 className='text-md font-medium'>Sidebar</h5>
+          <h5 className='text-md font-medium'>{t('sidebar_title')}</h5>
           <p className='text-sm text-muted-foreground'>
-            Turn items on or off to control what&apos;s displayed in the app.
+            {t('sidebar_description')}
           </p>
         </div>
         <TooltipProvider>
@@ -66,11 +68,11 @@ export default function SettingPage() {
                     onCheckedChange={(x) => setSettings({ isHoverOpen: x })}
                     checked={settings.isHoverOpen}
                   />
-                  <Label htmlFor='is-hover-open'>Hover Open</Label>
+                  <Label htmlFor='is-hover-open'>{t('hover_open_label')}</Label>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>When hovering on the sidebar in mini state, it will open</p>
+                <p>{t('hover_open_tooltip')}</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -81,11 +83,13 @@ export default function SettingPage() {
                     onCheckedChange={(x) => setSettings({ disabled: x })}
                     checked={settings.disabled}
                   />
-                  <Label htmlFor='disable-sidebar'>Disable Sidebar</Label>
+                  <Label htmlFor='disable-sidebar'>
+                    {t('disable_sidebar_label')}
+                  </Label>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Hide sidebar</p>
+                <p>{t('disable_sidebar_tooltip')}</p>
               </TooltipContent>
             </Tooltip>
           </div>

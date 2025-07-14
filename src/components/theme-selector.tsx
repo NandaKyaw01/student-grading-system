@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
   TooltipContent
 } from '@/components/ui/tooltip';
+import { useTranslations } from 'next-intl';
 
 const DEFAULT_THEMES = [
   {
@@ -56,8 +57,12 @@ const MONO_THEMES = [
   }
 ];
 
+type ThemeKeys = 'default' | 'blue' | 'green' | 'amber';
+type ScaleThemeKeys = 'default-scaled' | 'blue-scaled' | 'mono-scaled';
+
 export function ThemeSelector() {
   const { activeTheme, setActiveTheme } = useThemeConfig();
+  const t = useTranslations('SettingPage.theme_selector');
 
   return (
     <TooltipProvider>
@@ -66,7 +71,7 @@ export function ThemeSelector() {
           <div className='inline-block'>
             <div className='flex items-center gap-2'>
               <Label htmlFor='theme-selector' className='sr-only'>
-                Theme
+                {t('label')}
               </Label>
               <Select value={activeTheme} onValueChange={setActiveTheme}>
                 <SelectTrigger
@@ -74,36 +79,36 @@ export function ThemeSelector() {
                   className='justify-start *:data-[slot=select-value]:w-12'
                 >
                   <span className='text-muted-foreground hidden sm:block'>
-                    Select a theme:
+                    {t('select_a_theme')}:
                   </span>
                   <span className='text-muted-foreground block sm:hidden'>
-                    Theme
+                    {t('label')}
                   </span>
-                  <SelectValue placeholder='Select a theme' />
+                  <SelectValue placeholder={t('placeholder')} />
                 </SelectTrigger>
                 <SelectContent align='end'>
                   <SelectGroup>
-                    <SelectLabel>Default</SelectLabel>
+                    <SelectLabel>{t('default_themes')}</SelectLabel>
                     {DEFAULT_THEMES.map((theme) => (
                       <SelectItem key={theme.name} value={theme.value}>
-                        {theme.name}
+                        {t(`themes.${theme.value as ThemeKeys}`)}
                       </SelectItem>
                     ))}
                   </SelectGroup>
                   <SelectSeparator />
                   <SelectGroup>
-                    <SelectLabel>Scaled</SelectLabel>
+                    <SelectLabel>{t('scaled_themes')}</SelectLabel>
                     {SCALED_THEMES.map((theme) => (
                       <SelectItem key={theme.name} value={theme.value}>
-                        {theme.name}
+                        {t(`themes.${theme.value as ScaleThemeKeys}`)}
                       </SelectItem>
                     ))}
                   </SelectGroup>
                   <SelectGroup>
-                    <SelectLabel>Monospaced</SelectLabel>
+                    <SelectLabel>{t('mono_themes')}</SelectLabel>
                     {MONO_THEMES.map((theme) => (
                       <SelectItem key={theme.name} value={theme.value}>
-                        {theme.name}
+                        {t(`themes.${theme.value as ScaleThemeKeys}`)}
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -113,7 +118,7 @@ export function ThemeSelector() {
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Select Theme to change color and style.</p>
+          <p>{t('tooltip')}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
