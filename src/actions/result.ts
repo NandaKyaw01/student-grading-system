@@ -760,22 +760,23 @@ export async function updateAcademicYearResult(
       }
     });
     status = failedCount === 0 ? 'PASS' : 'FAIL';
-  } else {
-    // Check for any failures in current results
-    const hasFailure = await tx.result.findFirst({
-      where: {
-        enrollment: {
-          studentId,
-          semester: {
-            academicYearId: academicYear.id
-          }
-        },
-        status: 'FAIL'
-      },
-      select: { enrollmentId: true }
-    });
-    status = hasFailure ? 'FAIL' : 'INCOMPLETE';
   }
+  // else {
+  //   // Check for any failures in current results
+  //   const hasFailure = await tx.result.findFirst({
+  //     where: {
+  //       enrollment: {
+  //         studentId,
+  //         semester: {
+  //           academicYearId: academicYear.id
+  //         }
+  //       },
+  //       status: 'FAIL'
+  //     },
+  //     select: { enrollmentId: true }
+  //   });
+  //   status = hasFailure ? 'FAIL' : 'INCOMPLETE';
+  // }
 
   // Prepare update data
   const updateData = {

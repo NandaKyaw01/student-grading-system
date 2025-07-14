@@ -50,6 +50,7 @@ import {
   Upload,
   X
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import React, {
   useCallback,
@@ -76,6 +77,7 @@ interface UploadError {
 }
 
 const XlsxImportForm = () => {
+  const t = useTranslations('ImportResultsPage.form');
   const [selection, setSelection] = useState<SelectionState>({
     academicYearId: null,
     semesterId: null,
@@ -271,28 +273,31 @@ const XlsxImportForm = () => {
     [clearErrors]
   );
 
-  const validateFile = useCallback((file: File): string | null => {
-    // Check file type
-    if (
-      file.type !==
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ) {
-      return 'Please select a valid XLSX file format.';
-    }
+  const validateFile = useCallback(
+    (file: File): string | null => {
+      // Check file type
+      if (
+        file.type !==
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ) {
+        return t('valid_xlsx_file_error');
+      }
 
-    // Check file size (limit to 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxSize) {
-      return 'File size exceeds 10MB limit. Please use a smaller file.';
-    }
+      // Check file size (limit to 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        return t('file_size_error');
+      }
 
-    // Check file name extension
-    if (!file.name.toLowerCase().endsWith('.xlsx')) {
-      return 'File must have .xlsx extension.';
-    }
+      // Check file name extension
+      if (!file.name.toLowerCase().endsWith('.xlsx')) {
+        return t('xlsx_extension_error');
+      }
 
-    return null;
-  }, []);
+      return null;
+    },
+    [t]
+  );
 
   const handleFileUpload = useCallback(
     (files: File[]) => {
@@ -307,7 +312,7 @@ const XlsxImportForm = () => {
 
       if (validationError) {
         setFileError(validationError);
-        toast.error('Invalid File', {
+        toast.error(t('invalid_file_toast_title'), {
           description: validationError
         });
         return;
@@ -316,11 +321,11 @@ const XlsxImportForm = () => {
       setUploadedFile(file);
       setUploadStatus(null);
       setErrorDetails([]);
-      toast.success('File Selected', {
+      toast.success(t('file_selected_toast_title'), {
         description: `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`
       });
     },
-    [validateFile]
+    [validateFile, t]
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -358,22 +363,22 @@ const XlsxImportForm = () => {
     setUploadStatus(null);
     setErrorDetails([]);
     setFileError(null);
-    toast.info('File Removed', {
-      description: 'Please select another file to continue.'
+    toast.info(t('file_removed_toast_title'), {
+      description: t('file_removed_toast_description')
     });
-  }, []);
+  }, [t]);
 
   const downloadTemplate = useCallback(() => {
     if (!canDownloadTemplate) {
-      toast.error('Selection Required', {
-        description: 'Please select academic year, semester, and class first.'
+      toast.error(t('selection_required_toast_title'), {
+        description: t('selection_required_toast_description')
       });
       return;
     }
 
     if (classSubjects.length === 0) {
-      toast.error('Download Failed', {
-        description: 'No subjects found for this class'
+      toast.error(t('download_failed_toast_title'), {
+        description: t('no_subjects_toast_description')
       });
       return;
     }
@@ -419,23 +424,27 @@ const XlsxImportForm = () => {
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
 
-          toast.success('Template Downloaded', {
-            description: `${result.filename} has been downloaded successfully.`
+          toast.success(t('template_download_success_toast_title'), {
+            description: t('template_download_success_toast_description', {
+              filename: result.filename!
+            })
           });
         } else {
-          toast.error('Download Failed', {
-            description: `Failed to download template: ${result.error || 'Failed to generate template'}`
+          toast.error(t('download_failed_toast_title'), {
+            description: t('template_download_failed_toast_description', {
+              error: result.error || t('generate_template_button')
+            })
           });
         }
       } catch (error) {
         console.error('Template download error:', error);
         const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'An unexpected error occurred';
+          error instanceof Error ? error.message : t('something_went_wrong');
 
-        toast.error('Download Failed', {
-          description: `Failed to download template: ${errorMessage}`
+        toast.error(t('download_failed_toast_title'), {
+          description: t('template_download_failed_toast_description', {
+            error: errorMessage
+          })
         });
       }
     });
@@ -445,18 +454,19 @@ const XlsxImportForm = () => {
     selectedAcademicYear,
     selectedSemester,
     selectedClass,
-    classSubjects
+    classSubjects,
+    t
   ]);
 
   const handleSubmit = useCallback(async () => {
     if (!canSubmit) {
       if (!canDownloadTemplate) {
-        toast.error('Selection Required', {
-          description: 'Please select academic year, semester, and class first.'
+        toast.error(t('selection_required_toast_title'), {
+          description: t('selection_required_toast_description')
         });
       } else if (!uploadedFile) {
-        toast.error('File Required', {
-          description: 'Please upload an Excel file to proceed.'
+        toast.error(t('file_required_toast_title'), {
+          description: t('file_required_toast_description')
         });
       }
       return;
@@ -491,8 +501,10 @@ const XlsxImportForm = () => {
         setErrorDetails([]); // Clear any previous errors
         setErrorData([]); // Clear error data
         setErrorHeaders([]); // Clear error headers
-        toast.success('Import Successful', {
-          description: `Successfully imported ${result.processedCount} student records!`
+        toast.success(t('import_success_toast_title'), {
+          description: t('import_success_toast_description', {
+            count: result.processedCount!
+          })
         });
       } else {
         setUploadStatus('error');
@@ -507,19 +519,23 @@ const XlsxImportForm = () => {
 
         const errorCount = errors.length;
         if (errorCount > 0) {
-          toast.error('Import Failed', {
-            description: `Import completed with ${errorCount} error${errorCount !== 1 ? 's' : ''}. Click 'View Errors' for details.`
+          toast.error(t('import_failed_toast_title'), {
+            description: t('import_failed_with_errors_toast_description', {
+              errorCount,
+              plural: errorCount !== 1 ? 's' : ''
+            })
           });
         } else {
-          toast.error('Import Failed', {
-            description: result.message || 'Import failed for unknown reasons.'
+          toast.error(t('import_failed_toast_title'), {
+            description:
+              result.message || t('import_failed_unknown_toast_description')
           });
         }
       }
     } catch (error) {
       console.error('Upload error:', error);
       const errorMessage =
-        error instanceof Error ? error.message : 'An unexpected error occurred';
+        error instanceof Error ? error.message : t('something_went_wrong');
 
       setUploadStatus('error');
       setErrorDetails([
@@ -527,17 +543,17 @@ const XlsxImportForm = () => {
           row: 0,
           column: 'general',
           field: 'general',
-          message: `Upload failed: ${errorMessage}`
+          message: `${t('upload_failed_toast_title')}: ${errorMessage}`
         }
       ]);
 
-      toast.error('Upload Failed', {
-        description: 'Failed to upload and process the file. Please try again.'
+      toast.error(t('upload_failed_toast_title'), {
+        description: t('upload_failed_toast_description')
       });
     } finally {
       setIsUploading(false);
     }
-  }, [canSubmit, canDownloadTemplate, uploadedFile, selection]);
+  }, [canSubmit, canDownloadTemplate, uploadedFile, selection, t]);
 
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
@@ -546,19 +562,17 @@ const XlsxImportForm = () => {
         <CardHeader className='space-y-3'>
           <div className='space-y-2'>
             <h1 className='text-2xl font-bold text-gray-900'>
-              Student Results Import
+              {t('header_title')}
             </h1>
-            <p className='text-gray-600'>
-              Import student result data from Excel files
-            </p>
+            <p className='text-gray-600'>{t('header_description')}</p>
           </div>
           <Separator />
           <CardTitle className='flex items-center gap-2'>
             <FileSpreadsheet className='h-5 w-5' />
-            Select Academic Context
+            {t('select_academic_context_title')}
           </CardTitle>
           <CardDescription>
-            Choose the academic year, semester, and class for data import
+            {t('select_academic_context_description')}
           </CardDescription>
         </CardHeader>
         <CardContent className='space-y-4'>
@@ -567,7 +581,7 @@ const XlsxImportForm = () => {
             <div className='space-y-3'>
               <div className='flex items-center gap-3 mb-2'>
                 <Label htmlFor='academic-year' className='flex items-center'>
-                  Academic Year
+                  {t('academic_year_label')}
                   {loadingYears && (
                     <Loader className='ml-2 size-4 animate-spin' />
                   )}
@@ -585,7 +599,7 @@ const XlsxImportForm = () => {
                     htmlFor='auto-select-year'
                     className='text-sm text-gray-600'
                   >
-                    Current
+                    {t('current_checkbox_label')}
                   </Label>
                 </div>
               </div>
@@ -595,12 +609,12 @@ const XlsxImportForm = () => {
                 <Combobox
                   options={academicYears.map((s) => ({
                     value: s.id.toString(),
-                    label: `${s.yearRange} ${s.isCurrent ? '(Current)' : ''}`
+                    label: `${s.yearRange} ${s.isCurrent ? t('current_checkbox_label') : ''}`
                   }))}
                   value={selection.academicYearId?.toString() || ''}
                   onValueChange={handleAcademicYearChange}
-                  placeholder='Select year...'
-                  searchPlaceholder='Search year...'
+                  placeholder={t('select_year_placeholder')}
+                  searchPlaceholder={t('search_year_placeholder')}
                   disabled={loadingYears}
                 />
               )}
@@ -610,7 +624,7 @@ const XlsxImportForm = () => {
             <div className='space-y-3'>
               <div className='flex items-center gap-3 mb-2'>
                 <Label htmlFor='semester' className='flex items-center'>
-                  Semester
+                  {t('semester_label')}
                   {loadingSemesters && (
                     <Loader className='ml-2 size-4 animate-spin' />
                   )}
@@ -629,7 +643,7 @@ const XlsxImportForm = () => {
                     htmlFor='auto-select-semester'
                     className='text-sm text-gray-600'
                   >
-                    Current
+                    {t('current_checkbox_label')}
                   </Label>
                 </div>
               </div>
@@ -639,12 +653,12 @@ const XlsxImportForm = () => {
                 <Combobox
                   options={semesters.map((s) => ({
                     value: s.id.toString(),
-                    label: `${s.semesterName} ${s.isCurrent ? '(Current)' : ''}`
+                    label: `${s.semesterName} ${s.isCurrent ? t('current_checkbox_label') : ''}`
                   }))}
                   value={selection.semesterId?.toString() || ''}
                   onValueChange={handleSemesterChange}
-                  placeholder='Select semester...'
-                  searchPlaceholder='Search semester...'
+                  placeholder={t('select_semester_placeholder')}
+                  searchPlaceholder={t('search_semester_placeholder')}
                   disabled={loadingSemesters}
                 />
               )}
@@ -653,7 +667,7 @@ const XlsxImportForm = () => {
             {/* Class Selection */}
             <div className='space-y-3'>
               <Label htmlFor='class' className='mb-[0.9rem]'>
-                Class
+                {t('class_label')}
                 {loadingClasses && (
                   <Loader className='ml-2 size-4 animate-spin' />
                 )}
@@ -668,8 +682,8 @@ const XlsxImportForm = () => {
                   }))}
                   value={selection.classId?.toString() || ''}
                   onValueChange={handleClassChange}
-                  placeholder='Select class...'
-                  searchPlaceholder='Search class...'
+                  placeholder={t('select_class_placeholder')}
+                  searchPlaceholder={t('search_class_placeholder')}
                   disabled={loadingClasses}
                 />
               )}
@@ -683,10 +697,10 @@ const XlsxImportForm = () => {
         <CardHeader>
           <CardTitle className='flex items-center gap-2'>
             <Download className='h-5 w-5' />
-            Download Template
+            {t('download_template_title')}
           </CardTitle>
           <CardDescription>
-            Download the Excel template with the correct format for data entry
+            {t('download_template_description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -694,8 +708,7 @@ const XlsxImportForm = () => {
             <Alert className='border-red-200 bg-red-50 mb-4'>
               <AlertCircle className='h-4 w-4 text-red-600' />
               <AlertDescription className='text-red-800'>
-                No subjects found for the selected class. Please ensure the
-                class has subjects assigned before generating the template.
+                {t('no_subjects_error')}
               </AlertDescription>
             </Alert>
           )}
@@ -707,12 +720,12 @@ const XlsxImportForm = () => {
             {isDownloadingTemplate ? (
               <>
                 <Loader className='h-4 w-4 mr-2 animate-spin' />
-                Generating Template...
+                {t('generate_template_button')}
               </>
             ) : (
               <>
                 <Download className='h-4 w-4 mr-2' />
-                Download Excel Template
+                {t('download_template_button')}
               </>
             )}
           </Button>
@@ -721,10 +734,10 @@ const XlsxImportForm = () => {
               {!selection.academicYearId ||
               !selection.semesterId ||
               !selection.classId
-                ? 'Please select academic year, semester, and class first'
+                ? t('selection_prompt')
                 : classSubjects.length === 0
-                  ? 'No subjects available for the selected class'
-                  : 'Please complete all selections'}
+                  ? t('no_subjects_prompt')
+                  : t('complete_selection_prompt')}
             </p>
           )}
         </CardContent>
@@ -735,11 +748,9 @@ const XlsxImportForm = () => {
         <CardHeader>
           <CardTitle className='flex items-center gap-2'>
             <Upload className='h-5 w-5' />
-            Import Excel File
+            {t('import_excel_title')}
           </CardTitle>
-          <CardDescription>
-            Upload your completed Excel file with student data
-          </CardDescription>
+          <CardDescription>{t('import_excel_description')}</CardDescription>
         </CardHeader>
         <CardContent className='space-y-4'>
           {/* Upload Area */}
@@ -793,10 +804,10 @@ const XlsxImportForm = () => {
               <div className='space-y-2'>
                 <Upload className='h-8 w-8 mx-auto text-gray-400' />
                 <div>
-                  <p className='text-sm font-medium'>
-                    Drop your Excel file here
+                  <p className='text-sm font-medium'>{t('drop_file_prompt')}</p>
+                  <p className='text-xs text-gray-500'>
+                    {t('browse_file_prompt')}
                   </p>
-                  <p className='text-xs text-gray-500'>or click to browse</p>
                 </div>
                 <input
                   type='file'
@@ -813,7 +824,7 @@ const XlsxImportForm = () => {
                     asChild
                     disabled={!canDownloadTemplate}
                   >
-                    <span>Choose File</span>
+                    <span>{t('choose_file_button')}</span>
                   </Button>
                 </label>
                 {!canDownloadTemplate && (
@@ -821,10 +832,10 @@ const XlsxImportForm = () => {
                     {!selection.academicYearId ||
                     !selection.semesterId ||
                     !selection.classId
-                      ? 'Please select academic year, semester, and class first'
+                      ? t('selection_prompt')
                       : classSubjects.length === 0
-                        ? 'No subjects available for the selected class'
-                        : 'Please complete all selections first'}
+                        ? t('no_subjects_prompt')
+                        : t('complete_all_steps_prompt')}
                   </p>
                 )}
               </div>
@@ -835,7 +846,7 @@ const XlsxImportForm = () => {
           {isUploading && (
             <div className='space-y-2'>
               <div className='flex justify-between text-sm'>
-                <span>Uploading and processing...</span>
+                <span>{t('uploading_progress_text')}</span>
                 <span>{uploadProgress}%</span>
               </div>
               <Progress value={uploadProgress} className='w-full' />
@@ -847,8 +858,7 @@ const XlsxImportForm = () => {
             <Alert className='border-green-200 bg-green-50'>
               <CheckCircle className='h-4 w-4 text-green-600' />
               <AlertDescription className='text-green-800'>
-                File uploaded and processed successfully! All student data has
-                been imported.
+                {t('upload_success_message')}
               </AlertDescription>
             </Alert>
           )}
@@ -858,7 +868,7 @@ const XlsxImportForm = () => {
               <AlertCircle className='h-4 w-4 text-red-600' />
               <AlertDescription className='text-red-800'>
                 <div className='space-y-3'>
-                  <p className='font-medium'>Import completed with errors:</p>
+                  <p className='font-medium'>{t('import_error_title')}</p>
                   <div className='flex gap-2'>
                     <Sheet
                       open={showErrorSheet}
@@ -870,15 +880,18 @@ const XlsxImportForm = () => {
                           size='sm'
                           className='text-red-700 border-red-300'
                         >
-                          View Errors ({errorDetails.length})
+                          {t('view_errors_button', {
+                            errorCount: errorDetails.length
+                          })}
                         </Button>
                       </SheetTrigger>
                       <SheetContent className='w-[90vw] sm:max-w-[90vw] max-w-none'>
                         <SheetHeader>
-                          <SheetTitle>Import Errors</SheetTitle>
+                          <SheetTitle>
+                            {t('import_errors_sheet_title')}
+                          </SheetTitle>
                           <SheetDescription>
-                            Review the data with errors. Cells with errors are
-                            highlighted in red.
+                            {t('import_errors_sheet_description')}
                           </SheetDescription>
                         </SheetHeader>
                         <div className='mt-6 h-[calc(100vh-200px)] overflow-auto'>
@@ -887,7 +900,7 @@ const XlsxImportForm = () => {
                           ) && (
                             <div className='mx-4 mb-6 p-4 bg-red-50 border border-red-200 rounded-lg'>
                               <h3 className='font-semibold text-red-800 mb-3'>
-                                General Import Errors
+                                {t('general_import_errors_title')}
                               </h3>
                               <div className='space-y-2'>
                                 {errorDetails
@@ -909,7 +922,9 @@ const XlsxImportForm = () => {
                             <Table>
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead className='w-16'>Row</TableHead>
+                                  <TableHead className='w-16'>
+                                    {t('table_row_header')}
+                                  </TableHead>
                                   {errorHeaders.map((header, index) => (
                                     <TableHead
                                       key={index}
@@ -996,11 +1011,12 @@ const XlsxImportForm = () => {
                         key={index}
                         className='text-xs bg-white p-2 rounded border'
                       >
-                        <span className='font-medium'>Row {error.row}:</span>{' '}
+                        <span className='font-medium'>
+                          {t('table_row_header')} {error.row}:
+                        </span>{' '}
                         {error.message}
                         {error.field !== 'general' && (
                           <span className='text-gray-600'>
-                            {' '}
                             (Column: {error.column})
                           </span>
                         )}
@@ -1008,7 +1024,9 @@ const XlsxImportForm = () => {
                     ))}
                     {errorDetails.length > 5 && (
                       <div className='text-xs text-gray-600'>
-                        ... and {errorDetails.length - 5} more errors
+                        {t('more_errors_prompt', {
+                          remainingCount: errorDetails.length - 5
+                        })}
                       </div>
                     )}
                   </div>
@@ -1027,12 +1045,12 @@ const XlsxImportForm = () => {
             {isUploading ? (
               <>
                 <Loader className='h-4 w-4 mr-2 animate-spin' />
-                Processing...
+                {t('processing_button')}
               </>
             ) : (
               <>
                 <Upload className='h-4 w-4 mr-2' />
-                Import Student Data
+                {t('import_data_button')}
               </>
             )}
           </Button>
@@ -1043,15 +1061,15 @@ const XlsxImportForm = () => {
                 ? !selection.academicYearId ||
                   !selection.semesterId ||
                   !selection.classId
-                  ? 'Please complete all selections first'
+                  ? t('selection_prompt')
                   : classSubjects.length === 0
-                    ? 'No subjects available for the selected class'
-                    : 'Please complete all selections'
+                    ? t('no_subjects_prompt')
+                    : t('complete_selection_prompt')
                 : !uploadedFile
-                  ? 'Please upload a valid Excel file to proceed'
+                  ? t('file_required_toast_description')
                   : fileError
-                    ? 'Please fix the file error before proceeding'
-                    : 'Please complete all steps to proceed'}
+                    ? t('fix_file_error_prompt')
+                    : t('complete_all_steps_prompt')}
             </p>
           )}
         </CardContent>

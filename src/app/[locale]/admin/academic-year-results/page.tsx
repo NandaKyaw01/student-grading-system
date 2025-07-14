@@ -23,20 +23,22 @@ type BreadcrumbProps = {
   name: string;
   link: string;
 };
-const bredcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Academic Results',
-    link: ''
-  }
-];
+
 export default async function AcademicYearResultsPage(props: pageProps) {
-  // const t = await getTranslations('');
   const searchParams = await props.searchParams;
   const search = academicResultSearchParamsCache.parse(searchParams);
+  const t = await getTranslations('AcademicYearResultsPage');
+
+  const bredcrumb: BreadcrumbProps[] = [
+    {
+      name: t('home'),
+      link: '/'
+    },
+    {
+      name: t('title'),
+      link: ''
+    }
+  ];
 
   const promises = Promise.all([
     getAllAcademicYearResults(search, {
@@ -54,17 +56,17 @@ export default async function AcademicYearResultsPage(props: pageProps) {
 
   return (
     <ContentLayout
-      title={'Results'}
+      title={t('title')}
       breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
             <h5 className='text-2xl font-bold tracking-tight'>
-              Acadeimc Year Results
+              {t('title')}
             </h5>
             <p className='text-muted-foreground text-sm'>
-              Manage student results (Server side table functionalities.)
+              {t('subtitle')}
             </p>
           </div>
         </div>
