@@ -14,35 +14,44 @@ import { Input } from '@/components/ui/input';
 import { GradeScale } from '@/generated/prisma';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z, ZodSchema } from 'zod';
+import { z } from 'zod';
 
-const markSchema = (minMark: number, maxMark: number) =>
+type SchemaKeys = ReturnType<typeof useTranslations<'GpaSettingPage.form'>>;
+const markSchema = (minMark: number, maxMark: number, t: SchemaKeys) =>
   z
     .union([
       z
         .string()
-        .min(1, 'This field is required')
+        .min(1, t('field_required'))
         .transform((val) => parseFloat(val)),
-      z.number()
+      z.number().min(1, t('field_required'))
     ])
-    .refine((val) => !isNaN(val), { message: 'Must be a valid number' })
-    .refine((val) => val >= minMark, { message: 'Must be 0 or greater' })
-    .refine((val) => val <= maxMark, { message: `Must be ${maxMark} or less` });
+    .refine((val) => !isNaN(val), {
+      message: t('must_be_number')
+    })
+    .refine((val) => val >= minMark, {
+      message: t('must_be_greater_than_0')
+    })
+    .refine((val) => val <= maxMark, {
+      message: t('must_be_less_than_100')
+    });
 
-const formSchema = z
-  .object({
-    minMark: markSchema(0, 100),
-    maxMark: markSchema(0, 100),
-    grade: z.string().min(1, 'Grade is required'),
-    score: markSchema(0, 4.0)
-  })
-  .refine((data) => Number(data.minMark) <= Number(data.maxMark), {
-    message: 'Minimum mark must be less than or equal to maximum mark',
-    path: ['minMark']
-  });
+const formSchema = (t: SchemaKeys) =>
+  z
+    .object({
+      minMark: markSchema(0, 100, t),
+      maxMark: markSchema(0, 100, t),
+      grade: z.string().min(1, t('grade_required')),
+      score: markSchema(0, 4.0, t)
+    })
+    .refine((data) => Number(data.minMark) <= Number(data.maxMark), {
+      message: t('min_mark_less_than_max_mark'),
+      path: ['minMark']
+    });
 
 interface GradeScaleFormProps {
   gradeScale?: GradeScale;
@@ -63,24 +72,27 @@ export function GradeScaleForm({
   open
 }: GradeScaleFormProps) {
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('GpaSettingPage.form');
+
+  const currentFormSchema = formSchema(t);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(currentFormSchema),
     defaultValues: {
-      minMark: gradeScale?.minMark ?? undefined,
-      maxMark: gradeScale?.maxMark ?? undefined,
+      minMark: gradeScale?.minMark ?? 'undefined',
+      maxMark: gradeScale?.maxMark ?? 'undefined',
       grade: gradeScale?.grade ?? '',
-      score: gradeScale?.score ?? undefined
+      score: gradeScale?.score ?? 'undefined'
     }
   });
 
   useEffect(() => {
     if (open) {
       form.reset({
-        minMark: gradeScale?.minMark ?? undefined,
-        maxMark: gradeScale?.maxMark ?? undefined,
+        minMark: gradeScale?.minMark ?? 'undefined',
+        maxMark: gradeScale?.maxMark ?? 'undefined',
         grade: gradeScale?.grade ?? '',
-        score: gradeScale?.score ?? undefined
+        score: gradeScale?.score ?? 'undefined'
       });
     }
   }, [open, gradeScale, form]);
@@ -88,7 +100,7 @@ export function GradeScaleForm({
   const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
-        const validatedData = formSchema.parse(values);
+        const validatedData = currentFormSchema.parse(values);
         const processedValues = {
           ...values,
           minMark: Number(validatedData.minMark),
@@ -107,18 +119,11 @@ export function GradeScaleForm({
           throw new Error(result.error);
         }
 
-        toast.success('Success', {
-          description: gradeScale
-            ? 'Grade scale updated successfully'
-            : 'Grade scale created successfully'
-        });
+        toast.success(gradeScale ? t('update_success') : t('create_success'));
 
         onSuccess?.();
       } catch (error) {
-        toast.error('Error', {
-          description:
-            error instanceof Error ? error.message : 'Something went wrong'
-        });
+        toast.error(t('something_went_wrong'));
       }
     });
   };
@@ -132,13 +137,13 @@ export function GradeScaleForm({
             name='minMark'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Minimum Mark</FormLabel>
+                <FormLabel>{t('min_mark_label')}</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
                     min='0'
                     max='100'
-                    placeholder='0-100'
+                    placeholder={t('min_mark_placeholder')}
                     {...field}
                     value={field.value ?? ''}
                     disabled={isPending}
@@ -154,13 +159,13 @@ export function GradeScaleForm({
             name='maxMark'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Maximum Mark</FormLabel>
+                <FormLabel>{t('max_mark_label')}</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
                     min='0'
                     max='100'
-                    placeholder='0-100'
+                    placeholder={t('max_mark_placeholder')}
                     {...field}
                     value={field.value ?? ''}
                     disabled={isPending}
@@ -178,10 +183,10 @@ export function GradeScaleForm({
             name='grade'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Grade</FormLabel>
+                <FormLabel>{t('grade_label')}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder='A, B, C, etc.'
+                    placeholder={t('grade_placeholder')}
                     {...field}
                     disabled={isPending}
                   />
@@ -196,14 +201,14 @@ export function GradeScaleForm({
             name='score'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Score</FormLabel>
+                <FormLabel>{t('score_label')}</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
                     step='0.01'
                     min='0'
                     max='4.00'
-                    placeholder='0.00-4.00'
+                    placeholder={t('score_placeholder')}
                     {...field}
                     value={field.value ?? ''}
                     disabled={isPending}
@@ -222,7 +227,7 @@ export function GradeScaleForm({
             onClick={onSuccess}
             disabled={isPending}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type='submit'
@@ -233,7 +238,7 @@ export function GradeScaleForm({
               <Loader className='mr-2 size-4 animate-spin' aria-hidden='true' />
             )}
 
-            {isPending ? 'Saving...' : 'Save'}
+            {isPending ? t('saving') : t('save')}
           </Button>
         </div>
       </form>

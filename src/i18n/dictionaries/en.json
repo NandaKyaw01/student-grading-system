@@ -370,6 +370,44 @@
       "grade": "Grade",
       "score": "Score",
       "mark_range_placeholder": "Search Grade Scale..."
+    },
+    "delete_success": "Grade scale deleted successfully",
+    "delete_error": "Failed to delete grade scale",
+    "edit_grade_scale": "Edit Grade Scale",
+    "create_grade_scale": "Create New Grade Scale",
+    "form": {
+      "min_mark_label": "Minimum Mark",
+      "max_mark_label": "Maximum Mark",
+      "grade_label": "Grade",
+      "score_label": "Score",
+      "min_mark_placeholder": "0-100",
+      "max_mark_placeholder": "0-100",
+      "grade_placeholder": "A, B, C, etc.",
+      "score_placeholder": "0.00-4.00",
+      "field_required": "This field is required",
+      "must_be_number": "Must be a valid number",
+      "must_be_greater_than_0": "Must be 0 or greater",
+      "must_be_less_than_100": "Must be 100 or less",
+      "min_mark_less_than_max_mark": "Minimum mark must be less than or equal to maximum mark",
+      "grade_required": "Grade is required",
+      "score_less_than_4": "Must be 4.00 or less",
+      "update_success": "Grade scale updated successfully",
+      "create_success": "Grade scale created successfully",
+      "something_went_wrong": "Something went wrong",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "save": "Save"
+    },
+    "delete_modal": {
+      "title": "Delete Grade Scale?",
+      "description": "Are you sure you want to delete? This action cannot be undone.",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "delete": "Delete"
+    },
+    "action_bar": {
+      "delete_tooltip": "Delete grade scales",
+      "delete_success": "Grade scales deleted successfully"
     }
   }
 }

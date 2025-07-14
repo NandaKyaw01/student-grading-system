@@ -10,6 +10,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface DeleteGradeScaleDialogProps {
   isOpen: boolean;
@@ -24,18 +25,17 @@ export function DeleteGradeScaleDialog({
   isDeleting,
   handleDelete
 }: DeleteGradeScaleDialogProps) {
+  const t = useTranslations('GpaSettingPage.delete_modal');
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Grade Scale?</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete? This action cannot be undone.
-          </DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant='outline' onClick={onClose} disabled={isDeleting}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             variant='destructive'
@@ -45,7 +45,7 @@ export function DeleteGradeScaleDialog({
             {isDeleting && (
               <Loader className='mr-2 size-4 animate-spin' aria-hidden='true' />
             )}
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isDeleting ? t('deleting') : t('delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

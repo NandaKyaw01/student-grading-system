@@ -13,6 +13,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { GradeScale } from '@/generated/prisma';
 import { DeleteGradeScaleDialog } from './grade-scale-delete-modal';
+import { useTranslations } from 'next-intl';
 
 const actions = ['export', 'delete'] as const;
 
@@ -29,6 +30,7 @@ export function GradeScalesTableActionBar({
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<Action | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const t = useTranslations('GpaSettingPage.action_bar');
 
   const getIsActionPending = React.useCallback(
     (action: Action) => isPending && currentAction === action,
@@ -45,12 +47,10 @@ export function GradeScalesTableActionBar({
         toast.error(error);
         return;
       }
-      toast.success('Success', {
-        description: 'Grade scales deleted successfully'
-      });
+      toast.success(t('delete_success'));
       table.toggleAllRowsSelected(false);
     });
-  }, [rows, table]);
+  }, [rows, table, t]);
 
   return (
     <>
@@ -70,7 +70,7 @@ export function GradeScalesTableActionBar({
         <div className='flex items-center gap-1.5'>
           <DataTableActionBarAction
             size='icon'
-            tooltip='Delete results'
+            tooltip={t('delete_tooltip')}
             isPending={getIsActionPending('delete')}
             onClick={() => setIsModalOpen(true)}
           >

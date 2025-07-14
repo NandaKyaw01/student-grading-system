@@ -11,6 +11,7 @@ import {
 import { GradeScale } from '@/generated/prisma';
 import { useState } from 'react';
 import { GradeScaleForm } from './grade-scale-form';
+import { useTranslations } from 'next-intl';
 
 interface GradeScaleModalProps {
   gradeScale?: GradeScale;
@@ -22,6 +23,7 @@ export function GradeScaleModal({
   children
 }: GradeScaleModalProps) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations('GpaSettingPage');
 
   const handleSuccess = () => {
     setOpen(false);
@@ -33,7 +35,7 @@ export function GradeScaleModal({
       <DialogContent className='sm:max-w-[625px]'>
         <DialogHeader>
           <DialogTitle>
-            {gradeScale ? `Edit Grade Scale` : 'Create New Grade Scale'}
+            {gradeScale ? t('edit_grade_scale') : t('create_grade_scale')}
           </DialogTitle>
           <DialogDescription className='sr-only' />
         </DialogHeader>

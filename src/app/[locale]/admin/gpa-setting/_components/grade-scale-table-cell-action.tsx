@@ -8,6 +8,7 @@ import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { DeleteGradeScaleDialog } from './grade-scale-delete-modal';
 import { GradeScaleModal } from './grade-scale-modal';
+import { useTranslations } from 'next-intl';
 
 interface GradeScaleCellActionProps {
   data: GradeScale;
@@ -16,6 +17,7 @@ interface GradeScaleCellActionProps {
 export function GradeScaleCellAction({ data }: GradeScaleCellActionProps) {
   const [deleteDialogOpoen, setDeleteDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('GpaSettingPage');
   const handleDelete = () => {
     startTransition(async () => {
       try {
@@ -23,16 +25,9 @@ export function GradeScaleCellAction({ data }: GradeScaleCellActionProps) {
         if (!result.success) {
           throw new Error(result.error);
         }
-        toast('Success', {
-          description: 'Grade scale deleted successfully'
-        });
+        toast.success(t('delete_success'));
       } catch (error) {
-        toast.error('Error', {
-          description:
-            error instanceof Error
-              ? error.message
-              : 'Failed to delete grade scale'
-        });
+        toast.error(t('delete_error'));
       }
     });
   };
