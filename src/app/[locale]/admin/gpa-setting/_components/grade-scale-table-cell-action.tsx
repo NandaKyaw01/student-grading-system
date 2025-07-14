@@ -1,20 +1,13 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { Edit, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { GradeScale } from '@/generated/prisma';
 import { deleteGradeScale } from '@/actions/grade-scale';
-import { useRouter } from 'next/navigation';
-import { GradeScaleModal } from './grade-scale-modal';
+import { Button } from '@/components/ui/button';
+import { GradeScale } from '@/generated/prisma';
+import { Edit, Trash2 } from 'lucide-react';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { DeleteGradeScaleDialog } from './grade-scale-delete-modal';
-import { useState, useTransition } from 'react';
+import { GradeScaleModal } from './grade-scale-modal';
 
 interface GradeScaleCellActionProps {
   data: GradeScale;

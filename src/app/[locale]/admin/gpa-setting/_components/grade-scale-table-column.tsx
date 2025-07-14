@@ -6,8 +6,11 @@ import { GradeScale } from '@/generated/prisma';
 import { ColumnDef } from '@tanstack/react-table';
 import { GradeScaleCellAction } from './grade-scale-table-cell-action';
 import { Text } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
-export function getGradeScaleColumns(): ColumnDef<GradeScale>[] {
+type ColumnKey = ReturnType<typeof useTranslations<'GpaSettingPage.table'>>;
+
+export function getGradeScaleColumns(t: ColumnKey): ColumnDef<GradeScale>[] {
   return [
     {
       id: 'select',
@@ -38,7 +41,7 @@ export function getGradeScaleColumns(): ColumnDef<GradeScale>[] {
       id: 'minMark',
       accessorFn: (row) => `${row.minMark} - ${row.maxMark}`,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Mark Range' />
+        <DataTableColumnHeader column={column} title={t('mark_range')} />
       ),
       cell: ({ row }) => (
         <span>
@@ -46,8 +49,8 @@ export function getGradeScaleColumns(): ColumnDef<GradeScale>[] {
         </span>
       ),
       meta: {
-        label: 'Mark Range',
-        placeholder: 'Search Grade Scale...',
+        label: t('mark_range'),
+        placeholder: t('mark_range_placeholder'),
         variant: 'text',
         icon: Text
       },
@@ -58,10 +61,10 @@ export function getGradeScaleColumns(): ColumnDef<GradeScale>[] {
       id: 'grade',
       accessorKey: 'grade',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Grade' />
+        <DataTableColumnHeader column={column} title={t('grade')} />
       ),
       meta: {
-        label: 'Grade'
+        label: t('grade')
       },
       size: 80
     },
@@ -69,11 +72,11 @@ export function getGradeScaleColumns(): ColumnDef<GradeScale>[] {
       id: 'score',
       accessorKey: 'score',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Grade Point' />
+        <DataTableColumnHeader column={column} title={t('score')} />
       ),
       cell: ({ cell }) => cell.getValue<number>().toFixed(2),
       meta: {
-        label: 'Score'
+        label: t('score')
       },
       size: 80
     },

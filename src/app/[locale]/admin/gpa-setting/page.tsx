@@ -10,6 +10,7 @@ import { GradeScaleModal } from './_components/grade-scale-modal';
 import { gradeScaleSearchParamsCache } from '@/lib/search-params/grade-scale';
 import { SearchParams } from 'nuqs';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata = {
   title: 'Grade Scales : Grading System'
@@ -23,38 +24,38 @@ type BreadcrumbProps = {
   name: string;
   link: string;
 };
-const bredcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Grade Scales',
-    link: ''
-  }
-];
 
 export default async function GPASettingPage(props: pageProps) {
   const searchParams = await props.searchParams;
   const search = gradeScaleSearchParamsCache.parse(searchParams);
   const gradeScalesPromise = getGradeScales(search);
+  const t = await getTranslations('GpaSettingPage');
+
+  const bredcrumb: BreadcrumbProps[] = [
+    {
+      name: t('breadcrumb_home'),
+      link: '/'
+    },
+    {
+      name: t('breadcrumb_gpa_setting'),
+      link: ''
+    }
+  ];
 
   return (
     <ContentLayout
-      title='Grade Scales'
+      title={t('title')}
       breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
     >
       <div className='flex-1 space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-2xl font-bold tracking-tight'>Grade Scales</h5>
-            <p className='text-muted-foreground text-sm'>
-              Manage grade scales (Server side table functionalities.)
-            </p>
+            <h5 className='text-2xl font-bold tracking-tight'>{t('title')}</h5>
+            <p className='text-muted-foreground text-sm'>{t('description')}</p>
           </div>
           <GradeScaleModal>
             <Button className='text-xs md:text-sm'>
-              <Plus className='mr-2 h-4 w-4' /> New Grade Scale
+              <Plus className='mr-2 h-4 w-4' /> {t('new_grade_scale')}
             </Button>
           </GradeScaleModal>
         </div>

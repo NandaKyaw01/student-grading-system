@@ -358,5 +358,18 @@
         "mono-scaled": "Blue"
       }
     }
+  },
+  "GpaSettingPage": {
+    "breadcrumb_home": "Home",
+    "breadcrumb_gpa_setting": "GPA Setting",
+    "title": "Grade Scales",
+    "description": "Manage grade scales for GPA calculations.",
+    "new_grade_scale": "New Grade Scale",
+    "table": {
+      "mark_range": "Mark Range",
+      "grade": "Grade",
+      "score": "Score",
+      "mark_range_placeholder": "Search Grade Scale..."
+    }
   }
 }

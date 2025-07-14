@@ -7,6 +7,7 @@ import { useDataTable } from '@/hooks/use-data-table';
 import React from 'react';
 import { GradeScalesTableActionBar } from './grade-scale-action-bar';
 import { getGradeScaleColumns } from './grade-scale-table-column';
+import { useTranslations } from 'next-intl';
 
 interface GradeScalesTableProps {
   promises: Promise<Awaited<ReturnType<typeof getGradeScales>>>;
@@ -14,8 +15,9 @@ interface GradeScalesTableProps {
 
 export function GradeScaleDataTable({ promises }: GradeScalesTableProps) {
   const { gradeScales, pageCount } = React.use(promises);
+  const t = useTranslations('GpaSettingPage.table');
 
-  const columns = React.useMemo(() => getGradeScaleColumns(), []);
+  const columns = React.useMemo(() => getGradeScaleColumns(t), [t]);
 
   const { table } = useDataTable({
     data: gradeScales,
