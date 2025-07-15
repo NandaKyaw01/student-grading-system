@@ -553,5 +553,65 @@
         "generate_error": "Failed to generate document. Please ensure template file exists and data is correct."
       }
     }
+  },
+  "StudentsPage": {
+    "home": "Home",
+    "title": "Students",
+    "subtitle": "Manage students, view their details, and perform actions",
+    "add_student": "Add New Student",
+    "table": {
+      "select_all": "Select all",
+      "select_row": "Select row",
+      "no": "No.",
+      "name": "Name",
+      "admission_id": "Admission ID",
+      "created_at": "Created At",
+      "actions": "Actions",
+      "search_placeholder": "Search Student...",
+      "delete_tooltip": "Delete students",
+      "delete_success": "Student deleted"
+    },
+    "form": {
+      "name_min_char": "Name must be at least 2 characters",
+      "admission_id_min_char": "Admission ID must be at least 6 characters",
+      "success": "Success",
+      "created_successfully": "Student created successfully.",
+      "updated_successfully": "Student updated successfully.",
+      "error": "Error",
+      "error_occurred": "An error occurred",
+      "add_student": "Add Student",
+      "edit_student": "Edit Student",
+      "add_new_student": "Add New Student",
+      "student_name": "Student Name",
+      "student_name_placeholder": "e.g., John Doe",
+      "admission_id": "Admission ID",
+      "admission_id_placeholder": "e.g., STU202400001",
+      "cancel": "Cancel",
+      "create_student": "Create Student",
+      "save_changes": "Save Changes"
+    }
+  },
+  "EnrollmentsPage": {
+    "home": "Home",
+    "title": "Enrollments",
+    "subtitle": "Manage student enrollments, view details, and perform actions",
+    "add_enrollment": "Add New Enrollment",
+    "table": {
+      "select_all": "Select all",
+      "select_row": "Select row",
+      "no": "No.",
+      "roll_number": "Roll Number",
+      "student_name": "Student Name",
+      "search_placeholder": "Search ...",
+      "academic_year": "Academic Year",
+      "current": "Current",
+      "semester": "Semester",
+      "class_name": "Class Name",
+      "class_code": "Class Code",
+      "created_at": "Created At",
+      "actions": "Actions",
+      "delete_tooltip": "Delete enrollments",
+      "delete_success": "Enrollments deleted successfully"
+    }
   }
 }

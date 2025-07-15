@@ -7,6 +7,7 @@ import { SquarePen, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { StudentDialog } from './student-modal';
+import { useTranslations } from 'next-intl';
 
 interface CellActionProps {
   data: Student;
@@ -15,6 +16,7 @@ interface CellActionProps {
 export const StudentCellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const [isDeletePending, startDeleteTransition] = React.useTransition();
+  const t = useTranslations('StudentsPage.table');
 
   const onConfirm = () => {
     startDeleteTransition(async () => {
@@ -25,7 +27,7 @@ export const StudentCellAction: React.FC<CellActionProps> = ({ data }) => {
         return;
       }
 
-      toast.success('Student deleted');
+      toast.success(t('delete_success'));
     });
   };
 

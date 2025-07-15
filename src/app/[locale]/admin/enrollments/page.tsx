@@ -13,6 +13,7 @@ import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { getAcademicYears } from '@/actions/academic-year';
 import { getSemesters } from '@/actions/semester';
 import { getClasses } from '@/actions/class';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata = {
   title: 'Enrollments : Enrollment Management'
@@ -20,27 +21,15 @@ export const metadata = {
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
+  params: {
+    locale: string;
+  };
 };
-
-type BreadcrumbProps = {
-  name: string;
-  link: string;
-};
-const bredcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Enrollments',
-    link: ''
-  }
-];
 
 export default async function Page(props: pageProps) {
+  const t = await getTranslations('EnrollmentsPage');
   const searchParams = await props.searchParams;
   const search = enrollmentSearchParamsCache.parse(searchParams);
-  // const key = studentSerialize({ ...searchParams });
 
   const promises = Promise.all([
     getAllEnrollments(search, {
@@ -57,22 +46,32 @@ export default async function Page(props: pageProps) {
 
   const suspenseKey = `results-${search.academicYearId || 'all'}-${search.semesterId || 'all'}`;
 
+  const bredcrumb = [
+    {
+      name: t('home'),
+      link: '/'
+    },
+    {
+      name: t('title'),
+      link: ''
+    }
+  ];
+
   return (
     <ContentLayout
-      title='Enrollments'
+      title={t('title')}
       breadcrumb={<ActiveBreadcrumb path={bredcrumb} />}
     >
       <div className='flex-1 space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-2xl font-bold tracking-tight'>Enrollments</h5>
-            <p className='text-muted-foreground text-sm'>
-              Manage Enrollments (Server side table functionalities.)
-            </p>
+            <h5 className='text-2xl font-bold tracking-tight'>{t('title')}</h5>
+            <p className='text-muted-foreground text-sm'>{t('subtitle')}</p>
           </div>
           <EnrollmentModal>
             <Button className='text-xs md:text-sm'>
-              <Plus className='mr-2 h-4 w-4' /> Add New Enrollment
+              <Plus className='mr-2 h-4 w-4' />
+              {t('add_enrollment')}
             </Button>
           </EnrollmentModal>
         </div>

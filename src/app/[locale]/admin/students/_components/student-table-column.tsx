@@ -1,6 +1,5 @@
 'use client';
 
-import CopyableIdCell from '@/components/copyable-id-cell';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Student } from '@/generated/prisma';
@@ -8,8 +7,11 @@ import { formatDate } from '@/lib/format';
 import { ColumnDef } from '@tanstack/react-table';
 import { CalendarIcon, Text } from 'lucide-react';
 import { StudentCellAction } from './student-cell-action';
+import { useTranslations } from 'next-intl';
 
-export function getStudentColumns(): ColumnDef<Student>[] {
+export function getStudentColumns(
+  t: ReturnType<typeof useTranslations<'StudentsPage.table'>>
+): ColumnDef<Student>[] {
   return [
     {
       id: 'select',
@@ -20,7 +22,7 @@ export function getStudentColumns(): ColumnDef<Student>[] {
             (table.getIsSomePageRowsSelected() && 'indeterminate')
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label='Select all'
+          aria-label={t('select_all')}
           className='translate-y-0.5'
         />
       ),
@@ -28,7 +30,7 @@ export function getStudentColumns(): ColumnDef<Student>[] {
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label='Select row'
+          aria-label={t('select_row')}
           className='translate-y-0.5'
         />
       ),
@@ -39,7 +41,7 @@ export function getStudentColumns(): ColumnDef<Student>[] {
     {
       id: 'id',
       accessorKey: 'id',
-      header: 'No.',
+      header: t('no'),
       cell: ({ row, table }) => {
         const pageIndex = table.getState().pagination.pageIndex;
         const pageSize = table.getState().pagination.pageSize;
@@ -47,8 +49,8 @@ export function getStudentColumns(): ColumnDef<Student>[] {
         return pageIndex * pageSize + rowIndex + 1;
       },
       meta: {
-        label: 'No.',
-        placeholder: 'Search Student...',
+        label: t('no'),
+        placeholder: t('search_placeholder'),
         variant: 'text',
         icon: Text
       },
@@ -60,31 +62,31 @@ export function getStudentColumns(): ColumnDef<Student>[] {
       id: 'studentName',
       accessorKey: 'studentName',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Name' />
+        <DataTableColumnHeader column={column} title={t('name')} />
       ),
       meta: {
-        label: 'Name'
+        label: t('name')
       }
     },
     {
       id: 'admissionId',
       accessorKey: 'admissionId',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Admission ID' />
+        <DataTableColumnHeader column={column} title={t('admission_id')} />
       ),
       meta: {
-        label: 'Admission ID'
+        label: t('admission_id')
       }
     },
     {
       id: 'createdAt',
       accessorKey: 'createdAt',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Created At' />
+        <DataTableColumnHeader column={column} title={t('created_at')} />
       ),
       cell: ({ cell }) => formatDate(cell.getValue<Date>()),
       meta: {
-        label: 'Created At',
+        label: t('created_at'),
         variant: 'dateRange',
         icon: CalendarIcon
       },

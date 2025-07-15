@@ -22,21 +22,22 @@ import {
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
-const studentFormSchema = z.object({
-  studentName: z
-    .string()
-    .min(2, { message: 'Name must be at least 2 characters' }),
-  admissionId: z.string().min(6, {
-    message: 'Admission ID must be at least 6 characters'
-  })
-});
+type SchemaKeys = ReturnType<typeof useTranslations<'StudentsPage.form'>>;
+const studentFormSchema = (t: SchemaKeys) =>
+  z.object({
+    studentName: z.string().min(2, { message: t('name_min_char') }),
+    admissionId: z.string().min(2, {
+      message: t('admission_id_min_char')
+    })
+  });
 
-type StudentFormValues = z.infer<typeof studentFormSchema>;
+type StudentFormValues = z.infer<ReturnType<typeof studentFormSchema>>;
 
 interface StudentWithDetails {
   id: number;
@@ -57,6 +58,7 @@ export function StudentDialog({
   onSuccess,
   children
 }: StudentDialogProps) {
+  const t = useTranslations('StudentsPage.form');
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -66,7 +68,7 @@ export function StudentDialog({
   };
 
   const form = useForm<StudentFormValues>({
-    resolver: zodResolver(studentFormSchema),
+    resolver: zodResolver(studentFormSchema(t)),
     defaultValues
   });
 
@@ -95,22 +97,25 @@ export function StudentDialog({
         }
 
         if (result?.success || !result?.error) {
-          toast.success('Success', {
-            description: `Student ${mode === 'new' ? 'created' : 'updated'} successfully.`
+          toast.success(t('success'), {
+            description:
+              mode === 'new'
+                ? t('created_successfully')
+                : t('updated_successfully')
           });
 
           form.reset();
           setOpen(false);
           if (onSuccess) onSuccess();
         } else {
-          toast.error('Error', {
-            description: result?.error ? result.error : 'An error occurred'
+          toast.error(t('error'), {
+            description: result?.error || t('error_occurred')
           });
         }
       } catch (error) {
-        toast.error('Error', {
+        toast.error(t('error'), {
           description:
-            error instanceof Error ? error.message : 'An error occurred'
+            error instanceof Error ? error.message : t('error_occurred')
         });
       }
     });
@@ -121,14 +126,14 @@ export function StudentDialog({
       <DialogTrigger asChild>
         {children || (
           <Button variant={mode === 'new' ? 'default' : 'outline'}>
-            {mode === 'new' ? 'Add Student' : 'Edit'}
+            {mode === 'new' ? t('add_student') : t('edit_student')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>
-            {mode === 'new' ? 'Add New Student' : 'Edit Student'}
+            {mode === 'new' ? t('add_new_student') : t('edit_student')}
           </DialogTitle>
           <DialogDescription className='sr-only' />
         </DialogHeader>
@@ -139,9 +144,12 @@ export function StudentDialog({
               name='studentName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Student Name</FormLabel>
+                  <FormLabel>{t('student_name')}</FormLabel>
                   <FormControl>
-                    <Input placeholder='e.g., John Doe' {...field} />
+                    <Input
+                      placeholder={t('student_name_placeholder')}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -153,9 +161,12 @@ export function StudentDialog({
               name='admissionId'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Admission ID</FormLabel>
+                  <FormLabel>{t('admission_id')}</FormLabel>
                   <FormControl>
-                    <Input placeholder='e.g., STU202400001' {...field} />
+                    <Input
+                      placeholder={t('admission_id_placeholder')}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,11 +180,11 @@ export function StudentDialog({
                 onClick={() => setOpen(false)}
                 disabled={isPending}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type='submit' disabled={isPending}>
                 {isPending && <Loader className='mr-2 h-4 w-4 animate-spin' />}
-                {mode === 'new' ? 'Create Student' : 'Save Changes'}
+                {mode === 'new' ? t('create_student') : t('save_changes')}
               </Button>
             </DialogFooter>
           </form>
