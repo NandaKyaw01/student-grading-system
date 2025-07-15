@@ -16,6 +16,7 @@ import { getAcademicResultColumns } from './academic-result-table-column';
 import { getClasses } from '@/actions/class';
 import { exportAcademicYearResultsToExcel } from '@/actions/export-result';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface ResultsTableProps {
   promises: Promise<
@@ -30,14 +31,16 @@ interface ResultsTableProps {
 export function AcademicResultDataTable({ promises }: ResultsTableProps) {
   const [{ results, pageCount }, { years }, { classes }] = React.use(promises);
   const [isPending, startTransition] = React.useTransition();
+  const t = useTranslations('AcademicYearResultsPage.table');
 
   const columns = React.useMemo(
     () =>
       getAcademicResultColumns({
         academicYears: years,
-        classes
+        classes,
+        t
       }),
-    [years, classes]
+    [years, classes, t]
   );
 
   const { table } = useDataTable({
@@ -67,16 +70,16 @@ export function AcademicResultDataTable({ promises }: ResultsTableProps) {
           link.click();
           document.body.removeChild(link);
 
-          toast.success('Excel file downloaded successfully!');
+          toast.success(t('export_success'));
         } else {
-          toast.error(`Export failed: ${result.error}`);
+          toast.error(t('export_error', { message: result.error! }));
         }
       } catch (error) {
         console.error('Export error:', error);
-        toast.error('Export failed. Please try again.');
+        toast.error(t('export_generic_error'));
       }
     });
-  }, [startTransition]);
+  }, [startTransition, t]);
 
   return (
     <DataTable
@@ -92,7 +95,7 @@ export function AcademicResultDataTable({ promises }: ResultsTableProps) {
           onClick={onResultExport}
         >
           {isPending ? <Loader className='animate-spin' /> : <Download />}
-          Export All
+          {t('export_all')}
         </Button>
       </DataTableToolbar>
     </DataTable>

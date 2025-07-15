@@ -115,7 +115,9 @@
       "current": "Current",
       "actions": "Actions",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "pass": "Pass",
+      "fail": "Fail"
     },
     "ResultPage": {
       "title": "Results",
@@ -261,11 +263,6 @@
         }
       }
     }
-  },
-  "ResultsByYear": {
-    "title": "Results by Year",
-    "subtitle": "Manage and view student grading records by year",
-    "search_placeholder": "Search results..."
   },
   "AdminNavBarTitle": {
     "dashboard": "Dashboard",
@@ -483,6 +480,78 @@
   "AcademicYearResultsPage": {
     "home": "Home",
     "title": "Academic Results",
-    "subtitle": "Manage student results by academic year"
+    "subtitle": "Manage student results by academic year",
+    "table": {
+      "no": "No.",
+      "student": "Student",
+      "search_placeholder": "Search Result...",
+      "year": "Year",
+      "academic_year": "Academic Year",
+      "current": "Current",
+      "total_gp": "Total GP",
+      "overall_gpa": "Overall GPA",
+      "semester": "Semester",
+      "class": "Class",
+      "status": "Status",
+      "pass": "Pass",
+      "fail": "Fail",
+      "incomplete": "Incomplete",
+      "created_at": "Created At",
+      "actions": "Actions",
+      "export_all": "Export All",
+      "export_success": "Excel file downloaded successfully!",
+      "export_error": "Export failed: {message}",
+      "export_generic_error": "Export failed. Please try again.",
+      "delete_success": "Results deleted successfully",
+      "delete_error": "Failed to delete results",
+      "export_tooltip": "Export results",
+      "delete_tooltip": "Delete results"
+    },
+    "CellAction": {
+      "open_menu": "Open menu",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "delete_success": "Result deleted"
+    },
+    "ResultView": {
+      "title": "Academic Year Result",
+      "subtitle": "Comprehensive academic performance for {yearRange}",
+      "admission_id": "Admission ID: {id}",
+      "academic_year": "Academic Year",
+      "overall_gpa": "Overall GPA",
+      "partial_gpa": "(Partial)",
+      "total_credits": "Total Credits",
+      "total_gp": "Total GP",
+      "status": "Status",
+      "year_rank": "Academic Year Rank: #{rank}",
+      "completion": "Completion",
+      "missing_results_title": "Missing Semester Results",
+      "missing_results_description": "The following semester results are missing for this academic year:",
+      "not_created_yet": "Result not yet created for this semester",
+      "create_result": "Create Result",
+      "semester_results_title": "Semester Results ({completed} of {total})",
+      "semester_results_description": "Detailed semester-wise academic performance breakdown",
+      "no_results_title": "No Results Available",
+      "no_results_description": "No semester results have been created for this academic year yet.",
+      "create_first_result": "Create First Result",
+      "gpa": "GPA: {gpa}",
+      "class": "Class",
+      "roll_number": "Roll Number",
+      "credits": "Credits",
+      "subject_grades": "Subject Grades",
+      "final_mark": "Final Mark",
+      "grade": "Grade",
+      "gp": "GP",
+      "semester_summary": "Semester Summary:",
+      "pass": "Pass",
+      "fail": "Fail",
+      "incomplete": "Incomplete",
+      "DownloadButton": {
+        "exporting": "Exporting...",
+        "export_docx": "Export DOCX",
+        "generate_error": "Failed to generate document. Please ensure template file exists and data is correct."
+      }
+    }
   }
 }

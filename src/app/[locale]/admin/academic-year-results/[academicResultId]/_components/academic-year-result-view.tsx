@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { AcademicResultDownloadButton } from './academic-year-result-download-button';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   data: AcademicYearResultViewWithDetails;
@@ -69,6 +70,7 @@ const getGradeColor = (grade: string) => {
 };
 
 export default function AcademicYearResultView({ data }: Props) {
+  const t = useTranslations('AcademicYearResultsPage.ResultView');
   // Find missing semesters
   const allSemesters = data.academicYear.semesters;
   const completedSemesterIds = data.semesterResults.map(
@@ -83,10 +85,12 @@ export default function AcademicYearResultView({ data }: Props) {
       {/* Header */}
       <div className='space-y-2'>
         <h1 className='text-2xl sm:text-2xl font-bold text-foreground'>
-          Academic Year Result
+          {t('title')}
         </h1>
         <p className='text-sm sm:text-base text-muted-foreground'>
-          Comprehensive academic performance for {data.academicYear.yearRange}
+          {t('subtitle', {
+            yearRange: data.academicYear.yearRange
+          })}
         </p>
       </div>
 
@@ -100,7 +104,9 @@ export default function AcademicYearResultView({ data }: Props) {
                 <span className='truncate'>{data.student.studentName}</span>
               </CardTitle>
               <CardDescription className='text-primary-foreground/80 text-sm sm:text-base'>
-                Admission ID: {data.student.admissionId}
+                {t('admission_id', {
+                  id: data.student.admissionId
+                })}
               </CardDescription>
             </div>
             <div className='flex-shrink-0'>
@@ -113,7 +119,9 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='flex items-center gap-3'>
               <Calendar className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
-                <p className='text-sm text-muted-foreground'>Academic Year</p>
+                <p className='text-sm text-muted-foreground'>
+                  {t('academic_year')}
+                </p>
                 <p className='font-medium text-foreground truncate'>
                   {data.academicYear.yearRange}
                 </p>
@@ -122,12 +130,14 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='flex items-center gap-3'>
               <TrendingUp className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
-                <p className='text-sm text-muted-foreground'>Overall GPA</p>
+                <p className='text-sm text-muted-foreground'>
+                  {t('overall_gpa')}
+                </p>
                 <p className={`font-medium ${getGpaColor(data.overallGpa)}`}>
                   {data.overallGpa.toFixed(2)}
                   {!data.isComplete && (
                     <span className='text-xs text-muted-foreground ml-1'>
-                      (Partial)
+                      {t('partial_gpa')}
                     </span>
                   )}
                 </p>
@@ -136,7 +146,9 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='flex items-center gap-3'>
               <BookOpen className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
-                <p className='text-sm text-muted-foreground'>Total Credits</p>
+                <p className='text-sm text-muted-foreground'>
+                  {t('total_credits')}
+                </p>
                 <p className='font-medium text-foreground'>
                   {data.totalCredits.toFixed(2)}
                 </p>
@@ -145,7 +157,7 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='flex items-center gap-3'>
               <Award className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
-                <p className='text-sm text-muted-foreground'>Total GP</p>
+                <p className='text-sm text-muted-foreground'>{t('total_gp')}</p>
                 <p className='font-medium text-foreground'>
                   {data.totalGp.toFixed(2)}
                 </p>
@@ -154,9 +166,11 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='flex items-center gap-3'>
               <Trophy className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
-                <p className='text-sm text-muted-foreground'>Status</p>
+                <p className='text-sm text-muted-foreground'>{t('status')}</p>
                 <Badge className={getStatusColor(data.status)}>
-                  {data.status}
+                  {t(
+                    `${data.status.toLowerCase() as 'pass' | 'fail' | 'incomplete'}`
+                  )}
                 </Badge>
               </div>
             </div>
@@ -165,7 +179,9 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='mt-4 pt-4 border-t border-border'>
               <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                 <Trophy className='h-4 w-4' />
-                Academic Year Rank: #{data.yearRank}
+                {t('year_rank', {
+                  rank: data.yearRank
+                })}
               </div>
             </div>
           )}
@@ -182,7 +198,7 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
               <div className='min-w-0 flex-1'>
                 <p className='text-xs sm:text-sm text-muted-foreground'>
-                  Overall GPA
+                  {t('overall_gpa')}
                 </p>
                 <p
                   className={`text-3xl sm:text-3xl font-bold ${getGpaColor(data.overallGpa)}`}
@@ -205,7 +221,7 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
               <div className='min-w-0 flex-1'>
                 <p className='text-xs sm:text-sm text-muted-foreground'>
-                  Total Credits
+                  {t('total_credits')}
                 </p>
                 <p className='text-3xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400'>
                   {data.totalCredits.toFixed(2)}
@@ -226,7 +242,7 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
               <div className='min-w-0 flex-1'>
                 <p className='text-xs sm:text-sm text-muted-foreground'>
-                  Completion
+                  {t('completion')}
                 </p>
                 <p className='text-3xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400'>
                   {Math.round(
@@ -254,12 +270,10 @@ export default function AcademicYearResultView({ data }: Props) {
         >
           <AlertTriangle className='h-4 w-4' />
           <AlertTitle className='text-yellow-800 dark:text-yellow-200'>
-            Missing Semester Results
+            {t('missing_results_title')}
           </AlertTitle>
           <AlertDescription className='text-yellow-700 dark:text-yellow-300 mt-2'>
-            <p className='mb-4'>
-              The following semester results are missing for this academic year:
-            </p>
+            <p className='mb-4'>{t('missing_results_description')}</p>
             <div className='space-y-3'>
               {missingSemesters.map((semester) => (
                 <div
@@ -272,7 +286,7 @@ export default function AcademicYearResultView({ data }: Props) {
                       {semester.semesterName}
                     </p>
                     <p className='text-sm text-yellow-700 dark:text-yellow-300'>
-                      Result not yet created for this semester
+                      {t('not_created_yet')}
                     </p>
                   </div>
                   <Button
@@ -284,7 +298,7 @@ export default function AcademicYearResultView({ data }: Props) {
                       href={`/admin/results/new/?semesterId=${semester.id}&studentId=${data.studentId}&academicYearId=${data.academicYearId}`}
                     >
                       <Plus className='h-4 w-4 mr-2' />
-                      Create Result
+                      {t('create_result')}
                     </Link>
                   </Button>
                 </div>
@@ -299,11 +313,13 @@ export default function AcademicYearResultView({ data }: Props) {
         <CardHeader className='p-4 sm:p-6'>
           <CardTitle className='text-lg sm:text-xl text-foreground flex items-center gap-2'>
             <Calendar className='h-5 w-5' />
-            Semester Results ({data.semesterResults.length} of{' '}
-            {allSemesters.length})
+            {t('semester_results_title', {
+              completed: data.semesterResults.length,
+              total: allSemesters.length
+            })}
           </CardTitle>
           <CardDescription className='text-sm sm:text-base text-muted-foreground'>
-            Detailed semester-wise academic performance breakdown
+            {t('semester_results_description')}
           </CardDescription>
         </CardHeader>
         <CardContent className='p-4 sm:p-6 pt-0'>
@@ -311,18 +327,17 @@ export default function AcademicYearResultView({ data }: Props) {
             <div className='text-center py-12'>
               <Calendar className='h-12 w-12 text-muted-foreground mb-4 mx-auto' />
               <h3 className='text-lg font-semibold text-muted-foreground mb-2'>
-                No Results Available
+                {t('no_results_title')}
               </h3>
               <p className='text-sm text-muted-foreground mb-4'>
-                No semester results have been created for this academic year
-                yet.
+                {t('no_results_description')}
               </p>
               <Button asChild>
                 <Link
                   href={`/admin/results/new/?studentId=${data.studentId}&academicYearId=${data.academicYearId}`}
                 >
                   <Plus className='h-4 w-4 mr-2' />
-                  Create First Result
+                  {t('create_first_result')}
                 </Link>
               </Button>
             </div>
@@ -341,12 +356,16 @@ export default function AcademicYearResultView({ data }: Props) {
                           <Badge
                             className={getStatusColor(semesterResult.status)}
                           >
-                            {semesterResult.status}
+                            {t(
+                              `${semesterResult.status.toLowerCase() as 'pass' | 'fail'}`
+                            )}
                           </Badge>
                           <span
                             className={`font-semibold ${getGpaColor(semesterResult.gpa)}`}
                           >
-                            GPA: {semesterResult.gpa.toFixed(2)}
+                            {t('gpa', {
+                              gpa: semesterResult.gpa.toFixed(2)
+                            })}
                           </span>
                         </div>
                       </div>
@@ -357,7 +376,7 @@ export default function AcademicYearResultView({ data }: Props) {
                           <GraduationCap className='h-4 w-4 text-primary flex-shrink-0' />
                           <div className='min-w-0 flex-1'>
                             <p className='text-sm text-muted-foreground'>
-                              Class
+                              {t('class')}
                             </p>
                             <p className='font-medium text-foreground'>
                               {semesterResult.enrollment.class.className} (
@@ -369,7 +388,7 @@ export default function AcademicYearResultView({ data }: Props) {
                           <User className='h-4 w-4 text-primary flex-shrink-0' />
                           <div className='min-w-0 flex-1'>
                             <p className='text-sm text-muted-foreground'>
-                              Roll Number
+                              {t('roll_number')}
                             </p>
                             <p className='font-medium text-foreground'>
                               {semesterResult.enrollment.rollNumber}
@@ -380,7 +399,7 @@ export default function AcademicYearResultView({ data }: Props) {
                           <BookOpen className='h-4 w-4 text-primary flex-shrink-0' />
                           <div className='min-w-0 flex-1'>
                             <p className='text-sm text-muted-foreground'>
-                              Credits
+                              {t('credits')}
                             </p>
                             <p className='font-medium text-foreground'>
                               {semesterResult.totalCredits.toFixed(2)}
@@ -394,7 +413,7 @@ export default function AcademicYearResultView({ data }: Props) {
                       {/* Subject Grades - Mobile View */}
                       <div className='block sm:hidden space-y-4'>
                         <h4 className='font-medium text-foreground'>
-                          Subject Grades
+                          {t('subject_grades')}
                         </h4>
                         {semesterResult.enrollment.grades.map((grade) => (
                           <Card
@@ -422,7 +441,7 @@ export default function AcademicYearResultView({ data }: Props) {
                                 <div className='grid grid-cols-2 gap-2 text-xs'>
                                   <div>
                                     <span className='text-muted-foreground'>
-                                      Credits:{' '}
+                                      {t('credits')}:
                                     </span>
                                     <span className='font-medium text-foreground'>
                                       {grade.classSubject.subject.creditHours.toFixed(
@@ -432,7 +451,7 @@ export default function AcademicYearResultView({ data }: Props) {
                                   </div>
                                   <div>
                                     <span className='text-muted-foreground'>
-                                      GP:{' '}
+                                      {t('gp')}:
                                     </span>
                                     <span className='font-medium text-foreground'>
                                       {grade.gp.toFixed(2)}
@@ -442,7 +461,7 @@ export default function AcademicYearResultView({ data }: Props) {
 
                                 <div className='pt-2 border-t border-border/50'>
                                   <span className='text-muted-foreground text-xs'>
-                                    Final Mark:{' '}
+                                    {t('final_mark')}:
                                   </span>
                                   <span className='font-bold text-foreground'>
                                     {grade.finalMark.toFixed(2)}
@@ -457,7 +476,7 @@ export default function AcademicYearResultView({ data }: Props) {
                       {/* Subject Grades - Desktop View */}
                       <div className='hidden sm:block'>
                         <h4 className='font-medium text-foreground mb-4'>
-                          Subject Grades
+                          {t('subject_grades')}
                         </h4>
                         <div className='space-y-3'>
                           {semesterResult.enrollment.grades.map((grade) => (
@@ -471,30 +490,34 @@ export default function AcademicYearResultView({ data }: Props) {
                                   {grade.classSubject.subject.subjectName}
                                 </p>
                                 <p className='text-sm text-muted-foreground'>
-                                  {grade.classSubject.subject.id} •{' '}
+                                  {grade.classSubject.subject.id} •
                                   {grade.classSubject.subject.creditHours.toFixed(
                                     2
-                                  )}{' '}
-                                  credits
+                                  )}
+                                  {t('credits')}
                                 </p>
                               </div>
                               <div className='flex items-center gap-6 text-sm'>
                                 <div className='text-center'>
                                   <p className='text-muted-foreground'>
-                                    Final Mark
+                                    {t('final_mark')}
                                   </p>
                                   <p className='font-medium text-foreground'>
                                     {grade.finalMark.toFixed(2)}
                                   </p>
                                 </div>
                                 <div className='text-center'>
-                                  <p className='text-muted-foreground'>Grade</p>
+                                  <p className='text-muted-foreground'>
+                                    {t('grade')}
+                                  </p>
                                   <Badge className={getGradeColor(grade.grade)}>
                                     {grade.grade}
                                   </Badge>
                                 </div>
                                 <div className='text-center'>
-                                  <p className='text-muted-foreground'>GP</p>
+                                  <p className='text-muted-foreground'>
+                                    {t('gp')}
+                                  </p>
                                   <p className='font-medium text-foreground'>
                                     {grade.gp.toFixed(2)}
                                   </p>
@@ -509,17 +532,20 @@ export default function AcademicYearResultView({ data }: Props) {
                       <div className='mt-4 pt-4 border-t border-border'>
                         <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4'>
                           <div className='text-base sm:text-lg font-semibold text-foreground'>
-                            Semester Summary:
+                            {t('semester_summary')}
                           </div>
                           <div className='grid grid-cols-2 sm:flex sm:gap-6 gap-2 text-xs sm:text-sm'>
                             <span className='text-muted-foreground'>
-                              Credits:{' '}
+                              {t('credits')}:
                               <span className='font-bold text-foreground'>
                                 {semesterResult.totalCredits.toFixed(2)}
                               </span>
                             </span>
                             <span className='text-muted-foreground'>
-                              GPA:{' '}
+                              {t('gpa', {
+                                gpa: semesterResult.gpa.toFixed(2)
+                              })}
+                              :
                               <span
                                 className={`font-bold ${getGpaColor(semesterResult.gpa)}`}
                               >
@@ -527,9 +553,11 @@ export default function AcademicYearResultView({ data }: Props) {
                               </span>
                             </span>
                             <span className='text-muted-foreground'>
-                              Status:{' '}
+                              {t('status')}:
                               <span className='font-bold text-foreground'>
-                                {semesterResult.status}
+                                {t(
+                                  `${semesterResult.status.toLowerCase() as 'pass' | 'fail'}`
+                                )}
                               </span>
                             </span>
                           </div>

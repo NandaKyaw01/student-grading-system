@@ -157,9 +157,9 @@ export function getResultColumns({
       cell: ({ cell }) => (
         <>
           {cell.getValue<Status>() === Status.PASS ? (
-            <Badge>{cell.getValue<Status>()}</Badge>
+            <Badge>{t('table.pass')}</Badge>
           ) : (
-            <Badge className='bg-destructive'>{cell.getValue<Status>()}</Badge>
+            <Badge className='bg-destructive'>{t('table.fail')}</Badge>
           )}
         </>
       ),
@@ -167,8 +167,8 @@ export function getResultColumns({
         label: t('table.status'),
         variant: 'multiSelect',
         options: [
-          { label: 'Pass', value: Status.PASS },
-          { label: 'Fail', value: Status.FAIL }
+          { label: t('table.pass'), value: Status.PASS },
+          { label: t('table.fail'), value: Status.FAIL }
           // { label: 'Incomplete', value: Status.INCOMPLETE }
         ],
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />

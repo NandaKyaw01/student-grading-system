@@ -10,14 +10,17 @@ import { ColumnDef } from '@tanstack/react-table';
 import { CalendarCheck, CalendarIcon, FileSearch2, Text } from 'lucide-react';
 import Link from 'next/link';
 import { AcademicResultCellAction } from './academic-result-cell-action';
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 
 export function getAcademicResultColumns({
   academicYears,
-  classes
+  classes,
+  t
 }: {
   academicYears: AcademicYearWithDetails[];
   classes: Class[];
+  t: ReturnType<typeof useTranslations<'AcademicYearResultsPage.table'>>;
 }): ColumnDef<AcademicYearResultWithDetails>[] {
   return [
     {
@@ -48,7 +51,7 @@ export function getAcademicResultColumns({
     {
       id: 'no',
       accessorKey: 'enrollmentId',
-      header: () => <div className='text-center'>No.</div>,
+      header: () => <div className='text-center'>{t('no')}</div>,
       cell: ({ row, table }) => {
         const pageIndex = table.getState().pagination.pageIndex;
         const pageSize = table.getState().pagination.pageSize;
@@ -60,7 +63,7 @@ export function getAcademicResultColumns({
         );
       },
       meta: {
-        label: 'No.'
+        label: t('no')
       },
       enableSorting: false,
       enableColumnFilter: false,
@@ -69,10 +72,10 @@ export function getAcademicResultColumns({
     {
       id: 'search',
       accessorFn: (row) => row.student?.studentName,
-      header: 'Student',
+      header: t('student'),
       meta: {
-        label: 'Student',
-        placeholder: 'Search Result...',
+        label: t('student'),
+        placeholder: t('search_placeholder'),
         variant: 'text',
         icon: Text
       },
@@ -81,12 +84,12 @@ export function getAcademicResultColumns({
     {
       id: 'academicYearId',
       accessorFn: (row) => `${row.academicYear?.yearRange}`,
-      header: 'Year',
+      header: t('academic_year'),
       meta: {
-        label: 'Academic Year',
+        label: t('academic_year'),
         variant: 'multiSelect',
         options: academicYears.map((year) => ({
-          label: `${year.yearRange} ${year.isCurrent ? '(Current)' : ''}`,
+          label: `${year.yearRange} ${year.isCurrent ? `(${t('current')})` : ''}`,
           value: year.id.toString()
         })),
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
@@ -97,39 +100,28 @@ export function getAcademicResultColumns({
       id: 'totalGp',
       accessorKey: 'totalGp',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Total GP' />
+        <DataTableColumnHeader column={column} title={t('total_gp')} />
       ),
       meta: {
-        label: 'Total GP'
+        label: t('total_gp')
       },
       enableSorting: true
     },
-    // {
-    //   id: 'totalCredits',
-    //   accessorKey: 'totalCredits',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title='Total Credits' />
-    //   ),
-    //   meta: {
-    //     label: 'Total Credits'
-    //   },
-    //   enableSorting: true
-    // },
     {
       id: 'overallGpa',
       accessorKey: 'overallGpa',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Overall GPA' />
+        <DataTableColumnHeader column={column} title={t('overall_gpa')} />
       ),
       meta: {
-        label: 'Overall GPA'
+        label: t('overall_gpa')
       },
       enableSorting: true
     },
     {
       id: 'classId',
       accessorKey: 'semesterCount',
-      header: 'Semester',
+      header: t('semester'),
       cell: ({ cell }) => (
         <div>
           {cell.getValue<Status>()} /{' '}
@@ -141,7 +133,7 @@ export function getAcademicResultColumns({
         </div>
       ),
       meta: {
-        label: 'Class',
+        label: t('class'),
         variant: 'multiSelect',
         options: classes.map((cls) => ({
           label: `${cls.className} (${cls.departmentCode})`,
@@ -154,25 +146,25 @@ export function getAcademicResultColumns({
     {
       id: 'status',
       accessorKey: 'status',
-      header: 'Status',
+      header: t('status'),
       cell: ({ cell }) => (
         <>
           {cell.getValue<Status>() === Status.PASS ? (
-            <Badge>{cell.getValue<Status>()}</Badge>
+            <Badge>{t('pass')}</Badge>
           ) : cell.getValue<Status>() === Status.INCOMPLETE ? (
-            <Badge className='bg-chart-4'>{cell.getValue<Status>()}</Badge>
+            <Badge className='bg-chart-4'>{t('incomplete')}</Badge>
           ) : (
-            <Badge className='bg-destructive'>{cell.getValue<Status>()}</Badge>
+            <Badge className='bg-destructive'>{t('fail')}</Badge>
           )}
         </>
       ),
       meta: {
-        label: 'Status',
+        label: t('status'),
         variant: 'multiSelect',
         options: [
-          { label: 'Pass', value: Status.PASS },
-          { label: 'Fail', value: Status.FAIL },
-          { label: 'Incomplete', value: Status.INCOMPLETE }
+          { label: t('pass'), value: Status.PASS },
+          { label: t('fail'), value: Status.FAIL },
+          { label: t('incomplete'), value: Status.INCOMPLETE }
         ],
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
       },
@@ -182,11 +174,11 @@ export function getAcademicResultColumns({
       id: 'createdAt',
       accessorKey: 'createdAt',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Created At' />
+        <DataTableColumnHeader column={column} title={t('created_at')} />
       ),
       cell: ({ cell }) => formatDate(cell.getValue<Date>()),
       meta: {
-        label: 'Created At',
+        label: t('created_at'),
         variant: 'dateRange',
         icon: CalendarIcon
       },

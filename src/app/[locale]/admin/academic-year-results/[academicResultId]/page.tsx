@@ -6,10 +6,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getAcademicYearResult } from '@/actions/academic-result';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
   params: Promise<{
     academicResultId: string;
+    locale: string;
   }>;
 }
 
@@ -53,6 +55,7 @@ function AcademicYearResultSkeleton() {
 export default async function AcademicYearResultPage({ params }: PageProps) {
   const resolvedParams = await params;
   const id = Number.parseInt(resolvedParams.academicResultId);
+  const t = await getTranslations('AcademicYearResultsPage');
 
   if (isNaN(id)) {
     notFound();
@@ -60,16 +63,16 @@ export default async function AcademicYearResultPage({ params }: PageProps) {
 
   return (
     <ContentLayout
-      title={'Results'}
+      title={t('ResultView.title')}
       breadcrumb={
         <ActiveBreadcrumb
           path={[
             {
-              name: 'Home',
+              name: t('home'),
               link: '/'
             },
             {
-              name: 'Academic Results',
+              name: t('ResultView.title'),
               link: '/admin/academic-year-results'
             },
             {

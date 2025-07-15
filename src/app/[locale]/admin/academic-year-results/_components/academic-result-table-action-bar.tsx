@@ -8,15 +8,15 @@ import {
   AcademicYearResultWithDetails,
   deleteAcademicResults
 } from '@/actions/academic-result';
+import { exportAcademicYearResultsToExcel } from '@/actions/export-result';
 import {
   DataTableActionBar,
   DataTableActionBarAction,
   DataTableActionBarSelection
 } from '@/components/data-table/data-table-action-bar';
-import { Separator } from '@/components/ui/separator';
-import { exportTableToCSV } from '@/lib/export';
 import { AlertModal } from '@/components/modal/alert-modal';
-import { exportAcademicYearResultsToExcel } from '@/actions/export-result';
+import { Separator } from '@/components/ui/separator';
+import { useTranslations } from 'next-intl';
 
 const actions = ['export', 'delete'] as const;
 
@@ -33,6 +33,7 @@ export function AcademicResultsTableActionBar({
   const [isPending, startTransition] = React.useTransition();
   const [currentAction, setCurrentAction] = React.useState<Action | null>(null);
   const [open, setOpen] = React.useState(false);
+  const t = useTranslations('AcademicYearResultsPage.table');
 
   const getIsActionPending = React.useCallback(
     (action: Action) => isPending && currentAction === action,
@@ -56,18 +57,18 @@ export function AcademicResultsTableActionBar({
           link.click();
           document.body.removeChild(link);
 
-          toast.success('Excel file downloaded successfully!');
+          toast.success(t('export_success'));
         } else {
-          toast.error(`Export failed: ${result.error}`);
+          toast.error(t('export_error', { message: result.error! }));
         }
       } catch (error) {
         console.error('Export error:', error);
-        toast.error('Export failed. Please try again.');
+        toast.error(t('export_generic_error'));
       } finally {
         setCurrentAction(null);
       }
     });
-  }, [rows, startTransition]);
+  }, [rows, startTransition, t]);
 
   const onResultDelete = React.useCallback(() => {
     setCurrentAction('delete');
@@ -76,12 +77,13 @@ export function AcademicResultsTableActionBar({
       const { error } = await deleteAcademicResults(ids);
 
       if (error) {
-        toast.error(error);
+        toast.error(t('delete_error'));
         return;
       }
+      toast.success(t('delete_success'));
       table.toggleAllRowsSelected(false);
     });
-  }, [rows, table]);
+  }, [rows, table, t]);
 
   return (
     <>
@@ -100,7 +102,7 @@ export function AcademicResultsTableActionBar({
         <div className='flex items-center gap-1.5'>
           <DataTableActionBarAction
             size='icon'
-            tooltip='Export results'
+            tooltip={t('export_tooltip')}
             isPending={getIsActionPending('export')}
             onClick={onResultExport}
           >
@@ -108,7 +110,7 @@ export function AcademicResultsTableActionBar({
           </DataTableActionBarAction>
           <DataTableActionBarAction
             size='icon'
-            tooltip='Delete results'
+            tooltip={t('delete_tooltip')}
             isPending={getIsActionPending('delete')}
             onClick={() => setOpen(true)}
           >

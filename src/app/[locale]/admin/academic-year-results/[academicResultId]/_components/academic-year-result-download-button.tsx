@@ -4,6 +4,7 @@ import React, { useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Loader } from 'lucide-react';
 import { type AcademicYearResultViewWithDetails } from '@/actions/academic-result';
+import { useTranslations } from 'next-intl';
 
 interface DownloadButtonProps {
   resultData: AcademicYearResultViewWithDetails;
@@ -12,6 +13,9 @@ interface DownloadButtonProps {
 export function AcademicResultDownloadButton({
   resultData
 }: DownloadButtonProps) {
+  const t = useTranslations(
+    'AcademicYearResultsPage.ResultView.DownloadButton'
+  );
   const [isPending, startTransition] = useTransition();
 
   const generateWordFromTemplate = () => {
@@ -122,9 +126,7 @@ export function AcademicResultDownloadButton({
         URL.revokeObjectURL(url);
       } catch (error) {
         console.error('Error generating document from template:', error);
-        alert(
-          'Failed to generate document. Please ensure template file exists and data is correct.'
-        );
+        alert(t('generate_error'));
       }
     });
   };
@@ -141,7 +143,7 @@ export function AcademicResultDownloadButton({
       ) : (
         <Download className='h-4 w-4 mr-2' />
       )}
-      {isPending ? 'Exporting...' : 'Export DOCX'}
+      {isPending ? t('exporting') : t('export_docx')}
     </Button>
   );
 }

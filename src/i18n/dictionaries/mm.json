@@ -115,7 +115,9 @@
       "created_at": "ထည့်သွင်းသည့်ရက်စွဲ",
       "actions": "လုပ်ဆောင်ချက်များ",
       "edit": "ပြင်ဆင်မည်",
-      "delete": "ဖျက်မည်"
+      "delete": "ဖျက်မည်",
+      "pass": "အောင်",
+      "fail": "ကျ"
     },
     "ResultPage": {
       "title": "ရလဒ်များ",
@@ -478,6 +480,78 @@
   "AcademicYearResultsPage": {
     "home": "မူလစာမျက်နှာ",
     "title": "ပညာသင်နှစ် ရလဒ်များ",
-    "subtitle": "ကျောင်းသားအဆင့်သတ်မှတ်မှုများကို စီမံခန့်ခွဲခြင်းနှင့် ကြည့်ရှုခြင်း"
+    "subtitle": "ကျောင်းသားအဆင့်သတ်မှတ်မှုများကို စီမံခန့်ခွဲခြင်းနှင့် ကြည့်ရှုခြင်း",
+    "table": {
+      "no": "စဉ်",
+      "student": "ကျောင်းသား",
+      "search_placeholder": "ရလဒ်ရှာဖွေပါ...",
+      "year": "နှစ်",
+      "academic_year": "ပညာသင်နှစ်",
+      "current": "လက်ရှိ",
+      "total_gp": "စုစုပေါင်း GP",
+      "overall_gpa": "GPA",
+      "semester": "စာသင်နှစ်ဝက်",
+      "class": "အတန်း",
+      "status": "အခြေအနေ",
+      "pass": "အောင်",
+      "fail": "ကျ",
+      "incomplete": "မပြည့်စုံ",
+      "created_at": "ထည့်သွင်းသည့်ရက်စွဲ",
+      "actions": "လုပ်ဆောင်ချက်များ",
+      "export_all": "Export ထုတ်မည်",
+      "export_success": "Excel ဖိုင်ကို အောင်မြင်စွာ ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ။",
+      "export_error": "Export မအောင်မြင်ပါ: {message}",
+      "export_generic_error": "Export မအောင်မြင်ပါ။ ကျေးဇူးပြု၍ ထပ်မံကြိုးစားပါ။",
+      "delete_success": "ရလဒ်များကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။",
+      "delete_error": "ရလဒ်များကို ဖျက်မရပါ။",
+      "export_tooltip": "ရလဒ်များကို Export ထုတ်မည်",
+      "delete_tooltip": "ရလဒ်များကို ဖျက်မည်"
+    },
+    "CellAction": {
+      "open_menu": "မီနူးဖွင့်ပါ",
+      "actions": "လုပ်ဆောင်ချက်များ",
+      "edit": "ပြင်ဆင်ရန်",
+      "delete": "ဖျက်ရန်",
+      "delete_success": "ရလဒ်ကို ဖျက်လိုက်ပါပြီ"
+    },
+    "ResultView": {
+      "title": "ပညာသင်နှစ် ရလဒ်",
+      "subtitle": "{yearRange} အတွက် ပြည့်စုံသော ပညာရေးဆိုင်ရာ စွမ်းဆောင်ရည်",
+      "admission_id": "ကျောင်းဝင်အမှတ်: {id}",
+      "academic_year": "ပညာသင်နှစ်",
+      "overall_gpa": "စုစုပေါင်း GPA",
+      "partial_gpa": "(တစ်စိတ်တစ်ပိုင်း)",
+      "total_credits": "စုစုပေါင်း ယူနစ်",
+      "total_gp": "စုစုပေါင်း GP",
+      "status": "အခြေအနေ",
+      "year_rank": "ပညာသင်နှစ် အဆင့်: #{rank}",
+      "completion": "ပြီးစီးမှု",
+      "missing_results_title": "ပျောက်ဆုံးနေသော စာသင်နှစ်ဝက် ရလဒ်များ",
+      "missing_results_description": "ဤပညာသင်နှစ်အတွက် အောက်ပါ စာသင်နှစ်ဝက် ရလဒ်များ ပျောက်ဆုံးနေပါသည်:",
+      "not_created_yet": "ဤစာသင်နှစ်ဝက်အတွက် ရလဒ်ကို မဖန်တီးရသေးပါ",
+      "create_result": "ရလဒ် ဖန်တီးပါ",
+      "semester_results_title": "စာသင်နှစ်ဝက် ရလဒ်များ ({completed} / {total})",
+      "semester_results_description": "အသေးစိတ် စာသင်နှစ်ဝက်အလိုက် ပညာရေးဆိုင်ရာ စွမ်းဆောင်ရည် ခွဲခြမ်းစိတ်ဖြာချက်",
+      "no_results_title": "ရလဒ်များ မရရှိနိုင်ပါ",
+      "no_results_description": "ဤပညာသင်နှစ်အတွက် စာသင်နှစ်ဝက် ရလဒ်များကို မဖန်တီးရသေးပါ။",
+      "create_first_result": "ပထမဆုံး ရလဒ်ကို ဖန်တီးပါ",
+      "gpa": "GPA: {gpa}",
+      "class": "အတန်း",
+      "roll_number": "ခုံနံပါတ်",
+      "credits": "ယူနစ်များ",
+      "subject_grades": "ဘာသာရပ် အဆင့်များ",
+      "final_mark": "နောက်ဆုံး အမှတ်",
+      "grade": "အဆင့်",
+      "gp": "GP",
+      "semester_summary": "စာသင်နှစ်ဝက် အကျဉ်းချုပ်:",
+      "pass": "အောင်မြင်",
+      "fail": "ကျရှုံး",
+      "incomplete": "မပြည့်စုံ",
+      "DownloadButton": {
+        "exporting": "ထုတ်ယူနေသည်...",
+        "export_docx": "Export ထုတ်မည်",
+        "generate_error": "စာရွက်စာတမ်းကို ထုတ်လုပ်ရန် မအောင်မြင်ပါ။ တင်းပလိတ်ဖိုင် ရှိနေပြီး ဒေတာ မှန်ကန်ကြောင်း သေချာပါစေ။"
+      }
+    }
   }
 }
