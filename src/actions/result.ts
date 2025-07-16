@@ -19,6 +19,7 @@ import {
   UpdateResultFormData,
   updateResultSchema
 } from '@/lib/zod/result';
+import { useTranslations } from 'next-intl';
 
 const resultWithDetails = Prisma.validator<Prisma.ResultInclude>()({
   enrollment: {
@@ -809,11 +810,13 @@ export async function updateAcademicYearResult(
 
   return academicYearResult.id;
 }
-
-export async function createResult(data: CreateResultFormData) {
+type markKeys = ReturnType<
+  typeof useTranslations<'ResultsBySemester.ResultForm'>
+>;
+export async function createResult(data: CreateResultFormData, t: markKeys) {
   try {
     // Validate input
-    const validatedData = createResultSchema.parse(data);
+    const validatedData = createResultSchema(t).parse(data);
 
     // Check if result already exists
     const existingResult = await prisma.result.findUnique({
@@ -940,10 +943,10 @@ export async function createResult(data: CreateResultFormData) {
   }
 }
 
-export async function updateResult(input: UpdateResultFormData) {
+export async function updateResult(input: UpdateResultFormData, t: markKeys) {
   try {
     // Validate input
-    const validatedInput = updateResultSchema.parse(input);
+    const validatedInput = updateResultSchema(t).parse(input);
     const { enrollmentId, studentId, academicYearId, semesterId, grades } =
       validatedInput;
 

@@ -129,7 +129,7 @@ export default function ResultForm({
     useState(false);
 
   const [dynamicSchema, setDynamicSchema] = useState(
-    isEditMode ? updateResultSchema : createResultSchema
+    isEditMode ? updateResultSchema(t) : createResultSchema(t)
   );
 
   // Use refs to track if we've already initialized form values
@@ -252,13 +252,13 @@ export default function ResultForm({
   // Update schema when subjects change - only once per subjects array
   useEffect(() => {
     if (subjects.length > 0 && !subjectsProcessed.current) {
-      const newSchema = createResultSchemaWithSubjects(subjects);
+      const newSchema = createResultSchemaWithSubjects(subjects, t);
       setDynamicSchema(newSchema);
       subjectsProcessed.current = true;
     } else if (subjects.length === 0) {
       subjectsProcessed.current = false;
     }
-  }, [subjects]);
+  }, [subjects, t]);
 
   // Auto-selection effects - use refs to prevent multiple executions
   useEffect(() => {
@@ -349,19 +349,19 @@ export default function ResultForm({
       setShowExistingResultDialog(true);
       form.setError('enrollmentId', {
         type: 'manual',
-        message: 'A result already exists for this enrollment'
+        message: t('messages.manual_error')
       });
     } else {
       form.clearErrors('enrollmentId');
     }
-  }, [hasExistingResult, isEditMode, form]);
+  }, [hasExistingResult, isEditMode, form, t]);
 
   // Create/Update result mutation
   const resultMutation = useMutation({
     mutationFn: async (data: CreateResultFormData | UpdateResultFormData) => {
       return isEditMode
-        ? await updateResult(data as UpdateResultFormData)
-        : await createResult(data as CreateResultFormData);
+        ? await updateResult(data as UpdateResultFormData, t)
+        : await createResult(data as CreateResultFormData, t);
     },
     onSuccess: (result) => {
       if (result.success) {

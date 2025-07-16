@@ -640,23 +640,22 @@ async function QuickStatsCard() {
 
 // Main Dashboard Component
 export default function DashboardPage() {
-  const t = useTranslations('AdminNavBarTitle');
-  const t2 = useTranslations('DashboardPage.tabs');
+  const t = useTranslations('DashboardPage');
 
   const breadcrumb: BreadcrumbProps[] = [
     {
-      name: useTranslations('DashboardPage')('home'),
+      name: t('home'),
       link: '/'
     },
     {
-      name: useTranslations('DashboardPage')('title'),
+      name: t('title'),
       link: ''
     }
   ];
 
   return (
     <ContentLayout
-      title={t('dashboard')}
+      title={t('title')}
       breadcrumb={<ActiveBreadcrumb path={breadcrumb} />}
     >
       <div className='container mx-auto p-4 space-y-6'>
@@ -668,10 +667,12 @@ export default function DashboardPage() {
         {/* Main Dashboard Content */}
         <Tabs defaultValue='overview' className='space-y-4'>
           <TabsList className='grid w-full grid-cols-4'>
-            <TabsTrigger value='overview'>{t2('overview')}</TabsTrigger>
-            <TabsTrigger value='students'>{t2('students')}</TabsTrigger>
-            <TabsTrigger value='classes'>{t2('classes')}</TabsTrigger>
-            <TabsTrigger value='performance'>{t2('performance')}</TabsTrigger>
+            <TabsTrigger value='overview'>{t('tabs.overview')}</TabsTrigger>
+            <TabsTrigger value='students'>{t('tabs.students')}</TabsTrigger>
+            <TabsTrigger value='classes'>{t('tabs.classes')}</TabsTrigger>
+            <TabsTrigger value='performance'>
+              {t('tabs.performance')}
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}

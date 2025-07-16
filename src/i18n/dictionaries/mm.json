@@ -184,7 +184,8 @@
         "update_success": "ရလဒ်ကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ!",
         "create_error": "ရလဒ်ထည့်သွင်းရန် မအောင်မြင်ပါ",
         "update_error": "ရလဒ်ပြင်ဆင်ရန် မအောင်မြင်ပါ: {error}",
-        "generic_error": "မမျှော်လင့်ထားသော အမှားတစ်ခု ဖြစ်ပေါ်ခဲ့သည်"
+        "generic_error": "မမျှော်လင့်ထားသော အမှားတစ်ခု ဖြစ်ပေါ်ခဲ့သည်",
+        "manual_error": "ဤကျောင်းအပ်နှံမှုအတွက် ရလဒ်တစ်ခု ရှိနှင့်ပြီးဖြစ်သည်။"
       },
       "ExistingResultDialog": {
         "title": "ရလဒ်ရှိပြီးသားဖြစ်သည်",
@@ -199,6 +200,19 @@
           "cancel": "မလုပ်ပါ",
           "edit": "ရှိပြီးသားရလဒ်ကို ပြင်ဆင်မည်"
         }
+      },
+      "zod": {
+        "required": "ဤအကွက်ကို ဖြည့်ရန်လိုအပ်သည်",
+        "number": "မှန်ကန်သော နံပါတ်ဖြစ်ရမည်",
+        "min": "0 သို့မဟုတ် ထို့ထက်ကြီးရမည်",
+        "max": "100 သို့မဟုတ် ထို့ထက်ငယ်ရမည်",
+        "custom_max": "{max} သို့မဟုတ် ထို့ထက်ငယ်ရမည်",
+        "student_required": "ကျောင်းသားလိုအပ်သည်",
+        "academic_year_required": "ပညာသင်နှစ်လိုအပ်သည်",
+        "semester_required": "စာသင်နှစ်ဝက်လိုအပ်သည်",
+        "enrollment_required": "ကျောင်းအပ်နှံမှုလိုအပ်သည်",
+        "at_least_one_grade": "အနည်းဆုံး အဆင့်တစ်ခု လိုအပ်သည်",
+        "assign_mark_max": "{max} သို့မဟုတ် ထို့ထက်ငယ်ရမည်"
       }
     },
     "ResultView": {
@@ -263,18 +277,6 @@
         }
       }
     }
-  },
-  "AdminNavBarTitle": {
-    "dashboard": "Dashboard",
-    "grades": "Grades",
-    "students": "Students",
-    "academic_year": "Academic Years",
-    "classes": "Classes",
-    "subjects": "Subjects",
-    "class_subjects": "Class Subjects",
-    "GPAsetting": "GPA Setting",
-    "account": "Account",
-    "setting": "Setting"
   },
   "AccountPage": {
     "name_required": "အမည်ဖြည့်သွင်းရန် လိုအပ်ပါသည်",

@@ -145,6 +145,8 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
     }
   });
 
+  const students = useMemo(() => studentsData || [], [studentsData]);
+
   // Filter semesters based on selected academic year
   const filteredSemesters = useMemo(
     () =>
@@ -308,7 +310,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
               <FormLabel>{t('student')}</FormLabel>
               <Combobox
                 options={
-                  studentsData?.map((student) => ({
+                  students?.map((student) => ({
                     value: student.id.toString(),
                     label: student.studentName
                   })) || []

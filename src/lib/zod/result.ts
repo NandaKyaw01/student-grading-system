@@ -1,20 +1,26 @@
+import { useTranslations } from 'next-intl';
 import { z } from 'zod';
 
-const markSchema = z
-  .union([
-    z
-      .string()
-      .min(1, 'This field is required')
-      .transform((val) => parseFloat(val)),
-    z.number()
-  ])
-  .refine((val) => !isNaN(val), { message: 'Must be a valid number' })
-  .refine((val) => val >= 0, { message: 'Must be 0 or greater' })
-  .refine((val) => val <= 100, { message: 'Must be 100 or less' });
+type markKeys = ReturnType<
+  typeof useTranslations<'ResultsBySemester.ResultForm'>
+>;
+const markSchema = (t: markKeys) =>
+  z
+    .union([
+      z
+        .string()
+        .min(1, t('zod.required'))
+        .transform((val) => parseFloat(val)),
+      z.number()
+    ])
+    .refine((val) => !isNaN(val), { message: t('zod.number') })
+    .refine((val) => val >= 0, { message: t('zod.min') })
+    .refine((val) => val <= 100, { message: t('zod.max') });
 
 // Create a function that returns the complete schema with subjects data
 export const createResultSchemaWithSubjects = (
-  subjects: Array<{ classSubjectId: number; assignWeight: number }>
+  subjects: Array<{ classSubjectId: number; assignWeight: number }>,
+  t: markKeys
 ) => {
   return z.object({
     studentId: z.number().min(1, 'Student is required'),
@@ -25,17 +31,17 @@ export const createResultSchemaWithSubjects = (
       .array(
         z.object({
           classSubjectId: z.number(),
-          baseMark: markSchema,
+          baseMark: markSchema(t),
           assignMark: z
             .union([
               z
                 .string()
-                .min(1, 'This field is required')
+                .min(1, t('zod.required'))
                 .transform((val) => parseFloat(val)),
               z.number()
             ])
-            .refine((val) => !isNaN(val), { message: 'Must be a valid number' })
-            .refine((val) => val >= 0, { message: 'Must be 0 or greater' })
+            .refine((val) => !isNaN(val), { message: t('zod.number') })
+            .refine((val) => val >= 0, { message: t('zod.min') })
             .superRefine((val, ctx) => {
               // Find the corresponding subject for this grade
               const gradeIndex = ctx.path[1] as number;
@@ -43,7 +49,9 @@ export const createResultSchemaWithSubjects = (
               if (subject && val > subject.assignWeight * 100) {
                 ctx.addIssue({
                   code: z.ZodIssueCode.custom,
-                  message: `Must be ${subject.assignWeight * 100} or less`
+                  message: t('zod.custom_max', {
+                    max: subject.assignWeight * 100
+                  })
                 });
               }
             })
@@ -59,21 +67,22 @@ export type CreateResultDataWithSubjects = z.infer<
 >;
 
 // Keep the original schemas for backward compatibility
-export const createResultSchema = z.object({
-  studentId: z.number().min(1, 'Student is required'),
-  academicYearId: z.number().min(1, 'Academic year is required'),
-  semesterId: z.number().min(1, 'Semester is required'),
-  enrollmentId: z.number().min(1, 'Enrollment is required'),
-  grades: z
-    .array(
-      z.object({
-        classSubjectId: z.number(),
-        baseMark: markSchema,
-        assignMark: markSchema // Keep original for backward compatibility
-      })
-    )
-    .min(1, 'At least one grade is required')
-});
+export const createResultSchema = (t: markKeys) =>
+  z.object({
+    studentId: z.number().min(1, t('zod.student_required')),
+    academicYearId: z.number().min(1, t('zod.academic_year_required')),
+    semesterId: z.number().min(1, t('zod.semester_required')),
+    enrollmentId: z.number().min(1, t('zod.enrollment_required')),
+    grades: z
+      .array(
+        z.object({
+          classSubjectId: z.number(),
+          baseMark: markSchema(t),
+          assignMark: markSchema(t) // Keep original for backward compatibility
+        })
+      )
+      .min(1, t('zod.at_least_one_grade'))
+  });
 
 export const updateResultSchema = createResultSchema;
 
@@ -93,5 +102,5 @@ export type CreateResultFormData = {
 export type UpdateResultFormData = CreateResultFormData;
 
 // Define the processed types (after Zod transformation)
-export type CreateResultData = z.infer<typeof createResultSchema>;
-export type UpdateResultData = z.infer<typeof updateResultSchema>;
+export type CreateResultData = z.infer<ReturnType<typeof createResultSchema>>;
+export type UpdateResultData = z.infer<ReturnType<typeof updateResultSchema>>;

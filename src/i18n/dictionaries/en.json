@@ -184,7 +184,8 @@
         "update_success": "Result updated successfully!",
         "create_error": "Failed to create result",
         "update_error": "Failed to update result: {message}",
-        "generic_error": "An unexpected error occurred"
+        "generic_error": "An unexpected error occurred",
+        "manual_error": "A result already exists for this enrollment"
       },
       "ExistingResultDialog": {
         "title": "Result Already Exists",
@@ -199,6 +200,19 @@
           "cancel": "Cancel",
           "edit": "Edit Existing Result"
         }
+      },
+      "zod": {
+        "required": "This field is required",
+        "number": "Must be a valid number",
+        "min": "Must be 0 or greater",
+        "max": "Must be 100 or less",
+        "custom_max": "Must be {max} or less",
+        "student_required": "Student is required",
+        "academic_year_required": "Academic year is required",
+        "semester_required": "Semester is required",
+        "enrollment_required": "Enrollment is required",
+        "at_least_one_grade": "At least one grade is required",
+        "assign_mark_max": "Must be {max} or less"
       }
     },
     "ResultView": {
@@ -263,18 +277,6 @@
         }
       }
     }
-  },
-  "AdminNavBarTitle": {
-    "dashboard": "Dashboard",
-    "grades": "Grades",
-    "students": "Students",
-    "academic_year": "Academic Years",
-    "classes": "Classes",
-    "subjects": "Subjects",
-    "class_subjects": "Class Subjects",
-    "GPAsetting": "GPA Setting",
-    "account": "Account",
-    "setting": "Setting"
   },
   "AccountPage": {
     "name_required": "Name is required",
