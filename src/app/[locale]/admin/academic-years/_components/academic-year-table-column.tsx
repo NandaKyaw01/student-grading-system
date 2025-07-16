@@ -6,18 +6,24 @@ import { ColumnDef } from '@tanstack/react-table';
 import { CalendarCheck, Text } from 'lucide-react';
 import { AcademicYearCellAction } from './academic-year-cell-action';
 import { Semester } from '@/generated/prisma';
+import { useTranslations } from 'next-intl';
 
-export function getAcademicYearColumns(): ColumnDef<AcademicYearWithDetails>[] {
+export function getAcademicYearColumns(
+  t: ReturnType<typeof useTranslations<'AcademicYearsPage.table'>>
+): ColumnDef<AcademicYearWithDetails>[] {
   return [
     {
       id: 'No.',
-      header: 'No.',
+      header: t('no'),
       accessorKey: 'id',
       cell: ({ row, table }) => {
         const pageIndex = table.getState().pagination.pageIndex;
         const pageSize = table.getState().pagination.pageSize;
         const rowIndex = row.index;
         return pageIndex * pageSize + rowIndex + 1;
+      },
+      meta: {
+        label: t('no')
       },
       enableSorting: false,
       enableColumnFilter: false
@@ -27,11 +33,11 @@ export function getAcademicYearColumns(): ColumnDef<AcademicYearWithDetails>[] {
       id: 'yearRange',
       accessorKey: 'yearRange',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Academic Year' />
+        <DataTableColumnHeader column={column} title={t('academic_year')} />
       ),
       meta: {
-        label: 'Academic Year',
-        placeholder: 'Search Year...',
+        label: t('academic_year'),
+        placeholder: t('search_placeholder'),
         variant: 'text',
         icon: Text
       },
@@ -40,16 +46,16 @@ export function getAcademicYearColumns(): ColumnDef<AcademicYearWithDetails>[] {
     {
       id: 'isCurrent',
       accessorKey: 'isCurrent',
-      header: 'Status',
+      header: t('status'),
       cell: ({ cell }) =>
         cell.getValue<boolean>() ? (
-          <Badge variant={'default'}>Current</Badge>
+          <Badge variant={'default'}>{t('current')}</Badge>
         ) : null,
       meta: {
-        label: 'Status',
+        label: t('status'),
         variant: 'select',
         options: [
-          { label: 'Current', value: 'true' }
+          { label: t('current'), value: 'true' }
           // { label: 'Inactive', value: 'false' }
         ],
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
@@ -60,10 +66,13 @@ export function getAcademicYearColumns(): ColumnDef<AcademicYearWithDetails>[] {
     {
       id: 'Semester',
       accessorKey: 'semesters',
-      header: 'Semesters',
+      header: t('semesters'),
       cell: ({ cell }) => {
         const semesters = cell.getValue<Semester[]>();
         return <div>{semesters?.length || 0}</div>;
+      },
+      meta: {
+        label: t('semesters')
       },
       enableColumnFilter: false,
       enableSorting: false

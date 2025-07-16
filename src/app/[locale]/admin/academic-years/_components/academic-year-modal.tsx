@@ -30,16 +30,7 @@ import { Switch } from '@/components/ui/switch';
 import { Loader } from 'lucide-react';
 import { useEffect, useTransition } from 'react';
 import { toast } from 'sonner';
-
-// Schema for form validation
-const academicYearFormSchema = z.object({
-  yearRange: z.string().min(7, {
-    message: "Year range must be in format 'YYYY-YYYY'"
-  }),
-  isCurrent: z.boolean()
-});
-
-type AcademicYearFormValues = z.infer<typeof academicYearFormSchema>;
+import { useTranslations } from 'next-intl';
 
 interface AcademicYearDialogProps {
   mode?: 'new' | 'edit';
@@ -59,6 +50,16 @@ export function AcademicYearDialog({
   onClose
 }: AcademicYearDialogProps) {
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('AcademicYearsPage.form');
+
+  const academicYearFormSchema = z.object({
+    yearRange: z.string().min(7, {
+      message: t('validation.year_range_required')
+    }),
+    isCurrent: z.boolean()
+  });
+
+  type AcademicYearFormValues = z.infer<typeof academicYearFormSchema>;
 
   const defaultValues: Partial<AcademicYearFormValues> = {
     yearRange: academicYear?.yearRange || '',
@@ -99,16 +100,16 @@ export function AcademicYearDialog({
           throw new Error(result?.error);
         }
 
-        toast.success('Success', {
-          description: `Academic year ${mode === 'new' ? 'created' : 'updated'} successfully.`
+        toast.success(t('success'), {
+          description: t(mode === 'new' ? 'created_successfully' : 'updated_successfully')
         });
 
         form.reset();
         onClose();
       } catch (error) {
-        toast.error('Error', {
+        toast.error(t('error'), {
           description:
-            error instanceof Error ? error.message : 'An error occurred'
+            error instanceof Error ? error.message : t('error_occurred')
         });
       }
     });
@@ -119,7 +120,7 @@ export function AcademicYearDialog({
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>
-            {mode === 'new' ? 'Add Academic Year' : 'Edit Academic Year'}
+            {mode === 'new' ? t('add_title') : t('edit_title')}
           </DialogTitle>
           <DialogDescription className='sr-only' />
         </DialogHeader>
@@ -130,9 +131,9 @@ export function AcademicYearDialog({
               name='yearRange'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Year Range</FormLabel>
+                  <FormLabel>{t('year_range')}</FormLabel>
                   <FormControl>
-                    <Input placeholder='2024-2025' {...field} />
+                    <Input placeholder={t('year_range_placeholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -145,9 +146,9 @@ export function AcademicYearDialog({
               render={({ field }) => (
                 <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
                   <div className='space-y-0.5'>
-                    <FormLabel className='text-base'>Current Year</FormLabel>
+                    <FormLabel className='text-base'>{t('current_year')}</FormLabel>
                     <p className='text-sm text-muted-foreground'>
-                      Mark this as the current academic year
+                      {t('mark_as_current')}
                     </p>
                   </div>
                   <FormControl>
@@ -166,7 +167,7 @@ export function AcademicYearDialog({
                 onClick={onClose}
                 disabled={isPending}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type='submit' disabled={isPending}>
                 {isPending && (
@@ -175,7 +176,7 @@ export function AcademicYearDialog({
                     aria-hidden='true'
                   />
                 )}
-                {mode === 'new' ? 'Create Academic Year' : 'Save Changes'}
+                {mode === 'new' ? t('create') : t('save')}
               </Button>
             </DialogFooter>
           </form>

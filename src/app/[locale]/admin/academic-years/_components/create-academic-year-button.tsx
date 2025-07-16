@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { AcademicYearDialog } from './academic-year-modal';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const CreateAcademicYearButton = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const t = useTranslations('AcademicYearsPage');
 
   return (
     <>
@@ -19,7 +21,7 @@ const CreateAcademicYearButton = () => {
         className='text-xs md:text-sm'
         onClick={() => setDialogOpen(true)}
       >
-        <Plus className='mr-2 h-4 w-4' /> Add New Year
+        <Plus className='h-4 w-4' /> {t('add_button')}
       </Button>
     </>
   );

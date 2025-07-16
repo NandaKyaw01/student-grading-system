@@ -183,7 +183,7 @@
         "create_success": "Result created successfully!",
         "update_success": "Result updated successfully!",
         "create_error": "Failed to create result",
-        "update_error": "Failed to update result: {error}",
+        "update_error": "Failed to update result: {message}",
         "generic_error": "An unexpected error occurred"
       },
       "ExistingResultDialog": {
@@ -659,6 +659,51 @@
         "error": "Error",
         "something_went_wrong": "Something went wrong"
       }
+    }
+  },
+  "AcademicYearsPage": {
+    "home": "Home",
+    "title": "Academic Years",
+    "subtitle": "Manage your academic years here. You can create, edit, or delete academic years as needed.",
+    "add_button": "Add New Year",
+    "table": {
+      "no": "No.",
+      "academic_year": "Academic Year",
+      "status": "Status",
+      "current": "Current",
+      "semesters": "Semesters",
+      "actions": "Actions",
+      "search_placeholder": "Search Year..."
+    },
+    "form": {
+      "validation": {
+        "year_range_required": "Year range must be in format 'YYYY-YYYY'"
+      },
+      "add_title": "Add Academic Year",
+      "edit_title": "Edit Academic Year",
+      "year_range": "Year Range",
+      "year_range_placeholder": "2024-2025",
+      "current_year": "Current Year",
+      "mark_as_current": "Mark this as the current academic year",
+      "cancel": "Cancel",
+      "create": "Create Academic Year",
+      "save": "Save Changes",
+      "success": "Success",
+      "created_successfully": "Academic year created successfully.",
+      "updated_successfully": "Academic year updated successfully.",
+      "error": "Error",
+      "error_occurred": "An error occurred"
+    },
+    "delete_modal": {
+      "title": "Delete Academic Year",
+      "description": "Are you sure you want to delete the academic year \"{yearRange}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "success": "Success",
+      "deleted_successfully": "Academic year {yearRange} deleted successfully.",
+      "error": "Error",
+      "failed_to_delete": "Failed to delete academic year"
     }
   }
 }

@@ -11,6 +11,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -29,6 +30,7 @@ export function DeleteAcademicYearDialog({
   onClose
 }: DeleteAcademicYearDialogProps) {
   const [isDeleting, startTransition] = useTransition();
+  const t = useTranslations('AcademicYearsPage.delete_modal');
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -39,15 +41,15 @@ export function DeleteAcademicYearDialog({
           throw new Error(result.error);
         }
 
-        toast.success('Success', {
-          description: `Academic year ${academicYear.yearRange} deleted successfully.`
+        toast.success(t('success'), {
+          description: t('deleted_successfully', {
+            yearRange: academicYear.yearRange
+          })
         });
       } catch (error) {
-        toast.error('Error', {
+        toast.error(t('error'), {
           description:
-            error instanceof Error
-              ? error.message
-              : 'Failed to delete academic year'
+            error instanceof Error ? error.message : t('failed_to_delete')
         });
       }
     });
@@ -57,15 +59,16 @@ export function DeleteAcademicYearDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Academic Year</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete the academic year &#34;
-            {academicYear.yearRange}&#34;? This action cannot be undone.
+            {t('description', {
+              yearRange: academicYear.yearRange
+            })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant='outline' onClick={onClose} disabled={isDeleting}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             variant='destructive'
@@ -75,7 +78,7 @@ export function DeleteAcademicYearDialog({
             {isDeleting && (
               <Loader className='mr-2 size-4 animate-spin' aria-hidden='true' />
             )}
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isDeleting ? t('deleting') : t('delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

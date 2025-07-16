@@ -5,6 +5,7 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import React, { use } from 'react';
 import { getAcademicYearColumns } from './academic-year-table-column';
+import { useTranslations } from 'next-intl';
 
 interface AcademicYearTableProps {
   academicYears: Promise<Awaited<ReturnType<typeof getAcademicYears<true>>>>;
@@ -12,7 +13,10 @@ interface AcademicYearTableProps {
 
 const AcademicYearsDataTable = ({ academicYears }: AcademicYearTableProps) => {
   const { years, pageCount } = use(academicYears);
-  const columns = React.useMemo(() => getAcademicYearColumns(), []);
+  const t = useTranslations('AcademicYearsPage.table');
+
+  const columns = React.useMemo(() => getAcademicYearColumns(t), [t]);
+
   const { table } = useDataTable({
     data: years,
     columns,
