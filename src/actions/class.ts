@@ -185,7 +185,7 @@ export async function getClasses<T extends boolean = false>(
           ? input.sort.map((item) => ({
               [item.id]: item.desc ? 'desc' : 'asc'
             }))
-          : [{ id: 'asc' }];
+          : [{ departmentCode: 'asc' }];
 
       const page = input?.page ?? 1;
       const limit = input?.perPage ?? 10;

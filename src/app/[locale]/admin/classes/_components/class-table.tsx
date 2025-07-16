@@ -8,6 +8,7 @@ import React, { use } from 'react';
 import { getClassColumns } from './class-table-column';
 import { getAcademicYears } from '@/actions/academic-year';
 import { getSemesters } from '@/actions/semester';
+import { useTranslations } from 'next-intl';
 
 interface ClassTableProps {
   promises: Promise<
@@ -27,14 +28,16 @@ const ClassesTable = ({ promises }: ClassTableProps) => {
     { semesters },
     { classes: classForSelect }
   ] = use(promises);
+  const t = useTranslations('ClassPage.table');
   const columns = React.useMemo(
     () =>
       getClassColumns({
         academicYears: years,
         semesters,
-        classes: classForSelect
+        classes: classForSelect,
+        t
       }),
-    [years, semesters, classForSelect]
+    [years, semesters, classForSelect, t]
   );
   const { table } = useDataTable({
     data: classes,

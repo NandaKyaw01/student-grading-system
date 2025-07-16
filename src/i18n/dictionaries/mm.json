@@ -756,5 +756,64 @@
       "current": "လက်ရှိ",
       "actions": "လုပ်ဆောင်ချက်များ"
     }
+  },
+  "ClassPage": {
+    "home": "မူလစာမျက်နှာ",
+    "title": "အတန်းများ",
+    "subtitle": "သင်၏အတန်းများကို ဤနေရာတွင် အသစ်ထည့်ခြင်း၊ ပြင်ဆင်ခြင်း သို့မဟုတ် ဖျက်ခြင်းတို့ ပြုလုပ်နိုင်သည်။",
+    "add_button": "အတန်းအသစ်ထည့်မည်",
+    "delete_modal": {
+      "title": "အတန်းကို ဖျက်မည်",
+      "description": "အတန်း \"{className}\" ကို ဖျက်ရန် သေချာပါသလား။ ဤလုပ်ဆောင်ချက်ကို ပြန်လုပ်၍မရပါ။",
+      "cancel": "မလုပ်တော့ပါ",
+      "deleting": "ဖျက်နေသည်...",
+      "delete": "ဖျက်မည်",
+      "success": "အောင်မြင်ပါသည်",
+      "deleted_successfully": "အတန်း \"{className}\" ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။",
+      "error": "အမှား",
+      "failed_to_delete": "အတန်းကို ဖျက်မရပါ။"
+    },
+    "form": {
+      "validation": {
+        "class_name_required": "အတန်းအမည် လိုအပ်ပါသည်",
+        "class_code_required": "အတန်းကုဒ် လိုအပ်ပါသည်",
+        "semester_required": "စာသင်နှစ်ဝက် လိုအပ်ပါသည်"
+      },
+      "add_title": "အတန်းအသစ်ထည့်ရန်",
+      "edit_title": "အတန်းပြင်ဆင်ရန်",
+      "class_name": "အတန်းအမည်",
+      "class_name_placeholder": "ဥပမာ၊ First Year",
+      "class_code": "အတန်းကုဒ်",
+      "class_code_placeholder": "ဥပမာ၊ 1121 CS",
+      "academic_year": "ပညာသင်နှစ်",
+      "select_year_placeholder": "စာသင်နှစ်ဝက်များကို စစ်ထုတ်ရန် ပညာသင်နှစ်ရွေးချယ်ပါ",
+      "search_year_placeholder": "ပညာသင်နှစ်ရှာဖွေရန်...",
+      "no_academic_year_available": "ပညာသင်နှစ် မရှိပါ",
+      "semester": "စာသင်နှစ်ဝက်",
+      "select_semester_placeholder": "စာသင်နှစ်ဝက်ရွေးချယ်ပါ",
+      "select_academic_year_first": "ပညာသင်နှစ်ကို ဦးစွာရွေးချယ်ပါ",
+      "search_semester_placeholder": "စာသင်နှစ်ဝက်ရှာဖွေရန်...",
+      "no_semesters_available": "ဤပညာသင်နှစ်အတွက် စာသင်နှစ်ဝက်များ မရှိပါ",
+      "cancel": "မလုပ်တော့ပါ",
+      "saving": "သိမ်းဆည်းနေသည်...",
+      "create": "အတန်းပြုလုပ်မည်",
+      "save": "သိမ်းဆည်းမည်",
+      "success": "အောင်မြင်ပါသည်",
+      "created_successfully": "အတန်းကို အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ။",
+      "updated_successfully": "အတန်းကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။",
+      "error": "အမှား",
+      "error_occurred": "အမှားတစ်ခု ဖြစ်ပွားခဲ့သည်။",
+      "current": "လက်ရှိ"
+    },
+    "table": {
+      "no": "စဉ်",
+      "class_name": "အတန်းအမည်",
+      "search_placeholder": "အတန်းရှာရန်...",
+      "academic_year": "ပညာသင်နှစ်",
+      "semester": "စာသင်နှစ်ဝက်",
+      "class_code": "အတန်းကုဒ်",
+      "actions": "လုပ်ဆောင်ချက်များ",
+      "current": "လက်ရှိ"
+    }
   }
 }

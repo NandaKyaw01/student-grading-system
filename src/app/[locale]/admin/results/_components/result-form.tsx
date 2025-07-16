@@ -566,7 +566,7 @@ export default function ResultForm({
                     <Combobox
                       options={students.map((s) => ({
                         value: s.id.toString(),
-                        label: s.studentName
+                        label: `${s.studentName} (${s.admissionId})`
                       }))}
                       value={field.value > 0 ? field.value.toString() : ''}
                       onValueChange={handleFieldChange('studentId')}

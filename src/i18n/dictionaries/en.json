@@ -756,5 +756,64 @@
       "current": "Current",
       "actions": "Actions"
     }
+  },
+  "ClassPage": {
+    "home": "Home",
+    "title": "Classes",
+    "subtitle": "Manage your classes here. You can create, edit, or delete classes as needed.",
+    "add_button": "Add New Class",
+    "delete_modal": {
+      "title": "Delete Class",
+      "description": "Are you sure you want to delete the class \"{className}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "success": "Success",
+      "deleted_successfully": "Class \"{className}\" deleted successfully.",
+      "error": "Error",
+      "failed_to_delete": "Failed to delete class"
+    },
+    "form": {
+      "validation": {
+        "class_name_required": "Class name is required",
+        "class_code_required": "Class Code is required",
+        "semester_required": "Semester is required"
+      },
+      "add_title": "Add New Class",
+      "edit_title": "Edit Class",
+      "class_name": "Class Name",
+      "class_name_placeholder": "e.g., First Year",
+      "class_code": "Class Code",
+      "class_code_placeholder": "e.g., 1121 CS",
+      "academic_year": "Academic Year",
+      "select_year_placeholder": "Select academic year to filter semesters",
+      "search_year_placeholder": "Search academic year...",
+      "no_academic_year_available": "No Academic Year available",
+      "semester": "Semester",
+      "select_semester_placeholder": "Select semester",
+      "select_academic_year_first": "Select academic year first",
+      "search_semester_placeholder": "Search semester...",
+      "no_semesters_available": "No semesters available for this academic year",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "create": "Create Class",
+      "save": "Save Changes",
+      "success": "Success",
+      "created_successfully": "Class created successfully.",
+      "updated_successfully": "Class updated successfully.",
+      "error": "Error",
+      "error_occurred": "An error occurred",
+      "current": "Current"
+    },
+    "table": {
+      "no": "No.",
+      "class_name": "Class Name",
+      "search_placeholder": "Search Class...",
+      "academic_year": "Academic Year",
+      "semester": "Semester",
+      "class_code": "Class Code",
+      "actions": "Actions",
+      "current": "Current"
+    }
   }
 }

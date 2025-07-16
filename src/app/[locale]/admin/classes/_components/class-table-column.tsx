@@ -2,23 +2,26 @@
 import { ClassWithDetails } from '@/actions/class';
 import { AcademicYear, Class, Semester } from '@/generated/prisma';
 import { ColumnDef } from '@tanstack/react-table';
+import { useTranslations } from 'next-intl';
 import { CalendarCheck, Text } from 'lucide-react';
 import { ClassCellAction } from './class-cell-action';
 
 export function getClassColumns({
   academicYears,
   semesters,
-  classes
+  classes,
+  t
 }: {
   academicYears: AcademicYear[];
   semesters: Semester[];
   classes: Class[];
+  t: ReturnType<typeof useTranslations<'ClassPage.table'>>;
 }): ColumnDef<ClassWithDetails>[] {
   return [
     {
       id: 'id',
       accessorKey: 'id',
-      header: () => <div className='text-center'>No.</div>,
+      header: () => <div className='text-center'>{t('no')}</div>,
       cell: ({ row, table }) => {
         const pageIndex = table.getState().pagination.pageIndex;
         const pageSize = table.getState().pagination.pageSize;
@@ -30,7 +33,7 @@ export function getClassColumns({
         );
       },
       meta: {
-        label: 'No.'
+        label: t('no')
       },
       enableSorting: false,
       enableColumnFilter: false,
@@ -39,10 +42,10 @@ export function getClassColumns({
     {
       id: 'search',
       accessorKey: 'className',
-      header: 'Class Name',
+      header: t('class_name'),
       meta: {
-        label: 'Class Name',
-        placeholder: 'Search Class...',
+        label: t('class_name'),
+        placeholder: t('search_placeholder'),
         variant: 'text',
         icon: Text
       },
@@ -51,12 +54,12 @@ export function getClassColumns({
     {
       id: 'academicYearId',
       accessorFn: (row) => row.semester?.academicYear?.yearRange,
-      header: 'Academic Year',
+      header: t('academic_year'),
       meta: {
-        label: 'Academic Year',
+        label: t('academic_year'),
         variant: 'multiSelect',
         options: academicYears.map((year) => ({
-          label: `${year.yearRange} ${year.isCurrent ? '(Current)' : ''}`,
+          label: `${year.yearRange} ${year.isCurrent ? `(${t('current')})` : ''}`,
           value: year.id.toString()
         })),
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
@@ -67,12 +70,12 @@ export function getClassColumns({
     {
       id: 'semesterId',
       accessorFn: (row) => row.semester?.semesterName,
-      header: 'Semester',
+      header: t('semester'),
       meta: {
-        label: 'Semester',
+        label: t('semester'),
         variant: 'multiSelect',
         options: semesters.map((seme) => ({
-          label: `${seme.semesterName} ${seme.isCurrent ? '(Current)' : ''}`,
+          label: `${seme.semesterName} ${seme.isCurrent ? `(${t('current')})` : ''}`,
           value: seme.id.toString()
         })),
         icon: () => <CalendarCheck className='mr-2 h-4 w-4' />
@@ -82,9 +85,9 @@ export function getClassColumns({
     {
       id: 'departmentCode',
       accessorKey: 'departmentCode',
-      header: 'Class Code',
+      header: t('class_code'),
       meta: {
-        label: 'Class Code',
+        label: t('class_code'),
         variant: 'multiSelect',
         options: classes.map((c) => ({
           label: c.departmentCode,

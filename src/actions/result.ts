@@ -352,7 +352,8 @@ export async function getStudents() {
     const students = await prisma.student.findMany({
       select: {
         id: true,
-        studentName: true
+        studentName: true,
+        admissionId: true
       },
       orderBy: {
         studentName: 'asc'

@@ -27,24 +27,28 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
-const classFormSchema = z.object({
-  className: z.string().min(1, {
-    message: 'Class name is required'
-  }),
-  departmentCode: z.string().min(1, {
-    message: 'Class Code is required'
-  }),
-  semesterId: z.string().min(1, {
-    message: 'Semester is required'
-  })
-});
+const classFormSchema = (
+  t: ReturnType<typeof useTranslations<'ClassPage.form'>>
+) =>
+  z.object({
+    className: z.string().min(1, {
+      message: t('validation.class_name_required')
+    }),
+    departmentCode: z.string().min(1, {
+      message: t('validation.class_code_required')
+    }),
+    semesterId: z.string().min(1, {
+      message: t('validation.semester_required')
+    })
+  });
 
-type ClassFormValues = z.infer<typeof classFormSchema>;
+type ClassFormValues = z.infer<ReturnType<typeof classFormSchema>>;
 
 interface ClassDialogProps {
   mode?: 'new' | 'edit';
@@ -66,6 +70,7 @@ export function ClassDialog({
     SemesterWithDetails[] | []
   >([]);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('ClassPage.form');
 
   // Fetch academic years
   const { data: academicYears, isLoading: isLoadingAcademicYears } = useQuery({
@@ -112,7 +117,7 @@ export function ClassDialog({
   };
 
   const form = useForm<ClassFormValues>({
-    resolver: zodResolver(classFormSchema),
+    resolver: zodResolver(classFormSchema(t)),
     defaultValues
   });
 
@@ -150,8 +155,10 @@ export function ClassDialog({
         }
 
         if (result?.success) {
-          toast.success('Success', {
-            description: `Class ${mode === 'new' ? 'created' : 'updated'} successfully.`
+          toast.success(t('success'), {
+            description: t(
+              mode === 'new' ? 'created_successfully' : 'updated_successfully'
+            )
           });
 
           setOpen(false);
@@ -159,14 +166,14 @@ export function ClassDialog({
           setSelectedAcademicYearId('');
           if (onSuccess) onSuccess();
         } else {
-          toast.error('Error', {
-            description: result?.error ? result.error : 'An error occurred'
+          toast.error(t('error'), {
+            description: result?.error ? result.error : t('error_occurred')
           });
         }
       } catch (error) {
-        toast.error('Error', {
+        toast.error(t('error'), {
           description:
-            error instanceof Error ? error.message : 'An error occurred'
+            error instanceof Error ? error.message : t('error_occurred')
         });
       }
     });
@@ -177,14 +184,14 @@ export function ClassDialog({
       <DialogTrigger asChild>
         {children || (
           <Button variant={mode === 'new' ? 'default' : 'outline'}>
-            {mode === 'new' ? 'Add Class' : 'Edit'}
+            {mode === 'new' ? t('add_title') : t('edit_title')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>
-            {mode === 'new' ? 'Add New Class' : 'Edit Class'}
+            {mode === 'new' ? t('add_title') : t('edit_title')}
           </DialogTitle>
           <DialogDescription className='sr-only' />
         </DialogHeader>
@@ -195,9 +202,12 @@ export function ClassDialog({
               name='className'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Class Name</FormLabel>
+                  <FormLabel>{t('class_name')}</FormLabel>
                   <FormControl>
-                    <Input placeholder='e.g., First Year' {...field} />
+                    <Input
+                      placeholder={t('class_name_placeholder')}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -209,8 +219,8 @@ export function ClassDialog({
               name='departmentCode'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Class Code</FormLabel>
-                  <Input placeholder='e.g., 1121 CS' {...field} />
+                  <FormLabel>{t('class_code')}</FormLabel>
+                  <Input placeholder={t('class_code_placeholder')} {...field} />
                   <FormMessage />
                 </FormItem>
               )}
@@ -222,7 +232,7 @@ export function ClassDialog({
                 className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed
                   peer-disabled:opacity-70'
               >
-                Academic Year
+                {t('academic_year')}
               </label>
               <div className='mt-1 mb-2'>
                 {isLoadingAcademicYears ? (
@@ -231,17 +241,17 @@ export function ClassDialog({
                   <Combobox
                     options={academicYears.map((s) => ({
                       value: s.id.toString(),
-                      label: `${s.yearRange} ${s.isCurrent ? '(Current)' : ''}`
+                      label: `${s.yearRange} ${s.isCurrent ? `(${t('current')})` : ''}`
                     }))}
                     value={selectedAcademicYearId}
                     onValueChange={handleAcademicYearChange}
-                    placeholder='Select academic year to filter semesters'
-                    searchPlaceholder='Search academic year...'
+                    placeholder={t('select_year_placeholder')}
+                    searchPlaceholder={t('search_year_placeholder')}
                     disabled={isLoadingAcademicYears}
                   />
                 ) : (
                   <div className='px-2 py-1 text-sm text-muted-foreground'>
-                    No Academic Year available
+                    {t('no_academic_year_available')}
                   </div>
                 )}
               </div>
@@ -252,7 +262,7 @@ export function ClassDialog({
               name='semesterId'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Semester</FormLabel>
+                  <FormLabel>{t('semester')}</FormLabel>
 
                   {isLoadingSemesters ? (
                     <Skeleton className='h-10 w-full' />
@@ -260,21 +270,21 @@ export function ClassDialog({
                     <Combobox
                       options={filteredSemesters.map((s) => ({
                         value: s.id.toString(),
-                        label: `${s.semesterName} ${s.isCurrent ? '(Current)' : ''}`
+                        label: `${s.semesterName} ${s.isCurrent ? `(${t('current')})` : ''}`
                       }))}
                       value={field.value}
                       onValueChange={field.onChange}
                       placeholder={
                         !selectedAcademicYearId
-                          ? 'Select academic year first'
-                          : 'Select semester'
+                          ? t('select_academic_year_first')
+                          : t('select_semester_placeholder')
                       }
-                      searchPlaceholder='Search semester...'
+                      searchPlaceholder={t('search_semester_placeholder')}
                       disabled={isLoadingSemesters || !selectedAcademicYearId}
                     />
                   ) : (
                     <div className='px-2 py-1 text-sm text-muted-foreground'>
-                      No semesters available for this academic year
+                      {t('no_semesters_available')}
                     </div>
                   )}
 
@@ -290,7 +300,7 @@ export function ClassDialog({
                 onClick={() => setOpen(false)}
                 disabled={isPending}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 type='submit'
@@ -299,7 +309,7 @@ export function ClassDialog({
                 }
               >
                 {isPending && <Loader className='mr-2 h-4 w-4 animate-spin' />}
-                {mode === 'new' ? 'Create Class' : 'Save Changes'}
+                {mode === 'new' ? t('create') : t('save')}
               </Button>
             </DialogFooter>
           </form>

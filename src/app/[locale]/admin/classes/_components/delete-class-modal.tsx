@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface DeleteClassDialogProps {
   classData: {
@@ -31,6 +32,7 @@ export function DeleteClassDialog({
   const [open, setOpen] = useState(false);
   const [isDeleting, startTransition] = useTransition();
   const router = useRouter();
+  const t = useTranslations('ClassPage.delete_modal');
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -41,16 +43,16 @@ export function DeleteClassDialog({
           throw new Error(result.error);
         }
 
-        toast.success('Success', {
-          description: `Class "${classData.className}" deleted successfully.`
+        toast.success(t('success'), {
+          description: t('deleted_successfully', { className: classData.className })
         });
 
         setOpen(false);
         router.refresh();
       } catch (error) {
-        toast.error('Error', {
+        toast.error(t('error'), {
           description:
-            error instanceof Error ? error.message : 'Failed to delete class'
+            error instanceof Error ? error.message : t('failed_to_delete')
         });
       }
     });
@@ -61,21 +63,20 @@ export function DeleteClassDialog({
       <DialogTrigger asChild>
         {children || (
           <Button variant='destructive' size='sm'>
-            Delete
+            {t('delete')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Class</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete the class &#34;{classData.className}
-            &#34;? This action cannot be undone.
+            {t('description', { className: classData.className })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant='outline' onClick={() => setOpen(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             variant='destructive'
@@ -83,7 +84,7 @@ export function DeleteClassDialog({
             disabled={isDeleting}
           >
             {isDeleting && <Loader className='mr-2 h-4 w-4 animate-spin' />}
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isDeleting ? t('deleting') : t('delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

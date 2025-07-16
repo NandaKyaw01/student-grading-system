@@ -17,23 +17,9 @@ import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 type pageProps = {
   searchParams: Promise<SearchParams>;
 };
-type BreadcrumbProps = {
-  name: string;
-  link: string;
-};
-const breadcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Classes',
-    link: ''
-  }
-];
 
 export default async function ClassesPage(props: pageProps) {
-  const t = await getTranslations('AdminNavBarTitle');
+  const t = await getTranslations('ClassPage');
   const searchParams = await props.searchParams;
   const search = classSearchParamsCache.parse(searchParams);
 
@@ -48,22 +34,33 @@ export default async function ClassesPage(props: pageProps) {
 
   const suspenseKey = `results-${search.academicYearId || 'all'}-${search.semesterId || 'all'}`;
 
+  const breadcrumb = [
+    {
+      name: t('home'),
+      link: '/'
+    },
+    {
+      name: t('title'),
+      link: ''
+    }
+  ];
+
   return (
     <ContentLayout
-      title={t('classes')}
+      title={t('title')}
       breadcrumb={<ActiveBreadcrumb path={breadcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-2xl font-bold tracking-tight'>Classes</h5>
+            <h5 className='text-2xl font-bold tracking-tight'>{t('title')}</h5>
             <p className='text-muted-foreground text-sm'>
-              Manage classes (Server side table functionalities.)
+              {t('subtitle')}
             </p>
           </div>
           <ClassDialog mode='new'>
             <Button className='text-xs md:text-sm'>
-              <Plus className='mr-2 h-4 w-4' /> Add New Class
+              <Plus className='mr-2 h-4 w-4' /> {t('add_button')}
             </Button>
           </ClassDialog>
         </div>
