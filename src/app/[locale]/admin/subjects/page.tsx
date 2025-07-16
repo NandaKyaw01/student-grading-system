@@ -20,40 +20,39 @@ type BreadcrumbProps = {
   name: string;
   link: string;
 };
-const breadcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Subjects',
-    link: ''
-  }
-];
 
 export default async function SubjectsPage(props: pageProps) {
   const searchParams = await props.searchParams;
-  const t = await getTranslations('AdminNavBarTitle');
+  const t = await getTranslations('SubjectPage');
 
   const search = subjectSearchParamsCache.parse(searchParams);
   const subjects = getSubjects(search);
 
+  const breadcrumb: BreadcrumbProps[] = [
+    {
+      name: t('home'),
+      link: '/'
+    },
+    {
+      name: t('title'),
+      link: ''
+    }
+  ];
+
   return (
     <ContentLayout
-      title={t('subjects')}
+      title={t('title')}
       breadcrumb={<ActiveBreadcrumb path={breadcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-2xl font-bold tracking-tight'>Subjects</h5>
-            <p className='text-muted-foreground text-sm'>
-              Manage subjects (Server side table functionalities.)
-            </p>
+            <h5 className='text-2xl font-bold tracking-tight'>{t('title')}</h5>
+            <p className='text-muted-foreground text-sm'>{t('subtitle')}</p>
           </div>
           <SubjectDialog>
             <Button className='text-xs md:text-sm'>
-              <Plus className='mr-2 h-4 w-4' /> Add New Subject
+              <Plus className='h-4 w-4' /> {t('add_button')}
             </Button>
           </SubjectDialog>
         </div>

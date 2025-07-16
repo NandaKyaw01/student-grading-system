@@ -815,5 +815,60 @@
       "actions": "Actions",
       "current": "Current"
     }
+  },
+  "SubjectPage": {
+    "home": "Home",
+    "title": "Subjects",
+    "subtitle": "Manage your subjects here. You can create, edit, or delete subjects as needed.",
+    "add_button": "Add New Subject",
+    "delete_modal": {
+      "title": "Delete Subject",
+      "description": "Are you sure you want to delete the subject \"{subjectName}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "success": "Success",
+      "deleted_successfully": "Subject \"{subjectName}\" deleted successfully.",
+      "error": "Error",
+      "failed_to_delete": "Failed to delete subject"
+    },
+    "form": {
+      "validation": {
+        "subject_id_required": "Subject ID is required",
+        "subject_name_required": "Subject name is required",
+        "credit_hours_min": "Credit hours must be at least 0.5",
+        "exam_weight_range": "Exam weight must be between 0 and 1",
+        "assign_weight_range": "Assignment weight must be between 0 and 1",
+        "weights_sum": "Exam and assessment weights must sum to 1"
+      },
+      "add_title": "Add New Subject",
+      "edit_title": "Edit Subject",
+      "subject_id": "Subject ID",
+      "subject_id_placeholder": "e.g., M-101",
+      "subject_name": "Subject Name",
+      "subject_name_placeholder": "e.g., Mathematics",
+      "credit_hours": "Credit Hours",
+      "exam": "Exam",
+      "assessment": "Assessment",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "create": "Create Subject",
+      "save": "Save Changes",
+      "success": "Success",
+      "created_successfully": "Subject created successfully.",
+      "updated_successfully": "Subject updated successfully.",
+      "error": "Error",
+      "error_occurred": "An error occurred"
+    },
+    "table": {
+      "no": "No.",
+      "subject_code": "Subject Code",
+      "subject_name": "Subject Name",
+      "search_placeholder": "Search Subject...",
+      "credit_hours": "Credit Hours",
+      "exam_weight": "Exam Weight",
+      "assessment_weight": "Assessment Weight",
+      "actions": "Actions"
+    }
   }
 }

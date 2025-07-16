@@ -2,15 +2,18 @@
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Subject } from '@/generated/prisma';
 import { ColumnDef } from '@tanstack/react-table';
+import { useTranslations } from 'next-intl';
 import { Text } from 'lucide-react';
 import { SubjectCellAction } from './subject-cell-action';
 
-export function getSubjectColumns(): ColumnDef<Subject>[] {
+export function getSubjectColumns(
+  t: ReturnType<typeof useTranslations<'SubjectPage.table'>>
+): ColumnDef<Subject>[] {
   return [
     {
       id: 'No.',
       accessorKey: 'id',
-      header: () => <div className='text-center'>No.</div>,
+      header: () => <div className='text-center'>{t('no')}</div>,
       cell: ({ row, table }) => {
         const pageIndex = table.getState().pagination.pageIndex;
         const pageSize = table.getState().pagination.pageSize;
@@ -22,7 +25,7 @@ export function getSubjectColumns(): ColumnDef<Subject>[] {
         );
       },
       meta: {
-        label: 'No.'
+        label: t('no')
       },
       enableSorting: false,
       enableColumnFilter: false,
@@ -32,20 +35,20 @@ export function getSubjectColumns(): ColumnDef<Subject>[] {
       id: 'id',
       accessorKey: 'id',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Subject Code' />
+        <DataTableColumnHeader column={column} title={t('subject_code')} />
       ),
       meta: {
-        label: 'Subject Code'
+        label: t('subject_code')
       },
       enableSorting: true
     },
     {
       id: 'search',
       accessorKey: 'subjectName',
-      header: 'Subject Name',
+      header: t('subject_name'),
       meta: {
-        label: 'Subject Name',
-        placeholder: 'Search Subject...',
+        label: t('subject_name'),
+        placeholder: t('search_placeholder'),
         variant: 'text',
         icon: Text
       },
@@ -54,25 +57,25 @@ export function getSubjectColumns(): ColumnDef<Subject>[] {
     {
       id: 'creditHours',
       accessorKey: 'creditHours',
-      header: 'Credit Hours',
+      header: t('credit_hours'),
       meta: {
-        label: 'Credit Hours'
+        label: t('credit_hours')
       }
     },
     {
       id: 'examWeight',
       accessorKey: 'examWeight',
-      header: 'Exam Weight',
+      header: t('exam_weight'),
       meta: {
-        label: 'Exam Weight'
+        label: t('exam_weight')
       }
     },
     {
       id: 'assignWeight',
       accessorKey: 'assignWeight',
-      header: 'Assessment Weight',
+      header: t('assessment_weight'),
       meta: {
-        label: 'Assessment Weight'
+        label: t('assessment_weight')
       }
     },
     {

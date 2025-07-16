@@ -15,6 +15,9 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { useTranslations } from 'next-intl';
+import { Loader } from 'lucide-react';
+
 interface DeleteSubjectDialogProps {
   subject: {
     id: string;
@@ -30,6 +33,7 @@ export function DeleteSubjectDialog({
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
+  const t = useTranslations('SubjectPage.delete_modal');
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -40,16 +44,18 @@ export function DeleteSubjectDialog({
         throw new Error(result.error);
       }
 
-      toast.success('Success', {
-        description: `Subject "${subject.subjectName}" deleted successfully.`
+      toast.success(t('success'), {
+        description: t('deleted_successfully', {
+          subjectName: subject.subjectName
+        })
       });
 
       setOpen(false);
       router.refresh();
     } catch (error) {
-      toast.error('Error', {
+      toast.error(t('error'), {
         description:
-          error instanceof Error ? error.message : 'Failed to delete subject'
+          error instanceof Error ? error.message : t('failed_to_delete')
       });
     } finally {
       setIsDeleting(false);
@@ -61,28 +67,28 @@ export function DeleteSubjectDialog({
       <DialogTrigger asChild>
         {children || (
           <Button variant='destructive' size='sm'>
-            Delete
+            {t('delete')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Subject</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete the subject &#34;
-            {subject.subjectName}&#34;? This action cannot be undone.
+            {t('description', { subjectName: subject.subjectName })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant='outline' onClick={() => setOpen(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             variant='destructive'
             onClick={handleDelete}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isDeleting && <Loader className='mr-2 h-4 w-4 animate-spin' />}
+            {isDeleting ? t('deleting') : t('delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

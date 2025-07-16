@@ -6,6 +6,7 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import React, { use } from 'react';
 import { getSubjectColumns } from './subject-table-column';
+import { useTranslations } from 'next-intl';
 
 const SubjectsTable = ({
   subjectProp
@@ -13,8 +14,9 @@ const SubjectsTable = ({
   subjectProp: Promise<Awaited<ReturnType<typeof getSubjects>>>;
 }) => {
   const { subjects, pageCount } = use(subjectProp);
+  const t = useTranslations('SubjectPage.table');
 
-  const columns = React.useMemo(() => getSubjectColumns(), []);
+  const columns = React.useMemo(() => getSubjectColumns(t), [t]);
   const { table } = useDataTable({
     data: subjects,
     columns,

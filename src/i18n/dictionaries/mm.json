@@ -815,5 +815,60 @@
       "actions": "လုပ်ဆောင်ချက်များ",
       "current": "လက်ရှိ"
     }
+  },
+  "SubjectPage": {
+    "home": "မူလစာမျက်နှာ",
+    "title": "ဘာသာရပ်များ",
+    "subtitle": "သင်၏ဘာသာရပ်များကို ဤနေရာတွင် အသစ်ထည့်ခြင်း၊ ပြင်ဆင်ခြင်း သို့မဟုတ် ဖျက်ခြင်းတို့ ပြုလုပ်နိုင်သည်။",
+    "add_button": "ဘာသာရပ်အသစ်ထည့်မည်",
+    "delete_modal": {
+      "title": "ဘာသာရပ်ကို ဖျက်မည်",
+      "description": "ဘာသာရပ် \"{subjectName}\" ကို ဖျက်ရန် သေချာပါသလား။ ဤလုပ်ဆောင်ချက်ကို ပြန်လုပ်၍မရပါ။",
+      "cancel": "မလုပ်တော့ပါ",
+      "delete": "ဖျက်မည်",
+      "deleting": "ဖျက်နေသည်...",
+      "success": "အောင်မြင်ပါသည်",
+      "deleted_successfully": "ဘာသာရပ် \"{subjectName}\" ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။",
+      "error": "အမှား",
+      "failed_to_delete": "ဘာသာရပ်ကို ဖျက်မရပါ။"
+    },
+    "form": {
+      "validation": {
+        "subject_id_required": "ဘာသာရပ် ID လိုအပ်ပါသည်",
+        "subject_name_required": "ဘာသာရပ်အမည် လိုအပ်ပါသည်",
+        "credit_hours_min": "ယူနစ်သည် အနည်းဆုံး ၀.၅ ရှိရမည်",
+        "exam_weight_range": "စာမေးပွဲအလေးချိန်သည် ၀ နှင့် ၁ ကြားဖြစ်ရမည်",
+        "assign_weight_range": "အကဲဖြတ်အလေးချိန်သည် ၀ နှင့် ၁ ကြားဖြစ်ရမည်",
+        "weights_sum": "စာမေးပွဲနှင့် အကဲဖြတ်အလေးချိန်ပေါင်းသည် ၁ ဖြစ်ရမည်"
+      },
+      "add_title": "ဘာသာရပ်အသစ်ထည့်ရန်",
+      "edit_title": "ဘာသာရပ်ပြင်ဆင်ရန်",
+      "subject_id": "ဘာသာရပ် ID",
+      "subject_id_placeholder": "ဥပမာ၊ M-101",
+      "subject_name": "ဘာသာရပ်အမည်",
+      "subject_name_placeholder": "ဥပမာ၊ Myanmar",
+      "credit_hours": "ယူနစ်",
+      "exam": "စာမေးပွဲ",
+      "assessment": "အကဲဖြတ်",
+      "cancel": "မလုပ်တော့ပါ",
+      "saving": "သိမ်းဆည်းနေသည်...",
+      "create": "ဘာသာရပ်ပြုလုပ်မည်",
+      "save": "သိမ်းဆည်းမည်",
+      "success": "အောင်မြင်ပါသည်",
+      "created_successfully": "ဘာသာရပ်ကို အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ။",
+      "updated_successfully": "ဘာသာရပ်ကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။",
+      "error": "အမှား",
+      "error_occurred": "အမှားတစ်ခု ဖြစ်ပွားခဲ့သည်။"
+    },
+    "table": {
+      "no": "စဉ်",
+      "subject_code": "ဘာသာရပ်ကုဒ်",
+      "subject_name": "ဘာသာရပ်အမည်",
+      "search_placeholder": "ဘာသာရပ်ရှာရန်...",
+      "credit_hours": "ယူနစ်",
+      "exam_weight": "စာမေးပွဲရာခိုင်နှုန်း",
+      "assessment_weight": "Assessmentရာခိုင်နှုန်း",
+      "actions": "လုပ်ဆောင်ချက်များ"
+    }
   }
 }
