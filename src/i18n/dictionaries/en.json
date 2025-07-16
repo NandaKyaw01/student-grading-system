@@ -705,5 +705,56 @@
       "error": "Error",
       "failed_to_delete": "Failed to delete academic year"
     }
+  },
+  "SemestersPage": {
+    "home": "Home",
+    "title": "Semesters",
+    "subtitle": "Manage your semesters here. You can create, edit, or delete semesters as needed.",
+    "add_button": "Add New Semester",
+    "delete_modal": {
+      "title": "Delete Semester",
+      "description": "Are you sure you want to delete the semester \"{semesterName}\" for academic year {yearRange}? This action cannot be undone.",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "success": "Success",
+      "deleted_successfully": "Semester \"{semesterName}\" deleted successfully.",
+      "error": "Error",
+      "failed_to_delete": "Failed to delete semester"
+    },
+    "form": {
+      "validation": {
+        "semester_name_required": "Semester name is required",
+        "academic_year_required": "Academic year is required"
+      },
+      "add_title": "Add New Semester",
+      "edit_title": "Edit Semester",
+      "semester_name": "Semester Name",
+      "semester_name_placeholder": "e.g., First Semester",
+      "academic_year": "Academic Year",
+      "select_year_placeholder": "Select year...",
+      "search_year_placeholder": "Search year...",
+      "current_semester": "Current Semester",
+      "mark_as_current": "Mark this as the current semester",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "create": "Create Semester",
+      "save": "Save Changes",
+      "success": "Success",
+      "created_successfully": "Semester created successfully.",
+      "updated_successfully": "Semester updated successfully.",
+      "error": "Error",
+      "error_occurred": "An error occurred",
+      "current": "Current"
+    },
+    "table": {
+      "no": "No.",
+      "semester_name": "Semester Name",
+      "search_placeholder": "Search Semester...",
+      "academic_year": "Academic Year",
+      "status": "Status",
+      "current": "Current",
+      "actions": "Actions"
+    }
   }
 }

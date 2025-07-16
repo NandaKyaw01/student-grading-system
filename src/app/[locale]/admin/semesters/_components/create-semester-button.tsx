@@ -4,6 +4,7 @@ import { use, useState } from 'react';
 import { SemesterDialog } from './semester-modal';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const CreateSemesterButton = ({
   academicYear
@@ -12,6 +13,7 @@ const CreateSemesterButton = ({
 }) => {
   const [createDialogOpen, setCreateDialog] = useState(false);
   const { years } = use(academicYear);
+  const t = useTranslations('SemestersPage');
 
   return (
     <>
@@ -26,7 +28,7 @@ const CreateSemesterButton = ({
         className='text-xs md:text-sm'
         onClick={() => setCreateDialog(true)}
       >
-        <Plus className='mr-2 h-4 w-4' /> Add New Semester
+        <Plus className='mr-2 h-4 w-4' /> {t('add_button')}
       </Button>
     </>
   );

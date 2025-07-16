@@ -24,33 +24,30 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { AcademicYear } from '@/generated/prisma';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
-const semesterFormSchema = z.object({
-  semesterName: z.string().min(1, {
-    message: 'Semester name is required'
-  }),
-  academicYearId: z.string().min(1, {
-    message: 'Academic year is required'
-  }),
-  isCurrent: z.boolean()
-});
+const semesterFormSchema = (
+  t: ReturnType<typeof useTranslations<'SemestersPage.form'>>
+) =>
+  z.object({
+    semesterName: z.string().min(1, {
+      message: t('validation.semester_name_required')
+    }),
+    academicYearId: z.string().min(1, {
+      message: t('validation.academic_year_required')
+    }),
+    isCurrent: z.boolean()
+  });
 
-type SemesterFormValues = z.infer<typeof semesterFormSchema>;
+type SemesterFormValues = z.infer<ReturnType<typeof semesterFormSchema>>;
 
 interface SemesterDialogProps {
   mode?: 'new' | 'edit';
@@ -68,6 +65,7 @@ export function SemesterDialog({
   onClose
 }: SemesterDialogProps) {
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('SemestersPage.form');
 
   const defaultValues: Partial<SemesterFormValues> = {
     semesterName: semester?.semesterName || '',
@@ -76,7 +74,7 @@ export function SemesterDialog({
   };
 
   const form = useForm<SemesterFormValues>({
-    resolver: zodResolver(semesterFormSchema),
+    resolver: zodResolver(semesterFormSchema(t)),
     defaultValues
   });
 
@@ -110,15 +108,17 @@ export function SemesterDialog({
           throw new Error(result?.error);
         }
 
-        toast.success('Success', {
-          description: `Semester ${mode === 'new' ? 'created' : 'updated'} successfully.`
+        toast.success(t('success'), {
+          description: t(
+            mode === 'new' ? 'created_successfully' : 'updated_successfully'
+          )
         });
         form.reset();
         onClose();
       } catch (error) {
-        toast.error('Error', {
+        toast.error(t('error'), {
           description:
-            error instanceof Error ? error.message : 'An error occurred'
+            error instanceof Error ? error.message : t('error_occurred')
         });
       }
     });
@@ -129,7 +129,7 @@ export function SemesterDialog({
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>
-            {mode === 'new' ? 'Add New Semester' : 'Edit Semester'}
+            {mode === 'new' ? t('add_title') : t('edit_title')}
           </DialogTitle>
           <DialogDescription className='sr-only' />
         </DialogHeader>
@@ -140,9 +140,12 @@ export function SemesterDialog({
               name='semesterName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Semester Name</FormLabel>
+                  <FormLabel>{t('semester_name')}</FormLabel>
                   <FormControl>
-                    <Input placeholder='e.g., First Semester' {...field} />
+                    <Input
+                      placeholder={t('semester_name_placeholder')}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -154,17 +157,17 @@ export function SemesterDialog({
               name='academicYearId'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Academic Year</FormLabel>
+                  <FormLabel>{t('academic_year')}</FormLabel>
 
                   <Combobox
                     options={academicYear.map((s) => ({
                       value: s.id.toString(),
-                      label: `${s.yearRange} ${s.isCurrent ? '(Current)' : ''}`
+                      label: `${s.yearRange} ${s.isCurrent ? `(${t('current')})` : ''}`
                     }))}
                     value={field.value?.toString() || ''}
                     onValueChange={field.onChange}
-                    placeholder='Select year...'
-                    searchPlaceholder='Search year...'
+                    placeholder={t('select_year_placeholder')}
+                    searchPlaceholder={t('search_year_placeholder')}
                     disabled={isPending}
                   />
                   <FormMessage />
@@ -179,10 +182,10 @@ export function SemesterDialog({
                 <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
                   <div className='space-y-0.5'>
                     <FormLabel className='text-base' htmlFor='current-semester'>
-                      Current Semester
+                      {t('current_semester')}
                     </FormLabel>
                     <p className='text-sm text-muted-foreground'>
-                      Mark this as the current semester
+                      {t('mark_as_current')}
                     </p>
                   </div>
                   <FormControl>
@@ -203,7 +206,7 @@ export function SemesterDialog({
                 onClick={onClose}
                 disabled={isPending}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type='submit' disabled={isPending}>
                 {isPending && (
@@ -213,10 +216,10 @@ export function SemesterDialog({
                   />
                 )}
                 {isPending
-                  ? 'Saving...'
+                  ? t('saving')
                   : mode === 'new'
-                    ? 'Create Semester'
-                    : 'Save Changes'}
+                    ? t('create')
+                    : t('save')}
               </Button>
             </DialogFooter>
           </form>

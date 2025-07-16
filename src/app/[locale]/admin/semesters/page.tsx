@@ -14,39 +14,36 @@ import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 type pageProps = {
   searchParams: Promise<SearchParams>;
 };
-type BreadcrumbProps = {
-  name: string;
-  link: string;
-};
-const breadcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Semesters',
-    link: ''
-  }
-];
 
 export default async function SemestersPage(props: pageProps) {
   const searchParams = await props.searchParams;
   const search = semesterSearchParamsCache.parse(searchParams);
   const semesters = getSemesters(search, { includeDetails: true });
   const academicYears = getAcademicYears();
-  const t = await getTranslations('AdminNavBarTitle');
+  const t = await getTranslations('SemestersPage');
+
+  const breadcrumb = [
+    {
+      name: t('home'),
+      link: '/'
+    },
+    {
+      name: t('title'),
+      link: ''
+    }
+  ];
 
   return (
     <ContentLayout
-      title={'semesters'}
+      title={t('title')}
       breadcrumb={<ActiveBreadcrumb path={breadcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-2xl font-bold tracking-tight'>Semesters</h5>
+            <h5 className='text-2xl font-bold tracking-tight'>{t('title')}</h5>
             <p className='text-muted-foreground text-sm'>
-              Manage semesters (Server side table functionalities.)
+              {t('subtitle')}
             </p>
           </div>
           <CreateSemesterButton academicYear={academicYears} />

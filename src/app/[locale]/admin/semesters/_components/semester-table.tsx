@@ -7,6 +7,7 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import React, { use } from 'react';
 import { getSemesterColumns } from './semester-table-column';
+import { useTranslations } from 'next-intl';
 
 interface AcademicYearTableProps {
   semester: Promise<Awaited<ReturnType<typeof getSemesters<true>>>>;
@@ -16,10 +17,11 @@ interface AcademicYearTableProps {
 const SemestersTable = ({ semester, academicYear }: AcademicYearTableProps) => {
   const { semesters, pageCount } = use(semester);
   const { years } = use(academicYear);
+  const t = useTranslations('SemestersPage.table');
 
   const columns = React.useMemo(
-    () => getSemesterColumns({ academicYear: years }),
-    [years]
+    () => getSemesterColumns({ academicYear: years, t }),
+    [years, t]
   );
   const { table } = useDataTable({
     data: semesters,
