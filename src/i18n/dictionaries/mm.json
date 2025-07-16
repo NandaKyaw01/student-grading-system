@@ -849,7 +849,7 @@
       "subject_name_placeholder": "ဥပမာ၊ Myanmar",
       "credit_hours": "ယူနစ်",
       "exam": "စာမေးပွဲ",
-      "assessment": "အကဲဖြတ်",
+      "assessment": "Assessment",
       "cancel": "မလုပ်တော့ပါ",
       "saving": "သိမ်းဆည်းနေသည်...",
       "create": "ဘာသာရပ်ပြုလုပ်မည်",
@@ -869,6 +869,104 @@
       "exam_weight": "စာမေးပွဲရာခိုင်နှုန်း",
       "assessment_weight": "Assessmentရာခိုင်နှုန်း",
       "actions": "လုပ်ဆောင်ချက်များ"
+    }
+  },
+  "ClassSubjectPage": {
+    "home": "မူလစာမျက်နှာ",
+    "title": "အတန်း-ဘာသာရပ် သတ်မှတ်ချက်များ",
+    "subtitle": "အတန်းများနှင့် ဘာသာရပ်များကြား ဆက်နွယ်မှုများကို စီမံခန့်ခွဲပါ",
+    "manager": {
+      "title": "{className} အတွက်စီမံခန့်ခွဲရန်",
+      "error": "ဒေတာ ရယူရန် မအောင်မြင်ပါ",
+      "unexpected_error": "မမျှော်လင့်သော အမှားတစ်ခု ဖြစ်ပွားခဲ့သည်",
+      "select_subject_placeholder": "ထည့်ရန် ဘာသာရပ်ကို ရွေးချယ်ပါ",
+      "search_subject_placeholder": "ဘာသာရပ် ရှာဖွေပါ...",
+      "add_button": "ဘာသာရပ် ထည့်မည်",
+      "adding_button": "ထည့်နေသည်...",
+      "assign_success": "ဘာသာရပ်ကို အောင်မြင်စွာ သတ်မှတ်ပြီးပါပြီ",
+      "assign_error": "ဘာသာရပ် သတ်မှတ်ရန် မအောင်မြင်ပါ",
+      "remove_success": "ဘာသာရပ်ကို အောင်မြင်စွာ ဖယ်ရှားပြီးပါပြီ",
+      "remove_error": "ဘာသာရပ် ဖယ်ရှားရန် မအောင်မြင်ပါ",
+      "no_subjects": "ဘာသာရပ်များ သတ်မှတ်ထားခြင်း မရှိပါ",
+      "table": {
+        "subject_id": "ဘာသာရပ် ID",
+        "subject_name": "ဘာသာရပ်အမည်",
+        "credit_hours": "ယူနစ်",
+        "actions": "လုပ်ဆောင်ချက်များ"
+      }
+    },
+    "table": {
+      "no": "စဉ်",
+      "class_name": "အတန်းအမည်",
+      "search_placeholder": "အတန်း ရှာဖွေပါ...",
+      "academic_year": "ပညာသင်နှစ်",
+      "current": "လက်ရှိ",
+      "semester": "စာသင်နှစ်ဝက်",
+      "class_code": "အတန်းကုဒ်",
+      "assigned_subjects": "သတ်မှတ်ဘာသာရပ်များ",
+      "actions": "လုပ်ဆောင်ချက်များ"
+    }
+  },
+  "DashboardPage": {
+    "home": "မူလစာမျက်နှာ",
+    "title": "Dashboard",
+    "error_fallback": {
+      "failed_to_load": "{componentName} ကို ဖွင့်မရပါ: {error}",
+      "unknown_error": "မသိသော အမှား"
+    },
+    "stats_cards": {
+      "total_students": "စုစုပေါင်း ကျောင်းသားများ",
+      "active_enrollments": "လက်ရှိ ကျောင်းအပ်နှံမှုများ",
+      "total_classes": "စုစုပေါင်း အတန်းများ",
+      "active_classes": "လက်ရှိ အတန်းများ",
+      "total_subjects": "စုစုပေါင်း ဘာသာရပ်များ",
+      "available_courses": "လက်ရှိ သင်ကြားနေသော ဘာသာရပ်များ",
+      "current_semester": "လက်ရှိ စာသင်နှစ်ဝက်"
+    },
+    "recent_enrollments": {
+      "title": "မကြာသေးမီက ကျောင်းအပ်နှံမှုများ",
+      "description": "နောက်ဆုံး ကျောင်းအပ်နှံမှုများ"
+    },
+    "top_students": {
+      "title": "ထူးချွန်သော ကျောင်းသားများ",
+      "description": "GPA အမြင့်ဆုံး ကျောင်းသားများ",
+      "gpa": "GPA"
+    },
+    "class_enrollments": {
+      "title": "အတန်းအလိုက် ကျောင်းအပ်နှံမှုများ",
+      "description": "အတန်းတစ်တန်းစီရှိ ကျောင်းသားအရေအတွက်",
+      "students": "ကျောင်းသားများ"
+    },
+    "subject_performance": {
+      "title": "ဘာသာရပ် စွမ်းဆောင်ရည်",
+      "description": "ဘာသာရပ်အလိုက် ပျမ်းမျှ စွမ်းဆောင်ရည်",
+      "gpa": "GPA: {gpa}",
+      "students": "ကျောင်းသား {count} ယောက်",
+      "pass_rate": "{rate}% အောင်မြင်သည်"
+    },
+    "quick_stats": {
+      "title": "အမြန်ကြည့်ရှုရန်",
+      "description": "စနစ် ခြုံငုံသုံးသပ်ချက်",
+      "active_students": "လက်ရှိ ကျောင်းသားများ:",
+      "total_classes": "စုစုပေါင်း အတန်းများ:",
+      "available_subjects": "ရရှိနိုင်သော ဘာသာရပ်များ:",
+      "current_period": "လက်ရှိ ကာလ:"
+    },
+    "tabs": {
+      "overview": "ခြုံငုံသုံးသပ်ချက်",
+      "students": "ကျောင်းသားများ",
+      "classes": "အတန်းများ",
+      "performance": "စွမ်းဆောင်ရည်"
+    },
+    "charts": {
+      "grade_distribution": {
+        "title": "အဆင့် ခွဲဝေမှု",
+        "description": "လက်ရှိ စာသင်နှစ်ဝက် အဆင့် ခွဲခြမ်းစိတ်ဖြာချက်"
+      },
+      "status_distribution": {
+        "title": "ကျောင်းသား အခြေအနေ ခွဲဝေမှု",
+        "description": "အောင်/ရှုံး/မပြည့်စုံ အခြေအနေ ခွဲခြမ်းစိတ်ဖြာချက်"
+      }
     }
   }
 }

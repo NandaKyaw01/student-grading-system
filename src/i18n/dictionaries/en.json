@@ -870,5 +870,103 @@
       "assessment_weight": "Assessment Weight",
       "actions": "Actions"
     }
+  },
+  "ClassSubjectPage": {
+    "home": "Home",
+    "title": "Class-Subject Assignments",
+    "subtitle": "Manage relationships between classes and subjects",
+    "manager": {
+      "title": "Manage Subjects for {className}",
+      "error": "Failed to load data",
+      "unexpected_error": "An unexpected error occurred",
+      "select_subject_placeholder": "Select subject to add",
+      "search_subject_placeholder": "Search subject...",
+      "add_button": "Add Subject",
+      "adding_button": "Adding...",
+      "assign_success": "Subject assigned successfully",
+      "assign_error": "Failed to assign subject",
+      "remove_success": "Subject removed successfully",
+      "remove_error": "Failed to remove subject",
+      "no_subjects": "No subjects assigned",
+      "table": {
+        "subject_id": "Subject ID",
+        "subject_name": "Subject Name",
+        "credit_hours": "Credit Hours",
+        "actions": "Actions"
+      }
+    },
+    "table": {
+      "no": "No.",
+      "class_name": "Class Name",
+      "search_placeholder": "Search Class...",
+      "academic_year": "Academic Year",
+      "current": "Current",
+      "semester": "Semester",
+      "class_code": "Class Code",
+      "assigned_subjects": "Assigned Subjects",
+      "actions": "Actions"
+    }
+  },
+  "DashboardPage": {
+    "home": "Home",
+    "title": "Dashboard",
+    "error_fallback": {
+      "failed_to_load": "Failed to load {componentName}: {error}",
+      "unknown_error": "Unknown error"
+    },
+    "stats_cards": {
+      "total_students": "Total Students",
+      "active_enrollments": "Active enrollments",
+      "total_classes": "Total Classes",
+      "active_classes": "Active classes",
+      "total_subjects": "Total Subjects",
+      "available_courses": "Available courses",
+      "current_semester": "Current Semester"
+    },
+    "recent_enrollments": {
+      "title": "Recent Enrollments",
+      "description": "Latest student enrollments"
+    },
+    "top_students": {
+      "title": "Top Performing Students",
+      "description": "Students with highest GPA",
+      "gpa": "GPA"
+    },
+    "class_enrollments": {
+      "title": "Class Enrollments",
+      "description": "Number of students per class",
+      "students": "Students"
+    },
+    "subject_performance": {
+      "title": "Subject Performance",
+      "description": "Average performance by subject",
+      "gpa": "GPA: {gpa}",
+      "students": "{count} students",
+      "pass_rate": "{rate}% pass rate"
+    },
+    "quick_stats": {
+      "title": "Quick Stats",
+      "description": "System overview",
+      "active_students": "Active Students:",
+      "total_classes": "Total Classes:",
+      "available_subjects": "Available Subjects:",
+      "current_period": "Current Period:"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "students": "Students",
+      "classes": "Classes",
+      "performance": "Performance"
+    },
+    "charts": {
+      "grade_distribution": {
+        "title": "Grade Distribution",
+        "description": "Current semester grade breakdown"
+      },
+      "status_distribution": {
+        "title": "Student Status Distribution",
+        "description": "Pass/Fail/Incomplete status breakdown"
+      }
+    }
   }
 }

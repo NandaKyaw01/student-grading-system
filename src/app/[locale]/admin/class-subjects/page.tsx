@@ -18,22 +18,23 @@ type BreadcrumbProps = {
   name: string;
   link: string;
 };
-const breadcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Class-Subjects',
-    link: ''
-  }
-];
 
 export default async function ClassSubjectsPage(props: pageProps) {
-  const t = await getTranslations('AdminNavBarTitle');
+  const t = await getTranslations('ClassSubjectPage');
 
   const searchParams = await props.searchParams;
   const search = classSubjectSearchParamsCache.parse(searchParams);
+
+  const breadcrumb: BreadcrumbProps[] = [
+    {
+      name: t('home'),
+      link: '/'
+    },
+    {
+      name: t('title'),
+      link: ''
+    }
+  ];
 
   const promises = Promise.all([
     getClasses<true>(search, { includeDetails: true }),
@@ -48,18 +49,14 @@ export default async function ClassSubjectsPage(props: pageProps) {
 
   return (
     <ContentLayout
-      title={t('class_subjects')}
+      title={t('title')}
       breadcrumb={<ActiveBreadcrumb path={breadcrumb} />}
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-end justify-between'>
           <div>
-            <h5 className='text-2xl font-bold tracking-tight'>
-              Class-Subject Assignments
-            </h5>
-            <p className='text-muted-foreground text-sm'>
-              Manage relationships between classes and subjects
-            </p>
+            <h5 className='text-2xl font-bold tracking-tight'>{t('title')}</h5>
+            <p className='text-muted-foreground text-sm'>{t('subtitle')}</p>
           </div>
         </div>
         <Separator />

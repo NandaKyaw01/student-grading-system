@@ -1,7 +1,6 @@
 'use server';
 
 import { prisma } from '@/lib/db';
-import { delay } from '@/lib/utils';
 
 export interface DashboardStats {
   totalStudents: number;
@@ -70,7 +69,16 @@ export interface SemesterData {
   };
 }
 
-export async function getDashboardStats(): Promise<DashboardStats> {
+// Generic response type for error handling
+export interface ServiceResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+export async function getDashboardStats(): Promise<
+  ServiceResponse<DashboardStats>
+> {
   try {
     const [
       totalStudents,
@@ -119,20 +127,26 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     ]);
 
     return {
-      totalStudents,
-      totalClasses,
-      totalSubjects,
-      currentSemester: currentSemester?.semesterName || 'N/A',
-      currentAcademicYear: currentAcademicYear?.yearRange || 'N/A'
+      success: true,
+      data: {
+        totalStudents,
+        totalClasses,
+        totalSubjects,
+        currentSemester: currentSemester?.semesterName || 'N/A',
+        currentAcademicYear: currentAcademicYear?.yearRange || 'N/A'
+      }
     };
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
-    throw new Error('Failed to fetch dashboard statistics');
+    return {
+      success: false,
+      error: 'Failed to fetch dashboard statistics'
+    };
   }
 }
 
 export async function getClassesWithEnrollments(): Promise<
-  ClassWithEnrollments[]
+  ServiceResponse<ClassWithEnrollments[]>
 > {
   try {
     const classes = await prisma.class.findMany({
@@ -169,18 +183,26 @@ export async function getClassesWithEnrollments(): Promise<
       take: 10
     });
 
-    return classes.map((cls) => ({
+    const mappedClasses = classes.map((cls) => ({
       ...cls,
       departmentCode: cls.departmentCode as string
     }));
+
+    return {
+      success: true,
+      data: mappedClasses
+    };
   } catch (error) {
     console.error('Error fetching classes with enrollments:', error);
-    throw new Error('Failed to fetch classes data');
+    return {
+      success: false,
+      error: 'Failed to fetch classes data'
+    };
   }
 }
 
 export async function getTopPerformingStudents(): Promise<
-  TopPerformingStudent[]
+  ServiceResponse<TopPerformingStudent[]>
 > {
   try {
     const topStudents = await prisma.result.findMany({
@@ -215,7 +237,7 @@ export async function getTopPerformingStudents(): Promise<
       take: 10
     });
 
-    return topStudents.map((result) => ({
+    const mappedStudents = topStudents.map((result) => ({
       id: result.enrollment.student.id,
       studentName: result.enrollment.student.studentName,
       admissionId: result.enrollment.student.admissionId,
@@ -223,13 +245,23 @@ export async function getTopPerformingStudents(): Promise<
       className: result.enrollment.class.className,
       departmentCode: result.enrollment.class.departmentCode as string
     }));
+
+    return {
+      success: true,
+      data: mappedStudents
+    };
   } catch (error) {
     console.error('Error fetching top performing students:', error);
-    throw new Error('Failed to fetch top performing students');
+    return {
+      success: false,
+      error: 'Failed to fetch top performing students'
+    };
   }
 }
 
-export async function getRecentEnrollments(): Promise<RecentEnrollment[]> {
+export async function getRecentEnrollments(): Promise<
+  ServiceResponse<RecentEnrollment[]>
+> {
   try {
     const recentEnrollments = await prisma.enrollment.findMany({
       select: {
@@ -256,20 +288,30 @@ export async function getRecentEnrollments(): Promise<RecentEnrollment[]> {
       take: 10
     });
 
-    return recentEnrollments.map((enrollment) => ({
+    const mappedEnrollments = recentEnrollments.map((enrollment) => ({
       ...enrollment,
       class: {
         ...enrollment.class,
         departmentCode: enrollment.class.departmentCode as string
       }
     }));
+
+    return {
+      success: true,
+      data: mappedEnrollments
+    };
   } catch (error) {
     console.error('Error fetching recent enrollments:', error);
-    throw new Error('Failed to fetch recent enrollments');
+    return {
+      success: false,
+      error: 'Failed to fetch recent enrollments'
+    };
   }
 }
 
-export async function getSubjectPerformance(): Promise<SubjectPerformance[]> {
+export async function getSubjectPerformance(): Promise<
+  ServiceResponse<SubjectPerformance[]>
+> {
   try {
     const subjectPerformance = await prisma.subject.findMany({
       select: {
@@ -287,7 +329,7 @@ export async function getSubjectPerformance(): Promise<SubjectPerformance[]> {
       }
     });
 
-    return subjectPerformance
+    const mappedPerformance = subjectPerformance
       .map((subject) => {
         const allGrades = subject.classes.flatMap((cls) => cls.grades);
         const totalStudents = allGrades.length;
@@ -311,13 +353,23 @@ export async function getSubjectPerformance(): Promise<SubjectPerformance[]> {
         };
       })
       .filter((subject) => subject.totalStudents > 0);
+
+    return {
+      success: true,
+      data: mappedPerformance
+    };
   } catch (error) {
     console.error('Error fetching subject performance:', error);
-    throw new Error('Failed to fetch subject performance');
+    return {
+      success: false,
+      error: 'Failed to fetch subject performance'
+    };
   }
 }
 
-export async function getSemesterData(): Promise<SemesterData[]> {
+export async function getSemesterData(): Promise<
+  ServiceResponse<SemesterData[]>
+> {
   try {
     const semesters = await prisma.semester.findMany({
       select: {
@@ -342,14 +394,22 @@ export async function getSemesterData(): Promise<SemesterData[]> {
       ]
     });
 
-    return semesters;
+    return {
+      success: true,
+      data: semesters
+    };
   } catch (error) {
     console.error('Error fetching semester data:', error);
-    throw new Error('Failed to fetch semester data');
+    return {
+      success: false,
+      error: 'Failed to fetch semester data'
+    };
   }
 }
 
-export async function getGradeDistribution() {
+export async function getGradeDistribution(): Promise<
+  ServiceResponse<{ grade: string; count: number }[]>
+> {
   try {
     const gradeDistribution = await prisma.grade.groupBy({
       by: ['grade'],
@@ -361,47 +421,54 @@ export async function getGradeDistribution() {
       }
     });
 
-    return gradeDistribution.map((item) => ({
+    const mappedDistribution = gradeDistribution.map((item) => ({
       grade: item.grade,
       count: item._count.grade
     }));
+
+    return {
+      success: true,
+      data: mappedDistribution
+    };
   } catch (error) {
     console.error('Error fetching grade distribution:', error);
-    throw new Error('Failed to fetch grade distribution');
+    return {
+      success: false,
+      error: 'Failed to fetch grade distribution'
+    };
   }
 }
 
-export async function getDepartmentDistribution() {
+export async function getStudentStatusDistribution(): Promise<
+  ServiceResponse<{ status: string; count: number }[]>
+> {
   try {
-    // Simpler approach: Include enrollments and count them
-    const classes = await prisma.class.findMany({
-      select: {
-        departmentCode: true,
-        enrollments: {
-          where: {
-            isActive: true
-          }
+    const statusData = await prisma.academicYearResult.groupBy({
+      by: ['status'],
+      _count: {
+        status: true
+      },
+      where: {
+        academicYear: {
+          isCurrent: true
         }
       }
     });
 
-    // Group by department code and count enrollments
-    const departmentMap = new Map<string, number>();
-
-    classes.forEach((classData) => {
-      const dept = classData.departmentCode;
-      const enrollmentCount = classData.enrollments.length;
-      const currentCount = departmentMap.get(dept) || 0;
-      departmentMap.set(dept, currentCount + enrollmentCount);
-    });
-
-    // Convert map to array format
-    return Array.from(departmentMap.entries()).map(([department, count]) => ({
-      department,
-      count
+    const statusDistribution = statusData.map((item) => ({
+      status: item.status,
+      count: item._count.status
     }));
+
+    return {
+      success: true,
+      data: statusDistribution
+    };
   } catch (error) {
-    console.error('Error fetching department distribution:', error);
-    throw new Error('Failed to fetch department distribution');
+    console.error('Error fetching student status distribution:', error);
+    return {
+      success: false,
+      error: 'Failed to fetch student status distribution'
+    };
   }
 }

@@ -8,6 +8,7 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import React, { use, useEffect, useTransition } from 'react';
 import { getClassSubjectColumns } from './class-subject-table-column';
+import { useTranslations } from 'next-intl';
 
 interface ClassTableProps {
   promises: Promise<
@@ -28,23 +29,26 @@ const ClassSubjectsTable = ({ promises }: ClassTableProps) => {
     { classes: classForSelect }
   ] = use(promises);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('ClassSubjectPage.table');
 
   const columns = React.useMemo(
     () =>
       getClassSubjectColumns({
         academicYears: years,
         semesters,
-        classes: classForSelect
+        classes: classForSelect,
+        t
       }),
-    [years, semesters, classForSelect]
+    [years, semesters, classForSelect, t]
   );
+
   const { table } = useDataTable({
     data: classes,
     columns,
     pageCount,
     initialState: {
       // sorting: [{ id: 'id', desc: true }],
-      columnPinning: { right: ['actions'] }
+      // columnPinning: { right: ['actions'] }
     },
     getRowId: (originalRow) => originalRow.id.toString(),
     shallow: false,

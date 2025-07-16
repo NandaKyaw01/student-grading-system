@@ -1,4 +1,5 @@
-import React, { Suspense } from 'react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
@@ -6,40 +7,38 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Users,
+  AlertCircle,
+  Award,
   BookOpen,
+  Calendar,
+  Clock,
   GraduationCap,
   TrendingUp,
-  Calendar,
-  Award,
-  BarChart3,
-  Activity,
-  Clock,
-  AlertCircle
+  Users
 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Suspense } from 'react';
 
 // Import server actions
 import {
-  getDashboardStats,
   getClassesWithEnrollments,
-  getTopPerformingStudents,
-  getRecentEnrollments,
-  getSubjectPerformance,
+  getDashboardStats,
   getGradeDistribution,
-  getDepartmentDistribution
+  getRecentEnrollments,
+  getStudentStatusDistribution,
+  getSubjectPerformance,
+  getTopPerformingStudents
 } from '@/actions/dashboard';
 
 // Import client components for charts
-import { DashboardCharts } from './components/dashboard-charts';
-import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
+import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { useTranslations } from 'next-intl';
+import { DashboardCharts } from './components/dashboard-charts';
+import { getTranslations } from 'next-intl/server';
 
 // Color palette for charts
 const COLORS = [
@@ -56,30 +55,22 @@ type BreadcrumbProps = {
   link: string;
 };
 
-const breadcrumb: BreadcrumbProps[] = [
-  {
-    name: 'Home',
-    link: '/'
-  },
-  {
-    name: 'Dashboard',
-    link: ''
-  }
-];
-
 // Error fallback component
 function ErrorFallback({
   error,
   componentName
 }: {
-  error: Error;
+  error: string;
   componentName: string;
 }) {
+  const t = useTranslations('DashboardPage.error_fallback');
   return (
     <Card>
       <CardContent className='flex items-center justify-center h-24 text-destructive'>
         <AlertCircle className='h-5 w-5 mr-2' />
-        <span className='text-sm'>Failed to load {componentName}</span>
+        <span className='text-sm'>
+          {t('failed_to_load', { componentName, error })}
+        </span>
       </CardContent>
     </Card>
   );
@@ -107,47 +98,69 @@ function StatsCardsSkeleton() {
 
 // Stats Cards Component
 async function StatsCards() {
-  const stats = await getDashboardStats();
+  const t = await getTranslations('DashboardPage.stats_cards');
+  const statsResponse = await getDashboardStats();
+
+  if (!statsResponse.success || !statsResponse.data) {
+    return (
+      <ErrorFallback
+        error={statsResponse.error || 'Unknown error'}
+        componentName='Dashboard Stats'
+      />
+    );
+  }
+
+  const stats = statsResponse.data;
 
   return (
     <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-          <CardTitle className='text-sm font-medium'>Total Students</CardTitle>
+          <CardTitle className='text-sm font-medium'>
+            {t('total_students')}
+          </CardTitle>
           <Users className='h-4 w-4 text-muted-foreground' />
         </CardHeader>
         <CardContent>
           <div className='text-2xl font-bold'>{stats.totalStudents}</div>
-          <p className='text-xs text-muted-foreground'>Active enrollments</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-          <CardTitle className='text-sm font-medium'>Total Classes</CardTitle>
-          <BookOpen className='h-4 w-4 text-muted-foreground' />
-        </CardHeader>
-        <CardContent>
-          <div className='text-2xl font-bold'>{stats.totalClasses}</div>
-          <p className='text-xs text-muted-foreground'>Active classes</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-          <CardTitle className='text-sm font-medium'>Total Subjects</CardTitle>
-          <GraduationCap className='h-4 w-4 text-muted-foreground' />
-        </CardHeader>
-        <CardContent>
-          <div className='text-2xl font-bold'>{stats.totalSubjects}</div>
-          <p className='text-xs text-muted-foreground'>Available courses</p>
+          <p className='text-xs text-muted-foreground'>
+            {t('active_enrollments')}
+          </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
           <CardTitle className='text-sm font-medium'>
-            Current Semester
+            {t('total_classes')}
+          </CardTitle>
+          <BookOpen className='h-4 w-4 text-muted-foreground' />
+        </CardHeader>
+        <CardContent>
+          <div className='text-2xl font-bold'>{stats.totalClasses}</div>
+          <p className='text-xs text-muted-foreground'>{t('active_classes')}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+          <CardTitle className='text-sm font-medium'>
+            {t('total_subjects')}
+          </CardTitle>
+          <GraduationCap className='h-4 w-4 text-muted-foreground' />
+        </CardHeader>
+        <CardContent>
+          <div className='text-2xl font-bold'>{stats.totalSubjects}</div>
+          <p className='text-xs text-muted-foreground'>
+            {t('available_courses')}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+          <CardTitle className='text-sm font-medium'>
+            {t('current_semester')}
           </CardTitle>
           <Calendar className='h-4 w-4 text-muted-foreground' />
         </CardHeader>
@@ -188,16 +201,28 @@ function RecentEnrollmentsSkeleton() {
 
 // Recent Enrollments Component
 async function RecentEnrollmentsCard() {
-  const enrollments = await getRecentEnrollments();
+  const t = await getTranslations('DashboardPage.recent_enrollments');
+  const enrollmentsResponse = await getRecentEnrollments();
+
+  if (!enrollmentsResponse.success || !enrollmentsResponse.data) {
+    return (
+      <ErrorFallback
+        error={enrollmentsResponse.error || 'Unknown error'}
+        componentName={t('title')}
+      />
+    );
+  }
+
+  const enrollments = enrollmentsResponse.data;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className='flex items-center'>
           <Clock className='h-5 w-5 mr-2' />
-          Recent Enrollments
+          {t('title')}
         </CardTitle>
-        <CardDescription>Latest student enrollments</CardDescription>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className='space-y-4'>
@@ -221,9 +246,6 @@ async function RecentEnrollmentsCard() {
                   {enrollment.class.departmentCode})
                 </p>
               </div>
-              {/* <Badge variant={enrollment.isActive ? 'default' : 'secondary'}>
-                {enrollment.isActive ? 'Active' : 'Inactive'}
-              </Badge> */}
             </div>
           ))}
         </div>
@@ -262,21 +284,36 @@ function TopStudentsSkeleton() {
 
 // Top Students Component
 async function TopStudentsCard() {
-  const students = await getTopPerformingStudents();
+  const t = await getTranslations('DashboardPage.top_students');
+  const studentsResponse = await getTopPerformingStudents();
+
+  if (!studentsResponse.success || !studentsResponse.data) {
+    return (
+      <ErrorFallback
+        error={studentsResponse.error || 'Unknown error'}
+        componentName={t('title')}
+      />
+    );
+  }
+
+  const students = studentsResponse.data;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className='flex items-center'>
           <Award className='h-5 w-5 mr-2' />
-          Top Performing Students
+          {t('title')}
         </CardTitle>
-        <CardDescription>Students with highest GPA</CardDescription>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className='space-y-4'>
           {students.map((student, index) => (
-            <div key={student.id} className='flex items-center space-x-4'>
+            <div
+              key={student.id + index + Date.now()}
+              className='flex items-center space-x-4'
+            >
               <div
                 className='flex h-8 w-8 items-center justify-center rounded-full bg-primary
                   text-primary-foreground text-sm font-bold'
@@ -302,7 +339,7 @@ async function TopStudentsCard() {
               </div>
               <div className='text-right'>
                 <p className='text-sm font-bold'>{student.gpa.toFixed(2)}</p>
-                <p className='text-xs text-muted-foreground'>GPA</p>
+                <p className='text-xs text-muted-foreground'>{t('gpa')}</p>
               </div>
             </div>
           ))}
@@ -344,16 +381,28 @@ function ClassesSkeleton() {
 
 // Classes with Enrollments Component
 async function ClassesCard() {
-  const classes = await getClassesWithEnrollments();
+  const t = await getTranslations('DashboardPage.class_enrollments');
+  const classesResponse = await getClassesWithEnrollments();
+
+  if (!classesResponse.success || !classesResponse.data) {
+    return (
+      <ErrorFallback
+        error={classesResponse.error || 'Unknown error'}
+        componentName={t('title')}
+      />
+    );
+  }
+
+  const classes = classesResponse.data;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className='flex items-center'>
           <BookOpen className='h-5 w-5 mr-2' />
-          Class Enrollments
+          {t('title')}
         </CardTitle>
-        <CardDescription>Number of students per class</CardDescription>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className='space-y-4'>
@@ -378,7 +427,7 @@ async function ClassesCard() {
                 <p className='text-sm font-bold'>
                   {classItem._count.enrollments}
                 </p>
-                <p className='text-xs text-muted-foreground'>Students</p>
+                <p className='text-xs text-muted-foreground'>{t('students')}</p>
               </div>
             </div>
           ))}
@@ -417,16 +466,28 @@ function SubjectPerformanceSkeleton() {
 
 // Subject Performance Component
 async function SubjectPerformanceCard() {
-  const subjects = await getSubjectPerformance();
+  const t = await getTranslations('DashboardPage.subject_performance');
+  const subjectsResponse = await getSubjectPerformance();
+
+  if (!subjectsResponse.success || !subjectsResponse.data) {
+    return (
+      <ErrorFallback
+        error={subjectsResponse.error || 'Unknown error'}
+        componentName={t('title')}
+      />
+    );
+  }
+
+  const subjects = subjectsResponse.data;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className='flex items-center'>
           <TrendingUp className='h-5 w-5 mr-2' />
-          Subject Performance
+          {t('title')}
         </CardTitle>
-        <CardDescription>Average performance by subject</CardDescription>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className='space-y-4'>
@@ -434,11 +495,11 @@ async function SubjectPerformanceCard() {
             <div key={index} className='space-y-2'>
               <div className='flex justify-between text-sm'>
                 <span className='font-medium'>{subject.subjectName}</span>
-                <span>GPA: {subject.averageGpa}</span>
+                <span>{t('gpa', { gpa: subject.averageGpa })}</span>
               </div>
               <div className='flex justify-between text-xs text-muted-foreground'>
-                <span>{subject.totalStudents} students</span>
-                <span>{subject.passRate}% pass rate</span>
+                <span>{t('students', { count: subject.totalStudents })}</span>
+                <span>{t('pass_rate', { rate: subject.passRate })}</span>
               </div>
               <Progress value={subject.passRate} className='h-2' />
             </div>
@@ -477,15 +538,37 @@ function ChartsSkeleton() {
 
 // Charts Component (will be client-side)
 async function ChartsSection() {
-  const [gradeDistribution, departmentDistribution] = await Promise.all([
-    getGradeDistribution(),
-    getDepartmentDistribution()
-  ]);
+  const t = await getTranslations('DashboardPage.charts');
+  const [gradeDistributionResponse, statusDistributionResponse] =
+    await Promise.all([getGradeDistribution(), getStudentStatusDistribution()]);
+
+  // Handle errors for charts
+  if (
+    !gradeDistributionResponse.success ||
+    !statusDistributionResponse.success
+  ) {
+    return (
+      <div className='grid gap-4 md:grid-cols-2'>
+        {!gradeDistributionResponse.success && (
+          <ErrorFallback
+            error={gradeDistributionResponse.error || 'Unknown error'}
+            componentName={t('grade_distribution.title')}
+          />
+        )}
+        {!statusDistributionResponse.success && (
+          <ErrorFallback
+            error={statusDistributionResponse.error || 'Unknown error'}
+            componentName={t('status_distribution.title')}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <DashboardCharts
-      gradeDistribution={gradeDistribution}
-      departmentDistribution={departmentDistribution}
+      gradeDistribution={gradeDistributionResponse.data || []}
+      statusDistribution={statusDistributionResponse.data || []}
       colors={COLORS}
     />
   );
@@ -513,29 +596,41 @@ function QuickStatsSkeleton() {
 
 // Quick Stats Component
 async function QuickStatsCard() {
-  const stats = await getDashboardStats();
+  const t = await getTranslations('DashboardPage.quick_stats');
+  const statsResponse = await getDashboardStats();
+
+  if (!statsResponse.success || !statsResponse.data) {
+    return (
+      <ErrorFallback
+        error={statsResponse.error || 'Unknown error'}
+        componentName={t('title')}
+      />
+    );
+  }
+
+  const stats = statsResponse.data;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quick Stats</CardTitle>
-        <CardDescription>System overview</CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent className='space-y-4'>
         <div className='flex justify-between'>
-          <span className='text-sm'>Active Students:</span>
+          <span className='text-sm'>{t('active_students')}</span>
           <span className='text-sm font-medium'>{stats.totalStudents}</span>
         </div>
         <div className='flex justify-between'>
-          <span className='text-sm'>Total Classes:</span>
+          <span className='text-sm'>{t('total_classes')}</span>
           <span className='text-sm font-medium'>{stats.totalClasses}</span>
         </div>
         <div className='flex justify-between'>
-          <span className='text-sm'>Available Subjects:</span>
+          <span className='text-sm'>{t('available_subjects')}</span>
           <span className='text-sm font-medium'>{stats.totalSubjects}</span>
         </div>
         <div className='flex justify-between'>
-          <span className='text-sm'>Current Period:</span>
+          <span className='text-sm'>{t('current_period')}</span>
           <span className='text-sm font-medium'>{stats.currentSemester}</span>
         </div>
       </CardContent>
@@ -546,6 +641,18 @@ async function QuickStatsCard() {
 // Main Dashboard Component
 export default function DashboardPage() {
   const t = useTranslations('AdminNavBarTitle');
+  const t2 = useTranslations('DashboardPage.tabs');
+
+  const breadcrumb: BreadcrumbProps[] = [
+    {
+      name: useTranslations('DashboardPage')('home'),
+      link: '/'
+    },
+    {
+      name: useTranslations('DashboardPage')('title'),
+      link: ''
+    }
+  ];
 
   return (
     <ContentLayout
@@ -561,10 +668,10 @@ export default function DashboardPage() {
         {/* Main Dashboard Content */}
         <Tabs defaultValue='overview' className='space-y-4'>
           <TabsList className='grid w-full grid-cols-4'>
-            <TabsTrigger value='overview'>Overview</TabsTrigger>
-            <TabsTrigger value='students'>Students</TabsTrigger>
-            <TabsTrigger value='classes'>Classes</TabsTrigger>
-            <TabsTrigger value='performance'>Performance</TabsTrigger>
+            <TabsTrigger value='overview'>{t2('overview')}</TabsTrigger>
+            <TabsTrigger value='students'>{t2('students')}</TabsTrigger>
+            <TabsTrigger value='classes'>{t2('classes')}</TabsTrigger>
+            <TabsTrigger value='performance'>{t2('performance')}</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}

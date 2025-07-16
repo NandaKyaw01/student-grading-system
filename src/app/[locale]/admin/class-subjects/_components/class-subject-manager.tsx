@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/table';
 import { Subject } from '@/generated/prisma';
 import { BookOpen, Loader, Trash } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   useCallback,
   useEffect,
@@ -59,6 +60,7 @@ export function ClassSubjectManager({
   const [isAddPending, startAddTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
   const [deleteSubjectId, setDeletingSubjectId] = useState<string | null>(null);
+  const t = useTranslations('ClassSubjectPage.manager');
 
   // Consolidated data state
   const [dataState, setDataState] = useState<DataState>({
@@ -101,21 +103,21 @@ export function ClassSubjectManager({
         const error =
           classSubjectsResult.error ||
           availableSubjectsResult.error ||
-          'Failed to load data';
+          t('error');
         setDataState((prev) => ({ ...prev, isLoading: false, error }));
-        toast.error('Failed to load data', { description: error });
+        toast.error(t('error'), { description: error });
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'An unexpected error occurred';
+        error instanceof Error ? error.message : t('unexpected_error');
       setDataState((prev) => ({
         ...prev,
         isLoading: false,
         error: errorMessage
       }));
-      toast.error('Failed to load data', { description: errorMessage });
+      toast.error(t('error'), { description: errorMessage });
     }
-  }, [classId]);
+  }, [classId, t]);
 
   // Fetch data when dialog opens
   useEffect(() => {
@@ -153,23 +155,21 @@ export function ClassSubjectManager({
         });
 
         if (result.success) {
-          toast.success('Subject assigned successfully');
+          toast.success(t('assign_success'));
           setSelectedSubjectId('');
           await fetchData();
         } else {
-          toast.error('Failed to assign subject', {
+          toast.error(t('assign_error'), {
             description: result.error
           });
         }
       } catch (error) {
         const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'An unexpected error occurred';
-        toast.error('Failed to assign subject', { description: errorMessage });
+          error instanceof Error ? error.message : t('unexpected_error');
+        toast.error(t('assign_error'), { description: errorMessage });
       }
     });
-  }, [selectedSubjectId, dataState.availableSubjects, classId, fetchData]);
+  }, [selectedSubjectId, dataState.availableSubjects, classId, fetchData, t]);
 
   // Optimized remove subject handler
   const handleRemoveSubject = useCallback(
@@ -180,19 +180,17 @@ export function ClassSubjectManager({
           const result = await removeSubjectFromClass({ classId, subjectId });
 
           if (result.success) {
-            toast.success('Subject removed successfully');
+            toast.success(t('remove_success'));
             await fetchData();
           } else {
-            toast.error('Failed to remove subject', {
+            toast.error(t('remove_error'), {
               description: result.error
             });
           }
         } catch (error) {
           const errorMessage =
-            error instanceof Error
-              ? error.message
-              : 'An unexpected error occurred';
-          toast.error('Failed to remove subject', {
+            error instanceof Error ? error.message : t('unexpected_error');
+          toast.error(t('remove_error'), {
             description: errorMessage
           });
         } finally {
@@ -200,7 +198,7 @@ export function ClassSubjectManager({
         }
       });
     },
-    [classId, fetchData]
+    [classId, fetchData, t]
   );
 
   // Memoized table rows
@@ -209,7 +207,7 @@ export function ClassSubjectManager({
       return (
         <TableRow>
           <TableCell colSpan={4} className='text-center h-24'>
-            No subjects assigned
+            {t('no_subjects')}
           </TableCell>
         </TableRow>
       );
@@ -240,7 +238,8 @@ export function ClassSubjectManager({
     dataState.classSubjects,
     deleteSubjectId,
     isDeletePending,
-    handleRemoveSubject
+    handleRemoveSubject,
+    t
   ]);
 
   const isPending = isAddPending || isDeletePending;
@@ -249,14 +248,18 @@ export function ClassSubjectManager({
   return (
     <Dialog open={open} onOpenChange={handleModalClose}>
       <DialogTrigger asChild>
-        <Button variant='outline' size='sm'>
+        <Button
+          variant='outline'
+          size='sm'
+          className='w-full flex justify-start'
+        >
           <BookOpen className='mr-2 h-4 w-4' />
-          Manage Subjects
+          {t('title', { className })}
         </Button>
       </DialogTrigger>
       <DialogContent className='max-w-2xl'>
         <DialogHeader>
-          <DialogTitle>Manage Subjects for {className}</DialogTitle>
+          <DialogTitle>{t('title', { className })}</DialogTitle>
         </DialogHeader>
         <DialogDescription className='sr-only' />
 
@@ -273,8 +276,8 @@ export function ClassSubjectManager({
                 options={comboboxOptions}
                 value={selectedSubjectId}
                 onValueChange={setSelectedSubjectId}
-                placeholder='Select subject to add'
-                searchPlaceholder='Search subject...'
+                placeholder={t('select_subject_placeholder')}
+                searchPlaceholder={t('search_subject_placeholder')}
                 disabled={isDisabled}
               />
             </div>
@@ -283,7 +286,7 @@ export function ClassSubjectManager({
               disabled={!selectedSubjectId || isDisabled}
             >
               {isAddPending && <Loader className='mr-2 h-4 w-4 animate-spin' />}
-              {isAddPending ? 'Adding...' : 'Add Subject'}
+              {isAddPending ? t('adding_button') : t('add_button')}
             </Button>
           </div>
 
@@ -299,10 +302,12 @@ export function ClassSubjectManager({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Subject ID</TableHead>
-                    <TableHead>Subject Name</TableHead>
-                    <TableHead>Credit Hours</TableHead>
-                    <TableHead className='text-right'>Actions</TableHead>
+                    <TableHead>{t('table.subject_id')}</TableHead>
+                    <TableHead>{t('table.subject_name')}</TableHead>
+                    <TableHead>{t('table.credit_hours')}</TableHead>
+                    <TableHead className='text-right'>
+                      {t('table.actions')}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>{tableRows}</TableBody>

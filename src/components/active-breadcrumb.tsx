@@ -25,12 +25,12 @@ export function ActiveBreadcrumb({ path }: ActiveBreadcrumbProps) {
         {path?.map((item, index) =>
           index !== path.length - 1 ? (
             <React.Fragment key={index}>
-              <BreadcrumbItem>
+              <BreadcrumbItem className='hidden md:block'>
                 <BreadcrumbLink asChild>
                   <Link href={`${item.link}`}>{item.name}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className='hidden md:block' />
             </React.Fragment>
           ) : (
             <React.Fragment key={index}>

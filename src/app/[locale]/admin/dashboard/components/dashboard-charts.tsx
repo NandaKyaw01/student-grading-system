@@ -7,7 +7,8 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { BarChart3, Users } from 'lucide-react';
+import { BarChart3, PieChart as PieChartIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   Bar,
   BarChart,
@@ -26,8 +27,8 @@ interface DashboardChartsProps {
     grade: string;
     count: number;
   }>;
-  departmentDistribution: Array<{
-    department: string;
+  statusDistribution: Array<{
+    status: string;
     count: number;
   }>;
   colors: string[];
@@ -35,19 +36,21 @@ interface DashboardChartsProps {
 
 export function DashboardCharts({
   gradeDistribution,
-  departmentDistribution,
+  statusDistribution,
   colors
 }: DashboardChartsProps) {
+  const t = useTranslations('DashboardPage.charts');
+
   return (
     <div className='grid gap-4 lg:grid-cols-2'>
-      {/* Grade Distribution Chart */}
+      {/* Grade Distribution Bar Chart */}
       <Card>
         <CardHeader>
           <CardTitle className='flex items-center'>
             <BarChart3 className='h-5 w-5 mr-2' />
-            Grade Distribution
+            {t('grade_distribution.title')}
           </CardTitle>
-          <CardDescription>Current semester grade breakdown</CardDescription>
+          <CardDescription>{t('grade_distribution.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width='100%' height={300}>
@@ -62,31 +65,33 @@ export function DashboardCharts({
         </CardContent>
       </Card>
 
-      {/* Subject Performance Pie Chart */}
+      {/* Student Status Distribution Pie Chart */}
       <Card>
         <CardHeader>
           <CardTitle className='flex items-center'>
-            <Users className='h-5 w-5 mr-2' />
-            Department Distribution
+            <PieChartIcon className='h-5 w-5 mr-2' />
+            {t('status_distribution.title')}
           </CardTitle>
-          <CardDescription>Student enrollment by department</CardDescription>
+          <CardDescription>
+            {t('status_distribution.description')}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width='100%' height={300}>
             <PieChart>
               <Pie
-                data={departmentDistribution}
+                data={statusDistribution}
                 cx='50%'
                 cy='50%'
                 labelLine={false}
-                label={({ department, count, percent }) =>
-                  `${department}: ${count} (${(percent * 100).toFixed(0)}%)`
+                label={({ status, count, percent }) =>
+                  `${status}: ${count} (${(percent * 100).toFixed(0)}%)`
                 }
                 outerRadius={80}
                 fill='#8884d8'
                 dataKey='count'
               >
-                {departmentDistribution.map((entry, index) => (
+                {statusDistribution.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={colors[index % colors.length]}
