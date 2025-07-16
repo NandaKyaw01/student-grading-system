@@ -19,7 +19,7 @@ export function getEnrollmentColumns({
   academicYears: AcademicYear[];
   semesters: Semester[];
   classes: Class[];
-  t: ReturnType<typeof useTranslations<'EnrollmentsPage.table'>>; // Adjusted to use the correct type for translations
+  t: ReturnType<typeof useTranslations<'EnrollmentsPage.table'>>;
 }): ColumnDef<EnrollmentWithDetails>[] {
   return [
     {

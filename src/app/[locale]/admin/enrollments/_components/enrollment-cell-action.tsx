@@ -7,6 +7,7 @@ import { SquarePen, Trash2 } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { EnrollmentModal } from './enrollment-modal';
+import { useTranslations } from 'next-intl';
 
 interface EnrollmentCellActionProps {
   data: EnrollmentWithDetails;
@@ -15,6 +16,7 @@ interface EnrollmentCellActionProps {
 export function EnrollmentCellAction({ data }: EnrollmentCellActionProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations('EnrollmentsPage');
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -23,15 +25,15 @@ export function EnrollmentCellAction({ data }: EnrollmentCellActionProps) {
         if (!result.success) {
           throw new Error(result.error);
         }
-        toast.success('Success', {
-          description: 'Enrollment deleted successfully'
+        toast.success(t('cell_action.success'), {
+          description: t('cell_action.delete_success')
         });
       } catch (error) {
-        toast.error('Error', {
+        toast.error(t('cell_action.error'), {
           description:
             error instanceof Error
               ? error.message
-              : 'Failed to delete enrollment'
+              : t('cell_action.delete_error')
         });
       }
     });

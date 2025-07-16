@@ -608,10 +608,57 @@
       "semester": "စာသင်နှစ်ဝက်",
       "class_name": "အတန်းအမည်",
       "class_code": "အတန်းကုဒ်",
-      "created_at": "ဖန်တီးခဲ့သည်",
+      "created_at": "ထည့်သွင်းသည့်ရက်စွဲ",
       "actions": "လုပ်ဆောင်ချက်များ",
       "delete_tooltip": "ကျောင်းအပ်နှံမှုများကို ဖျက်ရန်",
       "delete_success": "ကျောင်းအပ်နှံမှုများကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။"
+    },
+    "cell_action": {
+      "success": "အောင်မြင်သည်",
+      "delete_success": "ကျောင်းအပ်နှံမှုကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။",
+      "error": "အမှား",
+      "delete_error": "ကျောင်းအပ်နှံမှုကို ဖျက်မရပါ။"
+    },
+    "EnrollmentModal": {
+      "edit_enrollment": "ကျောင်းအပ်နှံမှုကို ပြင်ဆင်ရန်",
+      "create_enrollment": "ကျောင်းအပ်နှံမှုအသစ် ပြုလုပ်ရန်",
+      "EnrollmentForm": {
+        "student_required": "ကျောင်းသားလိုအပ်သည်",
+        "class_required": "အတန်းလိုအပ်သည်",
+        "semester_required": "စာသင်နှစ်ဝက်လိုအပ်သည်",
+        "academic_year_required": "ပညာသင်နှစ်လိုအပ်သည်",
+        "roll_number_prefix_required": "ခုံနံပါတ်ရှေ့ဆက်လိုအပ်သည်",
+        "roll_number_required": "ခုံနံပါတ်လိုအပ်သည်",
+        "roll_number_positive": "ခုံနံပါတ်သည် ကိန်းဂဏန်းဖြစ်ရမည်ဖြစ်ပြီး ၀ ဖြင့်မစရပါ",
+        "student": "ကျောင်းသား",
+        "select_student": "ကျောင်းသားရွေးချယ်ပါ...",
+        "search_student": "ကျောင်းသားရှာဖွေပါ...",
+        "academic_year": "ပညာသင်နှစ်",
+        "current": "လက်ရှိ",
+        "select_academic_year": "ပညာသင်နှစ်ရွေးချယ်ပါ...",
+        "search_academic_year": "ပညာသင်နှစ်ရှာဖွေပါ...",
+        "semester": "စာသင်နှစ်ဝက်",
+        "select_semester": "စာသင်နှစ်ဝက်ရွေးချယ်ပါ...",
+        "select_academic_year_first": "ပညာသင်နှစ်ကို ဦးစွာရွေးချယ်ပါ",
+        "search_semester": "စာသင်နှစ်ဝက်ရှာဖွေပါ...",
+        "class": "အတန်း",
+        "select_class": "အတန်းရွေးချယ်ပါ...",
+        "no_classes_available": "အတန်းများမရှိပါ",
+        "select_semester_first": "စာသင်နှစ်ဝက်ကို ဦးစွာရွေးချယ်ပါ",
+        "search_class": "အတန်းရှာဖွေပါ...",
+        "roll_number_prefix": "ခုံနံပါတ် Prefix",
+        "select_prefix": "Prefix ရွေးချယ်ပါ...",
+        "search_prefix": "Prefix ရှာဖွေပါ...",
+        "roll_number": "ခုံနံပါတ်",
+        "enter_number": "နံပါတ်ထည့်ပါ",
+        "saving_enrollment": "သိမ်းဆည်းနေသည်...",
+        "save_enrollment": "သိမ်းဆည်းမည်",
+        "success": "အောင်မြင်သည်",
+        "update_success": "ကျောင်းအပ်နှံမှုကို အောင်မြင်စွာပြင်ဆင်ပြီးပါပြီ",
+        "create_success": "ကျောင်းအပ်နှံမှုကို အောင်မြင်စွာဖန်တီးပြီးပါပြီ",
+        "error": "အမှား",
+        "something_went_wrong": "တစ်ခုခုမှားယွင်းနေသည်"
+      }
     }
   }
 }

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useState } from 'react';
 import { EnrollmentForm } from './enrollment-form';
+import { useTranslations } from 'next-intl';
 
 interface EnrollmentModalProps {
   enrollment?: EnrollmentWithDetails;
@@ -22,6 +23,7 @@ export function EnrollmentModal({
   children
 }: EnrollmentModalProps) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations('EnrollmentsPage.EnrollmentModal');
 
   const handleSuccess = () => {
     setOpen(false);
@@ -33,7 +35,7 @@ export function EnrollmentModal({
       <DialogContent className='sm:max-w-[625px]'>
         <DialogHeader>
           <DialogTitle>
-            {enrollment ? `Edit Enrollment` : 'Create New Enrollment'}
+            {enrollment ? t('edit_enrollment') : t('create_enrollment')}
           </DialogTitle>
           <DialogDescription className='sr-only' />
         </DialogHeader>

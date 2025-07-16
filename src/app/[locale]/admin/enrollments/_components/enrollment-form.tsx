@@ -29,22 +29,25 @@ import { Combobox } from '@/components/combo-box';
 import { useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
-const formSchema = z.object({
-  studentId: z.string().min(1, 'Student is required'),
-  classId: z.string().min(1, 'Class is required'),
-  semesterId: z.string().min(1, 'Semester is required'),
-  academicYearId: z.string().min(1, 'Academic year is required'),
-  rollNumberPrefix: z.string().min(1, 'Roll number prefix is required'),
-  rollNumberSuffix: z
-    .string()
-    .min(1, 'Roll number is required')
-    .regex(
-      /^[1-9]\d*$/,
-      'Roll number must be a positive number and cannot start with 0'
-    ),
-  isActive: z.boolean()
-});
+type SchemaKeys = ReturnType<
+  typeof useTranslations<'EnrollmentsPage.EnrollmentModal.EnrollmentForm'>
+>;
+
+const formSchema = (t: SchemaKeys) =>
+  z.object({
+    studentId: z.string().min(1, t('student_required')),
+    classId: z.string().min(1, t('class_required')),
+    semesterId: z.string().min(1, t('semester_required')),
+    academicYearId: z.string().min(1, t('academic_year_required')),
+    rollNumberPrefix: z.string().min(1, t('roll_number_prefix_required')),
+    rollNumberSuffix: z
+      .string()
+      .min(1, t('roll_number_required'))
+      .regex(/^[1-9]\d*$/, t('roll_number_positive')),
+    isActive: z.boolean()
+  });
 
 interface EnrollmentFormProps {
   enrollment?: EnrollmentWithDetails;
@@ -70,6 +73,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
   const [autoSelectCurrentSemester, setAutoSelectCurrentSemester] =
     useState(false);
   const [isAutoSelecting, setIsAutoSelecting] = useState(false);
+  const t = useTranslations('EnrollmentsPage.EnrollmentModal.EnrollmentForm');
 
   // Parse existing roll number if in edit mode
   const parseRollNumber = (rollNumber?: string) => {
@@ -86,8 +90,8 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
     enrollment?.rollNumber
   );
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
+    resolver: zodResolver(formSchema(t)),
     defaultValues: {
       studentId: enrollment?.studentId?.toString() || '',
       classId: enrollment?.classId?.toString() || '',
@@ -246,7 +250,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
     }
   }, [selectedSemesterId, filteredClasses, form]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<ReturnType<typeof formSchema>>) {
     startTransition(async () => {
       try {
         const submitData = {
@@ -268,19 +272,17 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           throw new Error(result.error);
         }
 
-        toast.success('Success', {
-          description: enrollment
-            ? 'Enrollment updated successfully'
-            : 'Enrollment created successfully'
+        toast.success(t('success'), {
+          description: enrollment ? t('update_success') : t('create_success')
         });
 
         if (onSuccess) {
           onSuccess();
         }
       } catch (error) {
-        toast.error('Error', {
+        toast.error(t('error'), {
           description:
-            error instanceof Error ? error.message : 'Something went wrong'
+            error instanceof Error ? error.message : t('something_went_wrong')
         });
       }
     });
@@ -303,7 +305,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           name='studentId'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Student</FormLabel>
+              <FormLabel>{t('student')}</FormLabel>
               <Combobox
                 options={
                   studentsData?.map((student) => ({
@@ -313,8 +315,8 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                 }
                 value={field.value}
                 onValueChange={(value) => field.onChange(value)}
-                placeholder='Select a student...'
-                searchPlaceholder='Search student...'
+                placeholder={t('select_student')}
+                searchPlaceholder={t('search_student')}
                 disabled={loading || studentsLoading}
               />
               <FormMessage />
@@ -328,7 +330,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           render={({ field }) => (
             <FormItem>
               <div className='flex items-center gap-2'>
-                <FormLabel>Academic Year</FormLabel>
+                <FormLabel>{t('academic_year')}</FormLabel>
                 <div className='flex items-center space-x-2'>
                   <Checkbox
                     id='auto-select-year'
@@ -343,7 +345,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                     className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed
                       peer-disabled:opacity-70'
                   >
-                    Current
+                    {t('current')}
                   </label>
                 </div>
               </div>
@@ -351,13 +353,13 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                 options={
                   academicYearsData?.map((year) => ({
                     value: year.id.toString(),
-                    label: `${year.yearRange} ${year.isCurrent ? '(Current)' : ''}`
+                    label: `${year.yearRange} ${year.isCurrent ? t('current') : ''}`
                   })) || []
                 }
                 value={field.value}
                 onValueChange={handleAcademicYearChange}
-                placeholder='Select academic year...'
-                searchPlaceholder='Search academic year...'
+                placeholder={t('select_academic_year')}
+                searchPlaceholder={t('search_academic_year')}
                 disabled={loading || academicYearsLoading}
               />
               <FormMessage />
@@ -371,7 +373,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           render={({ field }) => (
             <FormItem>
               <div className='flex items-center gap-2'>
-                <FormLabel>Semester</FormLabel>
+                <FormLabel>{t('semester')}</FormLabel>
                 <div className='flex items-center space-x-2'>
                   <Checkbox
                     id='auto-select-semester'
@@ -388,23 +390,23 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                     className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed
                       peer-disabled:opacity-70'
                   >
-                    Current
+                    {t('current')}
                   </label>
                 </div>
               </div>
               <Combobox
                 options={filteredSemesters.map((semester) => ({
                   value: semester.id.toString(),
-                  label: `${semester.semesterName} ${semester.isCurrent ? '(Current)' : ''}`
+                  label: `${semester.semesterName} ${semester.isCurrent ? t('current') : ''}`
                 }))}
                 value={field.value}
                 onValueChange={handleSemesterChange}
                 placeholder={
                   selectedAcademicYearId
-                    ? 'Select a semester...'
-                    : 'Select academic year first'
+                    ? t('select_semester')
+                    : t('select_academic_year_first')
                 }
-                searchPlaceholder='Search semester...'
+                searchPlaceholder={t('search_semester')}
                 disabled={
                   loading || semestersLoading || !selectedAcademicYearId
                 }
@@ -419,7 +421,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           name='classId'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Class</FormLabel>
+              <FormLabel>{t('class')}</FormLabel>
               <Combobox
                 options={filteredClasses.map((cls) => ({
                   value: cls.id.toString(),
@@ -430,11 +432,11 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                 placeholder={
                   selectedSemesterId
                     ? filteredClasses.length > 0
-                      ? 'Select a class...'
-                      : 'No classes available'
-                    : 'Select semester first'
+                      ? t('select_class')
+                      : t('no_classes_available')
+                    : t('select_semester_first')
                 }
-                searchPlaceholder='Search class...'
+                searchPlaceholder={t('search_class')}
                 disabled={
                   loading ||
                   classesLoading ||
@@ -452,13 +454,13 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           name='rollNumberPrefix'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Roll Number Prefix</FormLabel>
+              <FormLabel>{t('roll_number_prefix')}</FormLabel>
               <Combobox
                 options={rollNumberPrefixes}
                 value={field.value}
                 onValueChange={(value) => field.onChange(value)}
-                placeholder='Select prefix...'
-                searchPlaceholder='Search prefix...'
+                placeholder={t('select_prefix')}
+                searchPlaceholder={t('search_prefix')}
                 disabled={loading}
               />
               <FormMessage />
@@ -471,11 +473,11 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           name='rollNumberSuffix'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Roll Number</FormLabel>
+              <FormLabel>{t('roll_number')}</FormLabel>
               <FormControl>
                 <Input
                   type='number'
-                  placeholder='Enter number'
+                  placeholder={t('enter_number')}
                   {...field}
                   disabled={loading}
                   min='1'
@@ -504,7 +506,7 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
             className='w-full sm:w-auto'
           >
             {loading && <Loader className='h-4 w-4 animate-spin' />}
-            {loading ? 'Saving Enrollment...' : 'Save Enrollment'}
+            {loading ? t('saving_enrollment') : t('save_enrollment')}
           </Button>
         </div>
       </form>

@@ -21,9 +21,6 @@ export const metadata = {
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
-  params: {
-    locale: string;
-  };
 };
 
 export default async function Page(props: pageProps) {

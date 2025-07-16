@@ -612,6 +612,53 @@
       "actions": "Actions",
       "delete_tooltip": "Delete enrollments",
       "delete_success": "Enrollments deleted successfully"
+    },
+    "cell_action": {
+      "success": "Success",
+      "delete_success": "Enrollment deleted successfully",
+      "error": "Error",
+      "delete_error": "Failed to delete enrollment"
+    },
+    "EnrollmentModal": {
+      "edit_enrollment": "Edit Enrollment",
+      "create_enrollment": "Create New Enrollment",
+      "EnrollmentForm": {
+        "student_required": "Student is required",
+        "class_required": "Class is required",
+        "semester_required": "Semester is required",
+        "academic_year_required": "Academic year is required",
+        "roll_number_prefix_required": "Roll number prefix is required",
+        "roll_number_required": "Roll number is required",
+        "roll_number_positive": "Roll number must be a positive number and cannot start with 0",
+        "student": "Student",
+        "select_student": "Select a student...",
+        "search_student": "Search student...",
+        "academic_year": "Academic Year",
+        "current": "Current",
+        "select_academic_year": "Select academic year...",
+        "search_academic_year": "Search academic year...",
+        "semester": "Semester",
+        "select_semester": "Select a semester...",
+        "select_academic_year_first": "Select academic year first",
+        "search_semester": "Search semester...",
+        "class": "Class",
+        "select_class": "Select a class...",
+        "no_classes_available": "No classes available",
+        "select_semester_first": "Select semester first",
+        "search_class": "Search class...",
+        "roll_number_prefix": "Roll Number Prefix",
+        "select_prefix": "Select prefix...",
+        "search_prefix": "Search prefix...",
+        "roll_number": "Roll Number",
+        "enter_number": "Enter number",
+        "saving_enrollment": "Saving Enrollment...",
+        "save_enrollment": "Save Enrollment",
+        "success": "Success",
+        "update_success": "Enrollment updated successfully",
+        "create_success": "Enrollment created successfully",
+        "error": "Error",
+        "something_went_wrong": "Something went wrong"
+      }
     }
   }
 }
