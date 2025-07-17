@@ -976,5 +976,27 @@
         "description": "Pass/Fail/Incomplete status breakdown"
       }
     }
+  },
+  "NotFound": {
+    "main": {
+      "title": "Something's missing",
+      "description": "Sorry, the page you are looking for doesn't exist or has been moved.",
+      "go_back": "Go back",
+      "back_to_home": "Back to Home"
+    },
+    "result": {
+      "home": "Home",
+      "results": "Results",
+      "not_found": "Not Found",
+      "title": "Result Not Found",
+      "description": "The result you're looking for doesn't exist or may have been removed.",
+      "check": "Please check:",
+      "check_list": {
+        "id_correct": "The result ID is correct",
+        "result_published": "The result has been published",
+        "view_permission": "You have permission to view this result"
+      },
+      "back_to_results": "Back to Results"
+    }
   }
 }

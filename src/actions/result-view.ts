@@ -45,7 +45,7 @@ export async function getResultById(
     const enrollmentId = parseInt(resultId);
 
     if (isNaN(enrollmentId)) {
-      throw new Error('Invalid result ID');
+      return null;
     }
 
     // Fetch result with all related data
