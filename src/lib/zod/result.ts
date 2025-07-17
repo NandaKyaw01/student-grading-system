@@ -17,7 +17,18 @@ const markSchema = (t: markKeys) =>
     .refine((val) => val >= 0, { message: t('zod.min') })
     .refine((val) => val <= 100, { message: t('zod.max') });
 
-// Create a function that returns the complete schema with subjects data
+const markSchemaForAction = z
+  .union([
+    z
+      .string()
+      .min(1, 'This field is required')
+      .transform((val) => parseFloat(val)),
+    z.number()
+  ])
+  .refine((val) => !isNaN(val), { message: 'Must be a valid number' })
+  .refine((val) => val >= 0, { message: 'Must be 0 or greater' })
+  .refine((val) => val <= 100, { message: 'Must be 100 or less' });
+
 export const createResultSchemaWithSubjects = (
   subjects: Array<{ classSubjectId: number; assignWeight: number }>,
   t: markKeys
@@ -85,6 +96,24 @@ export const createResultSchema = (t: markKeys) =>
   });
 
 export const updateResultSchema = createResultSchema;
+
+export const createResultSchemaForAction = z.object({
+  studentId: z.number().min(1, 'Student is required'),
+  academicYearId: z.number().min(1, 'Academic year is required'),
+  semesterId: z.number().min(1, 'Semester is required'),
+  enrollmentId: z.number().min(1, 'Enrollment is required'),
+  grades: z
+    .array(
+      z.object({
+        classSubjectId: z.number(),
+        baseMark: markSchemaForAction,
+        assignMark: markSchemaForAction // Keep original for backward compatibility
+      })
+    )
+    .min(1, 'At least one grade is required')
+});
+
+export const updateResultSchemaForAction = createResultSchemaForAction;
 
 // Define the form data types to match what the form actually handles
 export type CreateResultFormData = {

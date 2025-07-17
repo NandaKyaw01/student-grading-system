@@ -360,8 +360,8 @@ export default function ResultForm({
   const resultMutation = useMutation({
     mutationFn: async (data: CreateResultFormData | UpdateResultFormData) => {
       return isEditMode
-        ? await updateResult(data as UpdateResultFormData, t)
-        : await createResult(data as CreateResultFormData, t);
+        ? await updateResult(data as UpdateResultFormData)
+        : await createResult(data as CreateResultFormData);
     },
     onSuccess: (result) => {
       if (result.success) {
@@ -385,8 +385,8 @@ export default function ResultForm({
       } else {
         toast.error(
           isEditMode
-            ? t('messages.update_error', { error: result.error ?? '' })
-            : toast.error(t('messages.create_error'))
+            ? t('messages.update_error', { message: result.error ?? '' })
+            : t('messages.create_error')
         );
       }
     },
