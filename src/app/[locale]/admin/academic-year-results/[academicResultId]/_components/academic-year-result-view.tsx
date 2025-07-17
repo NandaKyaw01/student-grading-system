@@ -24,10 +24,29 @@ import {
 import Link from 'next/link';
 import { AcademicResultDownloadButton } from './academic-year-result-download-button';
 import { useTranslations } from 'next-intl';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 
 interface Props {
   data: AcademicYearResultViewWithDetails;
+  gradeScales: Array<{
+    grade: string;
+    score: string;
+  }>;
 }
+
+const SUBJECT_PRIORITY: Record<string, number> = {
+  Myanmar: 1,
+  English: 2,
+  Physics: 3
+  // Add other subjects with lower priority (default)
+};
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -69,7 +88,7 @@ const getGradeColor = (grade: string) => {
   }
 };
 
-export default function AcademicYearResultView({ data }: Props) {
+export default function AcademicYearResultView({ data, gradeScales }: Props) {
   const t = useTranslations('AcademicYearResultsPage.ResultView');
   // Find missing semesters
   const allSemesters = data.academicYear.semesters;
@@ -110,12 +129,15 @@ export default function AcademicYearResultView({ data }: Props) {
               </CardDescription>
             </div>
             <div className='flex-shrink-0'>
-              <AcademicResultDownloadButton resultData={data} />
+              <AcademicResultDownloadButton
+                resultData={data}
+                gradeScales={gradeScales}
+              />
             </div>
           </div>
         </CardHeader>
         <CardContent className='p-4 sm:p-6'>
-          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4'>
             <div className='flex items-center gap-3'>
               <Calendar className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
@@ -127,7 +149,7 @@ export default function AcademicYearResultView({ data }: Props) {
                 </p>
               </div>
             </div>
-            <div className='flex items-center gap-3'>
+            {/* <div className='flex items-center gap-3'>
               <TrendingUp className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
                 <p className='text-sm text-muted-foreground'>
@@ -142,8 +164,8 @@ export default function AcademicYearResultView({ data }: Props) {
                   )}
                 </p>
               </div>
-            </div>
-            <div className='flex items-center gap-3'>
+            </div> */}
+            {/* <div className='flex items-center gap-3'>
               <BookOpen className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
                 <p className='text-sm text-muted-foreground'>
@@ -153,13 +175,13 @@ export default function AcademicYearResultView({ data }: Props) {
                   {data.totalCredits.toFixed(2)}
                 </p>
               </div>
-            </div>
+            </div> */}
             <div className='flex items-center gap-3'>
               <Award className='h-5 w-5 text-primary flex-shrink-0' />
               <div className='min-w-0 flex-1'>
-                <p className='text-sm text-muted-foreground'>{t('total_gp')}</p>
+                <p className='text-sm text-muted-foreground'>{t('class')}</p>
                 <p className='font-medium text-foreground'>
-                  {data.totalGp.toFixed(2)}
+                  {data.semesterResults[0].enrollment.class.className}
                 </p>
               </div>
             </div>
@@ -175,7 +197,7 @@ export default function AcademicYearResultView({ data }: Props) {
               </div>
             </div>
           </div>
-          {data.yearRank && (
+          {/* {data.yearRank && (
             <div className='mt-4 pt-4 border-t border-border'>
               <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                 <Trophy className='h-4 w-4' />
@@ -184,7 +206,7 @@ export default function AcademicYearResultView({ data }: Props) {
                 })}
               </div>
             </div>
-          )}
+          )} */}
         </CardContent>
       </Card>
 
@@ -204,6 +226,11 @@ export default function AcademicYearResultView({ data }: Props) {
                   className={`text-3xl sm:text-3xl font-bold ${getGpaColor(data.overallGpa)}`}
                 >
                   {data.overallGpa.toFixed(2)}
+                  {!data.isComplete && (
+                    <span className='text-xs text-muted-foreground ml-1'>
+                      {t('partial_gpa')}
+                    </span>
+                  )}
                 </p>
               </div>
               <div className='p-2 sm:p-3 bg-green-100 dark:bg-green-900/50 rounded-full self-end sm:self-auto'>
@@ -309,7 +336,7 @@ export default function AcademicYearResultView({ data }: Props) {
       )}
 
       {/* Semester Results */}
-      <Card className='shadow-lg border-0 bg-card/80 backdrop-blur'>
+      <Card className='shadow-lg border-0 bg-card/80 backdrop-blur gap-0'>
         <CardHeader className='p-4 sm:p-6'>
           <CardTitle className='text-lg sm:text-xl text-foreground flex items-center gap-2'>
             <Calendar className='h-5 w-5' />
@@ -343,233 +370,351 @@ export default function AcademicYearResultView({ data }: Props) {
             </div>
           ) : (
             <div className='space-y-6'>
-              {data.semesterResults.map((semesterResult, index) => (
-                <div key={semesterResult.enrollmentId}>
-                  <Card className='border border-border/50'>
-                    <CardHeader className='pb-4'>
-                      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
-                        <CardTitle className='text-lg flex items-center gap-2'>
-                          <GraduationCap className='h-5 w-5' />
-                          {semesterResult.enrollment.semester.semesterName}
-                        </CardTitle>
-                        <div className='flex items-center gap-2'>
-                          <Badge
-                            className={getStatusColor(semesterResult.status)}
-                          >
-                            {t(
-                              `${semesterResult.status.toLowerCase() as 'pass' | 'fail'}`
-                            )}
-                          </Badge>
-                          <span
-                            className={`font-semibold ${getGpaColor(semesterResult.gpa)}`}
-                          >
-                            {t('gpa', {
-                              gpa: semesterResult.gpa.toFixed(2)
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4'>
-                        <div className='flex items-center gap-3'>
-                          <GraduationCap className='h-4 w-4 text-primary flex-shrink-0' />
-                          <div className='min-w-0 flex-1'>
-                            <p className='text-sm text-muted-foreground'>
-                              {t('class')}
-                            </p>
-                            <p className='font-medium text-foreground'>
-                              {semesterResult.enrollment.class.className} (
-                              {semesterResult.enrollment.class.departmentCode})
-                            </p>
-                          </div>
-                        </div>
-                        <div className='flex items-center gap-3'>
-                          <User className='h-4 w-4 text-primary flex-shrink-0' />
-                          <div className='min-w-0 flex-1'>
-                            <p className='text-sm text-muted-foreground'>
-                              {t('roll_number')}
-                            </p>
-                            <p className='font-medium text-foreground'>
-                              {semesterResult.enrollment.rollNumber}
-                            </p>
-                          </div>
-                        </div>
-                        <div className='flex items-center gap-3'>
-                          <BookOpen className='h-4 w-4 text-primary flex-shrink-0' />
-                          <div className='min-w-0 flex-1'>
-                            <p className='text-sm text-muted-foreground'>
-                              {t('credits')}
-                            </p>
-                            <p className='font-medium text-foreground'>
-                              {semesterResult.totalCredits.toFixed(2)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <Separator className='my-4' />
-
-                      {/* Subject Grades - Mobile View */}
-                      <div className='block sm:hidden space-y-4'>
-                        <h4 className='font-medium text-foreground'>
-                          {t('subject_grades')}
-                        </h4>
-                        {semesterResult.enrollment.grades.map((grade) => (
-                          <Card
-                            key={grade.id}
-                            className='border border-border/50'
-                          >
-                            <CardContent className='p-4'>
-                              <div className='space-y-3'>
-                                <div className='flex justify-between items-start'>
-                                  <div className='min-w-0 flex-1'>
-                                    <p className='font-semibold text-foreground text-sm'>
-                                      {grade.classSubject.subject.id}
-                                    </p>
-                                    <p className='text-xs text-muted-foreground truncate'>
-                                      {grade.classSubject.subject.subjectName}
-                                    </p>
-                                  </div>
-                                  <Badge
-                                    className={`${getGradeColor(grade.grade)} ml-2 flex-shrink-0`}
-                                  >
-                                    {grade.grade}
-                                  </Badge>
-                                </div>
-
-                                <div className='grid grid-cols-2 gap-2 text-xs'>
-                                  <div>
-                                    <span className='text-muted-foreground'>
-                                      {t('credits')}:
-                                    </span>
-                                    <span className='font-medium text-foreground'>
-                                      {grade.classSubject.subject.creditHours.toFixed(
-                                        2
-                                      )}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className='text-muted-foreground'>
-                                      {t('gp')}:
-                                    </span>
-                                    <span className='font-medium text-foreground'>
-                                      {grade.gp.toFixed(2)}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className='pt-2 border-t border-border/50'>
-                                  <span className='text-muted-foreground text-xs'>
-                                    {t('final_mark')}:
-                                  </span>
-                                  <span className='font-bold text-foreground'>
-                                    {grade.finalMark.toFixed(2)}
-                                  </span>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-
-                      {/* Subject Grades - Desktop View */}
-                      <div className='hidden sm:block'>
-                        <h4 className='font-medium text-foreground mb-4'>
-                          {t('subject_grades')}
-                        </h4>
-                        <div className='space-y-3'>
-                          {semesterResult.enrollment.grades.map((grade) => (
-                            <div
-                              key={grade.id}
-                              className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4
-                                rounded-lg border border-border/50 bg-muted/30'
+              {data.semesterResults
+                .sort((a, b) => {
+                  const getSemesterNumber = (name: string) => {
+                    const numMatch = name.match(/(\d+)/);
+                    if (numMatch) return parseInt(numMatch[0]);
+                    const textualNumbers = [
+                      'first',
+                      'second',
+                      'third',
+                      'fourth',
+                      'fifth',
+                      'sixth'
+                    ];
+                    const lowerName = name.toLowerCase();
+                    for (let i = 0; i < textualNumbers.length; i++) {
+                      if (lowerName.includes(textualNumbers[i])) return i + 1;
+                    }
+                    return 0;
+                  };
+                  return (
+                    getSemesterNumber(a.enrollment.semester.semesterName) -
+                    getSemesterNumber(b.enrollment.semester.semesterName)
+                  );
+                })
+                .map((semesterResult, index) => (
+                  <div key={semesterResult.enrollmentId}>
+                    <Card className='border border-border/50'>
+                      <CardHeader className='pb-4'>
+                        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+                          <CardTitle className='text-lg flex items-center gap-2'>
+                            <GraduationCap className='h-5 w-5' />
+                            {semesterResult.enrollment.semester.semesterName}
+                          </CardTitle>
+                          <div className='flex items-center gap-2'>
+                            <Badge
+                              className={getStatusColor(semesterResult.status)}
                             >
-                              <div className='flex-1 min-w-0'>
-                                <p className='font-medium text-foreground'>
-                                  {grade.classSubject.subject.subjectName}
-                                </p>
-                                <p className='text-sm text-muted-foreground'>
-                                  {grade.classSubject.subject.id} •
-                                  {grade.classSubject.subject.creditHours.toFixed(
-                                    2
-                                  )}
-                                  {t('credits')}
-                                </p>
-                              </div>
-                              <div className='flex items-center gap-6 text-sm'>
-                                <div className='text-center'>
-                                  <p className='text-muted-foreground'>
-                                    {t('final_mark')}
-                                  </p>
-                                  <p className='font-medium text-foreground'>
-                                    {grade.finalMark.toFixed(2)}
-                                  </p>
-                                </div>
-                                <div className='text-center'>
-                                  <p className='text-muted-foreground'>
-                                    {t('grade')}
-                                  </p>
-                                  <Badge className={getGradeColor(grade.grade)}>
-                                    {grade.grade}
-                                  </Badge>
-                                </div>
-                                <div className='text-center'>
-                                  <p className='text-muted-foreground'>
-                                    {t('gp')}
-                                  </p>
-                                  <p className='font-medium text-foreground'>
-                                    {grade.gp.toFixed(2)}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Semester Summary */}
-                      <div className='mt-4 pt-4 border-t border-border'>
-                        <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4'>
-                          <div className='text-base sm:text-lg font-semibold text-foreground'>
-                            {t('semester_summary')}
-                          </div>
-                          <div className='grid grid-cols-2 sm:flex sm:gap-6 gap-2 text-xs sm:text-sm'>
-                            <span className='text-muted-foreground'>
-                              {t('credits')}:
-                              <span className='font-bold text-foreground'>
-                                {semesterResult.totalCredits.toFixed(2)}
-                              </span>
-                            </span>
-                            <span className='text-muted-foreground'>
+                              {t(
+                                `${semesterResult.status.toLowerCase() as 'pass' | 'fail'}`
+                              )}
+                            </Badge>
+                            <span
+                              className={`font-semibold ${getGpaColor(semesterResult.gpa)}`}
+                            >
                               {t('gpa', {
                                 gpa: semesterResult.gpa.toFixed(2)
                               })}
-                              :
-                              <span
-                                className={`font-bold ${getGpaColor(semesterResult.gpa)}`}
-                              >
-                                {semesterResult.gpa.toFixed(2)}
-                              </span>
-                            </span>
-                            <span className='text-muted-foreground'>
-                              {t('status')}:
-                              <span className='font-bold text-foreground'>
-                                {t(
-                                  `${semesterResult.status.toLowerCase() as 'pass' | 'fail'}`
-                                )}
-                              </span>
                             </span>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  {index < data.semesterResults.length - 1 && (
-                    <Separator className='my-4' />
-                  )}
-                </div>
-              ))}
+                      </CardHeader>
+                      <CardContent>
+                        <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4'>
+                          <div className='flex items-center gap-3'>
+                            <GraduationCap className='h-4 w-4 text-primary flex-shrink-0' />
+                            <div className='min-w-0 flex-1'>
+                              <p className='text-sm text-muted-foreground'>
+                                {t('class')}
+                              </p>
+                              <p className='font-medium text-foreground'>
+                                {semesterResult.enrollment.class.className} (
+                                {semesterResult.enrollment.class.departmentCode}
+                                )
+                              </p>
+                            </div>
+                          </div>
+                          <div className='flex items-center gap-3'>
+                            <User className='h-4 w-4 text-primary flex-shrink-0' />
+                            <div className='min-w-0 flex-1'>
+                              <p className='text-sm text-muted-foreground'>
+                                {t('roll_number')}
+                              </p>
+                              <p className='font-medium text-foreground'>
+                                {semesterResult.enrollment.rollNumber}
+                              </p>
+                            </div>
+                          </div>
+                          {/* <div className='flex items-center gap-3'>
+                            <BookOpen className='h-4 w-4 text-primary flex-shrink-0' />
+                            <div className='min-w-0 flex-1'>
+                              <p className='text-sm text-muted-foreground'>
+                                {t('credits')}
+                              </p>
+                              <p className='font-medium text-foreground'>
+                                {semesterResult.totalCredits.toFixed(2)}
+                              </p>
+                            </div>
+                          </div> */}
+                        </div>
+
+                        <Separator className='my-4' />
+
+                        {(() => {
+                          // Sort grades with priority
+                          const sortedGrades =
+                            semesterResult.enrollment.grades.sort((a, b) => {
+                              // First, sort by subject name priority
+                              const priorityA =
+                                SUBJECT_PRIORITY[
+                                  a.classSubject.subject.subjectName
+                                ] || Infinity;
+                              const priorityB =
+                                SUBJECT_PRIORITY[
+                                  b.classSubject.subject.subjectName
+                                ] || Infinity;
+
+                              if (priorityA !== priorityB) {
+                                return priorityA - priorityB;
+                              }
+
+                              // If same priority, sort by subject ID (numeric part)
+                              const numA = parseInt(
+                                a.classSubject.subject.id.match(/\d+/)?.[0] ||
+                                  '0'
+                              );
+                              const numB = parseInt(
+                                b.classSubject.subject.id.match(/\d+/)?.[0] ||
+                                  '0'
+                              );
+                              return numA - numB;
+                            });
+
+                          return (
+                            <>
+                              {/* Mobile View - Card Layout */}
+                              <div className='block sm:hidden space-y-4'>
+                                <h4 className='font-medium text-foreground'>
+                                  {t('subject_grades')}
+                                </h4>
+                                {sortedGrades.map((grade, index) => (
+                                  <Card
+                                    key={index}
+                                    className='border border-border/50'
+                                  >
+                                    <CardContent className='p-4'>
+                                      <div className='space-y-3'>
+                                        <div className='flex justify-between items-start'>
+                                          <div className='min-w-0 flex-1'>
+                                            <p className='font-semibold text-foreground text-sm'>
+                                              {grade.classSubject.subject.id}
+                                            </p>
+                                            <p className='text-xs text-muted-foreground truncate'>
+                                              {
+                                                grade.classSubject.subject
+                                                  .subjectName
+                                              }
+                                            </p>
+                                          </div>
+                                          <Badge
+                                            className={`${getGradeColor(grade.grade)} ml-2 flex-shrink-0`}
+                                          >
+                                            {grade.grade}
+                                          </Badge>
+                                        </div>
+
+                                        <div className='grid grid-cols-3 gap-2 text-xs'>
+                                          <div>
+                                            <span className='text-muted-foreground'>
+                                              {t('credits')}:{' '}
+                                            </span>
+                                            <span className='font-medium text-foreground'>
+                                              {
+                                                grade.classSubject.subject
+                                                  .creditHours
+                                              }
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className='text-muted-foreground'>
+                                              {t('score')}:{' '}
+                                            </span>
+                                            <span className='font-medium text-foreground'>
+                                              {grade.score}
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className='text-muted-foreground'>
+                                              {t('gp')}:{' '}
+                                            </span>
+                                            <span className='font-medium text-foreground'>
+                                              {grade.gp}
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <span className='text-muted-foreground'>
+                                              {t('exam_mark')}:{' '}
+                                            </span>
+                                            <span className='font-medium text-foreground'>
+                                              {grade.examMark}
+                                            </span>
+                                          </div>
+                                          <div className='col-span-2'>
+                                            <span className='text-muted-foreground'>
+                                              {t('assessment_mark')}:{' '}
+                                            </span>
+                                            <span className='font-medium text-foreground'>
+                                              {grade.assignMark}
+                                            </span>
+                                          </div>
+                                        </div>
+
+                                        <div className='pt-2 border-t border-border/50'>
+                                          <span className='text-muted-foreground text-xs'>
+                                            {t('final_mark')}:{' '}
+                                          </span>
+                                          <span className='font-bold text-foreground'>
+                                            {grade.finalMark}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                ))}
+                              </div>
+
+                              {/* Desktop View - Table Layout */}
+                              <div className='hidden sm:block'>
+                                <h4 className='font-medium text-foreground mb-4'>
+                                  {t('subject_grades')}
+                                </h4>
+                                <div className='overflow-x-auto'>
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead className='text-foreground min-w-[100px]'>
+                                          {t('subject_code')}
+                                        </TableHead>
+                                        <TableHead className='text-foreground min-w-[100px]'>
+                                          {t('subject_name')}
+                                        </TableHead>
+                                        <TableHead className='text-center text-foreground min-w-[80px]'>
+                                          {t('credits')}
+                                        </TableHead>
+                                        <TableHead className='text-center text-foreground min-w-[100px]'>
+                                          {t('exam_mark')}
+                                        </TableHead>
+                                        <TableHead className='text-center text-foreground min-w-[100px]'>
+                                          {t('assessment_mark')}
+                                        </TableHead>
+                                        <TableHead className='text-center text-foreground min-w-[100px]'>
+                                          {t('final_mark')}
+                                        </TableHead>
+                                        <TableHead className='text-center text-foreground min-w-[80px]'>
+                                          {t('grade')}
+                                        </TableHead>
+                                        <TableHead className='text-center text-foreground min-w-[80px]'>
+                                          {t('score')}
+                                        </TableHead>
+                                        <TableHead className='text-center text-foreground min-w-[100px]'>
+                                          {t('grade_points')}
+                                        </TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {sortedGrades.map((grade, index) => (
+                                        <TableRow
+                                          key={index}
+                                          className='hover:bg-muted/50'
+                                        >
+                                          <TableCell className='font-medium text-foreground'>
+                                            {grade.classSubject.subject.id}
+                                          </TableCell>
+                                          <TableCell className='text-foreground'>
+                                            {
+                                              grade.classSubject.subject
+                                                .subjectName
+                                            }
+                                          </TableCell>
+                                          <TableCell className='text-center text-foreground'>
+                                            {grade.classSubject.subject.creditHours.toFixed(
+                                              2
+                                            )}
+                                          </TableCell>
+                                          <TableCell className='text-center text-foreground'>
+                                            {grade.examMark}
+                                          </TableCell>
+                                          <TableCell className='text-center text-foreground'>
+                                            {grade.assignMark}
+                                          </TableCell>
+                                          <TableCell className='text-center font-medium text-foreground'>
+                                            {grade.finalMark}
+                                          </TableCell>
+                                          <TableCell className='text-center'>
+                                            <Badge
+                                              className={getGradeColor(
+                                                grade.grade
+                                              )}
+                                            >
+                                              {grade.grade}
+                                            </Badge>
+                                          </TableCell>
+                                          <TableCell className='text-center'>
+                                            {grade.score}
+                                          </TableCell>
+                                          <TableCell className='text-center font-medium text-foreground'>
+                                            {grade.gp}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            </>
+                          );
+                        })()}
+
+                        {/* Semester Summary */}
+                        <div className='mt-4 pt-4 border-t border-border'>
+                          <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4'>
+                            <div className='text-base sm:text-lg font-semibold text-foreground'>
+                              {t('semester_summary')}
+                            </div>
+                            <div className='grid grid-cols-2 sm:flex sm:gap-6 gap-2 text-xs sm:text-sm'>
+                              <span className='text-muted-foreground'>
+                                {t('total_credits')}:{' '}
+                                <span className='font-bold text-foreground'>
+                                  {semesterResult.totalCredits.toFixed(2)}
+                                </span>
+                              </span>
+                              <span className='text-muted-foreground'>
+                                {t('total_gp')}:{' '}
+                                <span className='font-bold text-foreground'>
+                                  {semesterResult.totalGp.toFixed(2)}
+                                </span>
+                              </span>
+                              <span className='text-muted-foreground'>
+                                <span
+                                  className={`font-bold ${getGpaColor(semesterResult.gpa)}`}
+                                >
+                                  {t('gpa', {
+                                    gpa: semesterResult.gpa.toFixed(2)
+                                  })}
+                                </span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    {index < data.semesterResults.length - 1 && (
+                      <Separator className='my-4' />
+                    )}
+                  </div>
+                ))}
             </div>
           )}
         </CardContent>

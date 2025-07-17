@@ -1,10 +1,10 @@
 'use client';
 
-import React, { use, useTransition } from 'react';
+import { type ResultData } from '@/actions/result-view';
 import { Button } from '@/components/ui/button';
 import { Download, Loader } from 'lucide-react';
-import { type ResultData } from '@/actions/result-view';
 import { useTranslations } from 'next-intl';
+import { useTransition } from 'react';
 import { toast } from 'sonner';
 
 interface ResultDownloadButtonProps {
@@ -61,6 +61,8 @@ export function ResultDownloadButton({
             assignMark: grade.assignMark,
             finalMark: grade.finalMark
           })),
+
+          gradeScales: resultData.gradeScales,
 
           // Current date
           currentDate: new Date().toLocaleDateString('en-US', {

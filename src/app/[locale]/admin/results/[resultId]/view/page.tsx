@@ -220,7 +220,7 @@ export default async function ViewResultPage({ params }: PageProps) {
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
                   <div className='min-w-0 flex-1'>
                     <p className='text-xs sm:text-sm text-muted-foreground'>
-                      C{t('summary.current_gpa')}
+                      {t('summary.current_gpa')}
                     </p>
                     <p
                       className={`text-3xl sm:text-3xl font-bold ${getGpaColor(resultData.result.gpa)}`}

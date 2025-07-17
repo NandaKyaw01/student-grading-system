@@ -32,6 +32,10 @@ export type ResultData = {
     gp: number;
     score: number;
   }>;
+  gradeScales: Array<{
+    grade: string;
+    score: string;
+  }>;
 };
 
 export async function getResultById(
@@ -87,6 +91,13 @@ export async function getResultById(
       return null;
     }
 
+    const gradeScales = await prisma.gradeScale.findMany({
+      orderBy: {
+        minMark: 'desc'
+      },
+      take: 8
+    });
+
     // Transform the data to match the expected format
     const transformedData: ResultData = {
       student: {
@@ -117,6 +128,10 @@ export async function getResultById(
         grade: grade.grade,
         gp: grade.gp,
         score: grade.score
+      })),
+      gradeScales: gradeScales.map((scale) => ({
+        grade: `${scale.grade} (${scale.minMark}-${scale.maxMark})`,
+        score: `${scale.score.toFixed(2)} (${scale.minMark}-${scale.maxMark})`
       }))
     };
 

@@ -553,7 +553,13 @@
         "exporting": "Exporting...",
         "export_docx": "Export DOCX",
         "generate_error": "Failed to generate document. Please ensure template file exists and data is correct."
-      }
+      },
+      "subject_code": "Subject Code",
+      "subject_name": "Subject Name",
+      "grade_points": "GP",
+      "exam_mark": "Exam",
+      "assessment_mark": "Assessment",
+      "score": "Score"
     }
   },
   "StudentsPage": {

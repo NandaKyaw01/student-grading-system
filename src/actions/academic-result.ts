@@ -248,13 +248,32 @@ export async function getAcademicYearResult(id: number) {
       include: academicYearResultViewWithDetails
     });
 
+    if (!result) {
+      return {
+        result: null
+      };
+    }
+
+    const gradeScales = await prisma.gradeScale.findMany({
+      orderBy: {
+        minMark: 'desc'
+      },
+      take: 8
+    });
+
+    const gradeScalesFormat = gradeScales.map((scale) => ({
+      grade: `${scale.grade} (${scale.minMark}-${scale.maxMark})`,
+      score: `${scale.score.toFixed(2)} (${scale.minMark}-${scale.maxMark})`
+    }));
+
     return {
       result,
+      gradeScales: gradeScalesFormat,
       error: null
     };
   } catch (err) {
     return {
-      data: null,
+      result: null,
       error: getErrorMessage(err)
     };
   }

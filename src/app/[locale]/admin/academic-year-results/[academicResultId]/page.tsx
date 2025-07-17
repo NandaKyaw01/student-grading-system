@@ -91,11 +91,11 @@ export default async function AcademicYearResultPage({ params }: PageProps) {
 }
 
 async function AcademicYearResultContent({ id }: { id: number }) {
-  const { result } = await getAcademicYearResult(id);
+  const { result, gradeScales } = await getAcademicYearResult(id);
 
   if (!result) {
     notFound();
   }
 
-  return <AcademicYearResultView data={result} />;
+  return <AcademicYearResultView data={result} gradeScales={gradeScales} />;
 }

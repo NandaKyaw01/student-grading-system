@@ -553,7 +553,13 @@
         "exporting": "ထုတ်ယူနေသည်...",
         "export_docx": "Export ထုတ်မည်",
         "generate_error": "စာရွက်စာတမ်းကို ထုတ်လုပ်ရန် မအောင်မြင်ပါ။ တင်းပလိတ်ဖိုင် ရှိနေပြီး ဒေတာ မှန်ကန်ကြောင်း သေချာပါစေ။"
-      }
+      },
+      "subject_code": "ဘာသာရပ်ကုဒ်",
+      "subject_name": "အမည်",
+      "grade_points": "GP",
+      "exam_mark": "စာမေးပွဲ",
+      "assessment_mark": "စစ်ဆေးခြင်း",
+      "score": "ရမှတ်"
     }
   },
   "StudentsPage": {

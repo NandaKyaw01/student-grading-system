@@ -8,10 +8,15 @@ import { useTranslations } from 'next-intl';
 
 interface DownloadButtonProps {
   resultData: AcademicYearResultViewWithDetails;
+  gradeScales: Array<{
+    grade: string;
+    score: string;
+  }>;
 }
 
 export function AcademicResultDownloadButton({
-  resultData
+  resultData,
+  gradeScales
 }: DownloadButtonProps) {
   const t = useTranslations(
     'AcademicYearResultsPage.ResultView.DownloadButton'
@@ -96,6 +101,8 @@ export function AcademicResultDownloadButton({
                 getSemesterNumber(b.semesterName)
               );
             }),
+
+          gradeScales: gradeScales,
 
           // Current date
           currentDate: new Date().toLocaleDateString('en-US', {
