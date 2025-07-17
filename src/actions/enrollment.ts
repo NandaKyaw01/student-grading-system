@@ -164,7 +164,7 @@ export async function createEnrollment(
     const existingEnrollment = await prisma.enrollment.findFirst({
       where: {
         studentId: data.studentId,
-        classId: data.classId,
+        // classId: data.classId,
         semesterId: data.semesterId
       }
     });

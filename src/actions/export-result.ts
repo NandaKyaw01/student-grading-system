@@ -5,15 +5,25 @@ import * as XLSX from 'xlsx-js-style';
 
 export async function exportTableToExcel(enrollmentIds?: number[]) {
   try {
-    // Fetch enrollment data with all related information
     const enrollments = await prisma.enrollment.findMany({
-      where: enrollmentIds
-        ? {
-            id: {
-              in: enrollmentIds
+      where: {
+        AND: [
+          {
+            result: {
+              isNot: null
             }
-          }
-        : undefined,
+          },
+          ...(enrollmentIds
+            ? [
+                {
+                  id: {
+                    in: enrollmentIds
+                  }
+                }
+              ]
+            : [])
+        ]
+      },
       include: {
         student: true,
         class: {
@@ -39,7 +49,11 @@ export async function exportTableToExcel(enrollmentIds?: number[]) {
     });
 
     if (enrollments.length === 0) {
-      throw new Error('No enrollments found');
+      // throw new Error('No enrollments found');
+      return {
+        success: false,
+        error: 'No enrollments found'
+      };
     }
 
     // Group enrollments by academic year and semester
@@ -187,7 +201,29 @@ export async function exportTableToExcel(enrollmentIds?: number[]) {
       // Process each semester within the year
       for (const [semesterKey, semesterEnrollments] of Object.entries(
         semesterGroups
-      )) {
+      ).sort((a, b) => {
+        const getSemesterNumber = (name: string) => {
+          const numMatch = name.match(/(\d+)/);
+          if (numMatch) return parseInt(numMatch[0]);
+          const textualNumbers = [
+            'first',
+            'second',
+            'third',
+            'fourth',
+            'fifth',
+            'sixth'
+          ];
+          const lowerName = name.toLowerCase();
+          for (let i = 0; i < textualNumbers.length; i++) {
+            if (lowerName.includes(textualNumbers[i])) return i + 1;
+          }
+          return 0;
+        };
+        return (
+          getSemesterNumber(a[0].split(' (')[0]) -
+          getSemesterNumber(b[0].split(' (')[0])
+        );
+      })) {
         // Extract semester name from key (remove year range part)
 
         const semesterName = semesterKey.split(' (')[0];
@@ -213,7 +249,26 @@ export async function exportTableToExcel(enrollmentIds?: number[]) {
 
         for (const [className, classEnrollments] of Object.entries(
           enrollmentsByClass
-        )) {
+        ).sort((a, b) => {
+          const getClassNumber = (name: string) => {
+            const numMatch = name.match(/(\d+)/);
+            if (numMatch) return parseInt(numMatch[0]);
+            const textualNumbers = [
+              'first',
+              'second',
+              'third',
+              'fourth',
+              'fifth',
+              'sixth'
+            ];
+            const lowerName = name.toLowerCase();
+            for (let i = 0; i < textualNumbers.length; i++) {
+              if (lowerName.includes(textualNumbers[i])) return i + 1;
+            }
+            return 0;
+          };
+          return getClassNumber(a[0]) - getClassNumber(b[0]);
+        })) {
           // Add class header with icon
           worksheetData.push([
             createStyledCell(`Class: ${className}`, colors.classHeader)
@@ -651,7 +706,28 @@ export async function exportAcademicYearResultsToExcel(
       worksheetData.push([createStyledCell('', colors.oddRow)]); // Empty row
 
       // Process each class within this academic year
-      for (const [className, classResults] of Object.entries(resultsByClass)) {
+      for (const [className, classResults] of Object.entries(
+        resultsByClass
+      ).sort((a, b) => {
+        const getClassNumber = (name: string) => {
+          const numMatch = name.match(/(\d+)/);
+          if (numMatch) return parseInt(numMatch[0]);
+          const textualNumbers = [
+            'first',
+            'second',
+            'third',
+            'fourth',
+            'fifth',
+            'sixth'
+          ];
+          const lowerName = name.toLowerCase();
+          for (let i = 0; i < textualNumbers.length; i++) {
+            if (lowerName.includes(textualNumbers[i])) return i + 1;
+          }
+          return 0;
+        };
+        return getClassNumber(a[0]) - getClassNumber(b[0]);
+      })) {
         // Add class header
         worksheetData.push([
           createStyledCell(`Class: ${className}`, colors.classHeader)
