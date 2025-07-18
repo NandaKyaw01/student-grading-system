@@ -36,6 +36,12 @@ import {
   TableRow
 } from '@/components/ui/table';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
+import {
   useAcademicYears,
   useClasses,
   useClassSubjects,
@@ -561,10 +567,8 @@ const XlsxImportForm = () => {
       <Card>
         <CardHeader className='space-y-3'>
           <div className='space-y-2'>
-            <h1 className='text-2xl font-bold text-gray-900'>
-              {t('header_title')}
-            </h1>
-            <p className='text-gray-600'>{t('header_description')}</p>
+            <h1 className='text-2xl font-bold'>{t('header_title')}</h1>
+            <p className='text-muted-foreground'>{t('header_description')}</p>
           </div>
           <Separator />
           <CardTitle className='flex items-center gap-2'>
@@ -597,7 +601,7 @@ const XlsxImportForm = () => {
                   />
                   <Label
                     htmlFor='auto-select-year'
-                    className='text-sm text-gray-600'
+                    className='text-sm text-muted-foreground'
                   >
                     {t('current_checkbox_label')}
                   </Label>
@@ -641,7 +645,7 @@ const XlsxImportForm = () => {
                   />
                   <Label
                     htmlFor='auto-select-semester'
-                    className='text-sm text-gray-600'
+                    className='text-sm text-muted-foreground'
                   >
                     {t('current_checkbox_label')}
                   </Label>
@@ -705,9 +709,9 @@ const XlsxImportForm = () => {
         </CardHeader>
         <CardContent>
           {!loadingclassSubjects && showNoSubjectsError && (
-            <Alert className='border-red-200 bg-red-50 mb-4'>
+            <Alert className='border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 mb-4'>
               <AlertCircle className='h-4 w-4 text-red-600' />
-              <AlertDescription className='text-red-800'>
+              <AlertDescription className='text-red-800 dark:text-red-200'>
                 {t('no_subjects_error')}
               </AlertDescription>
             </Alert>
@@ -730,7 +734,7 @@ const XlsxImportForm = () => {
             )}
           </Button>
           {!loadingclassSubjects && !canDownloadTemplate && (
-            <p className='text-sm text-gray-500 mt-2'>
+            <p className='text-sm text-gray-500 dark:text-gray-400 mt-2'>
               {!selection.academicYearId ||
               !selection.semesterId ||
               !selection.classId
@@ -757,12 +761,13 @@ const XlsxImportForm = () => {
           <div
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
               isDragOver
-                ? 'border-blue-500 bg-blue-50'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-950'
                 : uploadedFile && !fileError
-                  ? 'border-green-500 bg-green-50'
+                  ? 'border-green-500 bg-green-50 dark:bg-green-950'
                   : fileError
-                    ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-red-500 bg-red-50 dark:bg-red-950'
+                    : `border-gray-300 hover:border-gray-400 dark:border-gray-600
+                      dark:hover:border-gray-500`
               }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -771,11 +776,12 @@ const XlsxImportForm = () => {
             {uploadedFile ? (
               <div className='space-y-2'>
                 <FileSpreadsheet
-                  className={`h-8 w-8 mx-auto ${fileError ? 'text-red-600' : 'text-green-600'}`}
+                  className={`h-8 w-8 mx-auto ${fileError ? 'text-red-600 ' : 'text-green-600'}`}
                 />
                 <div className='flex items-center justify-center gap-2'>
                   <span
-                    className={`text-sm font-medium ${fileError ? 'text-red-700' : ''}`}
+                    className={`text-sm font-medium
+                      ${fileError ? 'text-red-700 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}`}
                   >
                     {uploadedFile.name}
                   </span>
@@ -792,9 +798,9 @@ const XlsxImportForm = () => {
                   {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
                 </p>
                 {fileError && (
-                  <Alert className='border-red-200 bg-red-50 mt-2'>
+                  <Alert className='border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 mt-2'>
                     <AlertCircle className='h-4 w-4 text-red-600' />
-                    <AlertDescription className='text-red-800 text-sm'>
+                    <AlertDescription className='text-red-800 dark:text-red-200 text-sm'>
                       {fileError}
                     </AlertDescription>
                   </Alert>
@@ -804,8 +810,10 @@ const XlsxImportForm = () => {
               <div className='space-y-2'>
                 <Upload className='h-8 w-8 mx-auto text-gray-400' />
                 <div>
-                  <p className='text-sm font-medium'>{t('drop_file_prompt')}</p>
-                  <p className='text-xs text-gray-500'>
+                  <p className='text-sm font-medium text-gray-900 dark:text-gray-100'>
+                    {t('drop_file_prompt')}
+                  </p>
+                  <p className='text-xs text-gray-500 dark:text-gray-400'>
                     {t('browse_file_prompt')}
                   </p>
                 </div>
@@ -828,7 +836,7 @@ const XlsxImportForm = () => {
                   </Button>
                 </label>
                 {!canDownloadTemplate && (
-                  <p className='text-xs text-gray-500 mt-1'>
+                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
                     {!selection.academicYearId ||
                     !selection.semesterId ||
                     !selection.classId
@@ -855,18 +863,18 @@ const XlsxImportForm = () => {
 
           {/* Upload Status */}
           {uploadStatus === 'success' && (
-            <Alert className='border-green-200 bg-green-50'>
+            <Alert className='border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950'>
               <CheckCircle className='h-4 w-4 text-green-600' />
-              <AlertDescription className='text-green-800'>
+              <AlertDescription className='text-green-800 dark:text-green-200'>
                 {t('upload_success_message')}
               </AlertDescription>
             </Alert>
           )}
 
           {uploadStatus === 'error' && (
-            <Alert className='border-red-200 bg-red-50'>
+            <Alert className='border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950'>
               <AlertCircle className='h-4 w-4 text-red-600' />
-              <AlertDescription className='text-red-800'>
+              <AlertDescription className='text-red-800 dark:text-red-200'>
                 <div className='space-y-3'>
                   <p className='font-medium'>{t('import_error_title')}</p>
                   <div className='flex gap-2'>
@@ -878,7 +886,7 @@ const XlsxImportForm = () => {
                         <Button
                           variant='outline'
                           size='sm'
-                          className='text-red-700 border-red-300'
+                          className='text-red-700 dark:text-red-400 border-red-300 dark:border-red-600'
                         >
                           {t('view_errors_button', {
                             errorCount: errorDetails.length
@@ -898,8 +906,11 @@ const XlsxImportForm = () => {
                           {errorDetails.some(
                             (err) => !err.row || err.field === 'general'
                           ) && (
-                            <div className='mx-4 mb-6 p-4 bg-red-50 border border-red-200 rounded-lg'>
-                              <h3 className='font-semibold text-red-800 mb-3'>
+                            <div
+                              className='mx-4 mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200
+                                dark:border-red-800 rounded-lg'
+                            >
+                              <h3 className='font-semibold text-red-800 dark:text-red-200 mb-3'>
                                 {t('general_import_errors_title')}
                               </h3>
                               <div className='space-y-2'>
@@ -910,7 +921,8 @@ const XlsxImportForm = () => {
                                   .map((error, index) => (
                                     <div
                                       key={index}
-                                      className='text-sm text-red-700 bg-white p-2 rounded border'
+                                      className='text-sm text-red-700 dark:text-red-300 bg-white dark:bg-gray-800 p-2 rounded
+                                        border dark:border-gray-600'
                                     >
                                       {error.message}
                                     </div>
@@ -918,89 +930,104 @@ const XlsxImportForm = () => {
                               </div>
                             </div>
                           )}
-                          {errorData.length > 0 && (
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead className='w-16'>
-                                    {t('table_row_header')}
-                                  </TableHead>
-                                  {errorHeaders.map((header, index) => (
-                                    <TableHead
-                                      key={index}
-                                      className='min-w-[120px]'
-                                    >
-                                      {header}
+                          <TooltipProvider>
+                            {errorData.length > 0 && (
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead className='w-16'>
+                                      {t('table_row_header')}
                                     </TableHead>
-                                  ))}
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {errorData.map((row, rowIndex) => {
-                                  const actualRowNumber = rowIndex + 2; // +2 for header row and 0-indexing
-                                  const rowErrors = errorDetails.filter(
-                                    (err) => err.row === actualRowNumber
-                                  );
-                                  const hasRowErrors = rowErrors.length > 0;
-
-                                  return (
-                                    <TableRow
-                                      key={rowIndex}
-                                      className={
-                                        hasRowErrors ? 'bg-red-50/50' : ''
-                                      }
-                                    >
-                                      <TableCell
-                                        className={`font-medium ${hasRowErrors ? 'text-red-700' : ''}`}
+                                    {errorHeaders.map((header, index) => (
+                                      <TableHead
+                                        key={index}
+                                        className='min-w-[120px]'
                                       >
-                                        {actualRowNumber}
-                                      </TableCell>
-                                      {errorHeaders.map((header, colIndex) => {
-                                        const cellError = rowErrors.find(
-                                          (err) =>
-                                            err.column === header ||
-                                            err.field ===
-                                              header
-                                                .toLowerCase()
-                                                .replace(/\s+/g, '')
-                                        );
-                                        const hasError = !!cellError;
+                                        {header}
+                                      </TableHead>
+                                    ))}
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {errorData.map((row, rowIndex) => {
+                                    const actualRowNumber = rowIndex + 2; // +2 for header row and 0-indexing
+                                    const rowErrors = errorDetails.filter(
+                                      (err) => err.row === actualRowNumber
+                                    );
+                                    const hasRowErrors = rowErrors.length > 0;
 
-                                        return (
-                                          <TableCell
-                                            key={colIndex}
-                                            className={
-                                              hasError
-                                                ? 'bg-red-100 border border-red-300 text-red-800'
-                                                : ''
-                                            }
-                                          >
-                                            <div
-                                              className={
-                                                hasError
-                                                  ? 'text-red-800 font-medium'
-                                                  : ''
-                                              }
-                                            >
-                                              {
-                                                (row[header] ??
-                                                  '') as React.ReactNode
-                                              }
-                                            </div>
-                                            {hasError && (
-                                              <div className='text-xs text-red-600 mt-1 font-medium'>
-                                                {cellError.message}
-                                              </div>
-                                            )}
-                                          </TableCell>
-                                        );
-                                      })}
-                                    </TableRow>
-                                  );
-                                })}
-                              </TableBody>
-                            </Table>
-                          )}
+                                    return (
+                                      <TableRow
+                                        key={rowIndex}
+                                        className={
+                                          hasRowErrors
+                                            ? 'bg-red-50/50 dark:bg-background dark:hover:bg-muted-foreground/20'
+                                            : ''
+                                        }
+                                      >
+                                        <TableCell
+                                          className={`font-medium
+                                          ${hasRowErrors ? 'text-red-700 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}`}
+                                        >
+                                          {actualRowNumber}
+                                        </TableCell>
+                                        {errorHeaders.map(
+                                          (header, colIndex) => {
+                                            const cellError = rowErrors.find(
+                                              (err) =>
+                                                err.column === header ||
+                                                err.field ===
+                                                  header
+                                                    .toLowerCase()
+                                                    .replace(/\s+/g, '')
+                                            );
+                                            const hasError = !!cellError;
+
+                                            return (
+                                              <TableCell
+                                                key={colIndex}
+                                                className={
+                                                  hasError
+                                                    ? `bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-600
+                                                      text-red-800 dark:text-red-200`
+                                                    : ''
+                                                }
+                                              >
+                                                {hasError ? (
+                                                  <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                      <div className='text-red-800 dark:text-red-200 font-medium'>
+                                                        {
+                                                          (row[header] ??
+                                                            '') as React.ReactNode
+                                                        }
+                                                      </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                      <p className='font-lg'>
+                                                        {cellError.message}
+                                                      </p>
+                                                    </TooltipContent>
+                                                  </Tooltip>
+                                                ) : (
+                                                  <div>
+                                                    {
+                                                      (row[header] ??
+                                                        '') as React.ReactNode
+                                                    }
+                                                  </div>
+                                                )}
+                                              </TableCell>
+                                            );
+                                          }
+                                        )}
+                                      </TableRow>
+                                    );
+                                  })}
+                                </TableBody>
+                              </Table>
+                            )}
+                          </TooltipProvider>
                         </div>
                       </SheetContent>
                     </Sheet>
@@ -1009,21 +1036,22 @@ const XlsxImportForm = () => {
                     {errorDetails.slice(0, 5).map((error, index) => (
                       <div
                         key={index}
-                        className='text-xs bg-white p-2 rounded border'
+                        className='text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-2 rounded
+                          border dark:border-gray-600'
                       >
                         <span className='font-medium'>
                           {t('table_row_header')} {error.row}:
                         </span>{' '}
                         {error.message}
                         {error.field !== 'general' && (
-                          <span className='text-gray-600'>
+                          <span className='text-gray-600 dark:text-gray-400'>
                             (Column: {error.column})
                           </span>
                         )}
                       </div>
                     ))}
                     {errorDetails.length > 5 && (
-                      <div className='text-xs text-gray-600'>
+                      <div className='text-xs text-gray-600 dark:text-gray-400'>
                         {t('more_errors_prompt', {
                           remainingCount: errorDetails.length - 5
                         })}
@@ -1056,7 +1084,7 @@ const XlsxImportForm = () => {
           </Button>
 
           {!canSubmit && !isUploading && (
-            <p className='text-sm text-gray-500'>
+            <p className='text-sm text-gray-500 dark:text-gray-400'>
               {!canDownloadTemplate
                 ? !selection.academicYearId ||
                   !selection.semesterId ||

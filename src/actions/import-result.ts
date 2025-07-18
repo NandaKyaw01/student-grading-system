@@ -724,6 +724,43 @@ export async function importStudentResults(
         hasErrors = true;
       }
 
+      if (
+        !hasErrors &&
+        !isEmptyValue(rowData['Student Name']) &&
+        !isEmptyValue(rowData['Admission ID'])
+      ) {
+        try {
+          const existingEnrollment = await prisma.enrollment.findFirst({
+            where: {
+              student: {
+                admissionId: rowData['Admission ID']!.toString().trim()
+              },
+              semesterId: semesterId,
+              classId: {
+                not: classId // Exclude current class
+              }
+            },
+            include: {
+              class: true,
+              student: true
+            }
+          });
+
+          if (existingEnrollment) {
+            errors.push({
+              row: rowNumber,
+              column: 'Student Name',
+              field: 'studentName',
+              message: `Student is already enrolled in class "${existingEnrollment.class.className}" for this semester`
+            });
+            hasErrors = true;
+          }
+        } catch (error) {
+          // If database query fails, continue with validation
+          console.error('Error checking existing enrollment:', error);
+        }
+      }
+
       // Validate subject grades
       for (const cs of classSubjects) {
         const subjectId = cs.subject.id;
@@ -1149,6 +1186,41 @@ export async function importStudentResults(
                   isActive: true
                 }
               });
+
+              // const existingEnrollment = await tx.enrollment.findFirst({
+              //   where: {
+              //     studentId: student.id,
+              //     semesterId: semesterId,
+              //     isActive: true
+              //   }
+              // });
+
+              // let enrollment;
+              // if (existingEnrollment) {
+              //   if (existingEnrollment.classId === classId) {
+              //     // Same class - update enrollment
+              //     enrollment = await tx.enrollment.update({
+              //       where: { id: existingEnrollment.id },
+              //       data: { rollNumber: item.rollNumber }
+              //     });
+              //   } else {
+              //     // Different class - throw error
+              //     throw new Error(
+              //       `Student ${item.student.studentName} (${item.student.admissionId}) is already enrolled in another class for this semester`
+              //     );
+              //   }
+              // } else {
+              //   // Create new enrollment
+              //   enrollment = await tx.enrollment.create({
+              //     data: {
+              //       rollNumber: item.rollNumber,
+              //       studentId: student.id,
+              //       classId,
+              //       semesterId,
+              //       isActive: true
+              //     }
+              //   });
+              // }
 
               // Handle grades - use Promise.all for parallel processing
               await Promise.all(
