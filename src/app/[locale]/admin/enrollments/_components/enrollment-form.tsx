@@ -30,6 +30,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type SchemaKeys = ReturnType<
   typeof useTranslations<'EnrollmentsPage.EnrollmentModal.EnrollmentForm'>
@@ -53,6 +54,12 @@ interface EnrollmentFormProps {
   enrollment?: EnrollmentWithDetails;
   onSuccess?: () => void;
 }
+
+const ComboboxSkeleton = () => (
+  <div className='space-y-2'>
+    <Skeleton className='h-10 w-full' />
+  </div>
+);
 
 // Roll number prefix options
 const rollNumberPrefixes = [
@@ -308,19 +315,23 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('student')}</FormLabel>
-              <Combobox
-                options={
-                  students?.map((student) => ({
-                    value: student.id.toString(),
-                    label: student.studentName
-                  })) || []
-                }
-                value={field.value}
-                onValueChange={(value) => field.onChange(value)}
-                placeholder={t('select_student')}
-                searchPlaceholder={t('search_student')}
-                disabled={loading || studentsLoading}
-              />
+              {studentsLoading ? (
+                <ComboboxSkeleton />
+              ) : (
+                <Combobox
+                  options={
+                    students?.map((student) => ({
+                      value: student.id.toString(),
+                      label: student.studentName
+                    })) || []
+                  }
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value)}
+                  placeholder={t('select_student')}
+                  searchPlaceholder={t('search_student')}
+                  disabled={loading || studentsLoading}
+                />
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -351,19 +362,23 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                   </label>
                 </div>
               </div>
-              <Combobox
-                options={
-                  academicYearsData?.map((year) => ({
-                    value: year.id.toString(),
-                    label: `${year.yearRange} ${year.isCurrent ? t('current') : ''}`
-                  })) || []
-                }
-                value={field.value}
-                onValueChange={handleAcademicYearChange}
-                placeholder={t('select_academic_year')}
-                searchPlaceholder={t('search_academic_year')}
-                disabled={loading || academicYearsLoading}
-              />
+              {academicYearsLoading ? (
+                <ComboboxSkeleton />
+              ) : (
+                <Combobox
+                  options={
+                    academicYearsData?.map((year) => ({
+                      value: year.id.toString(),
+                      label: `${year.yearRange} ${year.isCurrent ? t('current') : ''}`
+                    })) || []
+                  }
+                  value={field.value}
+                  onValueChange={handleAcademicYearChange}
+                  placeholder={t('select_academic_year')}
+                  searchPlaceholder={t('search_academic_year')}
+                  disabled={loading || academicYearsLoading}
+                />
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -396,23 +411,27 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                   </label>
                 </div>
               </div>
-              <Combobox
-                options={filteredSemesters.map((semester) => ({
-                  value: semester.id.toString(),
-                  label: `${semester.semesterName} ${semester.isCurrent ? t('current') : ''}`
-                }))}
-                value={field.value}
-                onValueChange={handleSemesterChange}
-                placeholder={
-                  selectedAcademicYearId
-                    ? t('select_semester')
-                    : t('select_academic_year_first')
-                }
-                searchPlaceholder={t('search_semester')}
-                disabled={
-                  loading || semestersLoading || !selectedAcademicYearId
-                }
-              />
+              {semestersLoading ? (
+                <ComboboxSkeleton />
+              ) : (
+                <Combobox
+                  options={filteredSemesters.map((semester) => ({
+                    value: semester.id.toString(),
+                    label: `${semester.semesterName} ${semester.isCurrent ? t('current') : ''}`
+                  }))}
+                  value={field.value}
+                  onValueChange={handleSemesterChange}
+                  placeholder={
+                    selectedAcademicYearId
+                      ? t('select_semester')
+                      : t('select_academic_year_first')
+                  }
+                  searchPlaceholder={t('search_semester')}
+                  disabled={
+                    loading || semestersLoading || !selectedAcademicYearId
+                  }
+                />
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -424,28 +443,32 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('class')}</FormLabel>
-              <Combobox
-                options={filteredClasses.map((cls) => ({
-                  value: cls.id.toString(),
-                  label: `${cls.className} (${cls.departmentCode})`
-                }))}
-                value={field.value}
-                onValueChange={(value) => field.onChange(value)}
-                placeholder={
-                  selectedSemesterId
-                    ? filteredClasses.length > 0
-                      ? t('select_class')
-                      : t('no_classes_available')
-                    : t('select_semester_first')
-                }
-                searchPlaceholder={t('search_class')}
-                disabled={
-                  loading ||
-                  classesLoading ||
-                  !selectedSemesterId ||
-                  filteredClasses.length === 0
-                }
-              />
+              {classesLoading ? (
+                <ComboboxSkeleton />
+              ) : (
+                <Combobox
+                  options={filteredClasses.map((cls) => ({
+                    value: cls.id.toString(),
+                    label: `${cls.className} (${cls.departmentCode})`
+                  }))}
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value)}
+                  placeholder={
+                    selectedSemesterId
+                      ? filteredClasses.length > 0
+                        ? t('select_class')
+                        : t('no_classes_available')
+                      : t('select_semester_first')
+                  }
+                  searchPlaceholder={t('search_class')}
+                  disabled={
+                    loading ||
+                    classesLoading ||
+                    !selectedSemesterId ||
+                    filteredClasses.length === 0
+                  }
+                />
+              )}
               <FormMessage />
             </FormItem>
           )}

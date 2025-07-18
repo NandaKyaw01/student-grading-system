@@ -34,7 +34,7 @@ import {
 } from '@/lib/zod/result';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Loader } from 'lucide-react';
+import { AlertTriangle, Loader } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -42,6 +42,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Combobox } from './result-combobox';
 import ExistingResultDialog from './result-existing-alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export interface ResultFormProps {
   initialData?: UpdateResultFormData | CreateResultFormData | null;
@@ -691,6 +692,39 @@ export default function ResultForm({
                 <FormControl>
                   {enrollmentsLoading && studentId && semesterId ? (
                     <ComboboxSkeleton />
+                  ) : studentId > 0 &&
+                    semesterId > 0 &&
+                    enrollments.length === 0 &&
+                    !enrollmentsLoading ? (
+                    <Alert className='border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50'>
+                      <AlertTriangle className='h-4 w-4 text-blue-600 dark:text-blue-400' />
+                      <AlertDescription className='text-blue-800 dark:text-blue-200'>
+                        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
+                          <span>
+                            {t('fields.enrollment.no_enrollment_message', {
+                              defaultValue:
+                                'No enrollment found for this student in the selected semester. Please create an enrollment first.'
+                            })}
+                          </span>
+                          <Button
+                            variant='outline'
+                            size='sm'
+                            onClick={(e) => {
+                              e.preventDefault();
+                              router.push(
+                                `/admin/enrollments/create?studentId=${studentId}&semesterId=${semesterId}`
+                              );
+                            }}
+                            className='text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700
+                              hover:bg-blue-100 dark:hover:bg-blue-900/50'
+                          >
+                            {t('fields.enrollment.create_enrollment_button', {
+                              defaultValue: 'Create Enrollment'
+                            })}
+                          </Button>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
                   ) : (
                     <Combobox
                       options={enrollments.map((e) => ({
@@ -722,6 +756,41 @@ export default function ResultForm({
               isEditMode ? (
                 <SubjectGradesCardSkeleton />
               ) : null
+            ) : enrollmentId > 0 && subjects.length === 0 ? (
+              // Show alert when enrollment is selected but no subjects found
+              <Alert className='border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50'>
+                <AlertTriangle className='h-4 w-4 text-amber-600 dark:text-amber-400' />
+                <AlertDescription className='text-amber-800 dark:text-amber-200'>
+                  <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
+                    <span>
+                      {t('subjects.no_subjects_message', {
+                        defaultValue:
+                          'No subjects found for this enrollment. Please create subjects first.'
+                      })}
+                    </span>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => {
+                        const selectedEnrollment = enrollments.find(
+                          (e) => e.id === enrollmentId
+                        );
+                        if (selectedEnrollment) {
+                          router.push(
+                            `/admin/class-subjects?departmentCode=${selectedEnrollment.class.departmentCode}`
+                          );
+                        }
+                      }}
+                      className='text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700
+                        hover:bg-amber-100 dark:hover:bg-amber-900/50'
+                    >
+                      {t('subjects.create_subjects_button', {
+                        defaultValue: 'Create Subjects'
+                      })}
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
             ) : subjects.length > 0 ? (
               <Card>
                 <CardHeader>

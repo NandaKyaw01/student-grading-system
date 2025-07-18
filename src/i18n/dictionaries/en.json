@@ -151,7 +151,9 @@
         "enrollment": {
           "label": "Enrollment (Class and Roll Number)",
           "placeholder": "Select enrollment...",
-          "search": "Search enrollments..."
+          "search": "Search enrollments...",
+          "no_enrollment_message": "No enrollment found for this student in the selected semester. Please create an enrollment first.",
+          "create_enrollment_button": "Create Enrollment"
         }
       },
       "subjects": {
@@ -173,7 +175,9 @@
           "grade": "Grade: {value}",
           "score": "Score: {value}",
           "gp": "GP: {value}"
-        }
+        },
+        "no_subjects_message": "No subjects found for this enrollment. Please create subjects first.",
+        "create_subjects_button": "Create Subjects"
       },
       "actions": {
         "create": "Create Result",
@@ -665,7 +669,15 @@
         "update_success": "Enrollment updated successfully",
         "create_success": "Enrollment created successfully",
         "error": "Error",
-        "something_went_wrong": "Something went wrong"
+        "something_went_wrong": "Something went wrong",
+        "creating_enrollment_for": "Creating Enrollment For:",
+        "student_label": "Student:",
+        "academic_year_label": "Academic Year:",
+        "semester_label": "Semester:",
+        "loading": "Loading...",
+        "no_class_found": "No class found for selected semester. Please create a class first.",
+        "create_class": "Create Class",
+        "cancel": "cancel"
       }
     }
   },
