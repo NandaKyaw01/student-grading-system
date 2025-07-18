@@ -232,12 +232,12 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
         (s) => s.id === Number(currentSemester)
       );
 
-      if (!isCurrentSemesterValid) {
+      if (!isCurrentSemesterValid && currentSemester && !enrollment) {
         form.setValue('semesterId', '');
         form.setValue('classId', '');
       }
     }
-  }, [selectedAcademicYearId, filteredSemesters, form]);
+  }, [selectedAcademicYearId, filteredSemesters, form, enrollment]);
 
   useEffect(() => {
     if (selectedSemesterId) {
@@ -246,11 +246,11 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
         (c) => c.id === Number(currentClass)
       );
 
-      if (!isCurrentClassValid) {
+      if (!isCurrentClassValid && currentClass && !enrollment) {
         form.setValue('classId', '');
       }
     }
-  }, [selectedSemesterId, filteredClasses, form]);
+  }, [selectedSemesterId, filteredClasses, form, enrollment]);
 
   function onSubmit(values: z.infer<ReturnType<typeof formSchema>>) {
     startTransition(async () => {

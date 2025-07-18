@@ -193,6 +193,43 @@ export async function updateEnrollment(
   data: Partial<Omit<Enrollment, 'id' | 'createdAt' | 'updatedAt'>>
 ) {
   try {
+    if (data.semesterId || data.studentId) {
+      // Get current enrollment data
+      const currentEnrollment = await prisma.enrollment.findUnique({
+        where: { id },
+        include: { student: true }
+      });
+
+      if (!currentEnrollment) {
+        return { success: false, error: 'Enrollment not found' };
+      }
+
+      // Use updated values or fall back to current values
+      const checkStudentId = data.studentId || currentEnrollment.studentId;
+      const checkSemesterId = data.semesterId || currentEnrollment.semesterId;
+
+      // Check if student is already enrolled in any other class for this semester
+      const existingEnrollment = await prisma.enrollment.findFirst({
+        where: {
+          studentId: checkStudentId,
+          semesterId: checkSemesterId,
+          id: { not: id }, // Exclude current enrollment
+          classId: { not: currentEnrollment.classId } // Exclude same class
+        },
+        include: {
+          class: true,
+          student: true
+        }
+      });
+
+      if (existingEnrollment) {
+        return {
+          success: false,
+          error: `Student is already enrolled in class "${existingEnrollment.class.className}" for this semester`
+        };
+      }
+    }
+
     const enrollment = await prisma.enrollment.update({
       where: { id },
       data
