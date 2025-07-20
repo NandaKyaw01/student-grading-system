@@ -1,56 +1,63 @@
-# Dockerfile
-
-# 1. Base Stage: Use a modern, lightweight Node.js image
+# Stage 1: Base with Alpine fixes
 FROM node:22-alpine AS base
-
-
-# 2. Dependencies Stage: Install dependencies, leveraging Docker cache
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Fix Alpine repository issues and install dependencies
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/main" > /etc/apk/repositories && \
+    echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/community" >> /etc/apk/repositories && \
+    apk update && \
+    apk add --no-cache \
+    libc6-compat=1.2.4-r1 \
+    openssl=3.1.4-r0 \
+    git
+
+# Stage 2: Dependencies
+FROM base AS deps
+WORKDIR /app
+
+# Copy package files first for better caching
 COPY package.json package-lock.json* ./
+COPY prisma ./prisma/
+
+# Install all dependencies (including devDependencies for Prisma)
 RUN npm ci
 
-# 3. Builder Stage: Build the application
+# Generate Prisma client
+RUN npx prisma generate
+
+# Stage 3: Builder
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma Client to ensure it's available for the build
-RUN npx prisma generate
+# Build application
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN if [ -z "$DATABASE_URL" ]; then \
+      echo "Skipping prisma migrate (no DATABASE_URL)"; \
+      npm run build; \
+    else \
+      npx prisma migrate deploy && npm run build; \
+    fi
 
-# This build-time ARG is necessary for "prisma migrate deploy"
-# You will need to pass it during the 'docker build' command
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
-
-# Build the application. This runs "prisma migrate deploy && next build"
-RUN npm run build
-
-# 4. Runner Stage: Create the final, minimal production image
+# Stage 4: Runner (Production)
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
+# Install production dependencies only
+COPY --from=deps /app/package.json /app/package-lock.json ./
+RUN npm ci --omit=dev
 
-# Create a non-root user for security
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-# Copy required files from the builder stage
+# Copy built files
+COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-# Explicitly copy the Prisma schema for the runtime client
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/prisma ./prisma
 
-USER nextjs
-
+# Runtime configuration
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 EXPOSE 3000
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 
-# Start the app
-CMD ["node", "server.js"]
+# Start the application
+CMD ["npm", "start"]
