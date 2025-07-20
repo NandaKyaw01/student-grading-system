@@ -3,13 +3,7 @@ FROM node:22-alpine AS base
 WORKDIR /app
 
 # Fix Alpine repository issues and install dependencies
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/main" > /etc/apk/repositories && \
-    echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/community" >> /etc/apk/repositories && \
-    apk update && \
-    apk add --no-cache \
-    libc6-compat=1.2.4-r1 \
-    openssl=3.1.4-r0 \
-    git
+RUN apk add --no-cache libc6-compat
 
 # Stage 2: Dependencies
 FROM base AS deps
