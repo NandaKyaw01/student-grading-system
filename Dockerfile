@@ -2,11 +2,13 @@
 
 # 1. Base Stage: Use a modern, lightweight Node.js image
 FROM node:22-alpine AS base
-WORKDIR /app
+
 
 # 2. Dependencies Stage: Install dependencies, leveraging Docker cache
 FROM base AS deps
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
 COPY package.json package-lock.json* ./
 RUN npm ci
 
