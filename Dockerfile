@@ -21,6 +21,11 @@ COPY . .
 # Generate Prisma Client to ensure it's available for the build
 RUN npx prisma generate
 
+# This build-time ARG is necessary for "prisma migrate deploy"
+# You will need to pass it during the 'docker build' command
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
 # Build the application. This runs "prisma migrate deploy && next build"
 RUN npm run build
 
