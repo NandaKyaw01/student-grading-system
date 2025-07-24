@@ -1,7 +1,7 @@
 {
   "LocaleLayout": {
     "title": "SmartGrade UCSH (မြန်မာ)",
-    "description": "တက္ကသိုလ်တွင် ကျောင်းသားအဆင့်သတ်မှတ်မှုစနစ်ကို လွယ်ကူအောင်ပြုလုပ်ခြင်း - UCSH"
+    "description": "ဟင်္သာတ ကွန်ပျူတာတက္ကသိုလ်ရှိ ကျောင်းသားအဆင့်သတ်မှတ်ခြင်းနှင့် အကဲဖြတ်ခြင်းစနစ်"
   },
   "LocaleSwitcher": {
     "label": "Change language",
@@ -933,6 +933,11 @@
     "error_fallback": {
       "failed_to_load": "{componentName} ကို ဖွင့်မရပါ: {error}",
       "unknown_error": "မသိသော အမှား"
+    },
+    "filters": {
+      "academic_year": "ပညာသင်နှစ်",
+      "select_year": "ပညာသင်နှစ် ရွေးချယ်ပါ",
+      "current_year": "{year} (လက်ရှိ)"
     },
     "stats_cards": {
       "total_students": "စုစုပေါင်း ကျောင်းသားများ",

@@ -76,10 +76,35 @@ export interface ServiceResponse<T> {
   error?: string;
 }
 
-export async function getDashboardStats(): Promise<
-  ServiceResponse<DashboardStats>
-> {
+export async function getAcademicYearId(
+  yearRange?: string
+): Promise<number | null> {
+  if (!yearRange || yearRange === 'current') {
+    const currentYear = await prisma.academicYear.findFirst({
+      where: { isCurrent: true },
+      select: { id: true }
+    });
+    return currentYear?.id || null;
+  } else {
+    const year = await prisma.academicYear.findFirst({
+      where: { yearRange },
+      select: { id: true }
+    });
+    return year?.id || null;
+  }
+}
+
+export async function getDashboardStats(
+  academicYearId: number | null
+): Promise<ServiceResponse<DashboardStats>> {
   try {
+    if (!academicYearId) {
+      return {
+        success: false,
+        error: 'Academic year not found'
+      };
+    }
+
     const [
       totalStudents,
       totalClasses,
@@ -90,18 +115,14 @@ export async function getDashboardStats(): Promise<
       prisma.enrollment.count({
         where: {
           semester: {
-            academicYear: {
-              isCurrent: true
-            }
+            academicYearId: academicYearId
           }
         }
       }),
       prisma.class.count({
         where: {
           semester: {
-            academicYear: {
-              isCurrent: true
-            }
+            academicYearId: academicYearId
           }
         }
       }),
@@ -109,9 +130,7 @@ export async function getDashboardStats(): Promise<
         where: {
           class: {
             semester: {
-              academicYear: {
-                isCurrent: true
-              }
+              academicYearId: academicYearId
             }
           }
         }
@@ -121,7 +140,7 @@ export async function getDashboardStats(): Promise<
         select: { semesterName: true }
       }),
       prisma.academicYear.findFirst({
-        where: { isCurrent: true },
+        where: { id: academicYearId },
         select: { yearRange: true }
       })
     ]);
@@ -145,10 +164,17 @@ export async function getDashboardStats(): Promise<
   }
 }
 
-export async function getClassesWithEnrollments(): Promise<
-  ServiceResponse<ClassWithEnrollments[]>
-> {
+export async function getClassesWithEnrollments(
+  academicYearId: number | null
+): Promise<ServiceResponse<ClassWithEnrollments[]>> {
   try {
+    if (!academicYearId) {
+      return {
+        success: false,
+        error: 'Academic year not found'
+      };
+    }
+
     const classes = await prisma.class.findMany({
       select: {
         id: true,
@@ -172,7 +198,7 @@ export async function getClassesWithEnrollments(): Promise<
       },
       where: {
         semester: {
-          isCurrent: true
+          academicYearId: academicYearId
         }
       },
       orderBy: {
@@ -201,10 +227,17 @@ export async function getClassesWithEnrollments(): Promise<
   }
 }
 
-export async function getTopPerformingStudents(): Promise<
-  ServiceResponse<TopPerformingStudent[]>
-> {
+export async function getTopPerformingStudents(
+  academicYearId: number | null
+): Promise<ServiceResponse<TopPerformingStudent[]>> {
   try {
+    if (!academicYearId) {
+      return {
+        success: false,
+        error: 'Academic year not found'
+      };
+    }
+
     const topStudents = await prisma.result.findMany({
       select: {
         gpa: true,
@@ -228,7 +261,9 @@ export async function getTopPerformingStudents(): Promise<
       },
       where: {
         enrollment: {
-          isActive: true
+          semester: {
+            academicYearId: academicYearId
+          }
         }
       },
       orderBy: {
@@ -259,10 +294,17 @@ export async function getTopPerformingStudents(): Promise<
   }
 }
 
-export async function getRecentEnrollments(): Promise<
-  ServiceResponse<RecentEnrollment[]>
-> {
+export async function getRecentEnrollments(
+  academicYearId: number | null
+): Promise<ServiceResponse<RecentEnrollment[]>> {
   try {
+    if (!academicYearId) {
+      return {
+        success: false,
+        error: 'Academic year not found'
+      };
+    }
+
     const recentEnrollments = await prisma.enrollment.findMany({
       select: {
         id: true,
@@ -280,6 +322,11 @@ export async function getRecentEnrollments(): Promise<
             className: true,
             departmentCode: true
           }
+        }
+      },
+      where: {
+        semester: {
+          academicYearId: academicYearId
         }
       },
       orderBy: {
@@ -309,10 +356,16 @@ export async function getRecentEnrollments(): Promise<
   }
 }
 
-export async function getSubjectPerformance(): Promise<
-  ServiceResponse<SubjectPerformance[]>
-> {
+export async function getSubjectPerformance(
+  academicYearId: number | null
+): Promise<ServiceResponse<SubjectPerformance[]>> {
   try {
+    if (!academicYearId) {
+      return {
+        success: false,
+        error: 'Academic year not found'
+      };
+    }
     const subjectPerformance = await prisma.subject.findMany({
       select: {
         subjectName: true,
@@ -322,6 +375,21 @@ export async function getSubjectPerformance(): Promise<
               select: {
                 gp: true,
                 score: true
+              }
+            }
+          }
+        }
+      },
+      where: {
+        classes: {
+          some: {
+            class: {
+              enrollments: {
+                some: {
+                  semester: {
+                    academicYearId: academicYearId
+                  }
+                }
               }
             }
           }
@@ -367,54 +435,29 @@ export async function getSubjectPerformance(): Promise<
   }
 }
 
-export async function getSemesterData(): Promise<
-  ServiceResponse<SemesterData[]>
-> {
+export async function getGradeDistribution(
+  academicYearId: number | null
+): Promise<ServiceResponse<{ grade: string; count: number }[]>> {
   try {
-    const semesters = await prisma.semester.findMany({
-      select: {
-        id: true,
-        semesterName: true,
-        isCurrent: true,
-        _count: {
-          select: {
-            enrollments: true,
-            classes: true
-          }
-        },
-        academicYear: {
-          select: {
-            yearRange: true
-          }
-        }
-      },
-      orderBy: [
-        { academicYear: { yearRange: 'desc' } },
-        { semesterName: 'asc' }
-      ]
-    });
-
-    return {
-      success: true,
-      data: semesters
-    };
-  } catch (error) {
-    console.error('Error fetching semester data:', error);
-    return {
-      success: false,
-      error: 'Failed to fetch semester data'
-    };
-  }
-}
-
-export async function getGradeDistribution(): Promise<
-  ServiceResponse<{ grade: string; count: number }[]>
-> {
-  try {
+    if (!academicYearId) {
+      return {
+        success: false,
+        error: 'Academic year not found'
+      };
+    }
     const gradeDistribution = await prisma.grade.groupBy({
       by: ['grade'],
       _count: {
         grade: true
+      },
+      where: {
+        classSubject: {
+          class: {
+            semester: {
+              academicYearId: academicYearId
+            }
+          }
+        }
       },
       orderBy: {
         grade: 'asc'
@@ -439,19 +482,23 @@ export async function getGradeDistribution(): Promise<
   }
 }
 
-export async function getStudentStatusDistribution(): Promise<
-  ServiceResponse<{ status: string; count: number }[]>
-> {
+export async function getStudentStatusDistribution(
+  academicYearId: number | null
+): Promise<ServiceResponse<{ status: string; count: number }[]>> {
   try {
+    if (!academicYearId) {
+      return {
+        success: false,
+        error: 'Academic year not found'
+      };
+    }
     const statusData = await prisma.academicYearResult.groupBy({
       by: ['status'],
       _count: {
         status: true
       },
       where: {
-        academicYear: {
-          isCurrent: true
-        }
+        academicYearId: academicYearId
       }
     });
 

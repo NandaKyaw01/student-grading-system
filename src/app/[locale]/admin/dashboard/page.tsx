@@ -24,6 +24,7 @@ import { Suspense } from 'react';
 
 // Import server actions
 import {
+  getAcademicYearId,
   getClassesWithEnrollments,
   getDashboardStats,
   getGradeDistribution,
@@ -39,6 +40,8 @@ import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { useTranslations } from 'next-intl';
 import { DashboardCharts } from './components/dashboard-charts';
 import { getTranslations } from 'next-intl/server';
+import DashboardFilter from './components/dashboard-filter';
+import { SearchParams } from 'nuqs';
 
 // Color palette for charts
 const COLORS = [
@@ -54,6 +57,10 @@ type BreadcrumbProps = {
   name: string;
   link: string;
 };
+
+interface DashboardPageProps {
+  searchParams: Promise<{ year?: string }>;
+}
 
 // Error fallback component
 function ErrorFallback({
@@ -97,9 +104,13 @@ function StatsCardsSkeleton() {
 }
 
 // Stats Cards Component
-async function StatsCards() {
+async function StatsCards({
+  academicYearId
+}: {
+  academicYearId: number | null;
+}) {
   const t = await getTranslations('DashboardPage.stats_cards');
-  const statsResponse = await getDashboardStats();
+  const statsResponse = await getDashboardStats(academicYearId);
 
   if (!statsResponse.success || !statsResponse.data) {
     return (
@@ -200,9 +211,13 @@ function RecentEnrollmentsSkeleton() {
 }
 
 // Recent Enrollments Component
-async function RecentEnrollmentsCard() {
+async function RecentEnrollmentsCard({
+  academicYearId
+}: {
+  academicYearId: number | null;
+}) {
   const t = await getTranslations('DashboardPage.recent_enrollments');
-  const enrollmentsResponse = await getRecentEnrollments();
+  const enrollmentsResponse = await getRecentEnrollments(academicYearId);
 
   if (!enrollmentsResponse.success || !enrollmentsResponse.data) {
     return (
@@ -283,9 +298,13 @@ function TopStudentsSkeleton() {
 }
 
 // Top Students Component
-async function TopStudentsCard() {
+async function TopStudentsCard({
+  academicYearId
+}: {
+  academicYearId: number | null;
+}) {
   const t = await getTranslations('DashboardPage.top_students');
-  const studentsResponse = await getTopPerformingStudents();
+  const studentsResponse = await getTopPerformingStudents(academicYearId);
 
   if (!studentsResponse.success || !studentsResponse.data) {
     return (
@@ -311,7 +330,7 @@ async function TopStudentsCard() {
         <div className='space-y-4'>
           {students.map((student, index) => (
             <div
-              key={student.id + index + Date.now()}
+              key={student.departmentCode + index + Date.now()}
               className='flex items-center space-x-4'
             >
               <div
@@ -380,9 +399,13 @@ function ClassesSkeleton() {
 }
 
 // Classes with Enrollments Component
-async function ClassesCard() {
+async function ClassesCard({
+  academicYearId
+}: {
+  academicYearId: number | null;
+}) {
   const t = await getTranslations('DashboardPage.class_enrollments');
-  const classesResponse = await getClassesWithEnrollments();
+  const classesResponse = await getClassesWithEnrollments(academicYearId);
 
   if (!classesResponse.success || !classesResponse.data) {
     return (
@@ -465,9 +488,13 @@ function SubjectPerformanceSkeleton() {
 }
 
 // Subject Performance Component
-async function SubjectPerformanceCard() {
+async function SubjectPerformanceCard({
+  academicYearId
+}: {
+  academicYearId: number | null;
+}) {
   const t = await getTranslations('DashboardPage.subject_performance');
-  const subjectsResponse = await getSubjectPerformance();
+  const subjectsResponse = await getSubjectPerformance(academicYearId);
 
   if (!subjectsResponse.success || !subjectsResponse.data) {
     return (
@@ -537,10 +564,17 @@ function ChartsSkeleton() {
 }
 
 // Charts Component (will be client-side)
-async function ChartsSection() {
+async function ChartsSection({
+  academicYearId
+}: {
+  academicYearId: number | null;
+}) {
   const t = await getTranslations('DashboardPage.charts');
   const [gradeDistributionResponse, statusDistributionResponse] =
-    await Promise.all([getGradeDistribution(), getStudentStatusDistribution()]);
+    await Promise.all([
+      getGradeDistribution(academicYearId),
+      getStudentStatusDistribution(academicYearId)
+    ]);
 
   // Handle errors for charts
   if (
@@ -595,9 +629,13 @@ function QuickStatsSkeleton() {
 }
 
 // Quick Stats Component
-async function QuickStatsCard() {
+async function QuickStatsCard({
+  academicYearId
+}: {
+  academicYearId: number | null;
+}) {
   const t = await getTranslations('DashboardPage.quick_stats');
-  const statsResponse = await getDashboardStats();
+  const statsResponse = await getDashboardStats(academicYearId);
 
   if (!statsResponse.success || !statsResponse.data) {
     return (
@@ -639,8 +677,13 @@ async function QuickStatsCard() {
 }
 
 // Main Dashboard Component
-export default function DashboardPage() {
-  const t = useTranslations('DashboardPage');
+export default async function DashboardPage({
+  searchParams
+}: DashboardPageProps) {
+  const t = await getTranslations('DashboardPage');
+  const { year: selectedYear } = (await searchParams) || 'current';
+
+  const academicYearId = await getAcademicYearId(selectedYear);
 
   const breadcrumb: BreadcrumbProps[] = [
     {
@@ -659,9 +702,12 @@ export default function DashboardPage() {
       breadcrumb={<ActiveBreadcrumb path={breadcrumb} />}
     >
       <div className='container mx-auto p-4 space-y-6'>
+        {/* Add Year Filter */}
+        <DashboardFilter />
+
         {/* Stats Cards */}
         <Suspense fallback={<StatsCardsSkeleton />}>
-          <StatsCards />
+          <StatsCards academicYearId={academicYearId} />
         </Suspense>
 
         {/* Main Dashboard Content */}
@@ -678,24 +724,24 @@ export default function DashboardPage() {
           {/* Overview Tab */}
           <TabsContent value='overview' className='space-y-4'>
             <Suspense fallback={<ChartsSkeleton />}>
-              <ChartsSection />
+              <ChartsSection academicYearId={academicYearId} />
             </Suspense>
             <Suspense fallback={<RecentEnrollmentsSkeleton />}>
-              <RecentEnrollmentsCard />
+              <RecentEnrollmentsCard academicYearId={academicYearId} />
             </Suspense>
           </TabsContent>
 
           {/* Students Tab */}
           <TabsContent value='students' className='space-y-4'>
             <Suspense fallback={<TopStudentsSkeleton />}>
-              <TopStudentsCard />
+              <TopStudentsCard academicYearId={academicYearId} />
             </Suspense>
           </TabsContent>
 
           {/* Classes Tab */}
           <TabsContent value='classes' className='space-y-4'>
             <Suspense fallback={<ClassesSkeleton />}>
-              <ClassesCard />
+              <ClassesCard academicYearId={academicYearId} />
             </Suspense>
           </TabsContent>
 
@@ -703,10 +749,10 @@ export default function DashboardPage() {
           <TabsContent value='performance' className='space-y-4'>
             <div className='grid gap-4 lg:grid-cols-2'>
               <Suspense fallback={<SubjectPerformanceSkeleton />}>
-                <SubjectPerformanceCard />
+                <SubjectPerformanceCard academicYearId={academicYearId} />
               </Suspense>
               <Suspense fallback={<QuickStatsSkeleton />}>
-                <QuickStatsCard />
+                <QuickStatsCard academicYearId={academicYearId} />
               </Suspense>
             </div>
           </TabsContent>

@@ -105,7 +105,7 @@ export default async function RootLayout({ children, params }: Props) {
             <ThemeProvider
               activeThemeValue={activeThemeValue as string}
               attribute='class'
-              defaultTheme='system'
+              defaultTheme='light'
               enableSystem
             >
               <AuthProvider>{children}</AuthProvider>

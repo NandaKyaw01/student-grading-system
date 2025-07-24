@@ -930,6 +930,11 @@
   "DashboardPage": {
     "home": "Home",
     "title": "Dashboard",
+    "filters": {
+      "academic_year": "Academic Year",
+      "select_year": "Select Year",
+      "current_year": "{year} (Current)"
+    },
     "error_fallback": {
       "failed_to_load": "Failed to load {componentName}: {error}",
       "unknown_error": "Unknown error"
