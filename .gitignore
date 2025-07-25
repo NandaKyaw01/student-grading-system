@@ -45,4 +45,6 @@ generated/prisma/
 /src/generated/prisma/
 yarn-error.log/
 
+/dist/
+
 

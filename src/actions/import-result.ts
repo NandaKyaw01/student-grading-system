@@ -864,7 +864,7 @@ export async function importStudentResults(
                 row: rowNumber,
                 column: assignMarkColumnKey,
                 field: 'assignMark',
-                message: `Invalid assignment mark '${assignMarkValue}' for subject ${subjectName}. Must be between 0 and 100`,
+                message: `Invalid assignment mark '${assignMarkValue}' for subject ${subjectName}. Must be between 0 and ${cs.subject.assignWeight * 100}`,
                 value: assignMarkValue
               });
               hasErrors = true;

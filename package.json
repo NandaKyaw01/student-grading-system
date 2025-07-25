@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "prisma migrate deploy && next build",
     "start": "next start",
+    "node:build": "next build && tsc --project tsconfig.server.json",
+    "node:start": "NODE_ENV=production node dist/server.js",
     "lint": "next lint",
     "type-check": "tsc -b",
     "format": "prettier --write .",
