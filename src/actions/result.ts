@@ -852,7 +852,7 @@ export async function createResult(data: CreateResultFormData) {
       const examMark = gradeInput.baseMark * subject.examWeight;
       const finalMark = examMark + gradeInput.assignMark;
 
-      const roundedFinalMark = Math.round(finalMark);
+      const roundedFinalMark = Math.ceil(finalMark);
 
       const gradeInfo = calculateGradeDetails(roundedFinalMark, gradeScale);
       const gp = calculateGP(gradeInfo.score, subject.creditHours);
@@ -1034,7 +1034,7 @@ export async function updateResult(input: UpdateResultFormData) {
 
       const examMark = gradeInput.baseMark * classSubject.subject.examWeight;
       const finalMark = examMark + gradeInput.assignMark;
-      const roundedFinalMark = Math.round(finalMark);
+      const roundedFinalMark = Math.ceil(finalMark);
 
       // Get grade details based on final mark
       const gradeDetails = calculateGradeDetails(roundedFinalMark, gradeScales);

@@ -511,7 +511,7 @@ export default function ResultForm({
       // Calculate final mark
       const finalMark = examMark + assignMark;
 
-      const roundedFinalMark = Math.round(finalMark);
+      const roundedFinalMark = Math.ceil(finalMark);
 
       // Find grade from grade scale
       const gradeScale = gradeScales.find(
