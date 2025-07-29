@@ -90,27 +90,9 @@ export default async function ViewResultPage({ params }: PageProps) {
     notFound();
   }
 
-  const SUBJECT_PRIORITY: Record<string, number> = {
-    Myanmar: 1,
-    English: 2,
-    Physics: 3
-    // Add other subjects with lower priority (default)
-  };
-
-  const sortedGrades = resultData.grades.sort((a, b) => {
-    // First, sort by subject name priority
-    const priorityA = SUBJECT_PRIORITY[a.subject.name] || Infinity;
-    const priorityB = SUBJECT_PRIORITY[b.subject.name] || Infinity;
-
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB; // Myanmar (1) comes before English (2), etc.
-    }
-
-    // If same priority, sort by subject ID (numeric part)
-    const numA = parseInt(a.subject.id.match(/\d+/)?.[0] || '0');
-    const numB = parseInt(b.subject.id.match(/\d+/)?.[0] || '0');
-    return numA - numB;
-  });
+  const sortedGrades = resultData.grades.sort(
+    (a, b) => a.subject.priority! - b.subject.priority!
+  );
 
   return (
     <ContentLayout

@@ -75,7 +75,8 @@ export async function getClassSubjects(classId: number) {
             subjectName: true,
             creditHours: true,
             examWeight: true,
-            assignWeight: true
+            assignWeight: true,
+            priority: true
           }
         }
       },
@@ -104,6 +105,7 @@ type TemplateData = {
     creditHours: number;
     assignWeight: number;
     examWeight: number;
+    priority: number;
   }>;
 };
 
@@ -116,27 +118,9 @@ export async function generateStudentTemplate(
       throw new Error('Class ID is required');
     }
 
-    const SUBJECT_PRIORITY: Record<string, number> = {
-      Myanmar: 1,
-      English: 2,
-      Physics: 3
-      // Add other subjects with lower priority (default)
-    };
-
-    const classSubjects = templateData.subjects.sort((a, b) => {
-      // First, sort by subject name priority
-      const priorityA = SUBJECT_PRIORITY[a.name] || Infinity;
-      const priorityB = SUBJECT_PRIORITY[b.name] || Infinity;
-
-      if (priorityA !== priorityB) {
-        return priorityA - priorityB; // Myanmar (1) comes before English (2), etc.
-      }
-
-      // If same priority, sort by subject ID (numeric part)
-      const numA = parseInt(a.id.match(/\d+/)?.[0] || '0');
-      const numB = parseInt(b.id.match(/\d+/)?.[0] || '0');
-      return numA - numB;
-    });
+    const classSubjects = templateData.subjects.sort(
+      (a, b) => a.priority - b.priority
+    );
 
     if (classSubjects.length === 0) {
       throw new Error('No subjects found for this class');

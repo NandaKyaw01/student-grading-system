@@ -41,13 +41,6 @@ interface Props {
   }>;
 }
 
-const SUBJECT_PRIORITY: Record<string, number> = {
-  Myanmar: 1,
-  English: 2,
-  Physics: 3
-  // Add other subjects with lower priority (default)
-};
-
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'PASS':
@@ -465,32 +458,11 @@ export default function AcademicYearResultView({ data, gradeScales }: Props) {
                         {(() => {
                           // Sort grades with priority
                           const sortedGrades =
-                            semesterResult.enrollment.grades.sort((a, b) => {
-                              // First, sort by subject name priority
-                              const priorityA =
-                                SUBJECT_PRIORITY[
-                                  a.classSubject.subject.subjectName
-                                ] || Infinity;
-                              const priorityB =
-                                SUBJECT_PRIORITY[
-                                  b.classSubject.subject.subjectName
-                                ] || Infinity;
-
-                              if (priorityA !== priorityB) {
-                                return priorityA - priorityB;
-                              }
-
-                              // If same priority, sort by subject ID (numeric part)
-                              const numA = parseInt(
-                                a.classSubject.subject.id.match(/\d+/)?.[0] ||
-                                  '0'
-                              );
-                              const numB = parseInt(
-                                b.classSubject.subject.id.match(/\d+/)?.[0] ||
-                                  '0'
-                              );
-                              return numA - numB;
-                            });
+                            semesterResult.enrollment.grades.sort(
+                              (a, b) =>
+                                a.classSubject.subject.priority! -
+                                b.classSubject.subject.priority!
+                            );
 
                           return (
                             <>

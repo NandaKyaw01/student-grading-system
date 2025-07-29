@@ -68,6 +68,7 @@ model Subject {
   creditHours  Float          @default(3.0)
   examWeight   Float          @default(0.6)
   assignWeight Float          @default(0.4)
+  priority     Int?
   classes      ClassSubject[]
 
   createdAt DateTime @default(now())

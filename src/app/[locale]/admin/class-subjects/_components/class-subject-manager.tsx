@@ -213,29 +213,31 @@ export function ClassSubjectManager({
       );
     }
 
-    return dataState.classSubjects.map((cs) => (
-      <TableRow key={`${cs.classId}-${cs.subjectId}`}>
-        <TableCell>{cs.subject.id}</TableCell>
-        <TableCell className='break-words whitespace-normal'>
-          {cs.subject.subjectName}
-        </TableCell>
-        <TableCell>{cs.subject.creditHours}</TableCell>
-        <TableCell className='text-right'>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={() => handleRemoveSubject(cs.subjectId)}
-            disabled={isDeletePending}
-          >
-            {deleteSubjectId === cs.subject.id && isDeletePending ? (
-              <Loader className='h-4 w-4 animate-spin' />
-            ) : (
-              <Trash className='h-4 w-4 text-destructive' />
-            )}
-          </Button>
-        </TableCell>
-      </TableRow>
-    ));
+    return dataState.classSubjects
+      .sort((a, b) => a.subject.priority! - b.subject.priority!)
+      .map((cs) => (
+        <TableRow key={`${cs.classId}-${cs.subjectId}`}>
+          <TableCell>{cs.subject.id}</TableCell>
+          <TableCell className='break-words whitespace-normal'>
+            {cs.subject.subjectName}
+          </TableCell>
+          <TableCell>{cs.subject.priority}</TableCell>
+          <TableCell className='text-right'>
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={() => handleRemoveSubject(cs.subjectId)}
+              disabled={isDeletePending}
+            >
+              {deleteSubjectId === cs.subject.id && isDeletePending ? (
+                <Loader className='h-4 w-4 animate-spin' />
+              ) : (
+                <Trash className='h-4 w-4 text-destructive' />
+              )}
+            </Button>
+          </TableCell>
+        </TableRow>
+      ));
   }, [
     dataState.classSubjects,
     deleteSubjectId,
@@ -259,7 +261,7 @@ export function ClassSubjectManager({
           {t('title', { className })}
         </Button>
       </DialogTrigger>
-      <DialogContent className='max-w-2xl'>
+      <DialogContent className='min-w-xl max-w-fit'>
         <DialogHeader>
           <DialogTitle>{t('title', { className })}</DialogTitle>
         </DialogHeader>
@@ -306,7 +308,7 @@ export function ClassSubjectManager({
                   <TableRow>
                     <TableHead>{t('table.subject_id')}</TableHead>
                     <TableHead>{t('table.subject_name')}</TableHead>
-                    <TableHead>{t('table.credit_hours')}</TableHead>
+                    <TableHead>{t('table.priority')}</TableHead>
                     <TableHead className='text-right'>
                       {t('table.actions')}
                     </TableHead>

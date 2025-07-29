@@ -402,7 +402,8 @@ const XlsxImportForm = () => {
             name: cs.subject.subjectName,
             creditHours: cs.subject.creditHours,
             assignWeight: cs.subject.assignWeight,
-            examWeight: cs.subject.examWeight
+            examWeight: cs.subject.examWeight,
+            priority: cs.subject.priority!
           }))
         };
 

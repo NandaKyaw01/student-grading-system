@@ -43,6 +43,11 @@ export function getSubjectColumns(
       enableSorting: true
     },
     {
+      id: 'priority',
+      accessorKey: 'priority',
+      header: t('priority')
+    },
+    {
       id: 'search',
       accessorKey: 'subjectName',
       header: t('subject_name'),

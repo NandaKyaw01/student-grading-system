@@ -870,6 +870,7 @@
       "credit_hours": "Credit Hours",
       "exam": "Exam",
       "assessment": "Assessment",
+      "priority": "Priority",
       "cancel": "Cancel",
       "saving": "Saving...",
       "create": "Create Subject",
@@ -883,6 +884,7 @@
     "table": {
       "no": "No.",
       "subject_code": "Subject Code",
+      "priority": "Priority",
       "subject_name": "Subject Name",
       "search_placeholder": "Search Subject...",
       "credit_hours": "Credit Hours",
@@ -912,6 +914,7 @@
         "subject_id": "Subject ID",
         "subject_name": "Subject Name",
         "credit_hours": "Credit Hours",
+        "priority": "Priority",
         "actions": "Actions"
       }
     },

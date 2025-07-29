@@ -23,6 +23,7 @@ export type ResultData = {
       id: string;
       name: string;
       creditHours: number;
+      priority: number;
     };
     baseMark: number;
     examMark: number;
@@ -77,7 +78,7 @@ export async function getResultById(
               orderBy: {
                 classSubject: {
                   subject: {
-                    subjectName: 'asc'
+                    priority: 'asc'
                   }
                 }
               }
@@ -119,7 +120,8 @@ export async function getResultById(
         subject: {
           id: grade.classSubject.subject.id,
           name: grade.classSubject.subject.subjectName,
-          creditHours: grade.classSubject.subject.creditHours
+          creditHours: grade.classSubject.subject.creditHours,
+          priority: grade.classSubject.subject.priority!
         },
         baseMark: grade.baseMark,
         examMark: grade.examMark,

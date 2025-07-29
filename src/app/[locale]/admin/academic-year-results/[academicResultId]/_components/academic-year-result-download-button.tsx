@@ -64,8 +64,13 @@ export function AcademicResultDownloadButton({
               semesterStatus: semesterResult.status,
 
               // Grades for each subject in the semester
-              grades: semesterResult.enrollment.grades.map(
-                (grade, gradeIndex) => ({
+              grades: semesterResult.enrollment.grades
+                .sort(
+                  (a, b) =>
+                    a.classSubject.subject.priority! -
+                    b.classSubject.subject.priority!
+                )
+                .map((grade, gradeIndex) => ({
                   no: gradeIndex + 1,
                   subjectName: grade.classSubject.subject.subjectName,
                   creditUnit: grade.classSubject.subject.creditHours.toFixed(2),
@@ -75,8 +80,7 @@ export function AcademicResultDownloadButton({
                   examMark: grade.examMark,
                   assignMark: grade.assignMark,
                   finalMark: grade.finalMark
-                })
-              )
+                }))
             }))
             .sort((a, b) => {
               const getSemesterNumber = (name: string) => {

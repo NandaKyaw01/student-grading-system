@@ -70,7 +70,11 @@ const subjectFormSchema = (
         })
         .refine((val) => val >= 0 && val <= 1, {
           message: t('validation.assign_weight_range')
-        })
+        }),
+      priority: z.union([z.string(), z.number()]).transform((val) => {
+        const parsed = typeof val === 'string' ? parseInt(val) : val;
+        return isNaN(parsed) ? 0 : parsed;
+      })
     })
     .refine(
       (data) => {
@@ -90,6 +94,7 @@ type SubjectFormInput = {
   creditHours: string | number;
   examWeight: string | number;
   assignWeight: string | number;
+  priority: string | number;
 };
 
 // Define the form output type (what gets processed)
@@ -119,7 +124,8 @@ export function SubjectDialog({
       subjectName: '',
       creditHours: 3.0,
       examWeight: 0.6,
-      assignWeight: 0.4
+      assignWeight: 0.4,
+      priority: ''
     }
   });
 
@@ -130,7 +136,8 @@ export function SubjectDialog({
         subjectName: subject.subjectName || '',
         creditHours: subject.creditHours || 3.0,
         examWeight: subject.examWeight ?? 0.6,
-        assignWeight: subject.assignWeight ?? 0.4
+        assignWeight: subject.assignWeight ?? 0.4,
+        priority: subject.priority ?? ''
       });
     } else if (open && !subject) {
       // Reset to default values for new subject
@@ -139,7 +146,8 @@ export function SubjectDialog({
         subjectName: '',
         creditHours: 3.0,
         examWeight: 0.6,
-        assignWeight: 0.4
+        assignWeight: 0.4,
+        priority: ''
       });
     }
   }, [open, subject, form]);
@@ -239,7 +247,7 @@ export function SubjectDialog({
               )}
             />
 
-            <div className='grid grid-cols-3 gap-4'>
+            <div className='grid grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
                 name='creditHours'
@@ -272,6 +280,37 @@ export function SubjectDialog({
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name='priority'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('priority')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        step='1'
+                        min='0'
+                        {...field}
+                        value={
+                          field.value === '' ||
+                          field.value === null ||
+                          field.value === undefined
+                            ? ''
+                            : field.value
+                        }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const numValue = value === '' ? '' : parseInt(value);
+                          field.onChange(numValue);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name='examWeight'

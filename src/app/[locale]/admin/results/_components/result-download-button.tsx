@@ -49,18 +49,20 @@ export function ResultDownloadButton({
           totalGp: resultData.result.totalGp.toFixed(2),
 
           // Grades array for table iteration
-          grades: resultData.grades.map((grade, index) => ({
-            no: index + 1,
-            subjectName: grade.subject.name,
-            creditUnit: grade.subject.creditHours.toFixed(2),
-            grade: grade.grade,
-            score: grade.score.toFixed(2),
-            point: grade.gp.toFixed(2),
-            baseMark: grade.baseMark,
-            examMark: grade.examMark,
-            assignMark: grade.assignMark,
-            finalMark: grade.finalMark
-          })),
+          grades: resultData.grades
+            .sort((a, b) => a.subject.priority - b.subject.priority!)
+            .map((grade, index) => ({
+              no: index + 1,
+              subjectName: grade.subject.name,
+              creditUnit: grade.subject.creditHours.toFixed(2),
+              grade: grade.grade,
+              score: grade.score.toFixed(2),
+              point: grade.gp.toFixed(2),
+              baseMark: grade.baseMark,
+              examMark: grade.examMark,
+              assignMark: grade.assignMark,
+              finalMark: grade.finalMark
+            })),
 
           gradeScales: resultData.gradeScales,
 

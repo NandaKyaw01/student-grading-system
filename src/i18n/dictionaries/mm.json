@@ -870,6 +870,7 @@
       "credit_hours": "ယူနစ်",
       "exam": "စာမေးပွဲ",
       "assessment": "Assessment",
+      "priority": "အစဉ်လိုက်",
       "cancel": "မလုပ်တော့ပါ",
       "saving": "သိမ်းဆည်းနေသည်...",
       "create": "ဘာသာရပ်ပြုလုပ်မည်",
@@ -883,6 +884,7 @@
     "table": {
       "no": "စဉ်",
       "subject_code": "ဘာသာရပ်ကုဒ်",
+      "priority": "အစဉ်လိုက်",
       "subject_name": "ဘာသာရပ်အမည်",
       "search_placeholder": "ဘာသာရပ်ရှာရန်...",
       "credit_hours": "ယူနစ်",
@@ -912,6 +914,7 @@
         "subject_id": "ဘာသာရပ် ID",
         "subject_name": "ဘာသာရပ်အမည်",
         "credit_hours": "ယူနစ်",
+        "priority": "အစဉ်လိုက်",
         "actions": "လုပ်ဆောင်ချက်များ"
       }
     },
