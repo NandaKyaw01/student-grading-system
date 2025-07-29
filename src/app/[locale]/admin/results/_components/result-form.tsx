@@ -915,7 +915,7 @@ export default function ResultForm({
                                     <div>|</div>
                                     <div>
                                       {t('subjects.grade_info.final', {
-                                        mark: gradeInfo.examMark
+                                        mark: gradeInfo.finalMark
                                       })}
                                     </div>
                                     <div>|</div>

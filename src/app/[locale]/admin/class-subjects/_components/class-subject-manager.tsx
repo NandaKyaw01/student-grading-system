@@ -216,7 +216,9 @@ export function ClassSubjectManager({
     return dataState.classSubjects.map((cs) => (
       <TableRow key={`${cs.classId}-${cs.subjectId}`}>
         <TableCell>{cs.subject.id}</TableCell>
-        <TableCell>{cs.subject.subjectName}</TableCell>
+        <TableCell className='break-words whitespace-normal'>
+          {cs.subject.subjectName}
+        </TableCell>
         <TableCell>{cs.subject.creditHours}</TableCell>
         <TableCell className='text-right'>
           <Button

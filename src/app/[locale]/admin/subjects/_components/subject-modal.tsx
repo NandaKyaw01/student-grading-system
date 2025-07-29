@@ -129,8 +129,8 @@ export function SubjectDialog({
         id: subject.id || '',
         subjectName: subject.subjectName || '',
         creditHours: subject.creditHours || 3.0,
-        examWeight: subject.examWeight || 0.6,
-        assignWeight: subject.assignWeight || 0.4
+        examWeight: subject.examWeight ?? 0.6,
+        assignWeight: subject.assignWeight ?? 0.4
       });
     } else if (open && !subject) {
       // Reset to default values for new subject
@@ -249,7 +249,7 @@ export function SubjectDialog({
                     <FormControl>
                       <Input
                         type='number'
-                        step='0.01'
+                        step='0.1'
                         min='0.5'
                         // max=''
                         {...field}
