@@ -61,18 +61,6 @@ const ComboboxSkeleton = () => (
   </div>
 );
 
-// Roll number prefix options
-const rollNumberPrefixes = [
-  { value: '1CST', label: '1CST' },
-  { value: '2CS', label: '2CS' },
-  { value: '2CT', label: '2CT' },
-  { value: '3CS', label: '3CS' },
-  { value: '3CT', label: '3CT' },
-  { value: '4CS', label: '4CS' },
-  { value: '4CT', label: '4CT' },
-  { value: '5CS', label: '5CS' },
-  { value: '5CT', label: '5CT' }
-];
 
 export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
   const [loading, startTransition] = useTransition();
@@ -480,14 +468,18 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('roll_number_prefix')}</FormLabel>
-              <Combobox
-                options={rollNumberPrefixes}
-                value={field.value}
-                onValueChange={(value) => field.onChange(value)}
-                placeholder={t('select_prefix')}
-                searchPlaceholder={t('search_prefix')}
-                disabled={loading}
-              />
+              <FormControl>
+                <Input
+                  type='text'
+                  placeholder={t('select_prefix')}
+                  {...field}
+                  disabled={loading}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    field.onChange(target.value);
+                  }}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

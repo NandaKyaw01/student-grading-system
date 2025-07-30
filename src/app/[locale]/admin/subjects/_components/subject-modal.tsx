@@ -158,11 +158,16 @@ export function SubjectDialog({
         // Validate and transform the data using the schema
         const validatedData = subjectFormSchema(t).parse(data);
 
+        const finalData = {
+          ...validatedData,
+          subjectName: validatedData.subjectName.trim()
+        }
+        
         let result;
         if (mode === 'new') {
-          result = await createSubject(validatedData);
+          result = await createSubject(finalData);
         } else if (subject?.id) {
-          result = await updateSubject(subject.id, validatedData);
+          result = await updateSubject(subject.id, finalData);
         } else {
           throw new Error('Subject ID is required for updates');
         }
