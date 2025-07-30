@@ -3,7 +3,13 @@ import { withAuth } from 'next-auth/middleware';
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 
-const publicPages = ['/', '/auth/login', '/api/register', '/uploads/avatars'];
+const publicPages = [
+  '/',
+  '/auth/login',
+  '/api/register',
+  '/uploads/avatars',
+  '/search'
+];
 
 const intlMiddleware = createMiddleware(routing);
 
