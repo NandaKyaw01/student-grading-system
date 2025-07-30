@@ -160,6 +160,16 @@ export async function getAllResults<T extends boolean = false>(
             {
               enrollment: {
                 student: {
+                  admissionId: {
+                    contains: input.search,
+                    mode: 'insensitive'
+                  }
+                }
+              }
+            },
+            {
+              enrollment: {
+                student: {
                   studentName: {
                     contains: input.search,
                     mode: 'insensitive'

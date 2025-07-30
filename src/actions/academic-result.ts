@@ -47,6 +47,14 @@ export async function getAllAcademicYearResults<T extends boolean = false>(
                   mode: 'insensitive'
                 }
               }
+            },
+            {
+              student: {
+                admissionId: {
+                  contains: input.search,
+                  mode: 'insensitive'
+                }
+              }
             }
           ];
         }
