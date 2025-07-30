@@ -588,7 +588,8 @@ export async function importStudentResults(
         '5CS',
         '5CT'
       ];
-      return validCodes.includes(code.toUpperCase());
+      // return validCodes.includes(code.toUpperCase());
+      return true;
     }
 
     // Function to get roll number column indices
