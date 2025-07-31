@@ -1018,5 +1018,31 @@
       },
       "back_to_results": "Back to Results"
     }
+  },
+  "SearchPage": {
+    "breadcrumb": "Search Result",
+    "title": "Results : Search Results",
+    "header": "Search Student Results",
+    "description": "Find student results by filtering academic year, semester, class, name, or admission ID",
+    "search_filters": "Search Filters",
+    "search_filters_description": "Use the filters below to search for student results",
+    "validation_error": "Please fill in all required fields: {fields}",
+    "no_results": "No result found matching your search criteria.",
+    "form": {
+      "academic_year": "Academic Year",
+      "select_academic_year": "Select academic year",
+      "semester": "Semester",
+      "select_semester": "Select semester",
+      "class": "Class",
+      "select_class": "Select class",
+      "student_name": "Student Name",
+      "enter_student_name": "Enter student name",
+      "admission_id": "Admission ID",
+      "enter_admission_id": "Enter admission ID",
+      "roll_number": "Roll Number",
+      "enter_roll_number": "Enter roll number",
+      "search_button": "Search Result",
+      "clear_button": "Clear Filters"
+    }
   }
 }

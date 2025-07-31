@@ -1,44 +1,11 @@
-import {
-  getSearchFilters,
-  searchResults as searchResultsAction,
-  type ResultData
-} from '@/actions/public-result-view';
+import { getSearchFilters, searchResults as searchResultsAction, type ResultData } from '@/actions/public-result-view';
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import {
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  Table
-} from '@/components/ui/table';
-import {
-  Award,
-  BookOpen,
-  Calendar,
-  GraduationCap,
-  Search,
-  User
-} from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Award, BookOpen, Calendar, GraduationCap, Search, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import SearchForm from './_components/filter-search';
@@ -97,33 +64,13 @@ type PageProps = {
 export default async function SearchResultsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const t = await getTranslations('ResultsBySemester.ResultView');
+  const tSearch = await getTranslations('SearchPage');
 
-  // Get filter options
   const filterOptions = await getSearchFilters();
 
-  // // Search for results if any search params are provided
-  // let searchResults: ResultData[] = [];
-  // const hasSearchParams = Object.keys(params).some(
-  //   (key) => params[key as keyof SearchParams]
-  // );
-
-  // if (hasSearchParams) {
-  //   searchResults = await searchResultsAction(params);
-  // }
-
-  // Validate that all required fields are provided
-  const requiredFields = [
-    'academicYear',
-    'semester',
-    'class',
-    'studentName',
-    'admissionId',
-    'rollNumber'
-  ];
+  const requiredFields = ['academicYear', 'semester', 'class', 'studentName', 'admissionId', 'rollNumber'];
   const missingFields = requiredFields.filter(
-    (field) =>
-      !params[field as keyof SearchParams] ||
-      params[field as keyof SearchParams] === 'all'
+    (field) => !params[field as keyof SearchParams] || params[field as keyof SearchParams] === 'all'
   );
 
   let searchResult: ResultData | null = null;
@@ -131,7 +78,7 @@ export default async function SearchResultsPage({ searchParams }: PageProps) {
 
   if (Object.keys(params).length > 0) {
     if (missingFields.length > 0) {
-      validationError = `Please fill in all required fields: ${missingFields.join(', ')}`;
+      validationError = tSearch('validation_error', { fields: missingFields.join(', ') });
     } else {
       searchResult = await searchResultsAction(params); // This will now return single result
     }
@@ -139,32 +86,14 @@ export default async function SearchResultsPage({ searchParams }: PageProps) {
 
   return (
     <ContentLayout
-      title='Results'
-      breadcrumb={
-        <ActiveBreadcrumb
-          path={[
-            {
-              name: t('breadcrumbs.home'),
-              link: '/'
-            },
-            {
-              name: 'Search',
-              link: ''
-            }
-          ]}
-        />
-      }
+      title={tSearch('breadcrumb')}
+      breadcrumb={<ActiveBreadcrumb path={[{ name: t('breadcrumbs.home'), link: '/' }, { name: tSearch("breadcrumb"), link: '' }]} />}
     >
       <div className='max-w-6xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6'>
         {/* Header */}
         <div className='space-y-2'>
-          <h1 className='text-2xl sm:text-2xl font-bold text-foreground'>
-            Search Student Results
-          </h1>
-          <p className='text-sm sm:text-base text-muted-foreground'>
-            Find student results by filtering academic year, semester, class,
-            name, or admission ID
-          </p>
+          <h1 className='text-2xl sm:text-2xl font-bold text-foreground'>{tSearch('header')}</h1>
+          <p className='text-sm sm:text-base text-muted-foreground'>{tSearch('description')}</p>
           <Separator />
         </div>
 
@@ -173,11 +102,9 @@ export default async function SearchResultsPage({ searchParams }: PageProps) {
           <CardHeader>
             <CardTitle className='text-lg sm:text-xl flex items-center gap-2'>
               <Search className='h-5 w-5' />
-              Search Filters
+              {tSearch('search_filters')}
             </CardTitle>
-            <CardDescription>
-              Use the filters below to search for student results
-            </CardDescription>
+            <CardDescription>{tSearch('search_filters_description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <SearchForm filterOptions={filterOptions} params={params} />
@@ -185,15 +112,10 @@ export default async function SearchResultsPage({ searchParams }: PageProps) {
         </Card>
 
         {validationError && (
-          <Card
-            className='shadow-lg border-0 bg-red-50 dark:bg-red-950/20 border-red-200
-              dark:border-red-800'
-          >
+          <Card className='shadow-lg border-0 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'>
             <CardContent className='pt-6'>
               <div className='text-center py-4'>
-                <p className='text-red-600 dark:text-red-400 font-medium'>
-                  {validationError}
-                </p>
+                <p className='text-red-600 dark:text-red-400 font-medium'>{validationError}</p>
               </div>
             </CardContent>
           </Card>
@@ -205,16 +127,11 @@ export default async function SearchResultsPage({ searchParams }: PageProps) {
           </div>
         )}
 
-        {!validationError &&
-          Object.keys(params).length > 0 &&
-          !searchResult &&
-          !validationError && (
-            <div className='text-center py-8'>
-              <p className='text-muted-foreground'>
-                No result found matching your search criteria.
-              </p>
-            </div>
-          )}
+        {!validationError && Object.keys(params).length > 0 && !searchResult && !validationError && (
+          <div className='text-center py-8'>
+            <p className='text-muted-foreground'>{tSearch('no_results')}</p>
+          </div>
+        )}
       </div>
     </ContentLayout>
   );

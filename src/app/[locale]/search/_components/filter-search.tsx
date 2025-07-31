@@ -1,37 +1,19 @@
 'use client';
 
-import {
-  getClassesBySemester,
-  getSemestersByAcademicYear,
-  SearchFilters
-} from '@/actions/public-result-view';
+import { getClassesBySemester, getSemestersByAcademicYear, SearchFilters } from '@/actions/public-result-view';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Class, Semester } from '@/generated/prisma';
 import { Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { SearchParams } from 'nuqs';
 import { useState, useEffect, useTransition } from 'react';
 
-export default function SearchForm({
-  filterOptions,
-  params
-}: {
-  filterOptions: SearchFilters;
-  params: { [key: string]: string | undefined };
-}) {
-  const [selectedAcademicYear, setSelectedAcademicYear] = useState(
-    params.academicYear || ''
-  );
-  const [selectedSemester, setSelectedSemester] = useState(
-    params.semester || ''
-  );
+export default function SearchForm({ filterOptions, params }: { filterOptions: SearchFilters; params: { [key: string]: string | undefined } }) {
+  const t = useTranslations('SearchPage.form');
+  const [selectedAcademicYear, setSelectedAcademicYear] = useState(params.academicYear || '');
+  const [selectedSemester, setSelectedSemester] = useState(params.semester || '');
   const [filteredSemesters, setFilteredSemesters] = useState<Semester[]>([]);
   const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
   const [isyearPending, startYearTransition] = useTransition();
@@ -42,13 +24,10 @@ export default function SearchForm({
     if (selectedAcademicYear && selectedAcademicYear !== 'all') {
       startYearTransition(async () => {
         try {
-          const result = await getSemestersByAcademicYear(
-            parseInt(selectedAcademicYear)
-          );
+          const result = await getSemestersByAcademicYear(parseInt(selectedAcademicYear));
           setFilteredSemesters(result);
         } catch (err) {
           console.log(err);
-
           setFilteredSemesters([]);
         }
       });
@@ -66,7 +45,6 @@ export default function SearchForm({
           setFilteredClasses(result);
         } catch (err) {
           console.log(err);
-
           setFilteredClasses([]);
         }
       });
@@ -81,16 +59,11 @@ export default function SearchForm({
         {/* Academic Year - Required */}
         <div className='space-y-2'>
           <label htmlFor='academicYear' className='text-sm font-medium'>
-            Academic Year <span className='text-red-500'>*</span>
+            {t('academic_year')} <span className='text-red-500'>*</span>
           </label>
-          <Select
-            name='academicYear'
-            value={selectedAcademicYear}
-            onValueChange={setSelectedAcademicYear}
-            required
-          >
+          <Select name='academicYear' value={selectedAcademicYear} onValueChange={setSelectedAcademicYear} required>
             <SelectTrigger className='w-full'>
-              <SelectValue placeholder='Select academic year' />
+              <SelectValue placeholder={t('select_academic_year')} />
             </SelectTrigger>
             <SelectContent>
               {filterOptions.academicYears.map((year) => (
@@ -105,17 +78,11 @@ export default function SearchForm({
         {/* Semester - Required and filtered */}
         <div className='space-y-2'>
           <label htmlFor='semester' className='text-sm font-medium'>
-            Semester <span className='text-red-500'>*</span>
+            {t('semester')} <span className='text-red-500'>*</span>
           </label>
-          <Select
-            name='semester'
-            value={selectedSemester}
-            onValueChange={setSelectedSemester}
-            disabled={!selectedAcademicYear}
-            required
-          >
+          <Select name='semester' value={selectedSemester} onValueChange={setSelectedSemester} disabled={!selectedAcademicYear} required>
             <SelectTrigger className='w-full'>
-              <SelectValue placeholder='Select semester' />
+              <SelectValue placeholder={t('select_semester')} />
             </SelectTrigger>
             <SelectContent>
               {filteredSemesters.map((semester: Semester) => (
@@ -130,16 +97,11 @@ export default function SearchForm({
         {/* Class - Required and filtered */}
         <div className='space-y-2'>
           <label htmlFor='class' className='text-sm font-medium'>
-            Class <span className='text-red-500'>*</span>
+            {t('class')} <span className='text-red-500'>*</span>
           </label>
-          <Select
-            name='class'
-            defaultValue={params.class || ''}
-            disabled={!selectedSemester}
-            required
-          >
+          <Select name='class' defaultValue={params.class || ''} disabled={!selectedSemester} required>
             <SelectTrigger className='w-full'>
-              <SelectValue placeholder='Select class' />
+              <SelectValue placeholder={t('select_class')} />
             </SelectTrigger>
             <SelectContent>
               {filteredClasses.map((cls: Class) => (
@@ -154,53 +116,35 @@ export default function SearchForm({
         {/* Student Name - Required */}
         <div className='space-y-2'>
           <label htmlFor='studentName' className='text-sm font-medium'>
-            Student Name <span className='text-red-500'>*</span>
+            {t('student_name')} <span className='text-red-500'>*</span>
           </label>
-          <Input
-            id='studentName'
-            name='studentName'
-            placeholder='Enter student name'
-            defaultValue={params.studentName || ''}
-            required
-          />
+          <Input id='studentName' name='studentName' placeholder={t('enter_student_name')} defaultValue={params.studentName || ''} required />
         </div>
 
         {/* Admission ID - Required */}
         <div className='space-y-2'>
           <label htmlFor='admissionId' className='text-sm font-medium'>
-            Admission ID <span className='text-red-500'>*</span>
+            {t('admission_id')} <span className='text-red-500'>*</span>
           </label>
-          <Input
-            id='admissionId'
-            name='admissionId'
-            placeholder='Enter admission ID'
-            defaultValue={params.admissionId || ''}
-            required
-          />
+          <Input id='admissionId' name='admissionId' placeholder={t('enter_admission_id')} defaultValue={params.admissionId || ''} required />
         </div>
 
         {/* Roll Number - Required */}
         <div className='space-y-2'>
           <label htmlFor='rollNumber' className='text-sm font-medium'>
-            Roll Number <span className='text-red-500'>*</span>
+            {t('roll_number')} <span className='text-red-500'>*</span>
           </label>
-          <Input
-            id='rollNumber'
-            name='rollNumber'
-            placeholder='Enter roll number'
-            defaultValue={params.rollNumber || ''}
-            required
-          />
+          <Input id='rollNumber' name='rollNumber' placeholder={t('enter_roll_number')} defaultValue={params.rollNumber || ''} required />
         </div>
       </div>
 
       <div className='flex gap-2 pt-4'>
         <Button type='submit' className='flex items-center gap-2'>
           <Search className='h-4 w-4' />
-          Search Result
+          {t('search_button')}
         </Button>
         <Button asChild variant='outline'>
-          <a href='?'>Clear Filters</a>
+          <a href='?'>{t('clear_button')}</a>
         </Button>
       </div>
     </form>
