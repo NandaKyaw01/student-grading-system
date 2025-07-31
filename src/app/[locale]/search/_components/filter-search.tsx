@@ -7,8 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Class, Semester } from '@/generated/prisma';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { SearchParams } from 'nuqs';
-import { useState, useEffect, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 export default function SearchForm({ filterOptions, params }: { filterOptions: SearchFilters; params: { [key: string]: string | undefined } }) {
   const t = useTranslations('SearchPage.form');

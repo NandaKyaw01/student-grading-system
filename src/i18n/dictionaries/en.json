@@ -106,6 +106,7 @@
       "no": "No.",
       "student_name": "Student Name",
       "roll_no": "Roll No.",
+      "admission_id": "Admission ID",
       "academic_year": "Academic Year",
       "semester": "Semester",
       "class": "Class",
@@ -490,6 +491,7 @@
     "table": {
       "no": "No.",
       "student": "Student",
+      "admission_id": "Admission ID",
       "search_placeholder": "Search Result...",
       "year": "Year",
       "academic_year": "Academic Year",

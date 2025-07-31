@@ -82,6 +82,14 @@ export function getAcademicResultColumns({
       enableColumnFilter: true
     },
     {
+      id: 'admissionId',
+      accessorFn: (row) => `${row.student?.admissionId}`,
+      header: t('admission_id'),
+      meta: {
+        label: t('admission_id')
+      }
+    },
+    {
       id: 'academicYearId',
       accessorFn: (row) => `${row.academicYear?.yearRange}`,
       header: t('academic_year'),

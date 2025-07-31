@@ -85,6 +85,14 @@ export function getResultColumns({
       enableColumnFilter: true
     },
     {
+      id: 'admissionId',
+      accessorFn: (row) => `${row.enrollment?.student?.admissionId}`,
+      header: t('table.admission_id'),
+      meta: {
+        label: t('table.admission_id')
+      }
+    },
+    {
       id: 'rollnumber',
       accessorFn: (row) => `${row.enrollment?.rollNumber}`,
       header: t('table.roll_no'),

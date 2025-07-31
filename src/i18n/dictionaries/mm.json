@@ -106,6 +106,7 @@
       "no": "စဉ်",
       "student_name": "ကျောင်းသားအမည်",
       "roll_no": "ခုံအမှတ်",
+      "admission_id": "ကျောင်းဝင်အမှတ်",
       "academic_year": "ပညာသင်နှစ်",
       "semester": "စာသင်နှစ်ဝက်",
       "class": "အတန်း",
@@ -490,6 +491,7 @@
     "table": {
       "no": "စဉ်",
       "student": "ကျောင်းသား",
+      "admission_id": "ကျောင်းဝင်အမှတ်",
       "search_placeholder": "ရလဒ်ရှာဖွေပါ...",
       "year": "နှစ်",
       "academic_year": "ပညာသင်နှစ်",
