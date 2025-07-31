@@ -63,11 +63,11 @@ export function getEnrollmentColumns({
       size: 40
     },
     {
-      id: 'rollNumber',
-      accessorKey: 'rollNumber',
-      header: t('roll_number'),
+      id: 'admissionId',
+      accessorFn: (row) => row.student?.admissionId,
+      header: t('admission_id'),
       meta: {
-        label: t('roll_number')
+        label: t('admission_id')
       }
     },
     {
@@ -81,6 +81,14 @@ export function getEnrollmentColumns({
         icon: Text
       },
       enableColumnFilter: true
+    },
+    {
+      id: 'rollNumber',
+      accessorKey: 'rollNumber',
+      header: t('roll_number'),
+      meta: {
+        label: t('roll_number')
+      }
     },
     {
       id: 'academicYearId',

@@ -403,10 +403,10 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                 <ComboboxSkeleton />
               ) : (
                 <Combobox
-                  options={filteredSemesters.map((semester) => ({
+                  options={filteredSemesters?.map((semester) => ({
                     value: semester.id.toString(),
                     label: `${semester.semesterName} ${semester.isCurrent ? t('current') : ''}`
-                  }))}
+                  })) || []}
                   value={field.value}
                   onValueChange={handleSemesterChange}
                   placeholder={
@@ -435,10 +435,10 @@ export function EnrollmentForm({ enrollment, onSuccess }: EnrollmentFormProps) {
                 <ComboboxSkeleton />
               ) : (
                 <Combobox
-                  options={filteredClasses.map((cls) => ({
+                  options={filteredClasses?.map((cls) => ({
                     value: cls.id.toString(),
                     label: `${cls.className} (${cls.departmentCode})`
-                  }))}
+                  })) || []}
                   value={field.value}
                   onValueChange={(value) => field.onChange(value)}
                   placeholder={

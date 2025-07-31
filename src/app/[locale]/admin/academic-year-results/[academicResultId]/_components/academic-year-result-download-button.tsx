@@ -41,7 +41,7 @@ export function AcademicResultDownloadButton({
         const templateData = {
           // Student Information
           studentName: resultData.student.studentName,
-          rollNumber: resultData.student.admissionId,
+          rollNumber: resultData.semesterResults[0].enrollment.rollNumber,
           academicYear: resultData.academicYear.yearRange,
 
           // Overall Result Information
