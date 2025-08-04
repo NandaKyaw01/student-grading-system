@@ -1,8 +1,9 @@
-import { prisma } from '@/lib/db';
-import { PrismaAdapter } from '@auth/prisma-adapter';
-import bcrypt from 'bcrypt';
-import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { NextAuthOptions } from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { prisma } from '@/lib/db';
+import bcrypt from 'bcrypt';
+import { loginSchema } from '@/components/auth/login-form';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -39,6 +40,9 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
+  session: {
+    strategy: 'jwt'
+  },
   callbacks: {
     jwt: async ({ token, user, trigger }) => {
       // If this is a new sign in, save the user id
