@@ -924,7 +924,7 @@ export async function importStudentResults(
             });
             hasErrors = true;
           } else {
-            if (!isValidNumber(scoreValue, 0, 4.0)) {
+            if (!isValidNumber(scoreValue, 0, 100)) {
               errors.push({
                 row: rowNumber,
                 column: scoreColumnKey,
@@ -947,7 +947,7 @@ export async function importStudentResults(
             hasErrors = true;
           } else {
             const maxGP = 4.0 * cs.subject.creditHours;
-            if (!isValidNumber(gpValue, 0, maxGP)) {
+            if (!isValidNumber(gpValue, 0, 100)) {
               errors.push({
                 row: rowNumber,
                 column: gpColumnKey,
