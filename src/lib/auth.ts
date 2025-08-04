@@ -1,9 +1,8 @@
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { NextAuthOptions } from 'next-auth';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/db';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcrypt';
-import { loginSchema } from '@/components/auth/login-form';
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -41,7 +40,24 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60 // 1 day in seconds (24 hours * 60 minutes * 60 seconds)
+    // updateAge: 60 * 60 // Update session every 1 hour (optional - helps with active session extension)
+  },
+  jwt: {
+    maxAge: 24 * 60 * 60 // JWT token expires in 1 day (should match session maxAge)
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+        maxAge: 24 * 60 * 60 // 1 day in seconds
+      }
+    }
   },
   callbacks: {
     jwt: async ({ token, user, trigger }) => {
