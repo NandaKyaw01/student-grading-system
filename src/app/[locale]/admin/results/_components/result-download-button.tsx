@@ -24,10 +24,25 @@ export function ResultDownloadButton({
       try {
         const { createReport } = await import('docx-templates');
 
-        // Load template file
-        const templateResponse = await fetch(
-          '/templates/result-template-default.docx'
-        );
+        // const templateResponse = await fetch(
+        //   '/templates/result-template-default.docx'
+        // );
+
+        let templateFile;
+        const deptCode = resultData.enrollment.departmentCode;
+
+        if (deptCode.endsWith('CST')) {
+          templateFile = '/templates/result-template-default.docx';
+        } else if (deptCode.endsWith('CS')) {
+          templateFile = '/templates/result-template-CS.docx';
+        } else if (deptCode.endsWith('CT')) {
+          templateFile = '/templates/result-template-CT.docx';
+        } else {
+          templateFile = '/templates/result-template-default.docx';
+        }
+
+        const templateResponse = await fetch(templateFile);
+
         const templateBuffer = await templateResponse.arrayBuffer();
 
         // Convert ArrayBuffer to Uint8Array

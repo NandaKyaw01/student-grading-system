@@ -28,10 +28,24 @@ export function AcademicResultDownloadButton({
       try {
         const { createReport } = await import('docx-templates');
 
-        // Load template file
-        const templateResponse = await fetch(
-          '/templates/academic-result-template-default.docx'
-        );
+        // const templateResponse = await fetch(
+        //   '/templates/academic-result-template-default.docx'
+        // );
+
+        let templateFile;
+        const deptCode = resultData.semesterResults[0].enrollment.class.departmentCode;
+
+        if (deptCode.endsWith('CST')) {
+          templateFile = '/templates/academic-result-template-default.docx';
+        } else if (deptCode.endsWith('CS')) {
+          templateFile = '/templates/academic-result-template-CS.docx';
+        } else if (deptCode.endsWith('CT')) {
+          templateFile = '/templates/academic-result-template-CT.docx';
+        } else {
+          templateFile = '/templates/academic-result-template-default.docx';
+        }
+        const templateResponse = await fetch(templateFile);
+
         const templateBuffer = await templateResponse.arrayBuffer();
 
         // Convert ArrayBuffer to Uint8Array

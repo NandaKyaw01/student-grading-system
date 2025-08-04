@@ -138,10 +138,10 @@ export default function CreateEnrollmentForm() {
     () =>
       Array.isArray(classesData)
         ? classesData.filter(
-            (cls) =>
-              selectedSemesterId &&
-              cls.semesterId === Number(selectedSemesterId)
-          )
+          (cls) =>
+            selectedSemesterId &&
+            cls.semesterId === Number(selectedSemesterId)
+        )
         : [],
     [classesData, selectedSemesterId]
   );
@@ -272,13 +272,15 @@ export default function CreateEnrollmentForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t('roll_number_prefix')}</FormLabel>
-                <Combobox
-                  options={rollNumberPrefixes}
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value)}
+                <Input
+                  type='text'
                   placeholder={t('select_prefix')}
-                  searchPlaceholder={t('search_prefix')}
+                  {...field}
                   disabled={loading}
+                  onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    field.onChange(target.value);
+                  }}
                 />
                 <FormMessage />
               </FormItem>
