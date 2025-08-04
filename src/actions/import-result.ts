@@ -820,7 +820,7 @@ export async function importStudentResults(
             });
             hasErrors = true;
           } else {
-            if (!isValidNumber(examMarkValue, 0, cs.subject.examWeight * 100)) {
+            if (!isValidNumber(examMarkValue, 0, 100)) {
               errors.push({
                 row: rowNumber,
                 column: examMarkColumnKey,
