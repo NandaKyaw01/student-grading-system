@@ -820,12 +820,12 @@ export async function importStudentResults(
             });
             hasErrors = true;
           } else {
-            if (!isValidNumber(examMarkValue, 0, 100)) {
+            if (!isValidNumber(examMarkValue, 0, cs.subject.examWeight * 100)) {
               errors.push({
                 row: rowNumber,
                 column: examMarkColumnKey,
                 field: 'examMark',
-                message: `Invalid exam mark '${examMarkValue}' for subject ${subjectName}. Must be between 0 and 100`,
+                message: `Invalid exam mark '${examMarkValue}' for subject ${subjectName}. Must be between 0 and ${cs.subject.examWeight * 100}`,
                 value: examMarkValue
               });
               hasErrors = true;
@@ -924,7 +924,7 @@ export async function importStudentResults(
             });
             hasErrors = true;
           } else {
-            if (!isValidNumber(scoreValue, 0, 100)) {
+            if (!isValidNumber(scoreValue, 0, 4.0)) {
               errors.push({
                 row: rowNumber,
                 column: scoreColumnKey,
@@ -947,7 +947,7 @@ export async function importStudentResults(
             hasErrors = true;
           } else {
             const maxGP = 4.0 * cs.subject.creditHours;
-            if (!isValidNumber(gpValue, 0, 100)) {
+            if (!isValidNumber(gpValue, 0, maxGP)) {
               errors.push({
                 row: rowNumber,
                 column: gpColumnKey,
