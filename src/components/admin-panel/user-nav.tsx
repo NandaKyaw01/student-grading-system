@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 
 export function UserNav() {
   const t = useTranslations('UserNav');
@@ -30,6 +31,8 @@ export function UserNav() {
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const tForTooltip = useTranslations('NavBar');
+
+  const pathname = usePathname();
 
   // Get user info from session
   const userName = session?.user?.name || 'User';
@@ -76,6 +79,8 @@ export function UserNav() {
   if (status === 'unauthenticated') {
     return null;
   }
+
+  if (pathname === "/en/search" || pathname === "/mm/search") return null;
 
   return (
     <DropdownMenu>

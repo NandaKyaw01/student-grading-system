@@ -11,10 +11,12 @@ import {
   TooltipTrigger
 } from './ui/tooltip';
 import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 
 const RefreshButton = () => {
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('NavBar');
+  const pathname = usePathname()
 
   const handleRefresh = useCallback(() => {
     startTransition(async () => {
@@ -22,6 +24,8 @@ const RefreshButton = () => {
     });
     window.location.reload();
   }, []);
+
+  if (pathname === "/en/search" || pathname === "/mm/search") return null;
 
   return (
     <TooltipProvider disableHoverableContent>
