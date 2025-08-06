@@ -38,10 +38,10 @@ import {
 import { ActiveBreadcrumb } from '@/components/active-breadcrumb';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { useTranslations } from 'next-intl';
-import { DashboardCharts } from './components/dashboard-charts';
 import { getTranslations } from 'next-intl/server';
+import { DashboardCharts } from './components/dashboard-charts';
 import DashboardFilter from './components/dashboard-filter';
-import { SearchParams } from 'nuqs';
+import { DashboardWrapper } from './components/dashborad-wrapper';
 
 // Color palette for charts
 const COLORS = [
@@ -701,17 +701,14 @@ export default async function DashboardPage({
       title={t('title')}
       breadcrumb={<ActiveBreadcrumb path={breadcrumb} />}
     >
-      <div className='container mx-auto p-4 space-y-6'>
-        {/* Add Year Filter */}
-        <DashboardFilter />
-
+      <DashboardWrapper>
         {/* Stats Cards */}
         <Suspense fallback={<StatsCardsSkeleton />}>
           <StatsCards academicYearId={academicYearId} />
         </Suspense>
 
         {/* Main Dashboard Content */}
-        <Tabs defaultValue='overview' className='space-y-4'>
+        <Tabs defaultValue='overview' className='space-y-4 mt-6'>
           <TabsList className='grid w-full grid-cols-4'>
             <TabsTrigger value='overview'>{t('tabs.overview')}</TabsTrigger>
             <TabsTrigger value='students'>{t('tabs.students')}</TabsTrigger>
@@ -757,7 +754,7 @@ export default async function DashboardPage({
             </div>
           </TabsContent>
         </Tabs>
-      </div>
+      </DashboardWrapper>
     </ContentLayout>
   );
 }

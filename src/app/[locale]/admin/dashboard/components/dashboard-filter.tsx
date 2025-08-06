@@ -83,15 +83,12 @@ const DashboardFilter = () => {
   }, []);
 
   return (
-    <div className='flex justify-between items-center'>
-      <h1 className='text-2xl font-bold'>{t('title')}</h1>
-      <YearFilter
-        selectedYear={selectedYear}
-        onYearChange={setSelectedYear}
-        availableYears={availableYears}
-        currentYear={currentYear}
-      />
-    </div>
+    <YearFilter
+      selectedYear={selectedYear}
+      onYearChange={setSelectedYear}
+      availableYears={availableYears}
+      currentYear={currentYear}
+    />
   );
 };
 
