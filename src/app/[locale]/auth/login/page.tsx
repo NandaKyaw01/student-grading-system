@@ -12,15 +12,15 @@ interface LoginPageProps {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const t = await getTranslations('LoginForm');
-  const session = await getServerSession(authOptions);
+  // const session = await getServerSession(authOptions);
 
-  const { callbackUrl } = await searchParams;
+  // const { callbackUrl } = await searchParams;
 
-  const url = callbackUrl ?? '/';
+  // const url = callbackUrl ?? '/';
 
-  if (session) {
-    redirect(url);
-  }
+  // if (session) {
+  //   redirect(url);
+  // }
 
   return (
     <div className='grid min-h-svh lg:grid-cols-2'>

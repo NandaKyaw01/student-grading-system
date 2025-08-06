@@ -1,9 +1,8 @@
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { NextAuthOptions } from 'next-auth';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/db';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcrypt';
-import { loginSchema } from '@/components/auth/login-form';
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -48,6 +47,7 @@ export const authOptions: NextAuthOptions = {
       // If this is a new sign in, save the user id
       if (user) {
         token.id = user.id;
+        token.updatedAt = new Date();
       }
 
       // If the session is being updated, fetch fresh user data
@@ -58,7 +58,8 @@ export const authOptions: NextAuthOptions = {
             id: true,
             email: true,
             name: true,
-            image: true
+            image: true,
+            updatedAt: true
           }
         });
 
@@ -66,6 +67,7 @@ export const authOptions: NextAuthOptions = {
           token.email = freshUser.email;
           token.name = freshUser.name;
           token.picture = freshUser.image;
+          token.updatedAt = freshUser.updatedAt;
         }
       }
 
@@ -79,7 +81,8 @@ export const authOptions: NextAuthOptions = {
           id: token.id as string,
           email: token.email as string,
           name: token.name as string,
-          image: token.picture as string
+          image: token.picture as string,
+          updatedAt: token.updatedAt
         }
       };
     }

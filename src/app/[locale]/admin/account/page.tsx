@@ -17,7 +17,7 @@ import {
   User,
   X
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import React, { useRef, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
@@ -46,6 +46,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePathname } from 'next/navigation';
 
 type accoutPageKey = ReturnType<typeof useTranslations<'AccountPage'>>;
 
@@ -173,6 +174,7 @@ export default function AccountPage() {
   const [isProfilePending, startProfileTransition] = useTransition();
   const [isPasswordPending, startPasswordTransition] = useTransition();
   const [isAvatarPending, startAvatarTransition] = useTransition();
+  const pathname = usePathname()
 
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
@@ -359,6 +361,7 @@ export default function AccountPage() {
         if (result.success) {
           toast.success(t('password_update_success'));
           passwordForm.reset();
+          signOut({ callbackUrl: pathname })
         } else {
           toast.error(result.error || t('password_update_failure'));
         }

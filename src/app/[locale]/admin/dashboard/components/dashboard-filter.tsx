@@ -56,14 +56,14 @@ const DashboardFilter = () => {
 
   const [selectedYear, setSelectedYear] = useQueryState('year', {
     defaultValue: 'current',
-    shallow: false // This will cause a full page refresh
+    shallow: false
   });
 
   useEffect(() => {
     const fetchYears = async () => {
       try {
         const response = await getAcademicYears();
-        if (response.years && response.years.length > 0) {
+        if (response?.years && response?.years.length > 0) {
           const currentYearData = response.years.find((year) => year.isCurrent);
           const otherYears = response.years.filter((year) => !year.isCurrent);
 
