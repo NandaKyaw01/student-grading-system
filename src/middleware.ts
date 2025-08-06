@@ -32,7 +32,7 @@ const authMiddleware = withAuth(
       });
 
       if (!userResponse.ok) {
-        throw new Error('Failed to fetch user');
+        return NextResponse.redirect('/');
       }
 
       const user = await userResponse.json();

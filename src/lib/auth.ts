@@ -2,10 +2,11 @@ import { prisma } from '@/lib/db';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcrypt';
 import { NextAuthOptions } from 'next-auth';
+import { Adapter } from 'next-auth/adapters';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -47,7 +48,7 @@ export const authOptions: NextAuthOptions = {
       // If this is a new sign in, save the user id
       if (user) {
         token.id = user.id;
-        token.updatedAt = new Date();
+        token.updatedAt = user.updatedAt;
       }
 
       // If the session is being updated, fetch fresh user data
