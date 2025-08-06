@@ -1,16 +1,15 @@
-
 import { User } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: { id }
     });
 
     if (!user) {
