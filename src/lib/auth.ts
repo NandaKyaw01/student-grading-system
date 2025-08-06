@@ -72,6 +72,21 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
+      if (token.id && token.updatedAt) {
+        const currentUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { updatedAt: true }
+        });
+
+        if (
+          currentUser &&
+          new Date(currentUser.updatedAt) > new Date(token.updatedAt)
+        ) {
+          // Throw error to force re-authentication (logout other devices)
+          throw new Error('Session invalidated due to password change');
+        }
+      }
+
       return token;
     },
     session: async ({ session, token }) => {

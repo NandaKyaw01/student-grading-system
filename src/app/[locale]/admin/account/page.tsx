@@ -361,7 +361,7 @@ export default function AccountPage() {
         if (result.success) {
           toast.success(t('password_update_success'));
           passwordForm.reset();
-          signOut({ callbackUrl: pathname })
+          await update();
         } else {
           toast.error(result.error || t('password_update_failure'));
         }
