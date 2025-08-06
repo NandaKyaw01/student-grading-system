@@ -38,7 +38,6 @@ const authMiddleware = withAuth(
       const user = await userResponse.json();
 
       if (
-        user &&
         token.updatedAt &&
         user.updatedAt &&
         new Date(token.updatedAt) < new Date(user.updatedAt)
