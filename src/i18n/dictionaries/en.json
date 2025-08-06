@@ -971,7 +971,7 @@
     "subject_performance": {
       "title": "Subject Performance",
       "description": "Average performance by subject",
-      "gpa": "GPA: {gpa}",
+      "gp": "GP: {gp}",
       "students": "{count} students",
       "pass_rate": "{rate}% pass rate"
     },
@@ -980,7 +980,7 @@
       "description": "System overview",
       "active_students": "Active Students:",
       "total_classes": "Total Classes:",
-      "available_subjects": "Available Subjects:",
+      "available_subjects": "Total Subjects:",
       "current_period": "Current Period:"
     },
     "tabs": {

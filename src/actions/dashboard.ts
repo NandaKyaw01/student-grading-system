@@ -371,12 +371,7 @@ export async function getSubjectPerformance(
         subjectName: true,
         classes: {
           select: {
-            grades: {
-              select: {
-                gp: true,
-                score: true
-              }
-            }
+            grades: true
           }
         }
       },
@@ -408,7 +403,7 @@ export async function getSubjectPerformance(
             : 0;
         const passRate =
           totalStudents > 0
-            ? (allGrades.filter((grade) => grade.score >= 50).length /
+            ? (allGrades.filter((grade) => grade.finalMark >= 50).length /
                 totalStudents) *
               100
             : 0;

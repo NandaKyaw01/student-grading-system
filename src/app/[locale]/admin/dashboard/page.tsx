@@ -522,7 +522,7 @@ async function SubjectPerformanceCard({
             <div key={index} className='space-y-2'>
               <div className='flex justify-between text-sm'>
                 <span className='font-medium'>{subject.subjectName}</span>
-                <span>{t('gpa', { gpa: subject.averageGpa })}</span>
+                <span>{t('gp', { gp: subject.averageGpa })}</span>
               </div>
               <div className='flex justify-between text-xs text-muted-foreground'>
                 <span>{t('students', { count: subject.totalStudents })}</span>

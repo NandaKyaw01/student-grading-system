@@ -971,7 +971,7 @@
     "subject_performance": {
       "title": "ဘာသာရပ် စွမ်းဆောင်ရည်",
       "description": "ဘာသာရပ်အလိုက် ပျမ်းမျှ စွမ်းဆောင်ရည်",
-      "gpa": "GPA: {gpa}",
+      "gp": "ပျမ်းမျှ GP: {gp}",
       "students": "ကျောင်းသား {count} ယောက်",
       "pass_rate": "{rate}% အောင်မြင်သည်"
     },
@@ -980,7 +980,7 @@
       "description": "စနစ် ခြုံငုံသုံးသပ်ချက်",
       "active_students": "လက်ရှိ ကျောင်းသားများ:",
       "total_classes": "စုစုပေါင်း အတန်းများ:",
-      "available_subjects": "ရရှိနိုင်သော ဘာသာရပ်များ:",
+      "available_subjects": "စုစုပေါင်း ဘာသာရပ်များ:",
       "current_period": "လက်ရှိ ကာလ:"
     },
     "tabs": {
