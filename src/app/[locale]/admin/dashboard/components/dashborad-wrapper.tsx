@@ -11,9 +11,9 @@ export function DashboardWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <div className='container mx-auto p-4 space-y-6' >
-            <div className='flex justify-between items-center'>
+            <div className='flex justify-between items-center flex-wrap gap-5'>
                 <h1 className='text-2xl font-bold'>{t('title')}</h1>
-                <div className='flex gap-2'>
+                <div className='flex gap-2 flex-wrap'>
                     <DashboardFilter />
                     <DashboardPDFDownload contentRef={contentRef} />
                 </div>

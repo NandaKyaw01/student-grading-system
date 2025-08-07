@@ -26,7 +26,7 @@ function YearFilter({
   const t = useTranslations('DashboardPage.filters');
 
   return (
-    <div className='flex items-center space-x-2'>
+    <div className='flex items-center space-x-2 flex-wrap'>
       <label htmlFor='year-select' className='text-sm font-medium'>
         {t('academic_year')}:
       </label>

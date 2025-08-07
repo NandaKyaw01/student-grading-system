@@ -162,7 +162,7 @@ export function SubjectDialog({
           ...validatedData,
           subjectName: validatedData.subjectName.trim()
         }
-        
+
         let result;
         if (mode === 'new') {
           result = await createSubject(finalData);
@@ -268,8 +268,8 @@ export function SubjectDialog({
                         {...field}
                         value={
                           field.value === '' ||
-                          field.value === null ||
-                          field.value === undefined
+                            field.value === null ||
+                            field.value === undefined
                             ? ''
                             : field.value
                         }
@@ -299,8 +299,8 @@ export function SubjectDialog({
                         {...field}
                         value={
                           field.value === '' ||
-                          field.value === null ||
-                          field.value === undefined
+                            field.value === null ||
+                            field.value === undefined
                             ? ''
                             : field.value
                         }
@@ -325,14 +325,14 @@ export function SubjectDialog({
                     <FormControl>
                       <Input
                         type='number'
-                        step='0.1'
-                        min='0'
-                        max='1'
+                        step='0.01'
+                        min='0.00'
+                        max='1.00'
                         {...field}
                         value={
                           field.value === '' ||
-                          field.value === null ||
-                          field.value === undefined
+                            field.value === null ||
+                            field.value === undefined
                             ? ''
                             : field.value
                         }
@@ -366,14 +366,14 @@ export function SubjectDialog({
                     <FormControl>
                       <Input
                         type='number'
-                        step='0.1'
-                        min='0'
-                        max='1'
+                        step='0.01'
+                        min='0.00'
+                        max='1.00'
                         {...field}
                         value={
                           field.value === '' ||
-                          field.value === null ||
-                          field.value === undefined
+                            field.value === null ||
+                            field.value === undefined
                             ? ''
                             : field.value
                         }
