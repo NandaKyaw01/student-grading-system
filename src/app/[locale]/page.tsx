@@ -86,7 +86,7 @@ export default function HomePage({ params }: Props) {
           </section>
           <div className='w-full flex justify-center relative'>
             <Image
-              src='/assets/image/ucsh1.jpg'
+              src='/assets/image/ucsh3.jpg'
               width={1080}
               height={600}
               alt='home-image'
