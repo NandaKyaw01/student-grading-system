@@ -40,7 +40,6 @@ import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { DashboardCharts } from './components/dashboard-charts';
-import DashboardFilter from './components/dashboard-filter';
 import { DashboardWrapper } from './components/dashborad-wrapper';
 
 // Color palette for charts
@@ -248,7 +247,8 @@ async function RecentEnrollmentsCard({
                   {enrollment.student.studentName
                     .split(' ')
                     .map((n) => n[0])
-                    .join('')}
+                    .join('').toUpperCase().slice(0, 2)
+                  }
                 </AvatarFallback>
               </Avatar>
               <div className='flex-1 space-y-1'>

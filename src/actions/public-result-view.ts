@@ -79,7 +79,11 @@ export async function getSearchFilters(): Promise<SearchFilters> {
     };
   } catch (error) {
     console.error('Error fetching search filters:', error);
-    throw new Error('Failed to fetch search filters');
+    return {
+      academicYears: [],
+      semesters: [],
+      classes: []
+    };
   }
 }
 
@@ -241,7 +245,7 @@ export async function searchResults(
     return transformedResults;
   } catch (error) {
     console.error('Error searching results:', error);
-    throw new Error('Failed to search results');
+    return null;
   }
 }
 
