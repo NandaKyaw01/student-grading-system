@@ -32,14 +32,12 @@ export async function generateMetadata(props: Omit<Props, 'children'>) {
   let baseUrl: string;
   if (process.env.APP_URL) {
     baseUrl = process.env.APP_URL;
-  } else if (process.env.VERCEL_URL) {
-    baseUrl = `https://${process.env.VERCEL_URL}`;
   } else if (typeof window === 'undefined') {
     // Only fallback in development/server
     baseUrl = `http://localhost:${process.env.PORT || 3000}`;
   } else {
     throw new Error(
-      'APP_URL or VERCEL_URL must be defined in the environment.'
+      'APP_URL must be defined in the environment.'
     );
   }
 
