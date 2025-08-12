@@ -46,19 +46,20 @@ export async function generateMetadata(props: Omit<Props, 'children'>) {
     title: t('title'),
     description: t('description'),
     alternates: {
-      canonical: '/',
+      canonical: new URL(baseUrl),
       languages: {
         en: '/en',
-        mm: '/mm'
+        my: '/mm'
       }
     },
     openGraph: {
-      url: '/',
+      url: new URL(baseUrl),
       title: t('title'),
       description: t('description'),
       type: 'website'
     },
     twitter: {
+      url: new URL(baseUrl),
       card: 'summary_large_image',
       title: t('title'),
       description: t('description')
