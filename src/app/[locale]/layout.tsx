@@ -53,13 +53,12 @@ export async function generateMetadata(props: Omit<Props, 'children'>) {
       }
     },
     openGraph: {
-      url: new URL(baseUrl),
+      url: "/",
       title: t('title'),
       description: t('description'),
       type: 'website'
     },
     twitter: {
-      url: new URL(baseUrl),
       card: 'summary_large_image',
       title: t('title'),
       description: t('description')

@@ -15,7 +15,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/'],
+        allow: ['/', '/en', '/mm', '/search', '/en/search', '/mm/search'],
         disallow: disallowPaths
       }
     ],
