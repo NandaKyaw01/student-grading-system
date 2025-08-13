@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     const queryFunction = async () => {
       try {
         const where: Prisma.ResultWhereInput = {};
+        const enrollmentFilter: Prisma.EnrollmentWhereInput = {};
         let paginate = true;
 
         if (!input || Object.keys(input).length === 0) {
@@ -79,12 +80,10 @@ export async function GET(request: NextRequest) {
               ? input.academicYear
               : [input.academicYear];
 
-            where.enrollment = {
-              semester: {
-                academicYear: {
-                  yearRange: {
-                    in: academicYears
-                  }
+            enrollmentFilter.semester = {
+              academicYear: {
+                yearRange: {
+                  in: academicYears
                 }
               }
             };
@@ -107,11 +106,9 @@ export async function GET(request: NextRequest) {
               ? input.semester
               : [input.semester];
 
-            where.enrollment = {
-              semester: {
-                semesterName: {
-                  in: semesters
-                }
+            enrollmentFilter.semester = {
+              semesterName: {
+                in: semesters
               }
             };
           }
@@ -122,14 +119,16 @@ export async function GET(request: NextRequest) {
               ? input.class
               : [input.class];
 
-            where.enrollment = {
-              class: {
-                className: {
-                  in: classes
-                }
+            enrollmentFilter.class = {
+              className: {
+                in: classes
               }
             };
           }
+        }
+
+        if (Object.keys(enrollmentFilter).length > 0) {
+          where.enrollment = enrollmentFilter;
         }
 
         const page = input?.page ?? 1;
@@ -142,7 +141,29 @@ export async function GET(request: NextRequest) {
             include: {
               enrollment: {
                 select: {
-                  student: true
+                  class: {
+                    select: {
+                      className: true,
+                      departmentCode: true
+                    }
+                  },
+                  semester: {
+                    select: {
+                      semesterName: true,
+                      academicYear: {
+                        select: {
+                          yearRange: true,
+                          isCurrent: true
+                        }
+                      }
+                    }
+                  },
+                  student: {
+                    select: {
+                      studentName: true,
+                      admissionId: true
+                    }
+                  }
                 }
               }
             },
