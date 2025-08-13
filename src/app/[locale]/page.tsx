@@ -61,7 +61,7 @@ export default function HomePage({ params }: Props) {
           >
             <h1
               className={cn(
-                'text-center text-3xl font-bold tracking-tighter md:text-5xl ',
+                'text-center text-2xl font-bold tracking-tighter md:text-5xl ',
                 locale == 'mm'
                   ? 'leading-normal lg:leading-normal'
                   : 'leading-tight lg:leading-[1.1]'
@@ -69,7 +69,7 @@ export default function HomePage({ params }: Props) {
             >
               {t('title')}
             </h1>
-            <span className='max-w-[750px] text-center text-lg font-light text-foreground'>
+            <span className='max-w-[750px] text-center text-md md:text-lg font-light text-foreground'>
               {t('subtitle')}
             </span>
             <div className='flex w-full items-center justify-center space-x-4 py-4 md:pb-6'>
