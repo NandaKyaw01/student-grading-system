@@ -49,7 +49,7 @@ export async function generateMetadata(props: Omit<Props, 'children'>) {
       canonical: new URL(baseUrl),
       languages: {
         en: '/en',
-        my: '/mm'
+        mm: '/mm'
       }
     },
     openGraph: {
