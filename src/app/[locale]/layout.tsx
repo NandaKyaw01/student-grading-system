@@ -69,7 +69,7 @@ export async function generateMetadata(props: Omit<Props, 'children'>) {
     ],
     creator: "ucsh",
     openGraph: {
-      url: new URL(baseUrl).toString(),
+      url: new URL(`/${locale}`, baseUrl),
       title: t('title'),
       description: t('description'),
       type: 'website',
