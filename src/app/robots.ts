@@ -12,13 +12,11 @@ export default function robots(): MetadataRoute.Robots {
   }
 
   return {
-    rules: [
-      {
-        userAgent: '*',
-        allow: ['/', '/en', '/mm', '/search', '/en/search', '/mm/search'],
-        disallow: disallowPaths
-      }
-    ],
-    sitemap: [`${baseUrl}/sitemap.xml`]
+    rules: {
+      userAgent: '*',
+      allow: ['/', '/en', '/mm', '/search', '/en/search', '/mm/search'],
+      disallow: disallowPaths
+    },
+    sitemap: `${baseUrl}/sitemap.xml`
   };
 }
