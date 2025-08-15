@@ -52,17 +52,39 @@ export async function generateMetadata(props: Omit<Props, 'children'>) {
         mm: '/mm'
       }
     },
+    keywords: [
+      "smartgrade ucsh",
+      "ucsh",
+      "smartgrade",
+      "university of computer studies",
+      "university of computer studies, hinthada",
+      "hinthada",
+      "grading certificate information system",
+    ],
+    authors: [
+      {
+        name: "ucsh",
+        url: "https://ucsh.edu.mm",
+      },
+    ],
+    creator: "ucsh",
     openGraph: {
       url: new URL(baseUrl).toString(),
       title: t('title'),
       description: t('description'),
-      type: 'website'
+      type: 'website',
+      siteName: t('title')
     },
     twitter: {
       card: 'summary_large_image',
       title: t('title'),
-      description: t('description')
-    }
+      description: t('description'),
+      images: new URL(`/og.jpg`, baseUrl)
+    },
+    icons: {
+      icon: "/icon.png",
+    },
+    manifest: new URL(`/site.webmanifest`, baseUrl),
   };
 }
 
