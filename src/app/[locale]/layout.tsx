@@ -79,7 +79,7 @@ export async function generateMetadata(props: Omit<Props, 'children'>) {
       card: 'summary_large_image',
       title: t('title'),
       description: t('description'),
-      images: new URL(`/og.jpg`, baseUrl)
+      images: new URL(`/twitter-image.png`, baseUrl)
     },
     icons: {
       icon: "/icon.png",
