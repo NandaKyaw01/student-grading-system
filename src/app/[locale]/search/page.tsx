@@ -339,7 +339,7 @@ function ResultCard({
                           {grade.gp}
                         </span>
                       </div>
-                      <div>
+                      {/* <div>
                         <span className='text-muted-foreground'>
                           {t('grades.mobile.exam')}
                         </span>
@@ -354,7 +354,7 @@ function ResultCard({
                         <span className='font-medium text-foreground'>
                           {grade.assignMark}
                         </span>
-                      </div>
+                      </div> */}
                     </div>
 
                     <div className='pt-2 border-t border-border/50'>
@@ -376,21 +376,21 @@ function ResultCard({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='text-foreground min-w-[100px]'>
+                  {/* <TableHead className='text-foreground min-w-[100px]'>
                     {t('grades.table.subject_code')}
-                  </TableHead>
+                  </TableHead> */}
                   <TableHead className='text-foreground min-w-[100px]'>
                     {t('grades.table.subject_name')}
                   </TableHead>
                   <TableHead className='text-center text-foreground min-w-[80px]'>
                     {t('grades.table.credits')}
                   </TableHead>
-                  <TableHead className='text-center text-foreground min-w-[100px]'>
+                  {/* <TableHead className='text-center text-foreground min-w-[100px]'>
                     {t('grades.table.exam_mark')}
                   </TableHead>
                   <TableHead className='text-center text-foreground min-w-[120px]'>
                     {t('grades.table.assessment_mark')}
-                  </TableHead>
+                  </TableHead> */}
                   <TableHead className='text-center text-foreground min-w-[100px]'>
                     {t('grades.table.final_mark')}
                   </TableHead>
@@ -408,21 +408,21 @@ function ResultCard({
               <TableBody>
                 {sortedGrades.map((grade, index) => (
                   <TableRow key={index} className='hover:bg-muted/50'>
-                    <TableCell className='font-medium text-foreground'>
+                    {/* <TableCell className='font-medium text-foreground'>
                       {grade.subject.id}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className='text-foreground'>
                       {grade.subject.name}
                     </TableCell>
                     <TableCell className='text-center text-foreground'>
                       {grade.subject.creditHours}
                     </TableCell>
-                    <TableCell className='text-center text-foreground'>
+                    {/* <TableCell className='text-center text-foreground'>
                       {grade.examMark}
                     </TableCell>
                     <TableCell className='text-center text-foreground'>
                       {grade.assignMark}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className='text-center font-medium text-foreground'>
                       {grade.finalMark}
                     </TableCell>

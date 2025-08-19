@@ -135,13 +135,13 @@ export async function generateStudentTemplate(
     // Add subject-specific columns
     classSubjects.forEach((cs) => {
       headers.push(
-        cs.name,
-        `${cs.id} ${(cs.examWeight * 100).toFixed(0)}%`,
-        `${cs.id} ${(cs.assignWeight * 100).toFixed(0)}%`,
-        `${cs.id} 100%`,
-        `${cs.id} Grade`,
-        `${cs.id} Score`,
-        `${cs.id} GP`
+        `(1) ${cs.name}`,
+        `(2) ${cs.id} ${(cs.examWeight * 100).toFixed(0)}%`,
+        `(3) ${cs.id} ${(cs.assignWeight * 100).toFixed(0)}%`,
+        `(4) ${cs.id} 100%`,
+        `(5) ${cs.id} Grade`,
+        `(6) ${cs.id} Score`,
+        `(7) ${cs.id} GP`
       );
     });
 
@@ -518,13 +518,13 @@ export async function importStudentResults(
     // Expected columns - Updated to use separate roll number columns
     const requiredColumns = ['Student Name', 'Admission ID', 'Roll Number', '']; // Roll Number and empty column for number part
     const subjectColumns = classSubjects.flatMap((cs) => [
-      cs.subject.subjectName,
-      `${cs.subject.id} ${(cs.subject.examWeight * 100).toFixed(0)}%`,
-      `${cs.subject.id} ${(cs.subject.assignWeight * 100).toFixed(0)}%`,
-      `${cs.subject.id} 100%`,
-      `${cs.subject.id} Grade`,
-      `${cs.subject.id} Score`,
-      `${cs.subject.id} GP`
+      `(1) ${cs.subject.subjectName}`,
+      `(2) ${cs.subject.id} ${(cs.subject.examWeight * 100).toFixed(0)}%`,
+      `(3) ${cs.subject.id} ${(cs.subject.assignWeight * 100).toFixed(0)}%`,
+      `(4) ${cs.subject.id} 100%`,
+      `(5) ${cs.subject.id} Grade`,
+      `(6) ${cs.subject.id} Score`,
+      `(7) ${cs.subject.id} GP`
     ]);
     const overallColumns = ['Total GP', 'GPA'];
     const expectedColumns = [
@@ -751,13 +751,13 @@ export async function importStudentResults(
         const subjectId = cs.subject.id;
         const subjectName = cs.subject.subjectName;
 
-        const subjectNameCol = subjectName;
-        const examWeightCol = `${subjectId} ${(cs.subject.examWeight * 100).toFixed(0)}%`;
-        const assignWeightCol = `${subjectId} ${(cs.subject.assignWeight * 100).toFixed(0)}%`;
-        const subjectIdCol = `${subjectId} 100%`;
-        const gradeCol = `${subjectId} Grade`;
-        const scoreCol = `${subjectId} Score`;
-        const gpCol = `${subjectId} GP`;
+        const subjectNameCol = `(1) ${subjectName}`;
+        const examWeightCol = `(2) ${subjectId} ${(cs.subject.examWeight * 100).toFixed(0)}%`;
+        const assignWeightCol = `(3) ${subjectId} ${(cs.subject.assignWeight * 100).toFixed(0)}%`;
+        const subjectIdCol = `(4) ${subjectId} 100%`;
+        const gradeCol = `(5) ${subjectId} Grade`;
+        const scoreCol = `(6) ${subjectId} Score`;
+        const gpCol = `(7) ${subjectId} GP`;
 
         // Find the index of this subject's columns in headers
         const subjectStartIndex = headers.findIndex(
@@ -1033,13 +1033,13 @@ export async function importStudentResults(
 
       const gradesData = [];
       for (const cs of classSubjects) {
-        const subjectNameCol = cs.subject.subjectName;
-        const examWeightCol = `${cs.subject.id} ${(cs.subject.examWeight * 100).toFixed(0)}%`;
-        const assignWeightCol = `${cs.subject.id} ${(cs.subject.assignWeight * 100).toFixed(0)}%`;
-        const subjectIdCol = `${cs.subject.id} 100%`;
-        const gradeCol = `${cs.subject.id} Grade`;
-        const scoreCol = `${cs.subject.id} Score`;
-        const gpCol = `${cs.subject.id} GP`;
+        const subjectNameCol = `(1) ${cs.subject.subjectName}`;
+        const examWeightCol = `(2) ${cs.subject.id} ${(cs.subject.examWeight * 100).toFixed(0)}%`;
+        const assignWeightCol = `(3) ${cs.subject.id} ${(cs.subject.assignWeight * 100).toFixed(0)}%`;
+        const subjectIdCol = `(4) ${cs.subject.id} 100%`;
+        const gradeCol = `(5) ${cs.subject.id} Grade`;
+        const scoreCol = `(6) ${cs.subject.id} Score`;
+        const gpCol = `(7) ${cs.subject.id} GP`;
 
         const subjectStartIndex = headers.findIndex(
           (h, i) =>
