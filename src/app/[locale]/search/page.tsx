@@ -356,15 +356,15 @@ function ResultCard({
                         </span>
                       </div> */}
                     </div>
-
+                    {/* 
                     <div className='pt-2 border-t border-border/50'>
-                      <span className='text-muted-foreground text-xs'>
-                        {t('grades.mobile.final_mark')}
-                      </span>
-                      <span className='font-bold text-foreground'>
-                        {grade.finalMark}
-                      </span>
-                    </div>
+                      <span className='text-muted-foreground text-xs'> */}
+                    {/* {t('grades.mobile.final_mark')} */}
+                    {/* </span>
+                      <span className='font-bold text-foreground'> */}
+                    {/* {grade.finalMark} */}
+                    {/* </span>
+                    </div> */}
                   </div>
                 </CardContent>
               </Card>
@@ -391,9 +391,9 @@ function ResultCard({
                   <TableHead className='text-center text-foreground min-w-[120px]'>
                     {t('grades.table.assessment_mark')}
                   </TableHead> */}
-                  <TableHead className='text-center text-foreground min-w-[100px]'>
+                  {/* <TableHead className='text-center text-foreground min-w-[100px]'>
                     {t('grades.table.final_mark')}
-                  </TableHead>
+                  </TableHead> */}
                   <TableHead className='text-center text-foreground min-w-[80px]'>
                     {t('grades.table.grade')}
                   </TableHead>
@@ -423,9 +423,9 @@ function ResultCard({
                     <TableCell className='text-center text-foreground'>
                       {grade.assignMark}
                     </TableCell> */}
-                    <TableCell className='text-center font-medium text-foreground'>
+                    {/* <TableCell className='text-center font-medium text-foreground'>
                       {grade.finalMark}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className='text-center'>
                       <Badge className={getGradeColor(grade.grade)}>
                         {grade.grade}
