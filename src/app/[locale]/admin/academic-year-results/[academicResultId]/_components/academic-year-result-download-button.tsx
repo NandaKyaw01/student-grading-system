@@ -138,7 +138,7 @@ export function AcademicResultDownloadButton({
         });
 
         // Download the generated document
-        const blob = new Blob([report], {
+        const blob = new Blob([report as BlobPart], {
           type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         });
         const url = URL.createObjectURL(blob);
