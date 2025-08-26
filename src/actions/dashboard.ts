@@ -205,8 +205,7 @@ export async function getClassesWithEnrollments(
         enrollments: {
           _count: 'desc'
         }
-      },
-      take: 10
+      }
     });
 
     const mappedClasses = classes.map((cls) => ({
