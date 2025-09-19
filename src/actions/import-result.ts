@@ -1246,7 +1246,11 @@ export async function importStudentResults(
                 (sum, g) => sum + g.creditHours,
                 0
               );
-              const allPassed = item.grades.every((g) => g.finalMark >= 50);
+              // const allPassed = item.grades.every((g) => g.finalMark >= 50);
+
+              const failedCount = item.grades.filter(
+                (grade) => grade.finalMark < 50
+              ).length;
 
               // Handle result
               await tx.result.upsert({
@@ -1255,7 +1259,7 @@ export async function importStudentResults(
                   gpa: parseFloat(item.gpa.toFixed(2)),
                   totalCredits: parseFloat(totalCredits.toFixed(2)),
                   totalGp: parseFloat(item.totalGp.toFixed(2)),
-                  status: allPassed ? 'PASS' : 'FAIL',
+                  status: failedCount >= 4 ? 'FAIL' : 'PASS',
                   academicYearResultId: null
                 },
                 create: {
@@ -1263,7 +1267,7 @@ export async function importStudentResults(
                   gpa: parseFloat(item.gpa.toFixed(2)),
                   totalCredits: parseFloat(totalCredits.toFixed(2)),
                   totalGp: parseFloat(item.totalGp.toFixed(2)),
-                  status: allPassed ? 'PASS' : 'FAIL',
+                  status: failedCount >= 4 ? 'FAIL' : 'PASS',
                   academicYearResultId: null
                 }
               });

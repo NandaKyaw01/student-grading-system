@@ -539,9 +539,11 @@ function calculateGP(score: number, creditHour: number) {
 }
 
 function calculateResultStatus(grades: Array<{ finalMark: number }>): Status {
-  // Check if all subjects have finalMark >= 50
-  const allPassed = grades.every((grade) => grade.finalMark >= 50);
-  return allPassed ? 'PASS' : 'FAIL';
+  // Count how many subjects are failed (finalMark < 50)
+  const failedCount = grades.filter((grade) => grade.finalMark < 50).length;
+
+  // Fail if 4 or more subjects are failed
+  return failedCount >= 4 ? 'FAIL' : 'PASS';
 }
 
 // Type for transaction client

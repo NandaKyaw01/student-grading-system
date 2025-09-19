@@ -128,7 +128,7 @@ export async function searchResults(
       enrollmentConditions.push({
         student: {
           studentName: {
-            equals: searchParams.studentName,
+            contains: searchParams.studentName,
             mode: 'insensitive'
           }
         }
@@ -138,7 +138,7 @@ export async function searchResults(
       enrollmentConditions.push({
         student: {
           admissionId: {
-            equals: searchParams.admissionId,
+            contains: searchParams.admissionId,
             mode: 'insensitive'
           }
         }
