@@ -51,6 +51,34 @@ export function AcademicResultDownloadButton({
         // Convert ArrayBuffer to Uint8Array
         const templateUint8Array = new Uint8Array(templateBuffer);
 
+        const formatSemester = (className: string, semesterName: string) => {
+          const classNameLower = className.toLowerCase();
+          const semesterLower = semesterName.toLowerCase();
+
+          // Determine base semester number based on year
+          let baseSemester = 0;
+          if (classNameLower.includes('first')) {
+            baseSemester = 0;
+          } else if (classNameLower.includes('second')) {
+            baseSemester = 2;
+          } else if (classNameLower.includes('third')) {
+            baseSemester = 4;
+          } else if (classNameLower.includes('fourth')) {
+            baseSemester = 6;
+          } else if (classNameLower.includes('fifth')) {
+            return 'Semester IX + X';
+          }
+
+          // Determine if it's first or second semester
+          const semesterOffset = semesterLower.includes('first') ? 1 : 2;
+          const totalSemester = baseSemester + semesterOffset;
+
+          // Convert to Roman numerals
+          const romanNumerals = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+
+          return `Semester ${romanNumerals[totalSemester]}`;
+        };
+
         // Prepare data for template
         const templateData = {
           // Student Information
@@ -69,7 +97,11 @@ export function AcademicResultDownloadButton({
           semesters: resultData.semesterResults
             .map((semesterResult, index) => ({
               semesterNumber: index + 1,
-              semesterName: semesterResult.enrollment.semester.semesterName,
+              // semesterName: semesterResult.enrollment.semester.semesterName,
+              semesterName: formatSemester(
+                semesterResult.enrollment.class.className,
+                semesterResult.enrollment.semester.semesterName
+              ),
               className: semesterResult.enrollment.class.className,
               departmentCode: semesterResult.enrollment.class.departmentCode,
               gpa: semesterResult.gpa.toFixed(2),

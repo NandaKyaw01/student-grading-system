@@ -48,6 +48,34 @@ export function ResultDownloadButton({
         // Convert ArrayBuffer to Uint8Array
         const templateUint8Array = new Uint8Array(templateBuffer);
 
+        const formatSemester = (className: string, semester: string) => {
+          const classNameLower = className.toLowerCase();
+          const semesterLower = semester.toLowerCase();
+
+          // Determine base semester number based on year
+          let baseSemester = 0;
+          if (classNameLower.includes('first')) {
+            baseSemester = 0;
+          } else if (classNameLower.includes('second')) {
+            baseSemester = 2;
+          } else if (classNameLower.includes('third')) {
+            baseSemester = 4;
+          } else if (classNameLower.includes('fourth')) {
+            baseSemester = 6;
+          } else if (classNameLower.includes('fifth')) {
+            return 'Semester IX + X';
+          }
+
+          // Determine if it's first or second semester
+          const semesterOffset = semesterLower.includes('first') ? 1 : 2;
+          const totalSemester = baseSemester + semesterOffset;
+
+          // Convert to Roman numerals
+          const romanNumerals = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+
+          return `Semester ${romanNumerals[totalSemester]}`;
+        };
+
         // Prepare data for template
         const templateData = {
           // Student Information
@@ -55,7 +83,8 @@ export function ResultDownloadButton({
           rollNumber: resultData.student.rollNumber,
           className: resultData.enrollment.class,
           departmentCode: resultData.enrollment.departmentCode,
-          semester: resultData.enrollment.semester,
+          // semester: resultData.enrollment.semester,
+          semester: formatSemester(resultData.enrollment.class, resultData.enrollment.semester),
           academicYear: resultData.enrollment.academicYear,
 
           // Results
