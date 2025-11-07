@@ -84,7 +84,7 @@ export function AcademicResultDownloadButton({
           // Student Information
           studentName: resultData.student.studentName,
           rollNumber: resultData.semesterResults[0].enrollment.rollNumber,
-          academicYear: resultData.academicYear.yearRange,
+          academicYear: resultData.academicYear.yearRange.replace(/\s+2$/, ''),
 
           // Overall Result Information
           overallGpa: resultData.overallGpa.toFixed(2),

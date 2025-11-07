@@ -85,7 +85,7 @@ export function ResultDownloadButton({
           departmentCode: resultData.enrollment.departmentCode,
           // semester: resultData.enrollment.semester,
           semester: formatSemester(resultData.enrollment.class, resultData.enrollment.semester),
-          academicYear: resultData.enrollment.academicYear,
+          academicYear: resultData.enrollment.academicYear.replace(/\s+2$/, ''),
 
           // Results
           gpa: resultData.result.gpa.toFixed(2),
