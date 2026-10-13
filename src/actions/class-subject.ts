@@ -2,7 +2,7 @@
 
 import { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
-import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
+import { revalidatePath, unstable_cache, updateTag } from 'next/cache';
 
 const classSubjectWithDetails = Prisma.validator<Prisma.ClassSubjectInclude>()({
   class: true,
@@ -158,5 +158,5 @@ export const getAvailableSubjectsForClass = async (classId: number) => {
 };
 
 export async function revalidateClassSubjects() {
-  revalidateTag('classes');
+  updateTag('classes');
 }

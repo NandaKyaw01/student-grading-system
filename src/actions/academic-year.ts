@@ -3,7 +3,7 @@
 import { AcademicYear, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetAcademicYearSchema } from '@/lib/search-params/academic-year';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 
 export async function createAcademicYear(
   data: Omit<AcademicYear, 'id' | 'createdAt' | 'updatedAt'>
@@ -29,7 +29,7 @@ export async function createAcademicYear(
       data
     });
 
-    revalidateTag('academic-years');
+    updateTag('academic-years');
 
     return { success: true, data: academicYear };
   } catch (error) {
@@ -61,8 +61,8 @@ export async function updateAcademicYear(
       data
     });
 
-    revalidateTag('academic-years');
-    revalidateTag(`academic-year-${id}`);
+    updateTag('academic-years');
+    updateTag(`academic-year-${id}`);
 
     return { success: true, data: academicYear };
   } catch (error) {
@@ -96,8 +96,8 @@ export async function deleteAcademicYear(id: number) {
       where: { id }
     });
 
-    revalidateTag('academic-years');
-    revalidateTag(`academic-year-${id}`);
+    updateTag('academic-years');
+    updateTag(`academic-year-${id}`);
     return { success: true };
   } catch (error) {
     return {
@@ -201,12 +201,12 @@ export async function getAcademicYears<T extends boolean = false>(
 }
 
 export async function refreshAll() {
-  revalidateTag('academic-years');
-  revalidateTag('classes');
-  revalidateTag('subjects');
-  revalidateTag('grade-scales');
-  revalidateTag('academic-year-results');
-  revalidateTag('results');
-  revalidateTag('students');
-  revalidateTag('enrollments');
+  updateTag('academic-years');
+  updateTag('classes');
+  updateTag('subjects');
+  updateTag('grade-scales');
+  updateTag('academic-year-results');
+  updateTag('results');
+  updateTag('students');
+  updateTag('enrollments');
 }

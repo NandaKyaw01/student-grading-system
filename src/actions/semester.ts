@@ -3,7 +3,7 @@
 import { Prisma, Semester } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetSemesterSchema } from '@/lib/search-params/semester';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 
 const semesterWithDetails = Prisma.validator<Prisma.SemesterInclude>()({
   academicYear: true,
@@ -43,8 +43,8 @@ export async function createSemester(
       data
     });
 
-    revalidateTag('semesters');
-    revalidateTag('academic-years');
+    updateTag('semesters');
+    updateTag('academic-years');
 
     return { success: true, data: newSemester };
   } catch (error) {
@@ -74,9 +74,9 @@ export async function updateSemester(
       data
     });
 
-    revalidateTag('semesters');
-    revalidateTag(`semester-${id}`);
-    revalidateTag('academic-years');
+    updateTag('semesters');
+    updateTag(`semester-${id}`);
+    updateTag('academic-years');
 
     return { success: true, data: updatedSemester };
   } catch (error) {
@@ -110,9 +110,9 @@ export async function deleteSemester(id: number) {
       where: { id }
     });
 
-    revalidateTag('semesters');
-    revalidateTag(`semester-${id}`);
-    revalidateTag('academic-years');
+    updateTag('semesters');
+    updateTag(`semester-${id}`);
+    updateTag('academic-years');
 
     return { success: true };
   } catch (error) {

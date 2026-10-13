@@ -3,7 +3,7 @@
 import { Class, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetClassSchema } from '@/lib/search-params/class';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 
 const classWithDetails = Prisma.validator<Prisma.ClassInclude>()({
   semester: {
@@ -35,8 +35,8 @@ export async function createClass(
       }
     });
 
-    revalidateTag('classes');
-    revalidateTag(`class-${newClass.id}`);
+    updateTag('classes');
+    updateTag(`class-${newClass.id}`);
     return { success: true, data: newClass };
   } catch (error) {
     return {
@@ -56,8 +56,8 @@ export async function updateClass(
       data
     });
 
-    revalidateTag('classes');
-    revalidateTag(`class-${id}`);
+    updateTag('classes');
+    updateTag(`class-${id}`);
     return { success: true, data: updatedClass };
   } catch (error) {
     return {
@@ -91,8 +91,8 @@ export async function deleteClass(id: number) {
       where: { id }
     });
 
-    revalidateTag('classes');
-    revalidateTag(`class-${id}`);
+    updateTag('classes');
+    updateTag(`class-${id}`);
     return { success: true };
   } catch (error) {
     return {

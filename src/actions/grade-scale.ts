@@ -3,7 +3,7 @@
 import { GradeScale, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetGradeScaleSchema } from '@/lib/search-params/grade-scale';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 
 export async function getGradeScales(
   input?: GetGradeScaleSchema,
@@ -117,7 +117,7 @@ export async function createGradeScale(
       data
     });
 
-    revalidateTag('grade-scales');
+    updateTag('grade-scales');
 
     return { success: true, gradeScale };
   } catch (error) {
@@ -159,7 +159,7 @@ export async function updateGradeScale(
       where: { id },
       data
     });
-    revalidateTag('grade-scales');
+    updateTag('grade-scales');
     return { success: true, gradeScale };
   } catch (error) {
     console.error('Error updating grade scale:', error);
@@ -173,7 +173,7 @@ export async function deleteGradeScale(id: number) {
       where: { id }
     });
 
-    revalidateTag('grade-scales');
+    updateTag('grade-scales');
     return { success: true };
   } catch (error) {
     console.error('Error deleting grade scale:', error);
@@ -191,7 +191,7 @@ export async function deleteGradeScales(ids: number[]) {
       }
     });
 
-    revalidateTag('grade-scales');
+    updateTag('grade-scales');
 
     return { success: true };
   } catch (err) {

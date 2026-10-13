@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { getErrorMessage } from '@/lib/handle-error';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 
 import {
   GradeScale,
@@ -56,9 +56,9 @@ export async function deleteResult(enrollmentId: number) {
     });
 
     // Cache invalidation
-    revalidateTag('results');
-    revalidateTag('academic-year-results');
-    revalidateTag(`result-${enrollmentId}`);
+    updateTag('results');
+    updateTag('academic-year-results');
+    updateTag(`result-${enrollmentId}`);
 
     return { data: true, error: null };
   } catch (err) {
@@ -120,8 +120,8 @@ export async function deleteResults(enrollmentIds: number[]) {
     }
 
     // Revalidate cache
-    revalidateTag('results');
-    revalidateTag('academic-year-results');
+    updateTag('results');
+    updateTag('academic-year-results');
 
     return {
       data: true,
@@ -939,8 +939,8 @@ export async function createResult(data: CreateResultFormData) {
       return { grades: createdGrades, result };
     });
 
-    revalidateTag('results');
-    revalidateTag('academic-year-results');
+    updateTag('results');
+    updateTag('academic-year-results');
 
     return { success: true, data: result };
   } catch (error) {
@@ -1141,9 +1141,9 @@ export async function updateResult(input: UpdateResultFormData) {
     });
 
     // Revalidate relevant paths
-    revalidateTag('results');
-    revalidateTag('academic-year-results');
-    revalidateTag(`result-${enrollmentId}`);
+    updateTag('results');
+    updateTag('academic-year-results');
+    updateTag(`result-${enrollmentId}`);
 
     return {
       success: true,

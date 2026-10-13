@@ -12,14 +12,14 @@ import { setRequestLocale } from 'next-intl/server';
 import { use } from 'react';
 
 type Props = {
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
 };
 
 export default function HomePage({ params }: Props) {
   const { locale } = use(params);
 
   // Enable static rendering
-  setRequestLocale(locale);
+  setRequestLocale(locale as Locale);
 
   // Once the request locale is set, you
   // can call hooks from `next-intl`

@@ -22,12 +22,12 @@ const META_THEME_COLORS = {
 
 export type Props = {
   children: React.ReactNode;
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
 };
 
 export async function generateMetadata(props: Omit<Props, 'children'>) {
   const { locale } = await props.params;
-  const t = await getTranslations({ locale, namespace: 'LocaleLayout' });
+  const t = await getTranslations({ locale: locale as Locale, namespace: 'LocaleLayout' });
 
   let baseUrl: string;
   if (process.env.APP_URL) {
@@ -107,7 +107,7 @@ export default async function RootLayout({ children, params }: Props) {
   }
 
   // Enable static rendering
-  setRequestLocale(locale);
+  setRequestLocale(locale as Locale);
 
   return (
     <html lang={locale} suppressHydrationWarning>

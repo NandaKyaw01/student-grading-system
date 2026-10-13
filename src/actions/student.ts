@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/db';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 import { getErrorMessage } from '@/lib/handle-error';
 
 import { GetStudentSchema } from '@/lib/search-params/student';
@@ -26,7 +26,7 @@ export async function createStudent(
       }
     });
 
-    revalidateTag('students');
+    updateTag('students');
 
     return {
       success: true,
@@ -53,8 +53,8 @@ export async function updateStudent(
       }
     });
 
-    revalidateTag('students');
-    revalidateTag(`student-${input.id}`);
+    updateTag('students');
+    updateTag(`student-${input.id}`);
 
     return {
       success: true,
@@ -114,7 +114,7 @@ export async function deleteStudent(id: number) {
       where: { id }
     });
 
-    revalidateTag('students');
+    updateTag('students');
 
     return {
       data: true,
@@ -191,7 +191,7 @@ export async function deleteStudents(ids: number[]) {
       }
     });
 
-    revalidateTag('students');
+    updateTag('students');
 
     return {
       data: true,

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 import { getErrorMessage } from '@/lib/handle-error';
 import * as XLSX from 'xlsx-js-style';
 import { updateAcademicYearResult } from './result';
-import { revalidateTag } from 'next/cache';
+import { updateTag } from 'next/cache';
 
 export async function getAcademicYears() {
   try {
@@ -1296,10 +1296,10 @@ export async function importStudentResults(
       }
     }
 
-    revalidateTag('results');
-    revalidateTag('students');
-    revalidateTag('enrollments');
-    revalidateTag('academic-year-results');
+    updateTag('results');
+    updateTag('students');
+    updateTag('enrollments');
+    updateTag('academic-year-results');
     return {
       success: true,
       processedCount

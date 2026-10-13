@@ -3,7 +3,7 @@
 import { Prisma, Subject } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetSubjectSchema } from '@/lib/search-params/subject';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 
 const subjectWithDetails = Prisma.validator<Prisma.SubjectInclude>()({
   classes: true
@@ -33,8 +33,8 @@ export async function createSubject(
       data
     });
 
-    revalidateTag('subjects');
-    revalidateTag(`subject-${newSubject.id}`);
+    updateTag('subjects');
+    updateTag(`subject-${newSubject.id}`);
     return { success: true, data: newSubject };
   } catch (error) {
     return {
@@ -54,8 +54,8 @@ export async function updateSubject(
       data
     });
 
-    revalidateTag('subjects');
-    revalidateTag(`subject-${id}`);
+    updateTag('subjects');
+    updateTag(`subject-${id}`);
     return { success: true, data: updatedSubject };
   } catch (error) {
     return {
@@ -83,8 +83,8 @@ export async function deleteSubject(id: string) {
       where: { id }
     });
 
-    revalidateTag('subjects');
-    revalidateTag(`subject-${id}`);
+    updateTag('subjects');
+    updateTag(`subject-${id}`);
     return { success: true };
   } catch (error) {
     return {

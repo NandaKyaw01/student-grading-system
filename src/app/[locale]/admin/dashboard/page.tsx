@@ -330,7 +330,7 @@ async function TopStudentsCard({
         <div className='space-y-4'>
           {students.map((student, index) => (
             <div
-              key={student.departmentCode + index + Date.now()}
+              key={`${student.admissionId}-${index}`}
               className='flex items-center space-x-4'
             >
               <div

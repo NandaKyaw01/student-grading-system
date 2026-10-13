@@ -4,7 +4,7 @@ import { AcademicYearResult, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { getErrorMessage } from '@/lib/handle-error';
 import { GetAcademicResultSchema } from '@/lib/search-params/academic-result';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 
 const academicYearResultWithDetails =
   Prisma.validator<Prisma.AcademicYearResultInclude>()({
@@ -175,7 +175,7 @@ export async function deleteAcademicResult(id: number) {
       where: { id }
     });
 
-    revalidateTag('academic-year-results');
+    updateTag('academic-year-results');
 
     return {
       data: true,
@@ -199,7 +199,7 @@ export async function deleteAcademicResults(ids: number[]) {
       }
     });
 
-    revalidateTag('academic-year-results');
+    updateTag('academic-year-results');
 
     return {
       data: true,

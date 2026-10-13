@@ -2,7 +2,7 @@
 import { Enrollment, Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { GetEnrollmentSchema } from '@/lib/search-params/enrollment';
-import { revalidateTag, unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag } from 'next/cache';
 
 const enrollmentWithDetails = Prisma.validator<Prisma.EnrollmentInclude>()({
   student: true,
@@ -180,7 +180,7 @@ export async function createEnrollment(
     const enrollment = await prisma.enrollment.create({
       data
     });
-    revalidateTag('enrollments');
+    updateTag('enrollments');
     return { success: true, enrollment };
   } catch (error) {
     console.error('Error creating enrollment:', error);
@@ -234,7 +234,7 @@ export async function updateEnrollment(
       where: { id },
       data
     });
-    revalidateTag('enrollments');
+    updateTag('enrollments');
     return { success: true, enrollment };
   } catch (error) {
     console.error('Error updating enrollment:', error);
@@ -248,7 +248,7 @@ export async function updateEnrollmentStatus(ids: number[], isActive: boolean) {
       where: { id: { in: ids } },
       data: { isActive }
     });
-    revalidateTag('enrollments');
+    updateTag('enrollments');
     return { success: true };
   } catch (error) {
     console.error('Error updating enrollment status:', error);
@@ -261,7 +261,7 @@ export async function deleteEnrollment(id: number) {
     await prisma.enrollment.delete({
       where: { id }
     });
-    revalidateTag('enrollments');
+    updateTag('enrollments');
     return { success: true };
   } catch (error) {
     console.error('Error deleting enrollment:', error);
@@ -274,7 +274,7 @@ export async function deleteEnrollments(ids: number[]) {
     await prisma.enrollment.deleteMany({
       where: { id: { in: ids } }
     });
-    revalidateTag('enrollments');
+    updateTag('enrollments');
     return { success: true };
   } catch (error) {
     console.error('Error deleting enrollments:', error);
